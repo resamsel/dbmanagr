@@ -6,7 +6,7 @@ assemble: src/*
 	zip -j $(BUILD)/$(ARCHIVE) $^
 
 install: assemble
-	unzip $(BUILD)/$(ARCHIVE) -d $(ALFRED_WORKFLOW)
+	unzip -f $(BUILD)/$(ARCHIVE) -d $(ALFRED_WORKFLOW)
 
 init:
 	mkdir $(BUILD)

@@ -215,6 +215,7 @@ class DatabaseNavigator:
         foreign_keys = table.foreign_keys()
         columns = ''
         joins = ''
+        join_tables = []
         
         logging.debug('Foreign keys: %s' % ', '.join(foreign_keys))
         for key in foreign_keys.keys():
@@ -222,13 +223,10 @@ class DatabaseNavigator:
             title = fk.b.table.comment[COMMENT_TITLE]
             if title != '*':
                 columns += ', {0} {1}_title'.format(title, fk.a.name)
-            joins += ' join \"{0}\" on \"{0}\".{1} = \"{2}\".{3}'.format(fk.b.table.name, fk.b.name, fk.a.table.name, fk.a.name)
+            if fk.b.table.name not in join_tables:
+                joins += ' left outer join \"{0}\" on \"{0}\".{1} = \"{2}\".{3}'.format(fk.b.table.name, fk.b.name, fk.a.table.name, fk.a.name)
+                join_tables.append(fk.b.table.name)
 
-        query = VALUES_QUERY_FORMAT.format(table.name, columns, joins, table.comment[COMMENT_ID], filter)
-        logging.debug('Query: %s' % query)
-        cur = table.connection.cursor()
-        cur.execute(query)
-        row = Row(table.connection, table, cur.fetchone())
         if table.comment[COMMENT_DISPLAY]:
             keys = table.comment[COMMENT_DISPLAY]
         else:
@@ -241,7 +239,16 @@ class DatabaseNavigator:
                 return '%s (%s)' % (row.row[colname], row.row[column])
             return row.row[column]
 
-        self.print_items([[key, autocomplete(table, foreign_keys, key, row.row[key]), val(row, key), fk(Column(table, key)), 'value.png'] for key in keys])
+        query = VALUES_QUERY_FORMAT.format(table.name, columns, joins, table.comment[COMMENT_ID], filter)
+        logging.debug('Query: %s' % query)
+        cur = table.connection.cursor()
+        cur.execute(query)
+        row = Row(table.connection, table, cur.fetchone())
+
+        if row.row:
+            self.print_items([[key, autocomplete(table, foreign_keys, key, row.row[key]), val(row, key), fk(Column(table, key)), 'value.png'] for key in keys])
+        else:
+            self.print_items([])
 
 class Database:
     """The database used with the given connection"""
@@ -286,6 +293,8 @@ class Table:
         return self.name
 
     def uri(self):
+        """Creates the URI for this table"""
+
         return '%s@%s/%s' % (self.connection.user, self.connection.host, self.database)
 
     def create_query(self, filter):
