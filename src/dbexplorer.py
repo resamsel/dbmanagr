@@ -8,6 +8,7 @@ import psycopg2.extras
 import json
 import sys
 from os.path import expanduser
+from urlparse import urlparse
 
 ITEMS_FORMAT = '<items>{0}</items>'
 ITEM_FORMAT = """
@@ -18,16 +19,33 @@ ITEM_FORMAT = """
     </item>
 """
 
+OPTION_URI_FORMAT = '%s@%s/%s'
+OPTION_URI_DATABASE_FORMAT = '%s/'
+OPTION_URI_TABLES_FORMAT = '%s/%s/'
+OPTION_URI_VALUE_FORMAT = '%s/%s/%s/'
+
 COMMENT_ID = 'id'
 COMMENT_TITLE = 'title'
 COMMENT_SUBTITLE = 'subtitle'
+COMMENT_ORDER_BY = 'order'
 COMMENT_SEARCH = 'search'
 COMMENT_DISPLAY = 'display'
 
+JOIN_FORMAT = """
+        left outer join \"{0}\" on \"{0}\".{1} = \"{2}\".{3}"""
 TABLE_PROJECTION_FORMAT = '%s as id, %s as title, %s as subtitle'
 TABLE_WHERE_FORMAT = "%s ilike '%%%s%%' or %s ilike '%%%s%%' or %s || '' = '%s'"
-TABLE_QUERY_FORMAT = 'select %s from "%s" where %s %s limit 20'
-TABLE_ORDER_BY = 'order by title'
+TABLE_QUERY_FORMAT = """
+select
+        %s
+    from
+        "%s"
+    where
+        %s
+    %s
+    limit 20
+"""
+TABLE_ORDER_BY = 'order by %s'
 
 DATABASES_QUERY = """
 select
@@ -72,11 +90,21 @@ select
         and c.relkind = 'r'
     order by t.table_name
 """
-VALUES_QUERY_FORMAT = """select \"{0}\".* {1} from \"{0}\" {2} where {3} = '{4}'"""
+VALUES_QUERY_FORMAT = """
+select
+        \"{0}\".* {1}
+    from
+        \"{0}\" {2}
+    where
+        {3} = '{4}'
+"""
 
 logging.basicConfig(filename='/tmp/dbexplorer.log', level=logging.DEBUG)
 
-logging.debug('Called with args: %s', sys.argv)
+logging.debug("""
+###
+### Called with args: %s ###
+###""", sys.argv)
 
 def strip(s):
     if type(s) == str:
@@ -86,32 +114,38 @@ def html_escape(s):
     if type(s) == str:
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s
-def autocomplete(table, fks, column, value):
-    """Prints the given row values according to the given filter"""
-
-    if column in fks:
-        fk = fks[column]
-        return '%s %s %s show' % (table.uri(), fk.b.table.name, value)
-    return ''
 
 class Options:
     def __init__(self, args):
-        self.uri = None
+        self.user = None
+        self.host = None
+        self.database = None
         self.table = None
         self.filter = None
-        self.display = None
+        self.display = False
 
         if len(args) > 1:
-            self.uri = args[1].strip()
-        if len(args) > 2:
-            self.table = args[2].strip()
-        if len(args) > 3:
-            self.filter = args[3].strip()
-        if len(args) > 4:
-            self.display = args[4].strip()
+            url = urlparse('postgres://%s' % args[1])
+            locs = url.netloc.split('@')
+            paths = url.path.split('/')
 
-"""The main class"""
+            if len(locs) > 0:  self.user = locs[0]
+            if len(locs) > 1:  self.host = locs[1]
+            if len(paths) > 1: self.database = paths[1]
+            if len(paths) > 2: self.table = paths[2]
+            if len(paths) > 3: self.filter = paths[3]
+            self.display = len(paths) > 4
+        
+        logging.debug('Filter: %s' % self.filter)
+
+    def uri(self):
+        if self.user and self.host:
+            return OPTION_URI_FORMAT % (self.user, self.host, self.table)
+        return None
+
 class DatabaseNavigator:
+    """The main class"""
+
     def main(self):
         """The main method that splits the arguments and starts the magic"""
 
@@ -129,26 +163,25 @@ class DatabaseNavigator:
             logging.debug('Database Connection: %s' % connection)
             connections.append(connection)
 
-        if options.uri:
+        if options.uri():
             for connection in connections:
-                if connection.matches(options.uri):
+                if connection.matches(options.uri()):
                     theconnection = connection
                     break
 
         if not theconnection:
-            self.print_connections(connections, options.uri)
+            self.print_connections(connections, options.uri())
             return
 
         try:
-            database = options.uri.split('/')[1] if '/' in options.uri else None
-            logging.debug('Connecting to database %s' % database)
-            theconnection.connect(database)
+            logging.debug('Connecting to database %s' % options.database)
+            theconnection.connect(options.database)
 
             # look for databases if needed
             databases = theconnection.databases()
-            logging.debug('Databases: %s' % ', '.join([db.__repr__() for db in databases]))
-            if database not in [db.name for db in databases]:
-                self.print_databases(theconnection, database)
+#            logging.debug('Databases: %s' % ', '.join([db.__repr__() for db in databases]))
+            if options.database not in [db.name for db in databases]:
+                self.print_databases(theconnection, options.database)
                 return
 
             tables = [t for k, t in theconnection.table_map.iteritems()]
@@ -185,32 +218,32 @@ class DatabaseNavigator:
     def print_databases(self, db, filter):
         """Prints the given databases according to the given filter"""
 
-        logging.debug('Printing databases')
+        logging.debug(self.print_databases.__doc__)
         dbs = db.databases()
         if filter:
             dbs = [db for db in dbs if filter in db.name]
-        self.print_items([[database, "%s " % database, database, 'Database', 'database.png'] for database in dbs])
+
+        self.print_items([[database, database.autocomplete(), database, 'Database', 'database.png'] for database in dbs])
 
     def print_tables(self, tables, filter):
         """Prints the given tables according to the given filter"""
 
-        logging.debug('Printing tables')
-        logging.debug(tables)
+        logging.debug(self.print_tables.__doc__)
         if filter:
             tables = [t for t in tables if t.name.startswith(filter)]
-        self.print_items([[t.name, '%s %s ' % (t.uri(), t), t.name, 'Title: %s' % t.comment[COMMENT_TITLE], 'table.png'] for t in tables])
+        self.print_items([[t.name, OPTION_URI_TABLES_FORMAT % (t.uri(), t), t.name, 'Title: %s' % t.comment[COMMENT_TITLE], 'table.png'] for t in tables])
 
     def print_rows(self, table, filter):
         """Prints the given rows according to the given filter"""
 
-        logging.debug('Printing rows')
+        logging.debug(self.print_rows.__doc__)
         rows = table.rows(filter)
-        self.print_items([[row[0], '%s %s %s show' % (row.table.uri(), row.table.name, row[0]), strip(row[1]), strip(row[2]), 'row.png'] for row in rows])
+        self.print_items([[row[0], row.table.autocomplete('id', row['id']), strip(row[1]), strip(row[2]), 'row.png'] for row in rows])
 
     def print_values(self, table, filter):
         """Prints the given row values according to the given filter"""
 
-        logging.debug('Printing values')
+        logging.debug(self.print_values.__doc__)
 
         foreign_keys = table.foreign_keys()
         columns = ''
@@ -224,7 +257,7 @@ class DatabaseNavigator:
             if title != '*':
                 columns += ', {0} {1}_title'.format(title, fk.a.name)
             if fk.b.table.name not in join_tables:
-                joins += ' left outer join \"{0}\" on \"{0}\".{1} = \"{2}\".{3}'.format(fk.b.table.name, fk.b.name, fk.a.table.name, fk.a.name)
+                joins += JOIN_FORMAT.format(fk.b.table.name, fk.b.name, fk.a.table.name, fk.a.name)
                 join_tables.append(fk.b.table.name)
 
         if table.comment[COMMENT_DISPLAY]:
@@ -240,13 +273,13 @@ class DatabaseNavigator:
             return row.row[column]
 
         query = VALUES_QUERY_FORMAT.format(table.name, columns, joins, table.comment[COMMENT_ID], filter)
-        logging.debug('Query: %s' % query)
+        logging.debug('Query values: %s' % query)
         cur = table.connection.cursor()
         cur.execute(query)
         row = Row(table.connection, table, cur.fetchone())
 
         if row.row:
-            self.print_items([[key, autocomplete(table, foreign_keys, key, row.row[key]), val(row, key), fk(Column(table, key)), 'value.png'] for key in keys])
+            self.print_items([[key, table.autocomplete(key, row.row[key]), val(row, key), fk(Column(table, key)), 'value.png'] for key in keys])
         else:
             self.print_items([])
 
@@ -260,12 +293,17 @@ class Database:
     def __repr__(self):
         return "%s@%s/%s" % (self.connection.user, self.connection.host, self.name)
 
+    def autocomplete(self):
+        """Retrieves the autocomplete string"""
+
+        return OPTION_URI_DATABASE_FORMAT % (self.__repr__())
+
 class TableComment:
     """The comment on the given table that allows to display much more accurate information"""
 
     def __init__(self, table, json_string):
         id = "\"%s\".id" % table.name
-        self.d = {COMMENT_TITLE: '*', COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
+        self.d = {COMMENT_TITLE: '*', COMMENT_ORDER_BY: ['title'], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
         self.d[COMMENT_SUBTITLE] = "'Id: ' || %s" % id
         self.d[COMMENT_ID] = id
 
@@ -297,6 +335,17 @@ class Table:
 
         return '%s@%s/%s' % (self.connection.user, self.connection.host, self.database)
 
+    def autocomplete(self, column, value):
+        """Retrieves the autocomplete string for the given column and value"""
+
+        tablename = self.name
+        fks = self.foreign_keys()
+        if column in fks:
+            fk = fks[column]
+            tablename = fk.b.table.name
+
+        return OPTION_URI_VALUE_FORMAT % (self.uri(), tablename, value)
+
     def create_query(self, filter):
         """Creates the query from the given parameters"""
 
@@ -306,9 +355,8 @@ class Table:
 
         if self.comment[COMMENT_TITLE] != '*':
             projection = TABLE_PROJECTION_FORMAT % (self.comment[COMMENT_ID], self.comment[COMMENT_TITLE], self.comment[COMMENT_SUBTITLE])
-        if projection != '*':
-            order_by = TABLE_ORDER_BY
-        logging.debug('Comment: %s' % self.comment)
+        if projection != '*' and self.comment[COMMENT_ORDER_BY]:
+            order_by = TABLE_ORDER_BY % ', '.join(self.comment[COMMENT_ORDER_BY])
         if filter:
             if self.comment[COMMENT_SEARCH]:
                 conjunctions = []
@@ -326,7 +374,7 @@ class Table:
         """Retrieves rows from the table with the given filter applied"""
 
         query = self.create_query(filter)
-        logging.debug('Query: %s' % query)
+        logging.debug('Query rows: %s' % query)
         cur = self.connection.cursor()
         cur.execute(query)
 
@@ -337,10 +385,10 @@ class Table:
     def foreign_keys(self):
         """Retrieves the foreign keys of the table"""
 
-        logging.debug('Retrieve foreign keys')
         if not self.fks:
+            logging.debug('Retrieve foreign keys')
             query = FOREIGN_KEY_QUERY_FORMAT % self.name
-            logging.debug('Query: %s' % query)
+            logging.debug('Query foreign keys: %s' % query)
             cur = self.connection.cursor()
             cur.execute(query)
             self.fks = {}
@@ -388,6 +436,8 @@ class DatabaseConnection:
 
     def __init__(self, line):
         (self.host, self.port, self.database, self.user, self.password) = line.split(':')
+        self.con = None
+        self.dbs = None
 
     def __repr__(self):
         return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
@@ -412,14 +462,22 @@ class DatabaseConnection:
         return self.con.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     def databases(self):
-        cur = self.cursor()
-        cur.execute(DATABASES_QUERY)
-        def d(row): return Database(self, row[0])
-        return map(d, cur.fetchall())
+        if not self.dbs:
+            query = DATABASES_QUERY
+            logging.debug('Query databases: %s' % query)
+
+            cur = self.cursor()
+            cur.execute(query)
+    
+            def d(row): return Database(self, row[0])
+    
+            self.dbs = map(d, cur.fetchall())
+        
+        return self.dbs
 
     def tables(self, database):
         query = TABLES_QUERY
-        logging.debug('Query: %s' % query)
+        logging.debug('Query tables: %s' % query)
 
         cur = self.cursor()
         cur.execute(query)
