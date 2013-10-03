@@ -15,7 +15,7 @@ ITEM_FORMAT = """
     <item uid="{0}" arg="{2}" autocomplete="{1}">
         <title>{2}</title>
         <subtitle>{3}</subtitle>
-        <icon>{4}</icon>
+        <icon>images/{4}</icon>
     </item>
 """
 
@@ -125,7 +125,10 @@ class Options:
         self.display = False
 
         if len(args) > 1:
-            url = urlparse('postgres://%s' % args[1])
+            arg = args[1]
+            if '@' not in arg:
+                arg += '@'
+            url = urlparse('postgres://%s' % arg)
             locs = url.netloc.split('@')
             paths = url.path.split('/')
 
@@ -134,14 +137,17 @@ class Options:
             if len(paths) > 1: self.database = paths[1]
             if len(paths) > 2: self.table = paths[2]
             if len(paths) > 3: self.filter = paths[3]
-            self.display = len(paths) > 4
+            self.display = arg.endswith('/')
         
-        logging.debug('Filter: %s' % self.filter)
+        logging.debug('Options: %s' % self)
 
     def uri(self):
         if self.user and self.host:
-            return OPTION_URI_FORMAT % (self.user, self.host, self.table)
+            return OPTION_URI_FORMAT % (self.user, self.host, self.table if self.table else '')
         return None
+
+    def __repr__(self):
+        return self.__dict__.__repr__()
 
 class DatabaseNavigator:
     """The main class"""
@@ -163,6 +169,7 @@ class DatabaseNavigator:
             logging.debug('Database Connection: %s' % connection)
             connections.append(connection)
 
+        logging.debug('Options.uri(): %s' % options.uri())
         if options.uri():
             for connection in connections:
                 if connection.matches(options.uri()):
@@ -170,27 +177,26 @@ class DatabaseNavigator:
                     break
 
         if not theconnection:
-            self.print_connections(connections, options.uri())
+            self.print_connections(connections, options)
             return
 
         try:
-            logging.debug('Connecting to database %s' % options.database)
             theconnection.connect(options.database)
 
             # look for databases if needed
             databases = theconnection.databases()
 #            logging.debug('Databases: %s' % ', '.join([db.__repr__() for db in databases]))
-            if options.database not in [db.name for db in databases]:
-                self.print_databases(theconnection, options.database)
+            if not options.database or options.table == None:
+                self.print_databases(theconnection, databases, options)
                 return
 
             tables = [t for k, t in theconnection.table_map.iteritems()]
             tables = sorted(tables, key=lambda t: t.name)
             if options.table:
                 ts = [t for t in tables if options.table == t.name]
-                if len(ts) == 1:
+                if len(ts) == 1 and options.filter != None:
                     table = ts[0]
-                    if options.display:
+                    if options.filter and options.display:
                         self.print_values(table, options.filter)
                     else:
                         self.print_rows(table, options.filter)
@@ -208,20 +214,25 @@ class DatabaseNavigator:
 
         print ITEMS_FORMAT.format(''.join([ITEM_FORMAT.format(*map(html_escape, i)) for i in items]))
 
-    def print_connections(self, connections, filter):
+    def print_connections(self, connections, options):
         """Prints the given connections according to the given filter"""
 
         logging.debug('Printing connections')
-        cons = connections if not filter else [c for c in connections if filter in c.__repr__()]
+        cons = connections
+        if options.user:
+            cons = [c for c in connections if options.user in c.__repr__()]
         self.print_items([[c, c, c, 'Connection', 'connection.png'] for c in cons])
 
-    def print_databases(self, db, filter):
+    def print_databases(self, db, dbs, options):
         """Prints the given databases according to the given filter"""
 
         logging.debug(self.print_databases.__doc__)
-        dbs = db.databases()
-        if filter:
-            dbs = [db for db in dbs if filter in db.name]
+        if options.user:
+            dbs = [db for db in dbs if options.user in db.connection.user]
+        if options.host:
+            dbs = [db for db in dbs if options.host in db.connection.host]
+        if options.database:
+            dbs = [db for db in dbs if options.database in db.name]
 
         self.print_items([[database, database.autocomplete(), database, 'Database', 'database.png'] for database in dbs])
 
@@ -438,6 +449,7 @@ class DatabaseConnection:
         (self.host, self.port, self.database, self.user, self.password) = line.split(':')
         self.con = None
         self.dbs = None
+        self.tbls = None
 
     def __repr__(self):
         return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
@@ -449,6 +461,8 @@ class DatabaseConnection:
         return s.startswith("%s@%s" % (self.user, self.host))
 
     def connect(self, database):
+        logging.debug('Connecting to database %s' % database)
+        
         if database:
             try:
                 self.con = psycopg2.connect(host=self.host, database=database, user=self.user, password=self.password)
@@ -476,14 +490,17 @@ class DatabaseConnection:
         return self.dbs
 
     def tables(self, database):
-        query = TABLES_QUERY
-        logging.debug('Query tables: %s' % query)
+        if not self.tbls:
+            query = TABLES_QUERY
+            logging.debug('Query tables: %s' % query)
+    
+            cur = self.cursor()
+            cur.execute(query)
+    
+            def t(row): return Table(self, database, row[0], row[1])
+    
+            self.tbls = map(t, cur.fetchall())
 
-        cur = self.cursor()
-        cur.execute(query)
-
-        def t(row): return Table(self, database, row[0], row[1])
-
-        return map(t, cur.fetchall())
+        return self.tbls
 
 DatabaseNavigator().main()

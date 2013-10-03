@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>bundleid</key>
-	<string>com.resamsel.dbexplorer</string>
+	<string>com.resamsel.dbnavigator</string>
 	<key>connections</key>
 	<dict>
 		<key>2A6409CF-781A-49AB-8DBA-37C942BD1A60</key>
@@ -69,50 +69,6 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>autopaste</key>
-				<false/>
-				<key>clipboardtext</key>
-				<string>{query}</string>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.output.clipboard</string>
-			<key>uid</key>
-			<string>0A1E5AF5-6A96-4EE2-87E3-BBA9B66FDF79</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>argumenttype</key>
-				<integer>1</integer>
-				<key>escaping</key>
-				<integer>126</integer>
-				<key>keyword</key>
-				<string>select</string>
-				<key>runningsubtext</key>
-				<string>Retrieving...</string>
-				<key>script</key>
-				<string>./dbexplorer.py {query}</string>
-				<key>subtext</key>
-				<string>Shows database contents</string>
-				<key>title</key>
-				<string>Database Manager</string>
-				<key>type</key>
-				<integer>0</integer>
-				<key>withspace</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
-			<key>uid</key>
-			<string>5AD6B622-051E-41D9-A608-70919939967A</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>action</key>
 				<integer>0</integer>
 				<key>argument</key>
@@ -138,6 +94,50 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>autopaste</key>
+				<false/>
+				<key>clipboardtext</key>
+				<string>{query}</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.clipboard</string>
+			<key>uid</key>
+			<string>0A1E5AF5-6A96-4EE2-87E3-BBA9B66FDF79</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>126</integer>
+				<key>keyword</key>
+				<string>select</string>
+				<key>runningsubtext</key>
+				<string>Retrieving...</string>
+				<key>script</key>
+				<string>./db-navigator.py {query}</string>
+				<key>subtext</key>
+				<string>Shows database contents</string>
+				<key>title</key>
+				<string>Database Navigator</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>5AD6B622-051E-41D9-A608-70919939967A</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>argumenttype</key>
 				<integer>0</integer>
 				<key>escaping</key>
@@ -147,7 +147,7 @@
 				<key>runningsubtext</key>
 				<string>Searching...</string>
 				<key>script</key>
-				<string>./dbexplorer.py skiline@localhost/skiline resort {query}</string>
+				<string>./db-navigator.py "skiline@localhost/skiline/resort/{query}"</string>
 				<key>title</key>
 				<string>Skiresort</string>
 				<key>type</key>
