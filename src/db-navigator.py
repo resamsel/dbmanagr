@@ -9,15 +9,22 @@ import json
 import sys
 from os.path import expanduser
 from urlparse import urlparse
+from collections import Counter
 
 ITEMS_FORMAT = '<items>{0}</items>'
 ITEM_FORMAT = """
     <item uid="{0}" arg="{2}" autocomplete="{1}">
         <title>{2}</title>
         <subtitle>{3}</subtitle>
-        <icon>images/{4}</icon>
+        <icon>{4}</icon>
     </item>
 """
+
+IMAGE_CONNECTION = 'images/connection.png'
+IMAGE_DATABASE = 'images/database.png'
+IMAGE_TABLE = 'images/table.png'
+IMAGE_ROW = 'images/row.png'
+IMAGE_VALUE = 'images/value.png'
 
 OPTION_URI_FORMAT = '%s@%s/%s'
 OPTION_URI_DATABASE_FORMAT = '%s/'
@@ -31,18 +38,23 @@ COMMENT_ORDER_BY = 'order'
 COMMENT_SEARCH = 'search'
 COMMENT_DISPLAY = 'display'
 
+ID_FORMAT = "{0}.id"
 JOIN_FORMAT = """
-        left outer join \"{0}\" on \"{0}\".{1} = \"{2}\".{3}"""
-TABLE_PROJECTION_FORMAT = '%s as id, %s as title, %s as subtitle'
+        left outer join \"{0}\" {1} on \"{1}\".{2} = {3}.{4}"""
+PROJECTION_FORMAT = """,
+        {0} {1}_title"""
+TABLE_PROJECTION_FORMAT = """%s as id,
+        %s as title,
+        %s as subtitle"""
 TABLE_WHERE_FORMAT = "%s ilike '%%%s%%' or %s ilike '%%%s%%' or %s || '' = '%s'"
 TABLE_QUERY_FORMAT = """
 select
-        %s
+        {0}
     from
-        "%s"
+        "{1}" {2}
     where
-        %s
-    %s
+        {3}
+    {4}
     limit 20
 """
 TABLE_ORDER_BY = 'order by %s'
@@ -92,11 +104,11 @@ select
 """
 VALUES_QUERY_FORMAT = """
 select
-        \"{0}\".* {1}
+        {2}.* {1}
     from
-        \"{0}\" {2}
+        "{0}" {2}{3}
     where
-        {3} = '{4}'
+        {4} = '{5}'
 """
 
 logging.basicConfig(filename='/tmp/dbexplorer.log', level=logging.DEBUG)
@@ -221,7 +233,7 @@ class DatabaseNavigator:
         cons = connections
         if options.user:
             cons = [c for c in connections if options.user in c.__repr__()]
-        self.print_items([[c, c, c, 'Connection', 'connection.png'] for c in cons])
+        self.print_items([[c, c, c, 'Connection', IMAGE_CONNECTION] for c in cons])
 
     def print_databases(self, db, dbs, options):
         """Prints the given databases according to the given filter"""
@@ -234,7 +246,7 @@ class DatabaseNavigator:
         if options.database:
             dbs = [db for db in dbs if options.database in db.name]
 
-        self.print_items([[database, database.autocomplete(), database, 'Database', 'database.png'] for database in dbs])
+        self.print_items([[database, database.autocomplete(), database, 'Database', IMAGE_DATABASE] for database in dbs])
 
     def print_tables(self, tables, filter):
         """Prints the given tables according to the given filter"""
@@ -242,14 +254,14 @@ class DatabaseNavigator:
         logging.debug(self.print_tables.__doc__)
         if filter:
             tables = [t for t in tables if t.name.startswith(filter)]
-        self.print_items([[t.name, OPTION_URI_TABLES_FORMAT % (t.uri(), t), t.name, 'Title: %s' % t.comment[COMMENT_TITLE], 'table.png'] for t in tables])
+        self.print_items([[t.name, OPTION_URI_TABLES_FORMAT % (t.uri(), t), t.name, 'Title: %s' % t.comment[COMMENT_TITLE], IMAGE_TABLE] for t in tables])
 
     def print_rows(self, table, filter):
         """Prints the given rows according to the given filter"""
 
         logging.debug(self.print_rows.__doc__)
         rows = table.rows(filter)
-        self.print_items([[row[0], row.table.autocomplete('id', row['id']), strip(row[1]), strip(row[2]), 'row.png'] for row in rows])
+        self.print_items([[row[0], row.table.autocomplete('id', row['id']), strip(row[1]), strip(row[2]), IMAGE_ROW] for row in rows])
 
     def print_values(self, table, filter):
         """Prints the given row values according to the given filter"""
@@ -257,24 +269,22 @@ class DatabaseNavigator:
         logging.debug(self.print_values.__doc__)
 
         foreign_keys = table.foreign_keys()
+        table_alias = '_%s' % table.name
         columns = ''
         joins = ''
-        join_tables = []
+        counter = Counter()
+        comment_id = table.comment[COMMENT_ID].format(table_alias)
         
         logging.debug('Foreign keys: %s' % ', '.join(foreign_keys))
         for key in foreign_keys.keys():
             fk = foreign_keys[key]
-            title = fk.b.table.comment[COMMENT_TITLE]
+            fktable = fk.b.table
+            counter[fktable.name] += 1
+            alias = '%s_%d' % (fktable.name, counter[fktable.name])
+            title = fktable.comment[COMMENT_TITLE].format(alias)
             if title != '*':
-                columns += ', {0} {1}_title'.format(title, fk.a.name)
-            if fk.b.table.name not in join_tables:
-                joins += JOIN_FORMAT.format(fk.b.table.name, fk.b.name, fk.a.table.name, fk.a.name)
-                join_tables.append(fk.b.table.name)
-
-        if table.comment[COMMENT_DISPLAY]:
-            keys = table.comment[COMMENT_DISPLAY]
-        else:
-            keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else key)
+                columns += PROJECTION_FORMAT.format(title, fk.a.name)
+            joins += JOIN_FORMAT.format(fk.b.table.name, alias, fk.b.name, table_alias, fk.a.name)
 
         def fk(column): return foreign_keys[column.name] if column.name in foreign_keys else column
         def val(row, column):
@@ -283,14 +293,19 @@ class DatabaseNavigator:
                 return '%s (%s)' % (row.row[colname], row.row[column])
             return row.row[column]
 
-        query = VALUES_QUERY_FORMAT.format(table.name, columns, joins, table.comment[COMMENT_ID], filter)
+        query = VALUES_QUERY_FORMAT.format(table.name, columns, table_alias, joins, comment_id, filter)
         logging.debug('Query values: %s' % query)
         cur = table.connection.cursor()
         cur.execute(query)
         row = Row(table.connection, table, cur.fetchone())
 
+        if table.comment[COMMENT_DISPLAY]:
+            keys = table.comment[COMMENT_DISPLAY]
+        else:
+            keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else key)
+
         if row.row:
-            self.print_items([[key, table.autocomplete(key, row.row[key]), val(row, key), fk(Column(table, key)), 'value.png'] for key in keys])
+            self.print_items([[key, table.autocomplete(key, row.row[key]), val(row, key), fk(Column(table, key)), IMAGE_VALUE] for key in keys])
         else:
             self.print_items([])
 
@@ -313,16 +328,17 @@ class TableComment:
     """The comment on the given table that allows to display much more accurate information"""
 
     def __init__(self, table, json_string):
-        id = "\"%s\".id" % table.name
         self.d = {COMMENT_TITLE: '*', COMMENT_ORDER_BY: ['title'], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
-        self.d[COMMENT_SUBTITLE] = "'Id: ' || %s" % id
-        self.d[COMMENT_ID] = id
+        self.d[COMMENT_SUBTITLE] = "'Id: ' || %s" % ID_FORMAT
+        self.d[COMMENT_ID] = ID_FORMAT
 
         if json_string:
             try:
                 self.d = dict(self.d.items() + json.loads(json_string).items())
             except TypeError, e:
                 pass
+        
+#        logging.debug('Comment for table %s: %s' % (table, self))
 
     def __getitem__(self, i):
         return self.d[i]
@@ -363,22 +379,30 @@ class Table:
         projection = '*'
         order_by = ''
         where = 'true=true'
+        table_alias = '_%s' % self.name
+        
+        def f(s): return s.format(table_alias)
+        comment_id = f(self.comment[COMMENT_ID])
+        comment_title = f(self.comment[COMMENT_TITLE])
+        comment_subtitle = f(self.comment[COMMENT_SUBTITLE])
+        comment_order = map(f, self.comment[COMMENT_ORDER_BY])
+        comment_search = map(f, self.comment[COMMENT_SEARCH])
 
-        if self.comment[COMMENT_TITLE] != '*':
-            projection = TABLE_PROJECTION_FORMAT % (self.comment[COMMENT_ID], self.comment[COMMENT_TITLE], self.comment[COMMENT_SUBTITLE])
-        if projection != '*' and self.comment[COMMENT_ORDER_BY]:
-            order_by = TABLE_ORDER_BY % ', '.join(self.comment[COMMENT_ORDER_BY])
+        if comment_title != '*':
+            projection = TABLE_PROJECTION_FORMAT % (comment_id, comment_title, comment_subtitle)
+        if projection != '*' and comment_order:
+            order_by = TABLE_ORDER_BY % ', '.join(comment_order)
         if filter:
-            if self.comment[COMMENT_SEARCH]:
+            if comment_search:
                 conjunctions = []
-                for search_field in self.comment[COMMENT_SEARCH]:
+                for search_field in comment_search:
                     conjunctions.append("%s ilike '%%%s%%'" % (search_field, filter))
-                conjunctions.append("%s || '' = '%s'" % (self.comment[COMMENT_ID], filter))
+                conjunctions.append("%s || '' = '%s'" % (comment_id, filter))
                 where = ' or '.join(conjunctions)
-            elif self.comment[COMMENT_TITLE] != '*':
-                where = TABLE_WHERE_FORMAT % (self.comment[COMMENT_TITLE], filter, self.comment[COMMENT_SUBTITLE], filter, self.comment[COMMENT_ID], filter)
+            elif comment_title != '*':
+                where = TABLE_WHERE_FORMAT % (comment_title, filter, comment_subtitle, filter, comment_id, filter)
 
-        query = TABLE_QUERY_FORMAT % (projection, self.name, where, order_by)
+        query = TABLE_QUERY_FORMAT.format(projection, self.name, table_alias, where, order_by)
         return query
 
     def rows(self, filter):
