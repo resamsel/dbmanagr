@@ -153,7 +153,7 @@ class DatabaseNavigator:
         logging.debug(self.print_tables.__doc__)
         if filter:
             tables = [t for t in tables if t.name.startswith(filter)]
-        self.print_items([[t.name, OPTION_URI_TABLES_FORMAT % (t.uri(), t), t.name, 'Title: %s' % t.comment[COMMENT_TITLE], IMAGE_TABLE] for t in tables])
+        self.print_items([[t.name, OPTION_URI_TABLES_FORMAT % (t.uri(), t), t.name, 'Title: %s' % t.comment.title, IMAGE_TABLE] for t in tables])
 
     def print_rows(self, table, filter):
         """Prints the given rows according to the given filter"""
@@ -182,8 +182,8 @@ class DatabaseNavigator:
         cur.execute(query)
         row = Row(table.connection, table, cur.fetchone())
 
-        if table.comment[COMMENT_DISPLAY]:
-            keys = table.comment[COMMENT_DISPLAY]
+        if table.comment.display:
+            keys = table.comment.display
         else:
             keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else key)
         

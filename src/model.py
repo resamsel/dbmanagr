@@ -37,9 +37,13 @@ class TableComment:
                 self.d = dict(self.d.items() + json.loads(json_string).items())
             except TypeError, e:
                 pass
-
-    def __getitem__(self, i):
-        return self.d[i]
+        
+        self.title = self.d[COMMENT_TITLE]
+        self.subtitle = self.d[COMMENT_SUBTITLE]
+        self.search = self.d[COMMENT_SEARCH]
+        self.display = self.d[COMMENT_DISPLAY]
+        self.id = self.d[COMMENT_ID]
+        self.order = self.d[COMMENT_ORDER_BY]
 
     def __repr__(self):
         return self.d.__repr__()
@@ -74,7 +78,7 @@ class Table:
     def rows(self, filter):
         """Retrieves rows from the table with the given filter applied"""
 
-        query = QueryBuilder(self, filter=filter, order=self.comment[COMMENT_ORDER_BY], limit=20).build()
+        query = QueryBuilder(self, filter=filter, order=self.comment.order, limit=20).build()
 
         logging.debug('Query rows: %s' % query)
         cur = self.connection.cursor()

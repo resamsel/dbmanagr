@@ -44,7 +44,7 @@ class QueryBuilder:
         where = 'true=true'
         order = self.order
         limit = self.limit if self.limit else 20
-        comment_display = self.table.comment[COMMENT_DISPLAY]
+        comment_display = self.table.comment.display
 
         for key in foreign_keys.keys():
             if key in comment_display:
@@ -53,15 +53,15 @@ class QueryBuilder:
                 counter[fktable.name] += 1
                 alias = '%s_%d' % (fktable.name, counter[fktable.name])
                 aliases[key] = alias
-                fk_titles['%s_title' % key] = fktable.comment[COMMENT_TITLE].format(alias)
+                fk_titles['%s_title' % key] = fktable.comment.title.format(alias)
             
         def f(s): return s.format(self.alias, **fk_titles)
 
-        comment_id = f(self.table.comment[COMMENT_ID])
-        comment_title = f(self.table.comment[COMMENT_TITLE])
-        comment_subtitle = f(self.table.comment[COMMENT_SUBTITLE])
-        comment_order = map(f, self.table.comment[COMMENT_ORDER_BY])
-        comment_search = map(f, self.table.comment[COMMENT_SEARCH])
+        comment_id = f(self.table.comment.id)
+        comment_title = f(self.table.comment.title)
+        comment_subtitle = f(self.table.comment.subtitle)
+        comment_order = map(f, self.table.comment.order)
+        comment_search = map(f, self.table.comment.search)
         
         columns.append('%s %s' % (comment_id, 'id'))
         if comment_title != '*':
@@ -81,7 +81,7 @@ class QueryBuilder:
                 fk = foreign_keys[key]
                 fktable = fk.b.table
                 alias = aliases[key]
-                title = fktable.comment[COMMENT_TITLE].format(alias)
+                title = fktable.comment.title.format(alias)
                 if title != '*':
                     columns.append(PROJECTION_FORMAT.format(title, fk.a.name))
                 joins += JOIN_FORMAT.format(fk.b.table.name, alias, fk.b.name, self.alias, fk.a.name)

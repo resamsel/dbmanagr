@@ -31,11 +31,6 @@ COMMENT_DISPLAY = 'display'
 ID_FORMAT = "{0}.id"
 JOIN_FORMAT = """
         left outer join \"{0}\" {1} on {1}.{2} = {3}.{4}"""
-#TABLE_PROJECTION_FORMAT = """%s as id,
-#        %s as title,
-#        %s as subtitle"""
-#TABLE_WHERE_FORMAT = "%s ilike '%%%s%%' or %s ilike '%%%s%%' or %s || '' = '%s'"
-#TABLE_ORDER_BY = 'order by %s'
 
 DATABASES_QUERY = """
 select
