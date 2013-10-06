@@ -186,6 +186,11 @@ class DatabaseNavigator:
             keys = table.comment[COMMENT_DISPLAY]
         else:
             keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else key)
+        
+        if 'subtitle' not in keys:
+            keys.insert(0, 'subtitle')
+        if 'title' not in keys:
+            keys.insert(0, 'title')
 
         def fk(column): return foreign_keys[column.name] if column.name in foreign_keys else column
 
