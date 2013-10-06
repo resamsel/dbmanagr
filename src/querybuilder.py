@@ -69,6 +69,11 @@ class QueryBuilder:
         columns.append('%s %s' % (comment_subtitle, 'subtitle'))
         for column in comment_display:
             columns.append('%s.%s' % (self.alias, column))
+
+        if not comment_search:
+            comment_search.append(comment_title)
+            comment_search.append(comment_subtitle)
+        logging.debug('Search columns: %s' % comment_search)
         
         logging.debug('Foreign keys: %s' % ', '.join(foreign_keys))
         for key in foreign_keys.keys():
