@@ -2,114 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import pprint
-import psycopg2
-import psycopg2.extras
-import json
 import sys
 from os.path import expanduser
 from urlparse import urlparse
-from collections import Counter
 
-ITEMS_FORMAT = '<items>{0}</items>'
-ITEM_FORMAT = """
-    <item uid="{0}" arg="{2}" autocomplete="{1}">
-        <title>{2}</title>
-        <subtitle>{3}</subtitle>
-        <icon>{4}</icon>
-    </item>
-"""
-
-IMAGE_CONNECTION = 'images/connection.png'
-IMAGE_DATABASE = 'images/database.png'
-IMAGE_TABLE = 'images/table.png'
-IMAGE_ROW = 'images/row.png'
-IMAGE_VALUE = 'images/value.png'
-
-OPTION_URI_FORMAT = '%s@%s/%s'
-OPTION_URI_DATABASE_FORMAT = '%s/'
-OPTION_URI_TABLES_FORMAT = '%s/%s/'
-OPTION_URI_VALUE_FORMAT = '%s/%s/%s/'
-
-COMMENT_ID = 'id'
-COMMENT_TITLE = 'title'
-COMMENT_SUBTITLE = 'subtitle'
-COMMENT_ORDER_BY = 'order'
-COMMENT_SEARCH = 'search'
-COMMENT_DISPLAY = 'display'
-
-ID_FORMAT = "{0}.id"
-JOIN_FORMAT = """
-        left outer join \"{0}\" {1} on \"{1}\".{2} = {3}.{4}"""
-PROJECTION_FORMAT = """,
-        {0} {1}_title"""
-TABLE_PROJECTION_FORMAT = """%s as id,
-        %s as title,
-        %s as subtitle"""
-TABLE_WHERE_FORMAT = "%s ilike '%%%s%%' or %s ilike '%%%s%%' or %s || '' = '%s'"
-TABLE_QUERY_FORMAT = """
-select
-        {0}
-    from
-        "{1}" {2}
-    where
-        {3}
-    {4}
-    limit 20
-"""
-TABLE_ORDER_BY = 'order by %s'
-
-DATABASES_QUERY = """
-select
-        datname as database_name
-    from
-        pg_database
-    where
-        datistemplate = false
-    order by datname
-"""
-FOREIGN_KEY_QUERY_FORMAT = """
-select
-        tc.constraint_name,
-        tc.table_name,
-        kcu.column_name,
-        ccu.table_name foreign_table_name,
-        ccu.column_name foreign_column_name
-    from
-        information_schema.table_constraints tc
-        join information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name
-        join information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name
-    where
-        constraint_type = 'FOREIGN KEY'
-         and tc.table_name = '%s'
-"""
-ROW_QUERY_FORMAT = """
-select
-        column_name
-    from
-        INFORMATION_SCHEMA.COLUMNS
-    where
-        table_name = '%s'
-"""
-TABLES_QUERY = """
-select
-        t.table_name as tbl, obj_description(c.oid) as comment
-    from information_schema.tables t,
-        pg_class c
-    where
-        table_schema = 'public'
-        and t.table_name = c.relname
-        and c.relkind = 'r'
-    order by t.table_name
-"""
-VALUES_QUERY_FORMAT = """
-select
-        {2}.* {1}
-    from
-        "{0}" {2}{3}
-    where
-        {4} = '{5}'
-"""
+from const import *
+from model import *
+from querybuilder import QueryBuilder
 
 logging.basicConfig(filename='/tmp/dbexplorer.log', level=logging.DEBUG)
 
@@ -261,7 +160,14 @@ class DatabaseNavigator:
 
         logging.debug(self.print_rows.__doc__)
         rows = table.rows(filter)
-        self.print_items([[row[0], row.table.autocomplete('id', row['id']), strip(row[1]), strip(row[2]), IMAGE_ROW] for row in rows])
+
+        def val(row, column):
+            colname = '%s_title' % column
+            if colname in row.row:
+                return '%s (%s)' % (row.row[colname], row.row[column])
+            return row.row[column]
+
+        self.print_items([[row[0], table.autocomplete('id', row['id']), val(row, 'title'), strip(row[2]), IMAGE_ROW] for row in rows])
 
     def print_values(self, table, filter):
         """Prints the given row values according to the given filter"""
@@ -269,31 +175,8 @@ class DatabaseNavigator:
         logging.debug(self.print_values.__doc__)
 
         foreign_keys = table.foreign_keys()
-        table_alias = '_%s' % table.name
-        columns = ''
-        joins = ''
-        counter = Counter()
-        comment_id = table.comment[COMMENT_ID].format(table_alias)
+        query = QueryBuilder(table, id=filter, limit=1).build()
         
-        logging.debug('Foreign keys: %s' % ', '.join(foreign_keys))
-        for key in foreign_keys.keys():
-            fk = foreign_keys[key]
-            fktable = fk.b.table
-            counter[fktable.name] += 1
-            alias = '%s_%d' % (fktable.name, counter[fktable.name])
-            title = fktable.comment[COMMENT_TITLE].format(alias)
-            if title != '*':
-                columns += PROJECTION_FORMAT.format(title, fk.a.name)
-            joins += JOIN_FORMAT.format(fk.b.table.name, alias, fk.b.name, table_alias, fk.a.name)
-
-        def fk(column): return foreign_keys[column.name] if column.name in foreign_keys else column
-        def val(row, column):
-            colname = '%s_title' % column
-            if colname in row.row:
-                return '%s (%s)' % (row.row[colname], row.row[column])
-            return row.row[column]
-
-        query = VALUES_QUERY_FORMAT.format(table.name, columns, table_alias, joins, comment_id, filter)
         logging.debug('Query values: %s' % query)
         cur = table.connection.cursor()
         cur.execute(query)
@@ -304,227 +187,17 @@ class DatabaseNavigator:
         else:
             keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else key)
 
+        def fk(column): return foreign_keys[column.name] if column.name in foreign_keys else column
+
+        def val(row, column):
+            colname = '%s_title' % column
+            if colname in row.row:
+                return '%s (%s)' % (row.row[colname], row.row[column])
+            return row.row[column]
+
         if row.row:
             self.print_items([[key, table.autocomplete(key, row.row[key]), val(row, key), fk(Column(table, key)), IMAGE_VALUE] for key in keys])
         else:
             self.print_items([])
-
-class Database:
-    """The database used with the given connection"""
-
-    def __init__(self, connection, name):
-        self.connection = connection
-        self.name = name
-
-    def __repr__(self):
-        return "%s@%s/%s" % (self.connection.user, self.connection.host, self.name)
-
-    def autocomplete(self):
-        """Retrieves the autocomplete string"""
-
-        return OPTION_URI_DATABASE_FORMAT % (self.__repr__())
-
-class TableComment:
-    """The comment on the given table that allows to display much more accurate information"""
-
-    def __init__(self, table, json_string):
-        self.d = {COMMENT_TITLE: '*', COMMENT_ORDER_BY: ['title'], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
-        self.d[COMMENT_SUBTITLE] = "'Id: ' || %s" % ID_FORMAT
-        self.d[COMMENT_ID] = ID_FORMAT
-
-        if json_string:
-            try:
-                self.d = dict(self.d.items() + json.loads(json_string).items())
-            except TypeError, e:
-                pass
-        
-#        logging.debug('Comment for table %s: %s' % (table, self))
-
-    def __getitem__(self, i):
-        return self.d[i]
-
-    def __repr__(self):
-        return self.d.__repr__()
-
-class Table:
-    def __init__(self, connection, database, name, comment):
-        self.connection = connection
-        self.database = database
-        self.name = name
-        self.comment = TableComment(self, comment)
-        self.fks = None
-
-    def __repr__(self):
-        return self.name
-
-    def uri(self):
-        """Creates the URI for this table"""
-
-        return '%s@%s/%s' % (self.connection.user, self.connection.host, self.database)
-
-    def autocomplete(self, column, value):
-        """Retrieves the autocomplete string for the given column and value"""
-
-        tablename = self.name
-        fks = self.foreign_keys()
-        if column in fks:
-            fk = fks[column]
-            tablename = fk.b.table.name
-
-        return OPTION_URI_VALUE_FORMAT % (self.uri(), tablename, value)
-
-    def create_query(self, filter):
-        """Creates the query from the given parameters"""
-
-        projection = '*'
-        order_by = ''
-        where = 'true=true'
-        table_alias = '_%s' % self.name
-        
-        def f(s): return s.format(table_alias)
-        comment_id = f(self.comment[COMMENT_ID])
-        comment_title = f(self.comment[COMMENT_TITLE])
-        comment_subtitle = f(self.comment[COMMENT_SUBTITLE])
-        comment_order = map(f, self.comment[COMMENT_ORDER_BY])
-        comment_search = map(f, self.comment[COMMENT_SEARCH])
-
-        if comment_title != '*':
-            projection = TABLE_PROJECTION_FORMAT % (comment_id, comment_title, comment_subtitle)
-        if projection != '*' and comment_order:
-            order_by = TABLE_ORDER_BY % ', '.join(comment_order)
-        if filter:
-            if comment_search:
-                conjunctions = []
-                for search_field in comment_search:
-                    conjunctions.append("%s ilike '%%%s%%'" % (search_field, filter))
-                conjunctions.append("%s || '' = '%s'" % (comment_id, filter))
-                where = ' or '.join(conjunctions)
-            elif comment_title != '*':
-                where = TABLE_WHERE_FORMAT % (comment_title, filter, comment_subtitle, filter, comment_id, filter)
-
-        query = TABLE_QUERY_FORMAT.format(projection, self.name, table_alias, where, order_by)
-        return query
-
-    def rows(self, filter):
-        """Retrieves rows from the table with the given filter applied"""
-
-        query = self.create_query(filter)
-        logging.debug('Query rows: %s' % query)
-        cur = self.connection.cursor()
-        cur.execute(query)
-
-        def t(row): return Row(self.connection, self, row)
-
-        return map(t, cur.fetchall())
-
-    def foreign_keys(self):
-        """Retrieves the foreign keys of the table"""
-
-        if not self.fks:
-            logging.debug('Retrieve foreign keys')
-            query = FOREIGN_KEY_QUERY_FORMAT % self.name
-            logging.debug('Query foreign keys: %s' % query)
-            cur = self.connection.cursor()
-            cur.execute(query)
-            self.fks = {}
-            for row in cur.fetchall():
-                self.fks[row['column_name']] = ForeignKey(Column(self.connection.table_map[row['table_name']], row['column_name']), Column(self.connection.table_map[row['foreign_table_name']], row['foreign_column_name']))
-
-        return self.fks
-
-class Row:
-    """A table row from the database"""
-
-    def __init__(self, connection, table, row):
-        self.connection = connection
-        self.table = table
-        self.row = row
-
-    def __getitem__(self, i):
-        return self.row[i]
-
-    def values(self):
-        return self.row
-
-class Column:
-    """A table column"""
-
-    def __init__(self, table, name):
-        self.table = table
-        self.name = name
-
-    def __repr__(self):
-        return '%s.%s' % (self.table.name, self.name)
-
-class ForeignKey:
-    """A foreign key connection between the originating column a and the foreign column b"""
-
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-
-    def __repr__(self):
-        return '%s -> %s' % (self.a, self.b)
-
-class DatabaseConnection:
-    """A database connection"""
-
-    def __init__(self, line):
-        (self.host, self.port, self.database, self.user, self.password) = line.split(':')
-        self.con = None
-        self.dbs = None
-        self.tbls = None
-
-    def __repr__(self):
-        return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
-
-    def __str__(self):
-        return self.__repr__();
-
-    def matches(self, s):
-        return s.startswith("%s@%s" % (self.user, self.host))
-
-    def connect(self, database):
-        logging.debug('Connecting to database %s' % database)
-        
-        if database:
-            try:
-                self.con = psycopg2.connect(host=self.host, database=database, user=self.user, password=self.password)
-            except psycopg2.DatabaseError, e:
-                self.con = psycopg2.connect(host=self.host, user=self.user, password=self.password)
-        else:
-            self.con = psycopg2.connect(host=self.host, user=self.user, password=self.password)
-        self.table_map = {t.name: t for t in self.tables(database)}
-
-    def cursor(self):
-        return self.con.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
-    def databases(self):
-        if not self.dbs:
-            query = DATABASES_QUERY
-            logging.debug('Query databases: %s' % query)
-
-            cur = self.cursor()
-            cur.execute(query)
-    
-            def d(row): return Database(self, row[0])
-    
-            self.dbs = map(d, cur.fetchall())
-        
-        return self.dbs
-
-    def tables(self, database):
-        if not self.tbls:
-            query = TABLES_QUERY
-            logging.debug('Query tables: %s' % query)
-    
-            cur = self.cursor()
-            cur.execute(query)
-    
-            def t(row): return Table(self, database, row[0], row[1])
-    
-            self.tbls = map(t, cur.fetchall())
-
-        return self.tbls
 
 DatabaseNavigator().main()
