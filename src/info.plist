@@ -6,17 +6,6 @@
 	<string>com.resamsel.dbnavigator</string>
 	<key>connections</key>
 	<dict>
-		<key>2A6409CF-781A-49AB-8DBA-37C942BD1A60</key>
-		<array>
-			<dict>
-				<key>destinationuid</key>
-				<string>45B74738-9B9E-470A-B263-574B8C226CE8</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-			</dict>
-		</array>
 		<key>45B74738-9B9E-470A-B263-574B8C226CE8</key>
 		<array>
 			<dict>
@@ -63,34 +52,9 @@
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>Database Explorer</string>
+	<string>Database Navigator</string>
 	<key>objects</key>
 	<array>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>action</key>
-				<integer>0</integer>
-				<key>argument</key>
-				<integer>0</integer>
-				<key>hotkey</key>
-				<integer>15</integer>
-				<key>hotmod</key>
-				<integer>1572864</integer>
-				<key>hotstring</key>
-				<string>R</string>
-				<key>leftcursor</key>
-				<false/>
-				<key>modsmode</key>
-				<integer>0</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.trigger.hotkey</string>
-			<key>uid</key>
-			<string>2A6409CF-781A-49AB-8DBA-37C942BD1A60</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -112,7 +76,7 @@
 				<key>argumenttype</key>
 				<integer>1</integer>
 				<key>escaping</key>
-				<integer>126</integer>
+				<integer>127</integer>
 				<key>keyword</key>
 				<string>select</string>
 				<key>runningsubtext</key>
@@ -147,7 +111,7 @@
 				<key>runningsubtext</key>
 				<string>Searching...</string>
 				<key>script</key>
-				<string>./db-navigator.py "skiline@localhost/skiline/resort/{query}"</string>
+				<string>./db-navigator.py skiline@localhost/skiline/resort/{query}</string>
 				<key>title</key>
 				<string>Skiresort</string>
 				<key>type</key>
@@ -176,11 +140,6 @@
 	<key>uidata</key>
 	<dict>
 		<key>0A1E5AF5-6A96-4EE2-87E3-BBA9B66FDF79</key>
-		<dict>
-			<key>ypos</key>
-			<real>10</real>
-		</dict>
-		<key>2A6409CF-781A-49AB-8DBA-37C942BD1A60</key>
 		<dict>
 			<key>ypos</key>
 			<real>10</real>

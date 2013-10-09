@@ -19,6 +19,7 @@ select
         {6}
 """
 PROJECTION_FORMAT = """{0} {1}_title"""
+SEARCH_FORMAT = "%s like '%s%%'"
 LIST_SEPARATOR = """,
         """
 OR_SEPARATOR = """
@@ -46,6 +47,10 @@ class QueryBuilder:
         limit = self.limit if self.limit else 20
         comment_display = self.table.comment.display
 
+        if not comment_display:
+            for column in self.table.columns():
+                comment_display.append(column)
+
         for key in foreign_keys.keys():
             if key in comment_display:
                 fk = foreign_keys[key]
@@ -62,7 +67,7 @@ class QueryBuilder:
         comment_subtitle = f(self.table.comment.subtitle)
         comment_order = map(f, self.table.comment.order)
         comment_search = map(f, self.table.comment.search)
-        
+
         columns.append('%s %s' % (comment_id, 'id'))
         if comment_title != '*':
             columns.append('%s %s' % (comment_title, 'title'))
@@ -88,13 +93,18 @@ class QueryBuilder:
 
         if self.id:
             where = "%s = '%s'" % (comment_id, self.id)
-        elif self.filter and comment_search:
-            conjunctions = []
-            for search_field in comment_search:
-                conjunctions.append("%s ilike '%%%s%%'" % (search_field, self.filter))
-            conjunctions.append("%s || '' = '%s'" % (comment_id, self.filter))
-            where = OR_SEPARATOR.join(conjunctions)
-        
+        elif self.filter:
+            if '=' in self.filter:
+                (name, value) = self.filter.split('=')
+                where = "{0}.{1} = '{2}'".format(self.alias, name, value)
+            elif comment_search:
+                conjunctions = []
+                for search_field in comment_search:
+                    conjunctions.append(SEARCH_FORMAT % (search_field, self.filter))
+                conjunctions.append("%s || '' = '%s'" % (comment_id, self.filter))
+                where = OR_SEPARATOR.join(conjunctions)
+
+        logging.debug('order: %s' % order)
         if not order:
             order.append(comment_id)
 
