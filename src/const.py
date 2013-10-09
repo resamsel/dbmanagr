@@ -43,7 +43,6 @@ select
 """
 FOREIGN_KEY_QUERY_FORMAT = """
 select
-        tc.constraint_name,
         tc.table_name,
         kcu.column_name,
         ccu.table_name foreign_table_name,
@@ -54,7 +53,8 @@ select
         join information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name
     where
         constraint_type = 'FOREIGN KEY'
-         and tc.table_name = '%s'
+        and
+            (tc.table_name = '{0}' or ccu.table_name = '{0}')
 """
 ROW_QUERY_FORMAT = """
 select
@@ -67,11 +67,20 @@ select
 TABLES_QUERY = """
 select
         t.table_name as tbl, obj_description(c.oid) as comment
-    from information_schema.tables t,
+    from
+        information_schema.tables t,
         pg_class c
     where
         table_schema = 'public'
         and t.table_name = c.relname
         and c.relkind = 'r'
     order by t.table_name
+"""
+COLUMNS_QUERY = """
+select
+        column_name
+    from
+        information_schema.columns
+    where
+        table_name = '{0}'
 """

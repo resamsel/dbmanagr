@@ -9,6 +9,8 @@ import json
 from const import *
 from querybuilder import QueryBuilder
 
+DEFAULT_LIMIT = 50
+
 class Database:
     """The database used with the given connection"""
 
@@ -28,7 +30,7 @@ class TableComment:
     """The comment on the given table that allows to display much more accurate information"""
 
     def __init__(self, table, json_string):
-        self.d = {COMMENT_TITLE: '*', COMMENT_ORDER_BY: ['title'], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
+        self.d = {COMMENT_TITLE: '{0}.id', COMMENT_ORDER_BY: [], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
         self.d[COMMENT_SUBTITLE] = "'Id: ' || %s" % ID_FORMAT
         self.d[COMMENT_ID] = ID_FORMAT
 
@@ -54,6 +56,7 @@ class Table:
         self.database = database
         self.name = name
         self.comment = TableComment(self, comment)
+        self.cols = None
         self.fks = None
 
     def __repr__(self):
@@ -78,7 +81,7 @@ class Table:
     def rows(self, filter):
         """Retrieves rows from the table with the given filter applied"""
 
-        query = QueryBuilder(self, filter=filter, order=self.comment.order, limit=20).build()
+        query = QueryBuilder(self, filter=filter, order=self.comment.order, limit=DEFAULT_LIMIT).build()
 
         logging.debug('Query rows: %s' % query)
         cur = self.connection.cursor()
@@ -87,13 +90,28 @@ class Table:
         def t(row): return Row(self.connection, self, row)
 
         return map(t, cur.fetchall())
+    
+    def columns(self):
+        """Retrieves the columns of the table"""
+
+        if not self.cols:
+            logging.debug('Retrieve columns')
+            query = COLUMNS_QUERY.format(self.name)
+            logging.debug('Query columns: %s' % query)
+            cur = self.connection.cursor()
+            cur.execute(query)
+            self.cols = []
+            for row in cur.fetchall():
+                self.cols.append(row['column_name'])
+
+        return self.cols
 
     def foreign_keys(self):
         """Retrieves the foreign keys of the table"""
 
         if not self.fks:
             logging.debug('Retrieve foreign keys')
-            query = FOREIGN_KEY_QUERY_FORMAT % self.name
+            query = FOREIGN_KEY_QUERY_FORMAT.format(self.name)
             logging.debug('Query foreign keys: %s' % query)
             cur = self.connection.cursor()
             cur.execute(query)
@@ -140,8 +158,12 @@ class ForeignKey:
 class DatabaseConnection:
     """A database connection"""
 
-    def __init__(self, line):
-        (self.host, self.port, self.database, self.user, self.password) = line.split(':')
+    def __init__(self, host, port, database, user, password):
+        self.host = host
+        self.port = port
+        self.database = database
+        self.user = user
+        self.password = password
         self.con = None
         self.dbs = None
         self.tbls = None
@@ -150,7 +172,13 @@ class DatabaseConnection:
         return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
 
     def __str__(self):
-        return self.__repr__();
+        return self.__repr__()
+
+    def __eq__(self, other):
+        return self.__repr__() == other.__repr__()
+
+    def __hash__(self):
+        return hash(self.__repr__())
 
     def matches(self, s):
         return s.startswith("%s@%s" % (self.user, self.host))

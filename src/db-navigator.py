@@ -3,12 +3,12 @@
 
 import logging
 import sys
-from os.path import expanduser
 from urlparse import urlparse
 
 from const import *
 from model import *
 from querybuilder import QueryBuilder
+from sources import *
 
 logging.basicConfig(filename='/tmp/dbexplorer.log', level=logging.DEBUG)
 
@@ -66,19 +66,11 @@ class DatabaseNavigator:
     def main(self):
         """The main method that splits the arguments and starts the magic"""
 
-        connections = []
+        connections = set(DBExplorerSource().get_connections())
         pgpass = None
         con = None
         options = Options(sys.argv)
         theconnection = None
-
-        with open(expanduser('~/.pgpass')) as f:
-            pgpass = f.readlines()
-
-        for line in pgpass:
-            connection = DatabaseConnection(line.strip())
-            logging.debug('Database Connection: %s' % connection)
-            connections.append(connection)
 
         logging.debug('Options.uri(): %s' % options.uri())
         if options.uri():
@@ -182,6 +174,7 @@ class DatabaseNavigator:
         cur.execute(query)
         row = Row(table.connection, table, cur.fetchone())
 
+        logging.debug('Comment.display: %s' % table.comment.display)
         if table.comment.display:
             keys = table.comment.display
         else:
