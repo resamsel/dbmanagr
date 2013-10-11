@@ -1,9 +1,9 @@
 #!/usr/local/bin/python
 # -*- coding: utf-8 -*-
 
-ITEMS_FORMAT = '<items>{0}</items>'
-ITEM_FORMAT = """
-    <item uid="{0}" arg="{2}" autocomplete="{1}">
+ITEMS_FORMAT = """<items>
+{0}</items>"""
+ITEM_FORMAT = """   <item uid="{0}" arg="{2}" autocomplete="{1}">
         <title>{2}</title>
         <subtitle>{3}</subtitle>
         <icon>{4}</icon>
@@ -15,6 +15,8 @@ IMAGE_DATABASE = 'images/database.png'
 IMAGE_TABLE = 'images/table.png'
 IMAGE_ROW = 'images/row.png'
 IMAGE_VALUE = 'images/value.png'
+IMAGE_FOREIGN_KEY = 'images/foreign-key.png'
+IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 
 OPTION_URI_FORMAT = '%s@%s/%s'
 OPTION_URI_DATABASE_FORMAT = '%s/'
@@ -41,7 +43,7 @@ select
         datistemplate = false
     order by datname
 """
-FOREIGN_KEY_QUERY_FORMAT = """
+FOREIGN_KEY_QUERY = """
 select
         tc.table_name,
         kcu.column_name,
@@ -53,8 +55,6 @@ select
         join information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name
     where
         constraint_type = 'FOREIGN KEY'
-        and
-            (tc.table_name = '{0}' or ccu.table_name = '{0}')
 """
 ROW_QUERY_FORMAT = """
 select

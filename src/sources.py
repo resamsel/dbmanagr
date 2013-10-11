@@ -11,11 +11,11 @@ from model import *
 class Source:
     def __init__(self):
         self.connections = []
-    def get_connections(self):
+    def list(self):
         return self.connections
 
 class PgpassSource(Source):
-    def get_connections(self):
+    def list(self):
         if not self.connections:
             with open(expanduser('~/.pgpass')) as f:
                 pgpass = f.readlines()
@@ -28,9 +28,12 @@ class PgpassSource(Source):
         return self.connections
 
 class DBExplorerSource(Source):
-    def get_connections(self):
+    def list(self):
         if not self.connections:
-            tree = ET.parse(expanduser('~/.dbexplorer/dbexplorer.cfg'))
+            try:
+                tree = ET.parse(expanduser('~/.dbexplorer/dbexplorer.cfg'))
+            except IOError, e:
+                return []
             root = tree.getroot()
             for c in root.iter('connection'):
                 url = urlparse(c.find('url').text.replace('jdbc:',''))

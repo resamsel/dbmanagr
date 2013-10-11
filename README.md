@@ -15,7 +15,9 @@ Allows you to explore your PostgreSQL database using Alfred 2.0.
 * Switch to the foreign table row
 * Configuration of what is shown based on table comments
 * Ability to filter rows by column_name=value
+* Shows foreign keys that point to the current table row
 
 ## Example
 Open Alfred and type:
+
 **select myuser@myhost/mydatabase/mytable/first_name=Herbert**

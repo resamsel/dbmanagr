@@ -36,7 +36,7 @@ class QueryBuilder:
         self.alias = '_%s' % self.table.name
 
     def build(self):
-        foreign_keys = self.table.foreign_keys()
+        foreign_keys = self.table.fks
         columns = []
         joins = ''
         counter = Counter()
@@ -92,7 +92,11 @@ class QueryBuilder:
                 joins += JOIN_FORMAT.format(fk.b.table.name, alias, fk.b.name, self.alias, fk.a.name)
 
         if self.id:
-            where = "%s = '%s'" % (comment_id, self.id)
+            if '=' in self.id:
+                (name, value) = self.id.split('=')
+                where = "{0}.{1} = '{2}'".format(self.alias, name, value)
+            else:
+                where = "%s = '%s'" % (comment_id, self.id)
         elif self.filter:
             if '=' in self.filter:
                 (name, value) = self.filter.split('=')

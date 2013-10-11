@@ -57,7 +57,7 @@ class Table:
         self.name = name
         self.comment = TableComment(self, comment)
         self.cols = None
-        self.fks = None
+        self.fks = {}
 
     def __repr__(self):
         return self.name
@@ -71,7 +71,7 @@ class Table:
         """Retrieves the autocomplete string for the given column and value"""
 
         tablename = self.name
-        fks = self.foreign_keys()
+        fks = self.fks
         if column in fks:
             fk = fks[column]
             tablename = fk.b.table.name
@@ -105,21 +105,6 @@ class Table:
                 self.cols.append(row['column_name'])
 
         return self.cols
-
-    def foreign_keys(self):
-        """Retrieves the foreign keys of the table"""
-
-        if not self.fks:
-            logging.debug('Retrieve foreign keys')
-            query = FOREIGN_KEY_QUERY_FORMAT.format(self.name)
-            logging.debug('Query foreign keys: %s' % query)
-            cur = self.connection.cursor()
-            cur.execute(query)
-            self.fks = {}
-            for row in cur.fetchall():
-                self.fks[row['column_name']] = ForeignKey(Column(self.connection.table_map[row['table_name']], row['column_name']), Column(self.connection.table_map[row['foreign_table_name']], row['foreign_column_name']))
-
-        return self.fks
 
 class Row:
     """A table row from the database"""
@@ -180,6 +165,14 @@ class DatabaseConnection:
     def __hash__(self):
         return hash(self.__repr__())
 
+    def autocomplete(self):
+        """Retrieves the autocomplete string"""
+
+        if self.database and self.database != '*':
+            return '%s@%s/%s/' % (self.user, self.host, self.database)
+
+        return '%s@%s/' % (self.user, self.host)
+
     def matches(self, s):
         return s.startswith("%s@%s" % (self.user, self.host))
 
@@ -194,6 +187,7 @@ class DatabaseConnection:
         else:
             self.con = psycopg2.connect(host=self.host, user=self.user, password=self.password)
         self.table_map = {t.name: t for t in self.tables(database)}
+        self.put_foreign_keys()
 
     def cursor(self):
         return self.con.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -225,3 +219,18 @@ class DatabaseConnection:
             self.tbls = map(t, cur.fetchall())
 
         return self.tbls
+
+    def put_foreign_keys(self):
+        """Retrieves the foreign keys of the table"""
+
+        logging.debug('Retrieve foreign keys')
+        query = FOREIGN_KEY_QUERY
+        logging.debug('Query foreign keys: %s' % query)
+        cur = self.cursor()
+        cur.execute(query)
+        for row in cur.fetchall():
+            a = Column(self.table_map[row['table_name']], row['column_name'])
+            b = Column(self.table_map[row['foreign_table_name']], row['foreign_column_name'])
+            fk = ForeignKey(a, b)
+            self.table_map[a.table.name].fks[a.name] = fk
+            self.table_map[b.table.name].fks[a.name] = fk

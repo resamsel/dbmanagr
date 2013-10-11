@@ -66,13 +66,14 @@ class DatabaseNavigator:
     def main(self):
         """The main method that splits the arguments and starts the magic"""
 
-        connections = set(DBExplorerSource().get_connections())
+        connections = set(DBExplorerSource().list() + PgpassSource().list())
         pgpass = None
         con = None
         options = Options(sys.argv)
         theconnection = None
 
         logging.debug('Options.uri(): %s' % options.uri())
+        # search exact match of connection
         if options.uri():
             for connection in connections:
                 if connection.matches(options.uri()):
@@ -80,17 +81,16 @@ class DatabaseNavigator:
                     break
 
         if not theconnection:
+            # print all connections
             self.print_connections(connections, options)
             return
 
         try:
             theconnection.connect(options.database)
 
-            # look for databases if needed
-            databases = theconnection.databases()
 #            logging.debug('Databases: %s' % ', '.join([db.__repr__() for db in databases]))
             if not options.database or options.table == None:
-                self.print_databases(theconnection, databases, options)
+                self.print_databases(theconnection, theconnection.databases(), options)
                 return
 
             tables = [t for k, t in theconnection.table_map.iteritems()]
@@ -123,8 +123,10 @@ class DatabaseNavigator:
         logging.debug('Printing connections')
         cons = connections
         if options.user:
-            cons = [c for c in connections if options.user in c.__repr__()]
-        self.print_items([[c, c, c, 'Connection', IMAGE_CONNECTION] for c in cons])
+            cons = [c for c in cons if options.user in c.user]
+        if options.host:
+            cons = [c for c in cons if options.host in c.host]
+        self.print_items([[c, c.autocomplete(), c.autocomplete(), 'Connection', IMAGE_CONNECTION] for c in cons])
 
     def print_databases(self, db, dbs, options):
         """Prints the given databases according to the given filter"""
@@ -137,7 +139,7 @@ class DatabaseNavigator:
         if options.database:
             dbs = [db for db in dbs if options.database in db.name]
 
-        self.print_items([[database, database.autocomplete(), database, 'Database', IMAGE_DATABASE] for database in dbs])
+        self.print_items([[database, database.autocomplete(), database.autocomplete(), 'Database', IMAGE_DATABASE] for database in dbs])
 
     def print_tables(self, tables, filter):
         """Prints the given tables according to the given filter"""
@@ -166,7 +168,7 @@ class DatabaseNavigator:
 
         logging.debug(self.print_values.__doc__)
 
-        foreign_keys = table.foreign_keys()
+        foreign_keys = table.fks
         query = QueryBuilder(table, id=filter, limit=1).build()
         
         logging.debug('Query values: %s' % query)
@@ -179,13 +181,13 @@ class DatabaseNavigator:
             keys = table.comment.display
         else:
             keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else key)
-        
+
         if 'subtitle' not in keys:
             keys.insert(0, 'subtitle')
         if 'title' not in keys:
             keys.insert(0, 'title')
 
-        def fk(column): return foreign_keys[column.name] if column.name in foreign_keys else column
+        def fkey(column): return foreign_keys[column.name] if column.name in foreign_keys else column
 
         def val(row, column):
             colname = '%s_title' % column
@@ -193,9 +195,27 @@ class DatabaseNavigator:
                 return '%s (%s)' % (row.row[colname], row.row[column])
             return row.row[column]
 
-        if row.row:
-            self.print_items([[key, table.autocomplete(key, row.row[key]), val(row, key), fk(Column(table, key)), IMAGE_VALUE] for key in keys])
-        else:
-            self.print_items([])
+        items = []
+        for key in keys:
+            autocomplete = table.autocomplete(key, row.row[key])
+            value = val(row, key)
+            f = fkey(Column(table, key))
+            icon = IMAGE_VALUE
+            if f.__class__.__name__ == 'ForeignKey':
+                icon = IMAGE_FOREIGN_KEY
+            items.append([key, autocomplete, value, f, icon])
 
-DatabaseNavigator().main()
+        for key in foreign_keys:
+            fk = foreign_keys[key]
+            if fk.b.table.name == table.name:
+                autocomplete = fk.a.table.autocomplete(fk.b.name, "{0}={1}".format(key, row.row[fk.b.name]))
+                colname = fk.a.name
+                f = fkey(Column(fk.a.table, fk.a.name))
+                items.append([row.row[fk.b.name], autocomplete, row.row[fk.b.name], f, IMAGE_FOREIGN_VALUE])
+
+        self.print_items(items)
+
+try:
+    DatabaseNavigator().main()
+except BaseException, e:
+    logging.exception(e)
