@@ -3,12 +3,15 @@
 
 ITEMS_FORMAT = """<items>
 {0}</items>"""
-ITEM_FORMAT = """   <item uid="{0}" arg="{2}" autocomplete="{1}">
+ITEM_FORMAT = """   <item uid="{0}" arg="{2}" autocomplete="{1}" valid="{5}">
         <title>{2}</title>
         <subtitle>{3}</subtitle>
         <icon>{4}</icon>
     </item>
 """
+
+VALID = "yes"
+INVALID = "no"
 
 IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
