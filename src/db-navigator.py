@@ -72,7 +72,6 @@ class DatabaseNavigator:
         options = Options(sys.argv)
         theconnection = None
 
-        logging.debug('Options.uri(): %s' % options.uri())
         # search exact match of connection
         if options.uri():
             for connection in connections:
@@ -88,7 +87,6 @@ class DatabaseNavigator:
         try:
             theconnection.connect(options.database)
 
-#            logging.debug('Databases: %s' % ', '.join([db.__repr__() for db in databases]))
             if not options.database or options.table == None:
                 self.print_databases(theconnection, theconnection.databases(), options)
                 return

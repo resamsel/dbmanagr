@@ -22,7 +22,6 @@ class PgpassSource(Source):
 
             for line in pgpass:
                 connection = DatabaseConnection(*line.strip().split(':'))
-                logging.debug('Database Connection: %s' % connection)
                 self.connections.append(connection)
 
         return self.connections
@@ -44,7 +43,6 @@ class DBExplorerSource(Source):
                     user = c.find('user').text
                     password = c.find('password').text
                     connection = DatabaseConnection(host, port, database, user, password)
-                    logging.debug('Database Connection: %s' % connection)
                     self.connections.append(connection)
         
         return self.connections

@@ -78,9 +78,7 @@ class QueryBuilder:
         if not comment_search:
             comment_search.append(comment_title)
             comment_search.append(comment_subtitle)
-        logging.debug('Search columns: %s' % comment_search)
         
-        logging.debug('Foreign keys: %s' % ', '.join(foreign_keys))
         for key in foreign_keys.keys():
             if key in comment_display:
                 fk = foreign_keys[key]
@@ -108,7 +106,6 @@ class QueryBuilder:
                 conjunctions.append("%s || '' = '%s'" % (comment_id, self.filter))
                 where = OR_SEPARATOR.join(conjunctions)
 
-        logging.debug('order: %s' % order)
         if not order:
             order.append(comment_id)
 
