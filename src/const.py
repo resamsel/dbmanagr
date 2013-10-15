@@ -15,6 +15,7 @@ IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 OPTION_URI_FORMAT = '%s@%s/%s'
 OPTION_URI_DATABASE_FORMAT = '%s/'
 OPTION_URI_TABLES_FORMAT = '%s/%s/'
+OPTION_URI_ROW_FORMAT = '%s/%s/%s'
 OPTION_URI_VALUE_FORMAT = '%s/%s/%s/'
 
 COMMENT_ID = 'id'

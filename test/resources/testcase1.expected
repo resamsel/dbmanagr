@@ -1,0 +1,17 @@
+Id	Title	Subtitle	Autocomplete	
+title	XML	api_key.title	skiline@localhost/skiline/api_key/XML/
+subtitle	09e779ae355b11e1960deb4f79cd2388	api_key.subtitle	skiline@localhost/skiline/api_key/09e779ae355b11e1960deb4f79cd2388/
+id	09e76932355b11e191dfaf54d84cf92e	api_key.id	skiline@localhost/skiline/api_key/09e76932355b11e191dfaf54d84cf92e/
+version	0	api_key.version	skiline@localhost/skiline/api_key/0/
+key	09e779ae355b11e1960deb4f79cd2388	api_key.key	skiline@localhost/skiline/api_key/09e779ae355b11e1960deb4f79cd2388/
+ordinal	6	api_key.ordinal	skiline@localhost/skiline/api_key/6/
+b2b_visible	False	api_key.b2b_visible	skiline@localhost/skiline/api_key/False/
+client_id	2f9fbb40226111e2970214feb5c97fba (2f9fbb40226111e2970214feb5c97fba)	api_key.client_id -> client.id	skiline@localhost/skiline/client/2f9fbb40226111e2970214feb5c97fba/
+comment	XML	api_key.comment	skiline@localhost/skiline/api_key/XML/
+forgot_password_email_template_id	17003e2c226411e2a2e914feb5c97fba (17003e2c226411e2a2e914feb5c97fba)	api_key.forgot_password_email_template_id -> email_template.id	skiline@localhost/skiline/email_template/17003e2c226411e2a2e914feb5c97fba/
+registration_doi_email_template_id	0d965f6c226711e2850214feb5c97fba (0d965f6c226711e2850214feb5c97fba)	api_key.registration_doi_email_template_id -> email_template.id	skiline@localhost/skiline/email_template/0d965f6c226711e2850214feb5c97fba/
+key_hash	4d71cf85c9a74d010a5e9bcea23513f6	api_key.key_hash	skiline@localhost/skiline/api_key/4d71cf85c9a74d010a5e9bcea23513f6/
+sender_email_address	None	api_key.sender_email_address	skiline@localhost/skiline/api_key/None/
+sender_name	None	api_key.sender_name	skiline@localhost/skiline/api_key/None/
+09e76932355b11e191dfaf54d84cf92e	Ref: api_permission.api_key_id	api_permission.api_key_id -> api_key.id	skiline@localhost/skiline/api_permission/api_key_id=09e76932355b11e191dfaf54d84cf92e
+

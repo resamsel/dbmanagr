@@ -216,7 +216,7 @@ class DatabaseNavigator:
         for key in foreign_keys:
             fk = foreign_keys[key]
             if fk.b.table.name == table.name:
-                autocomplete = fk.a.table.autocomplete(fk.b.name, "{0}={1}".format(key, row.row[fk.b.name]))
+                autocomplete = fk.a.table.autocomplete(fk.b.name, "{0}={1}".format(key, row.row[fk.b.name]), OPTION_URI_ROW_FORMAT)
                 colname = fk.a.name
                 f = fkey(Column(fk.a.table, fk.a.name))
                 items.append([row.row[fk.b.name], autocomplete, 'Ref: %s' % fk.a, f, IMAGE_FOREIGN_VALUE, INVALID])

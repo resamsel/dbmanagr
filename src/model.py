@@ -71,7 +71,7 @@ class Table:
 
         return '%s@%s/%s' % (self.connection.user, self.connection.host, self.database)
 
-    def autocomplete(self, column, value):
+    def autocomplete(self, column, value, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 
         tablename = self.name
@@ -80,7 +80,7 @@ class Table:
             fk = fks[column]
             tablename = fk.b.table.name
 
-        return OPTION_URI_VALUE_FORMAT % (self.uri(), tablename, value)
+        return format % (self.uri(), tablename, value)
 
     def rows(self, filter):
         """Retrieves rows from the table with the given filter applied"""

@@ -1,0 +1,5 @@
+Id	Title	Subtitle	Autocomplete	
+api_key	api_key	Title: {0}.comment	skiline@localhost/skiline/api_key/
+api_key_2_badge_definition	api_key_2_badge_definition	Title: {api_key_id_title} || ': ' || {badge_definition_id_title}	skiline@localhost/skiline/api_key_2_badge_definition/
+api_key_2_competition	api_key_2_competition	Title: {api_key_id_title} || ': ' || {competition_id_title}	skiline@localhost/skiline/api_key_2_competition/
+

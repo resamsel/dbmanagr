@@ -10,3 +10,6 @@ install: assemble
 
 init:
 	mkdir $(BUILD)
+
+test: test/resources/testcase*.sh
+	test/test.sh $^
