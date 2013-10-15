@@ -2,17 +2,25 @@
 
 while (( "$#" )); do
 	TESTCASE=$(basename ${1%.sh})
-	ACTUAL=/tmp/test-$RANDOM.actual
+	ACTUAL=/tmp/test-$TESTCASE.actual
 	EXPECTED=test/resources/$TESTCASE.expected
+	SCRIPT=$(cat test/resources/$TESTCASE.sh)
 
 	echo -n "Testing $TESTCASE... "
-	sh test/resources/$TESTCASE.sh > $ACTUAL
+	sh -c "build/files/$SCRIPT" > $ACTUAL
 
-	DIFF=$(diff -u $ACTUAL $EXPECTED)
+	DIFF=$(diff -u $EXPECTED $ACTUAL)
 
 	if [ "$DIFF" != "" ]; then
 		echo FAILED
-		echo $DIFF
+		if [ "$(which colordiff)" != "" ]; then
+			echo colordiff $EXPECTED $ACTUAL
+			colordiff $EXPECTED $ACTUAL
+		else
+			echo diff -u $EXPECTED $ACTUAL
+			echo $DIFF
+		fi
+		exit -1
 	else
 		echo OK
 	fi

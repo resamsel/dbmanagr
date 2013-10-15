@@ -53,7 +53,7 @@ class Options:
             paths = url.path.split('/')
 
             if len(locs) > 0:  self.user = locs[0]
-            if len(locs) > 1:  self.host = locs[1]
+            if '@' in args[1]: self.host = locs[1]
             if len(paths) > 1: self.database = paths[1]
             if len(paths) > 2: self.table = paths[2]
             if len(paths) > 3: self.filter = paths[3]
@@ -129,9 +129,15 @@ class DatabaseNavigator:
         """Prints the given connections according to the given filter"""
 
         logging.debug('Printing connections')
+        logging.debug(self.options)
         cons = connections
         if self.options.user:
-            cons = [c for c in cons if self.options.user in c.user]
+            if self.options.host != None:
+                logging.debug('self.options.host')
+                cons = [c for c in cons if self.options.user in c.user]
+            else:
+                logging.debug('not self.options.host')
+                cons = [c for c in cons if self.options.user in c.host]
         if self.options.host:
             cons = [c for c in cons if self.options.host in c.host]
         self.print_items([[c, c.autocomplete(), c.autocomplete(), 'Connection', IMAGE_CONNECTION, VALID] for c in cons])
@@ -141,7 +147,10 @@ class DatabaseNavigator:
 
         logging.debug(self.print_databases.__doc__)
         if self.options.user:
-            dbs = [db for db in dbs if self.options.user in db.connection.user]
+            if not self.options.host:
+                dbs = [db for db in dbs if self.options.user in db.connection.user]
+            else:
+                dbs = [db for db in dbs if self.options.user in db.connection.host]
         if self.options.host:
             dbs = [db for db in dbs if self.options.host in db.connection.host]
         if self.options.database:
