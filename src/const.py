@@ -1,15 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-ITEMS_FORMAT = """<items>
-{0}</items>"""
-ITEM_FORMAT = """   <item uid="{0}" arg="{2}" autocomplete="{1}" valid="{5}">
-        <title>{2}</title>
-        <subtitle>{3}</subtitle>
-        <icon>{4}</icon>
-    </item>
-"""
-
 VALID = "yes"
 INVALID = "no"
 
@@ -32,10 +23,6 @@ COMMENT_SUBTITLE = 'subtitle'
 COMMENT_ORDER_BY = 'order'
 COMMENT_SEARCH = 'search'
 COMMENT_DISPLAY = 'display'
-
-ID_FORMAT = "{0}.id"
-JOIN_FORMAT = """
-        left outer join \"{0}\" {1} on {1}.{2} = {3}.{4}"""
 
 DATABASES_QUERY = """
 select

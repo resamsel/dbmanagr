@@ -8,6 +8,7 @@ from urlparse import urlparse
 from const import *
 from model import *
 from querybuilder import QueryBuilder
+from printer import *
 from sources import *
 
 logging.basicConfig(filename='/tmp/dbexplorer.log', level=logging.DEBUG)
@@ -21,10 +22,13 @@ def strip(s):
     if type(s) == str:
         return s.strip()
     return s
-def html_escape(s):
-    if type(s) == str:
-        return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
-    return s
+
+printers = {
+    '-x': XmlPrinter(),
+    '-s': SimplePrinter(),
+    '-j': JsonPrinter(),
+    '-p': Printer()
+}
 
 class Options:
     def __init__(self, args):
@@ -34,7 +38,12 @@ class Options:
         self.table = None
         self.filter = None
         self.display = False
+        self.printer = printers['-x']
 
+        if len(args) > 1 and args[1].startswith('-'):
+            self.printer = printers[args[1]]
+            del args[1]
+            
         if len(args) > 1:
             arg = args[1]
             if '@' not in arg:
@@ -66,44 +75,45 @@ class DatabaseNavigator:
     def main(self):
         """The main method that splits the arguments and starts the magic"""
 
+        self.options = Options(sys.argv)
+
         connections = set(DBExplorerSource().list() + PgpassSource().list())
         pgpass = None
         con = None
-        options = Options(sys.argv)
         theconnection = None
 
         # search exact match of connection
-        if options.uri():
+        if self.options.uri():
             for connection in connections:
-                if connection.matches(options.uri()):
+                if connection.matches(self.options.uri()):
                     theconnection = connection
                     break
 
         if not theconnection:
             # print all connections
-            self.print_connections(connections, options)
+            self.print_connections(connections)
             return
 
         try:
-            theconnection.connect(options.database)
+            theconnection.connect(self.options.database)
 
-            if not options.database or options.table == None:
-                self.print_databases(theconnection, theconnection.databases(), options)
+            if not self.options.database or self.options.table == None:
+                self.print_databases(theconnection, theconnection.databases())
                 return
 
             tables = [t for k, t in theconnection.table_map.iteritems()]
             tables = sorted(tables, key=lambda t: t.name)
-            if options.table:
-                ts = [t for t in tables if options.table == t.name]
-                if len(ts) == 1 and options.filter != None:
+            if self.options.table:
+                ts = [t for t in tables if self.options.table == t.name]
+                if len(ts) == 1 and self.options.filter != None:
                     table = ts[0]
-                    if options.filter and options.display:
-                        self.print_values(table, options.filter)
+                    if self.options.filter and self.options.display:
+                        self.print_values(table, self.options.filter)
                     else:
-                        self.print_rows(table, options.filter)
+                        self.print_rows(table, self.options.filter)
                     return
             
-            self.print_tables(tables, options.table)
+            self.print_tables(tables, self.options.table)
         except psycopg2.DatabaseError, e:
             logging.error('Error %s' % e)
             sys.exit(1)
@@ -113,29 +123,29 @@ class DatabaseNavigator:
     def print_items(self, items):
         """Prints the given items according to the ITEM_FORMAT"""
 
-        print ITEMS_FORMAT.format(''.join([ITEM_FORMAT.format(*map(html_escape, i)) for i in items]))
+        self.options.printer.write(items)
 
-    def print_connections(self, connections, options):
+    def print_connections(self, connections):
         """Prints the given connections according to the given filter"""
 
         logging.debug('Printing connections')
         cons = connections
-        if options.user:
-            cons = [c for c in cons if options.user in c.user]
-        if options.host:
-            cons = [c for c in cons if options.host in c.host]
+        if self.options.user:
+            cons = [c for c in cons if self.options.user in c.user]
+        if self.options.host:
+            cons = [c for c in cons if self.options.host in c.host]
         self.print_items([[c, c.autocomplete(), c.autocomplete(), 'Connection', IMAGE_CONNECTION, VALID] for c in cons])
 
-    def print_databases(self, db, dbs, options):
+    def print_databases(self, db, dbs):
         """Prints the given databases according to the given filter"""
 
         logging.debug(self.print_databases.__doc__)
-        if options.user:
-            dbs = [db for db in dbs if options.user in db.connection.user]
-        if options.host:
-            dbs = [db for db in dbs if options.host in db.connection.host]
-        if options.database:
-            dbs = [db for db in dbs if options.database in db.name]
+        if self.options.user:
+            dbs = [db for db in dbs if self.options.user in db.connection.user]
+        if self.options.host:
+            dbs = [db for db in dbs if self.options.host in db.connection.host]
+        if self.options.database:
+            dbs = [db for db in dbs if self.options.database in db.name]
 
         self.print_items([[database, database.autocomplete(), database.autocomplete(), 'Database', IMAGE_DATABASE, VALID] for database in dbs])
 

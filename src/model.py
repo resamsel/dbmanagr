@@ -10,6 +10,7 @@ from const import *
 from querybuilder import QueryBuilder
 
 DEFAULT_LIMIT = 50
+ID_FORMAT = "{0}.id"
 
 class Database:
     """The database used with the given connection"""
@@ -30,7 +31,7 @@ class TableComment:
     """The comment on the given table that allows to display much more accurate information"""
 
     def __init__(self, table, json_string):
-        self.d = {COMMENT_TITLE: '{0}.id', COMMENT_ORDER_BY: [], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
+        self.d = {COMMENT_TITLE: ID_FORMAT, COMMENT_ORDER_BY: [], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
         self.d[COMMENT_SUBTITLE] = "'Id: ' || %s" % ID_FORMAT
         self.d[COMMENT_ID] = ID_FORMAT
 
@@ -39,12 +40,15 @@ class TableComment:
                 self.d = dict(self.d.items() + json.loads(json_string).items())
             except TypeError, e:
                 pass
-        
+
+        self.id = self.d[COMMENT_ID]
+        if self.d[COMMENT_TITLE] == ID_FORMAT and self.id != ID_FORMAT:
+            self.d[COMMENT_TITLE] = '{0}.%s' % self.id
+#        logging.debug('Comment on %s: %s', table, self.d)
         self.title = self.d[COMMENT_TITLE]
         self.subtitle = self.d[COMMENT_SUBTITLE]
         self.search = self.d[COMMENT_SEARCH]
         self.display = self.d[COMMENT_DISPLAY]
-        self.id = self.d[COMMENT_ID]
         self.order = self.d[COMMENT_ORDER_BY]
 
     def __repr__(self):
