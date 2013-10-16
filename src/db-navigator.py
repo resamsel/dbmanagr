@@ -89,7 +89,7 @@ class DatabaseNavigator:
                     theconnection = connection
                     break
 
-        if not theconnection:
+        if self.options.database == None:
             # print all connections
             self.print_connections(connections)
             return
