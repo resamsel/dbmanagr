@@ -200,7 +200,7 @@ svg_template_2_ski_resort	svg_template_2_ski_resort	Title: {0}.id	skiline@localh
 svg_template_content	svg_template_content	Title: {0}.id	skiline@localhost/skiline/svg_template_content/
 swisscom_performance_status	swisscom_performance_status	Title: {0}.id	skiline@localhost/skiline/swisscom_performance_status/
 swisscom_skimovie_status	swisscom_skimovie_status	Title: {0}.id	skiline@localhost/skiline/swisscom_skimovie_status/
-system_property	system_property	Title: {0}.id	skiline@localhost/skiline/system_property/
+system_property	system_property	Title: {0}.value	skiline@localhost/skiline/system_property/
 test_skicards	test_skicards	Title: {0}.id	skiline@localhost/skiline/test_skicards/
 thread	thread	Title: {0}.id	skiline@localhost/skiline/thread/
 thread_visit	thread_visit	Title: {0}.id	skiline@localhost/skiline/thread_visit/

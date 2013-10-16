@@ -172,7 +172,7 @@ class DatabaseNavigator:
                 return '%s (%s)' % (row.row[colname], row.row[column])
             return row.row[column]
 
-        self.print_items([[row[0], table.autocomplete('id', row['id']), val(row, 'title'), strip(row[2]), IMAGE_ROW, VALID] for row in rows])
+        self.print_items([[row[0], table.autocomplete('id', row['id']), val(row, 'title'), val(row, 'subtitle'), IMAGE_ROW, VALID] for row in rows])
 
     def print_values(self, table, filter):
         """Prints the given row values according to the given filter"""

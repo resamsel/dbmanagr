@@ -83,7 +83,10 @@ class Comment:
         self.order = map(f, comment.order)
         self.search = map(f, comment.search)
 
-        self.columns['id'] = Projection(self.id, 'id')
+        if 'id' in table.columns():
+            self.columns['id'] = Projection(self.id, 'id')
+        else:
+            self.columns['id'] = Projection('1', 'id')
         if self.title != '*':
             self.columns['title'] = Projection(self.title, 'title')
         self.columns['subtitle'] = Projection(self.subtitle, 'subtitle')
@@ -168,7 +171,10 @@ class QueryBuilder:
                 where = OR_SEPARATOR.join(conjunctions)
 
         if not order:
-            order.append(comment.id)
+            if 'id' in comment.columns:
+                order.append(comment.columns['id'].value)
+            else:
+                order.append('1')
 
         return QUERY_FORMAT.format(self.table.name,
             LIST_SEPARATOR.join(map(str, comment.columns.values())),
