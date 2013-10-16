@@ -167,7 +167,8 @@ class QueryBuilder:
                 conjunctions = []
                 for search_field in comment.search:
                     conjunctions.append(SEARCH_FORMAT % (search_field, self.filter))
-                conjunctions.append("%s || '' = '%s'" % (comment.id, self.filter))
+                if 'id' in comment.columns:
+                    conjunctions.append("%s || '' = '%s'" % (comment.columns['id'].value, self.filter))
                 where = OR_SEPARATOR.join(conjunctions)
 
         if not order:

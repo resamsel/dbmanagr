@@ -1,0 +1,11 @@
+Id	Title	Subtitle	Autocomplete	
+GOOGLE_MAPS_LIFTRIDES_URL	http://${HOST_NAME}/php/alturos/content/mapOverlay.php?s={slc}	GOOGLE_MAPS_LIFTRIDES_URL	skiline@localhost/skiline/system_property/1/
+HOST_NAME	10.60.4.113	HOST_NAME	skiline@localhost/skiline/system_property/1/
+KIOSK_DUMMY_VIDEO	http://${HOST_NAME}/shared/media/videos/blank.flv	KIOSK_DUMMY_VIDEO	skiline@localhost/skiline/system_property/1/
+MARKET_PLACE_SKI_RESORT_RENT_URL	http://${HOST_NAME}/php/sport2000rent/rent.php?resort={0}&amp;language={1}	MARKET_PLACE_SKI_RESORT_RENT_URL	skiline@localhost/skiline/system_property/1/
+PHP_BASE_URL	http://${HOST_NAME}/php/alturos/content	PHP_BASE_URL	skiline@localhost/skiline/system_property/1/
+PHP_CHALLENGE_URL	http://${HOST_NAME}/php/challenge	PHP_CHALLENGE_URL	skiline@localhost/skiline/system_property/1/
+SKILINE_DATA_URL	http://${HOST_NAME}/shared/	SKILINE_DATA_URL	skiline@localhost/skiline/system_property/1/
+SKILINE_URL	http://${HOST_NAME}	SKILINE_URL	skiline@localhost/skiline/system_property/1/
+STATIC_PAGES	http://${HOST_NAME}/pages	STATIC_PAGES	skiline@localhost/skiline/system_property/1/
+
