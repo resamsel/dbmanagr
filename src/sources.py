@@ -39,7 +39,7 @@ class DBExplorerSource(Source):
                 if url.scheme == 'postgresql':
                     host = url.netloc
                     port = 5432
-                    database = url.path.split('/')[1]
+                    database = '*'
                     user = c.find('user').text
                     password = c.find('password').text
                     connection = DatabaseConnection(host, port, database, user, password)

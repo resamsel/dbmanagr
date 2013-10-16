@@ -98,7 +98,7 @@ class DatabaseNavigator:
             theconnection.connect(self.options.database)
 
             if not self.options.database or self.options.table == None:
-                self.print_databases(theconnection, theconnection.databases())
+                self.print_databases(theconnection, theconnection.databases(), self.options.database)
                 return
 
             tables = [t for k, t in theconnection.table_map.iteritems()]
@@ -142,19 +142,13 @@ class DatabaseNavigator:
             cons = [c for c in cons if self.options.host in c.host]
         self.print_items([[c, c.autocomplete(), c.autocomplete(), 'Connection', IMAGE_CONNECTION, VALID] for c in cons])
 
-    def print_databases(self, db, dbs):
-        """Prints the given databases according to the given filter"""
+    def print_databases(self, database, dbs, filter=None):
+        """Prints the given databases {dbs} according to the given filter {filter}"""
 
-        logging.debug(self.print_databases.__doc__)
-        if self.options.user:
-            if not self.options.host:
-                dbs = [db for db in dbs if self.options.user in db.connection.user]
-            else:
-                dbs = [db for db in dbs if self.options.user in db.connection.host]
-        if self.options.host:
-            dbs = [db for db in dbs if self.options.host in db.connection.host]
-        if self.options.database:
-            dbs = [db for db in dbs if self.options.database in db.name]
+        logging.debug(self.print_databases.__doc__.format(database=database, dbs=dbs, filter=filter))
+
+        if filter:
+            dbs = [db for db in dbs if filter in db.name]
 
         self.print_items([[database, database.autocomplete(), database.autocomplete(), 'Database', IMAGE_DATABASE, VALID] for database in dbs])
 
