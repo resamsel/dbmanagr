@@ -1,6 +1,9 @@
 #!/bin/bash
 
 STATUS=0
+TOTAL=$#
+OK=0
+FAILED=0
 
 while (( "$#" )); do
 	TESTCASE=$(basename ${1%.sh})
@@ -14,6 +17,7 @@ while (( "$#" )); do
 	DIFF=$(diff -u $EXPECTED $ACTUAL)
 
 	if [ "$DIFF" != "" ]; then
+		FAILED=$((FAILED+1))
 		echo FAILED
 		echo $SCRIPT
 		if [ "$(which colordiff)" != "" ]; then
@@ -25,10 +29,14 @@ while (( "$#" )); do
 		fi
 		STATUS=-1
 	else
+		OK=$((OK+1))
 		echo OK
 	fi
 
 	shift
 done
+
+echo "Tests run: $TOTAL, failed: $FAILED"
+echo
 
 exit $STATUS
