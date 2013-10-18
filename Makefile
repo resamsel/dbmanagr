@@ -21,5 +21,7 @@ build: init archive test
 install: build
 	tar -C $(ALFRED_WORKFLOW) -xzf $(BUILD)/$(ARCHIVE)
 
-test: test/resources/testcase*.sh
+test: assemble _test
+
+_test: test/resources/testcase*.sh
 	test/test.sh $^

@@ -1,0 +1,1 @@
+db-navigator.py -s skiline@localhost/skiline/api_key/09e76932355b11e191dfaf54d84cf92e/

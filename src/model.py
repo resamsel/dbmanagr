@@ -236,7 +236,7 @@ class DatabaseConnection:
             a = Column(self.table_map[row['table_name']], row['column_name'])
             b = Column(self.table_map[row['foreign_table_name']], row['foreign_column_name'])
             fk = ForeignKey(a, b)
-            logging.debug("Put into map[%s].fks[%s]: %s" % (a.table.name, a.name, fk))
-            logging.debug("Put into map[%s].fks[%s]: %s" % (b.table.name, str(a), fk))
+#            logging.debug("Put into map[%s].fks[%s]: %s" % (a.table.name, a.name, fk))
+#            logging.debug("Put into map[%s].fks[%s]: %s" % (b.table.name, str(a), fk))
             self.table_map[a.table.name].fks[a.name] = fk
             self.table_map[b.table.name].fks[str(a)] = fk

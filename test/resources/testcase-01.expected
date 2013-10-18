@@ -1,19 +1,18 @@
 Id	Title	Subtitle	Autocomplete	
-4c4ed034-4432-3ca7-a219-55acc1f1d1d3	XML	api_key.title	skiline@localhost/skiline/api_key/XML/
-91939280-6f74-3901-8a1f-bdb6662785bc	09e779ae355b11e1960deb4f79cd2388	api_key.subtitle	skiline@localhost/skiline/api_key/09e779ae355b11e1960deb4f79cd2388/
-004689e1-230d-3cb6-92c7-081410295f24	09e76932355b11e191dfaf54d84cf92e	api_key.id	skiline@localhost/skiline/api_key/09e76932355b11e191dfaf54d84cf92e/
-64dae1a9-9b72-39c2-8964-1a51aebabc8e	0	api_key.version	skiline@localhost/skiline/api_key/0/
-91939280-6f74-3901-8a1f-bdb6662785bc	09e779ae355b11e1960deb4f79cd2388	api_key.key	skiline@localhost/skiline/api_key/09e779ae355b11e1960deb4f79cd2388/
-2d3a8e76-9627-3e5c-b2a6-84ca50c275b4	6	api_key.ordinal	skiline@localhost/skiline/api_key/6/
-8bf0a827-493e-3196-a22d-4fbd5c2ac2af	False	api_key.b2b_visible	skiline@localhost/skiline/api_key/False/
-6295ce95-489a-3f47-a5c2-38f3b8ed7f23	2f9fbb40226111e2970214feb5c97fba (2f9fbb40226111e2970214feb5c97fba)	api_key.client_id -> client.id	skiline@localhost/skiline/client/2f9fbb40226111e2970214feb5c97fba/
-4c4ed034-4432-3ca7-a219-55acc1f1d1d3	XML	api_key.comment	skiline@localhost/skiline/api_key/XML/
-e144eb0f-8ce5-3016-847b-f986823e47f5	17003e2c226411e2a2e914feb5c97fba (17003e2c226411e2a2e914feb5c97fba)	api_key.forgot_password_email_template_id -> email_template.id	skiline@localhost/skiline/email_template/17003e2c226411e2a2e914feb5c97fba/
-97f74ef7-f707-3fdb-9b16-f4525bfca872	0d965f6c226711e2850214feb5c97fba (0d965f6c226711e2850214feb5c97fba)	api_key.registration_doi_email_template_id -> email_template.id	skiline@localhost/skiline/email_template/0d965f6c226711e2850214feb5c97fba/
-06166e62-6031-3eb3-b8df-d1614b4cb4be	4d71cf85c9a74d010a5e9bcea23513f6	api_key.key_hash	skiline@localhost/skiline/api_key/4d71cf85c9a74d010a5e9bcea23513f6/
-a0fb9954-451a-3832-a37a-3511083c840e	None	api_key.sender_email_address	skiline@localhost/skiline/api_key/None/
-a0fb9954-451a-3832-a37a-3511083c840e	None	api_key.sender_name	skiline@localhost/skiline/api_key/None/
-b01c74ff-df5c-33f2-911e-03248d22471b	Ref: api_key_2_badge_definition.api_key_id	api_key_2_badge_definition.api_key_id	skiline@localhost/skiline/api_key_2_badge_definition/api_key_id=09e76932355b11e191dfaf54d84cf92e
-65801748-0e3a-393f-b662-cfe653908d12	Ref: api_key_2_competition.api_key_id	api_key_2_competition.api_key_id	skiline@localhost/skiline/api_key_2_competition/api_key_id=09e76932355b11e191dfaf54d84cf92e
-2b9495ec-62d3-32fc-865b-ce1103e6fda1	Ref: api_permission.api_key_id	api_permission.api_key_id	skiline@localhost/skiline/api_permission/api_key_id=09e76932355b11e191dfaf54d84cf92e
+4b556642-7a50-3a01-a54d-29f44a79baa3	postgres@188.65.75.24/	Connection	postgres@188.65.75.24/
+bc1b7f66-023c-3b42-98dc-b7a0ad2f00b1	skiline@qa2.skiline.net/	Connection	skiline@qa2.skiline.net/
+2db3749b-29b5-3792-9acc-c99906b480c8	postgres@bmwqa.skiline.net/	Connection	postgres@bmwqa.skiline.net/
+3f3bdd39-ecba-3df9-b4fa-1c95905c3bf8	hikeline@localhost/	Connection	hikeline@localhost/
+8586ca38-dfb0-3447-9a4a-30dcaa31801a	postgres@sevensummits.easyplex.com/	Connection	postgres@sevensummits.easyplex.com/
+a3b54d59-bb90-3919-b3f7-6c61cadec6d2	postgres@localhost/	Connection	postgres@localhost/
+2f7ff16e-dd41-37a9-bce4-1588dcb42780	postgres@livecopy.skiline.net/	Connection	postgres@livecopy.skiline.net/
+4d42aeec-03d9-3654-b011-488cf08b6125	hikeline@www.hikeline.cc/	Connection	hikeline@www.hikeline.cc/
+89c53a58-e3f9-3678-923b-f6d0d0b602d3	skiline@localhost/	Connection	skiline@localhost/
+8422e1be-16c9-34b7-ab23-e3d6ea0f7ea1	skiline@bmwqa.skiline.net/	Connection	skiline@bmwqa.skiline.net/
+6f63cf71-c255-3871-9d2d-e406d9414d8b	skiline-php@localhost/	Connection	skiline-php@localhost/
+ab3598ae-a4d0-382f-9987-34e3e8b76a43	skiline@qa.skiline.net/	Connection	skiline@qa.skiline.net/
+d05af6c4-0c9a-34c8-b616-408cedbb93c5	postgres@qa2.skiline.net/	Connection	postgres@qa2.skiline.net/
+ee5670e7-557f-320d-9f4d-c93df811b226	skiline@188.65.75.24/	Connection	skiline@188.65.75.24/
+ff14bcf5-c571-3be6-93ec-6fa53f19c152	skiline@livecopy.skiline.net/	Connection	skiline@livecopy.skiline.net/
+843cf94e-c89d-3768-a1ab-2e90e97ded09	postgres@qa.skiline.net/	Connection	postgres@qa.skiline.net/
 

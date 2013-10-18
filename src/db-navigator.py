@@ -130,20 +130,21 @@ class DatabaseNavigator:
         self.options.printer.write(items)
 
     def print_connections(self, connections):
-        """Prints the given connections according to the given filter"""
+        """Prints the given connections {connections}"""
 
-        logging.debug('Printing connections')
-        logging.debug(self.options)
+        logging.debug(self.print_connections.__doc__.format(connections=connections))
         cons = connections
         if self.options.user:
+            filter = self.options.user
             if self.options.host != None:
-                logging.debug('self.options.host')
-                cons = [c for c in cons if self.options.user in c.user]
+                cons = [c for c in cons if filter in c.user]
+                logging.debug('self.options.host: %s' % cons)
             else:
-                logging.debug('not self.options.host')
-                cons = [c for c in cons if self.options.user in c.host]
-        if self.options.host:
+                cons = [c for c in cons if filter in c.user or filter in c.host]
+                logging.debug('not self.options.host: %s' % cons)
+        if self.options.host != None:
             cons = [c for c in cons if self.options.host in c.host]
+            logging.debug('self.options.host != None: %s' % cons)
         self.print_items([[hash(c.autocomplete()), c.autocomplete(), c.autocomplete(), 'Connection', IMAGE_CONNECTION, VALID] for c in cons])
 
     def print_databases(self, database, dbs, filter=None):
