@@ -3,6 +3,7 @@
 
 import logging
 import sys
+import uuid
 from urlparse import urlparse
 
 from const import *
@@ -22,6 +23,9 @@ def strip(s):
     if type(s) == str:
         return s.strip()
     return s
+
+def hash(s):
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s))
 
 printers = {
     '-x': XmlPrinter(),
@@ -140,7 +144,7 @@ class DatabaseNavigator:
                 cons = [c for c in cons if self.options.user in c.host]
         if self.options.host:
             cons = [c for c in cons if self.options.host in c.host]
-        self.print_items([[c, c.autocomplete(), c.autocomplete(), 'Connection', IMAGE_CONNECTION, VALID] for c in cons])
+        self.print_items([[hash(c.autocomplete()), c.autocomplete(), c.autocomplete(), 'Connection', IMAGE_CONNECTION, VALID] for c in cons])
 
     def print_databases(self, database, dbs, filter=None):
         """Prints the given databases {dbs} according to the given filter {filter}"""
@@ -150,7 +154,7 @@ class DatabaseNavigator:
         if filter:
             dbs = [db for db in dbs if filter in db.name]
 
-        self.print_items([[database, database.autocomplete(), database.autocomplete(), 'Database', IMAGE_DATABASE, VALID] for database in dbs])
+        self.print_items([[hash(database.autocomplete()), database.autocomplete(), database.autocomplete(), 'Database', IMAGE_DATABASE, VALID] for database in dbs])
 
     def print_tables(self, tables, filter):
         """Prints the given tables according to the given filter"""
@@ -158,7 +162,7 @@ class DatabaseNavigator:
         logging.debug(self.print_tables.__doc__)
         if filter:
             tables = [t for t in tables if t.name.startswith(filter)]
-        self.print_items([[t.name, OPTION_URI_TABLES_FORMAT % (t.uri(), t), t.name, 'Title: %s' % t.comment.title, IMAGE_TABLE, VALID] for t in tables])
+        self.print_items([[hash(OPTION_URI_TABLES_FORMAT % (t.uri(), t)), OPTION_URI_TABLES_FORMAT % (t.uri(), t), t.name, 'Title: %s' % t.comment.title, IMAGE_TABLE, VALID] for t in tables])
 
     def print_rows(self, table, filter):
         """Prints the given rows according to the given filter"""
@@ -172,7 +176,7 @@ class DatabaseNavigator:
                 return '%s (%s)' % (row.row[colname], row.row[column])
             return row.row[column]
 
-        self.print_items([[row[0], table.autocomplete('id', row['id']), val(row, 'title'), val(row, 'subtitle'), IMAGE_ROW, VALID] for row in rows])
+        self.print_items([[hash(table.autocomplete('id', row['id'])), table.autocomplete('id', row['id']), val(row, 'title'), val(row, 'subtitle'), IMAGE_ROW, VALID] for row in rows])
 
     def print_values(self, table, filter):
         """Prints the given row values according to the given filter"""
@@ -214,7 +218,7 @@ class DatabaseNavigator:
             icon = IMAGE_VALUE
             if f.__class__.__name__ == 'ForeignKey':
                 icon = IMAGE_FOREIGN_KEY
-            items.append([key, autocomplete, value, f, icon, VALID])
+            items.append([hash(autocomplete), autocomplete, value, f, icon, VALID])
 
         for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
             fk = foreign_keys[key]
@@ -222,7 +226,7 @@ class DatabaseNavigator:
                 autocomplete = fk.a.table.autocomplete(fk.b.name, "{0}={1}".format(fk.a.name, row.row[fk.b.name]), OPTION_URI_ROW_FORMAT)
                 colname = fk.a.name
                 f = fkey(Column(fk.a.table, fk.a.name))
-                items.append([row.row[fk.b.name], autocomplete, 'Ref: %s' % fk.a, f, IMAGE_FOREIGN_VALUE, INVALID])
+                items.append([hash(autocomplete), autocomplete, 'Ref: %s' % fk.a, f, IMAGE_FOREIGN_VALUE, INVALID])
 
         self.print_items(items)
 
