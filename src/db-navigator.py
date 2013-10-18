@@ -216,10 +216,10 @@ class DatabaseNavigator:
                 icon = IMAGE_FOREIGN_KEY
             items.append([key, autocomplete, value, f, icon, VALID])
 
-        for key in foreign_keys:
+        for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
             fk = foreign_keys[key]
             if fk.b.table.name == table.name:
-                autocomplete = fk.a.table.autocomplete(fk.b.name, "{0}={1}".format(key, row.row[fk.b.name]), OPTION_URI_ROW_FORMAT)
+                autocomplete = fk.a.table.autocomplete(fk.b.name, "{0}={1}".format(fk.a.name, row.row[fk.b.name]), OPTION_URI_ROW_FORMAT)
                 colname = fk.a.name
                 f = fkey(Column(fk.a.table, fk.a.name))
                 items.append([row.row[fk.b.name], autocomplete, 'Ref: %s' % fk.a, f, IMAGE_FOREIGN_VALUE, INVALID])

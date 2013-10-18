@@ -1,14 +1,18 @@
 #!/bin/bash
 
+ACTUAL_PREFIX="build/test/"
+ACTUAL_SUFFIX=".actual"
+EXPECTED_PREFIX="test/resources/"
+EXPECTED_SUFFIX=".expected"
 STATUS=0
 TOTAL=$#
 OK=0
 FAILED=0
 
 while (( "$#" )); do
-	TESTCASE=$(basename ${1%.sh})
-	ACTUAL=/tmp/test-$TESTCASE.actual
-	EXPECTED=test/resources/$TESTCASE.expected
+	TESTCASE="$(basename ${1%.sh})"
+	ACTUAL="$ACTUAL_PREFIX$TESTCASE$ACTUAL_SUFFIX"
+	EXPECTED="$EXPECTED_PREFIX$TESTCASE$EXPECTED_SUFFIX"
 	SCRIPT="build/files/$(cat test/resources/$TESTCASE.sh)"
 
 	echo -n "Testing $TESTCASE... "
