@@ -46,7 +46,7 @@ done
 
 TT=$(ruby -e 'puts "%.3f" % (Time.now - '$TT')')
 
-echo "Tests run: $TOTAL, failed: $FAILED (took ${TT}s)"
-echo
+#echo "Tests run: $TOTAL, failed: $FAILED (took ${TT}s)"
+#echo
 
 exit $STATUS
