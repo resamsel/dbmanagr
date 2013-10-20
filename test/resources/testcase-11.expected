@@ -1,4 +1,4 @@
-Id	Title	Subtitle	Autocomplete	
+Id	Title	Subtitle	Autocomplete
 28df0ec2-4623-33eb-a55f-9762da504a67	access_log	Title: {0}.id	skiline@localhost/skiline/access_log/
 6ad65771-6397-30b1-9008-87fea08c6f00	address	Title: {0}.id	skiline@localhost/skiline/address/
 d4091fb8-86d6-361f-884a-3135b224afeb	album	Title: {0}.id	skiline@localhost/skiline/album/

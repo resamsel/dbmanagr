@@ -8,38 +8,44 @@ def html_escape(s):
 
 class Printer:
     def write(self, items):
-        print items
-
-XML_ITEMS_FORMAT = """<items>
-{0}</items>"""
-XML_ITEM_FORMAT = """   <item uid="{0}" arg="{2}" autocomplete="{1}" valid="{5}">
-        <title>{2}</title>
-        <subtitle>{3}</subtitle>
-        <icon>{4}</icon>
-    </item>
-"""
+        print map(lambda item: self.itemtostring(item), items)
+    def itemtostring(self, item):
+        return str(item)
 
 class XmlPrinter(Printer):
-    def write(self, items):
-        s = ''.join([XML_ITEM_FORMAT.format(*map(html_escape, i)) for i in items])
-        print XML_ITEMS_FORMAT.format(s)
-
-JSON_ITEMS_FORMAT = """{{
-{0}}}"""
-JSON_ITEM_FORMAT = """   {{ "uid": "{0}", "arg": "{2}", "autocomplete": "{1}", "valid": "{5}", "title": "{2}", "subtitle": "{3}", "icon": "{4}" }}
+    ITEMS_FORMAT = """<items>
+{0}</items>"""
+    ITEM_FORMAT = """   <item uid="{uid}" arg="{title}" autocomplete="{autocomplete}" valid="{valid}">
+        <title>{title}</title>
+        <subtitle>{subtitle}</subtitle>
+        <icon>{icon}</icon>
+    </item>
 """
+    def write(self, items):
+        s = ''.join([self.itemtostring(i) for i in items])
+        print XmlPrinter.ITEMS_FORMAT.format(s)
+    def itemtostring(self, item):
+        return XmlPrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
+
 
 class JsonPrinter(Printer):
-    def write(self, items):
-        s = ''.join([JSON_ITEM_FORMAT.format(*map(html_escape, i)) for i in items])
-        print JSON_ITEMS_FORMAT.format(s)
-
-SIMPLE_ITEMS_FORMAT = """Id\tTitle\tSubtitle\tAutocomplete\t
-{0}"""
-SIMPLE_ITEM_FORMAT = """{0}\t{2}\t{3}\t{1}
+    ITEMS_FORMAT = """{{
+{0}}}"""
+    ITEM_FORMAT = """   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}
 """
+    def write(self, items):
+        s = ''.join([self.itemtostring(i) for i in items])
+        print JsonPrinter.ITEMS_FORMAT.format(s)
+    def itemtostring(self, item):
+        return JsonPrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
 
 class SimplePrinter(Printer):
+    ITEMS_FORMAT = """Id\tTitle\tSubtitle\tAutocomplete
+{0}"""
+    ITEM_FORMAT = """{uid}\t{title}\t{subtitle}\t{autocomplete}
+"""
     def write(self, items):
-        s = ''.join([SIMPLE_ITEM_FORMAT.format(*map(html_escape, i)) for i in items])
-        print SIMPLE_ITEMS_FORMAT.format(s)
+        s = ''.join([self.itemtostring(i) for i in items])
+        print SimplePrinter.ITEMS_FORMAT.format(s)
+    def itemtostring(self, item):
+        return SimplePrinter.ITEM_FORMAT.format(**item.escaped(html_escape))

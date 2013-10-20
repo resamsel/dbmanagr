@@ -5,10 +5,15 @@ import logging
 import psycopg2
 import psycopg2.extras
 import json
+import time
+import shelve
 
+from os.path import expanduser
 from const import *
 from querybuilder import QueryBuilder
+from logger import logduration
 
+CACHE_TIME = 0 # 2*60
 DEFAULT_LIMIT = 50
 ID_FORMAT = "{0}.id"
 
@@ -89,7 +94,9 @@ class Table:
 
         logging.debug('Query rows: %s' % query)
         cur = self.connection.cursor()
+        start = time.time()
         cur.execute(query)
+        logduration('Query rows', start)
 
         def t(row): return Row(self.connection, self, row)
 
@@ -103,7 +110,9 @@ class Table:
             query = COLUMNS_QUERY.format(self.name)
             logging.debug('Query columns: %s' % query)
             cur = self.connection.cursor()
+            start = time.time()
             cur.execute(query)
+            logduration('Query columns', start)
             self.cols = []
             for row in cur.fetchall():
                 self.cols.append(row['column_name'])
@@ -169,6 +178,13 @@ class DatabaseConnection:
     def __hash__(self):
         return hash(self.__repr__())
 
+    def __getstate__(self):
+        state = dict(self.__dict__)
+        logging.debug('State: %s' % state)
+        if 'con' in state:
+            del state['con']
+        return state
+
     def autocomplete(self):
         """Retrieves the autocomplete string"""
 
@@ -188,10 +204,25 @@ class DatabaseConnection:
                 self.con = psycopg2.connect(host=self.host, database=database, user=self.user, password=self.password)
             except psycopg2.DatabaseError, e:
                 self.con = psycopg2.connect(host=self.host, user=self.user, password=self.password)
+                database = None
+
+            if database:
+                d = shelve.open(expanduser('~/.dbnavigator.cache'), writeback=True)
+                try:
+                    uri = self.__repr__()
+                    if uri in d and d['%s_time' % uri] > time.time() - CACHE_TIME:
+                        # foreign key have already been saved to shelve within the last 2 minutes
+                        self.table_map = d[uri]
+                    else:
+                        self.table_map = {t.name: t for t in self.tables(database)}
+                        self.put_foreign_keys()
+                        
+                        d[uri] = self.table_map
+                        d['%s_time' % uri] = time.time()
+                finally:
+                    d.close()
         else:
             self.con = psycopg2.connect(host=self.host, user=self.user, password=self.password)
-        self.table_map = {t.name: t for t in self.tables(database)}
-        self.put_foreign_keys()
 
     def cursor(self):
         return self.con.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -202,7 +233,9 @@ class DatabaseConnection:
             logging.debug('Query databases: %s' % query)
 
             cur = self.cursor()
+            start = time.time()
             cur.execute(query)
+            logduration('Query databases', start)
     
             def d(row): return Database(self, row[0])
     
@@ -216,7 +249,9 @@ class DatabaseConnection:
             logging.debug('Query tables: %s' % query)
     
             cur = self.cursor()
+            start = time.time()
             cur.execute(query)
+            logduration('Query tables', start)
     
             def t(row): return Table(self, database, row[0], row[1])
     
@@ -231,12 +266,12 @@ class DatabaseConnection:
         query = FOREIGN_KEY_QUERY
         logging.debug('Query foreign keys: %s' % query)
         cur = self.cursor()
+        start = time.time()
         cur.execute(query)
+        logduration('Query foreign keys', start)
         for row in cur.fetchall():
             a = Column(self.table_map[row['table_name']], row['column_name'])
             b = Column(self.table_map[row['foreign_table_name']], row['foreign_column_name'])
             fk = ForeignKey(a, b)
-#            logging.debug("Put into map[%s].fks[%s]: %s" % (a.table.name, a.name, fk))
-#            logging.debug("Put into map[%s].fks[%s]: %s" % (b.table.name, str(a), fk))
             self.table_map[a.table.name].fks[a.name] = fk
             self.table_map[b.table.name].fks[str(a)] = fk

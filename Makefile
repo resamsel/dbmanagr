@@ -1,5 +1,5 @@
 BUILD = build
-ARCHIVE = dbexplorer_alfred_0.1.tgz
+ARCHIVE = $(BUILD)/dbexplorer_alfred_0.1.tgz
 ALFRED_WORKFLOW = /Volumes/Storage/Dropbox/Alfred/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD
 TESTS = $(shell echo test/resources/*.sh)
 ACTUALS = $(TESTS:test/resources/%.sh=build/test/%.actual)
@@ -18,13 +18,13 @@ _assemble: src/*.py src/images
 	cp -r $^ $(BUILD)/files
 
 archive: assemble
-	rm -f $(BUILD)/$(ARCHIVE)
-	tar -C $(BUILD)/files -czf $(BUILD)/$(ARCHIVE) --exclude=.DS_Store --exclude="*.sketch" .
+	rm -f $(ARCHIVE)
+	tar -C $(BUILD)/files -czf $(ARCHIVE) --exclude=.DS_Store --exclude="*.sketch" .
 
 build: archive test
 
 install: build
-	tar -C $(ALFRED_WORKFLOW) -xzf $(BUILD)/$(ARCHIVE)
+	tar -C $(ALFRED_WORKFLOW) -xzf $(ARCHIVE)
 
 test: assemble $(ACTUALS)
 
