@@ -111,9 +111,9 @@ class DatabaseNavigator:
                 if len(ts) == 1 and self.options.filter != None:
                     table = ts[0]
                     if self.options.filter and self.options.display:
-                        self.print_values(table, self.options.filter)
+                        self.print_values(theconnection, table, self.options.filter)
                     else:
-                        self.print_rows(table, self.options.filter)
+                        self.print_rows(theconnection, table, self.options.filter)
                     return
             
             self.print_tables(tables, self.options.table)
@@ -162,13 +162,13 @@ class DatabaseNavigator:
         logging.debug(self.print_tables.__doc__)
         if filter:
             tables = [t for t in tables if t.name.startswith(filter)]
-        self.print_items([Item(t.name, 'Title: %s' % t.comment.title, OPTION_URI_TABLES_FORMAT % (t.uri(), t), VALID, IMAGE_TABLE) for t in tables])
+        self.print_items([Item(t.name, 'Title: %s' % t.comment.title, OPTION_URI_TABLES_FORMAT % (t.uri, t), VALID, IMAGE_TABLE) for t in tables])
 
-    def print_rows(self, table, filter):
+    def print_rows(self, connection, table, filter):
         """Prints the given rows according to the given filter"""
 
         logging.debug(self.print_rows.__doc__)
-        rows = table.rows(filter)
+        rows = table.rows(connection, filter)
 
         def val(row, column):
             colname = '%s_title' % column
@@ -178,20 +178,20 @@ class DatabaseNavigator:
 
         self.print_items([Item(val(row, 'title'), val(row, 'subtitle'), table.autocomplete('id', row['id']), VALID, IMAGE_ROW) for row in rows])
 
-    def print_values(self, table, filter):
+    def print_values(self, connection, table, filter):
         """Prints the given row values according to the given filter"""
 
         logging.debug(self.print_values.__doc__)
 
         foreign_keys = table.fks
-        query = QueryBuilder(table, id=filter, limit=1).build()
+        query = QueryBuilder(connection, table, id=filter, limit=1).build()
         
         logging.debug('Query values: %s' % query)
-        cur = table.connection.cursor()
+        cur = connection.cursor()
         start = time.time()
         cur.execute(query)
         logduration('Query values', start)
-        row = Row(table.connection, table, cur.fetchone())
+        row = Row(connection, table, cur.fetchone())
 
         logging.debug('Comment.display: %s' % table.comment.display)
         if table.comment.display:

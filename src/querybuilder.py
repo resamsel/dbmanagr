@@ -64,7 +64,7 @@ class Comment:
         self.display = comment.display
 
         if not self.display:
-            for column in table.columns():
+            for column in table.columns(qb.connection):
                 self.display.append(column)
 
         self.populate_titles(self.fk_titles, table.fks)
@@ -83,7 +83,7 @@ class Comment:
         self.order = map(f, comment.order)
         self.search = map(f, comment.search)
 
-        if 'id' in table.columns():
+        if 'id' in table.columns(qb.connection):
             self.columns['id'] = Projection(self.id, 'id')
         else:
             self.columns['id'] = Projection('1', 'id')
@@ -119,7 +119,8 @@ class Comment:
 #                    self.qb.joins[fktable.name] = Join(fktable.name, alias, fk.b.name, self.alias, fk.a.name)
         
 class QueryBuilder:
-    def __init__(self, table, id=None, filter=None, order=[], limit=None):
+    def __init__(self, connection, table, id=None, filter=None, order=[], limit=None):
+        self.connection = connection
         self.table = table
         self.id = id
         self.filter = filter
