@@ -15,11 +15,11 @@ while (( "$#" )); do
 	TESTCASE="$(basename ${1%.sh})"
 	ACTUAL="$ACTUAL_PREFIX$TESTCASE$ACTUAL_SUFFIX"
 	EXPECTED="$EXPECTED_PREFIX$TESTCASE$EXPECTED_SUFFIX"
-	SCRIPT="build/files/$(cat test/resources/$TESTCASE.sh)"
+	SCRIPT="python -m pkg.dbnavigator -s $(cat test/resources/$TESTCASE.sh)"
 
 	echo -n "Testing $TESTCASE... "
 	T=$(ruby -e 'puts "%.3f" % Time.now')
-	$SCRIPT > $ACTUAL
+	PYTHONPATH=build/files $SCRIPT > $ACTUAL
 	T=$(ruby -e 'puts "%.3f" % (Time.now - '$T')')
 
 	DIFF=$(diff -u $EXPECTED $ACTUAL)

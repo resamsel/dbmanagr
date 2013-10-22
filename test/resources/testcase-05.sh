@@ -1,1 +1,1 @@
-db-navigator.py -s skiline@bmw
+skiline@bmw

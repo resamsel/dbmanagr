@@ -1,1 +1,1 @@
-db-navigator.py -s skiline@localhost/skiline/
+skiline@localhost/skiline/

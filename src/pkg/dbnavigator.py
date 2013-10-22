@@ -2,24 +2,19 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import sys
 import time
+import psycopg2
+
 from urlparse import urlparse
 
-from const import *
-from model import *
-from querybuilder import QueryBuilder
-from printer import *
-from sources import *
-from item import Item
-from logger import logduration
-
-logging.basicConfig(filename='/tmp/dbexplorer.log', level=logging.DEBUG)
-
-logging.debug("""
-###
-### Called with args: %s ###
-###""", sys.argv)
+from .const import *
+from .model.column import *
+from .model.row import *
+from .querybuilder import QueryBuilder
+from .printer import *
+from .sources import *
+from .item import Item
+from .logger import logduration
 
 def strip(s):
     if type(s) == str:
@@ -61,13 +56,12 @@ class Options:
             if len(paths) > 2: self.table = paths[2]
             if len(paths) > 3: self.filter = paths[3]
             self.display = arg.endswith('/')
+
+        self.uri = None
+        if self.user and self.host:
+            self.uri = OPTION_URI_FORMAT % (self.user, self.host, self.table if self.table else '')
         
         logging.debug('Options: %s' % self)
-
-    def uri(self):
-        if self.user and self.host:
-            return OPTION_URI_FORMAT % (self.user, self.host, self.table if self.table else '')
-        return None
 
     def __repr__(self):
         return self.__dict__.__repr__()
@@ -75,20 +69,18 @@ class Options:
 class DatabaseNavigator:
     """The main class"""
 
-    def main(self):
+    def main(self, args=[]):
         """The main method that splits the arguments and starts the magic"""
 
-        self.options = Options(sys.argv)
+        self.options = Options(args)
 
         connections = set(DBExplorerSource().list() + PgpassSource().list())
-        pgpass = None
-        con = None
         theconnection = None
 
         # search exact match of connection
-        if self.options.uri():
+        if self.options.uri:
             for connection in connections:
-                if connection.matches(self.options.uri()):
+                if connection.matches(self.options.uri):
                     theconnection = connection
                     break
 
@@ -98,6 +90,10 @@ class DatabaseNavigator:
             return
 
         try:
+            if theconnection == None:
+                self.print_items([])
+                return
+
             theconnection.connect(self.options.database)
 
             if not self.options.database or self.options.table == None:
@@ -232,7 +228,19 @@ class DatabaseNavigator:
 
         self.print_items(items)
 
-try:
-    DatabaseNavigator().main()
-except BaseException, e:
-    logging.exception(e)
+if __name__ == "__main__":
+    import sys
+    import logging
+
+    logging.basicConfig(filename='/tmp/dbexplorer.log', level=logging.DEBUG)
+
+    logging.debug("""
+    ###
+    ### Called with args: %s ###
+    ###""", sys.argv)
+
+    try:
+        DatabaseNavigator().main(sys.argv)
+    except BaseException, e:
+        logging.exception(e)
+        printers['-x'].write([Item(str(e), type(e), '', INVALID, '')])

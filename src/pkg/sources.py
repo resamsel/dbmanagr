@@ -6,7 +6,7 @@ from os.path import expanduser
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
 
-from model import *
+from model.databaseconnection import DatabaseConnection
 
 class Source:
     def __init__(self):

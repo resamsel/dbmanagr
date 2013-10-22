@@ -1,152 +1,54 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import shelve
 import logging
 import psycopg2
 import psycopg2.extras
-import json
 import time
-import shelve
 
 from os.path import expanduser
-from const import *
-from querybuilder import QueryBuilder
-from logger import logduration
+from ..logger import logduration
+from .database import Database
+from .table import Table
+from .column import Column
+from .foreignkey import ForeignKey
 
 CACHE_TIME = 2*60
-DEFAULT_LIMIT = 50
-ID_FORMAT = "{0}.id"
-
-class Database:
-    """The database used with the given connection"""
-
-    def __init__(self, connection, name):
-        self.connection = connection
-        self.name = name
-
-    def __repr__(self):
-        return "%s@%s/%s" % (self.connection.user, self.connection.host, self.name)
-
-    def autocomplete(self):
-        """Retrieves the autocomplete string"""
-
-        return OPTION_URI_DATABASE_FORMAT % (self.__repr__())
-
-class TableComment:
-    """The comment on the given table that allows to display much more accurate information"""
-
-    def __init__(self, table, json_string):
-        self.d = {COMMENT_TITLE: ID_FORMAT, COMMENT_ORDER_BY: [], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
-        self.d[COMMENT_SUBTITLE] = "'Id: ' || %s" % ID_FORMAT
-        self.d[COMMENT_ID] = ID_FORMAT
-
-        if json_string:
-            try:
-                self.d = dict(self.d.items() + json.loads(json_string).items())
-            except TypeError, e:
-                pass
-
-        self.id = self.d[COMMENT_ID]
-        if self.d[COMMENT_TITLE] == ID_FORMAT and self.id != ID_FORMAT:
-            self.d[COMMENT_TITLE] = '{0}.%s' % self.id
-#        logging.debug('Comment on %s: %s', table, self.d)
-        self.title = self.d[COMMENT_TITLE]
-        self.subtitle = self.d[COMMENT_SUBTITLE]
-        self.search = self.d[COMMENT_SEARCH]
-        self.display = self.d[COMMENT_DISPLAY]
-        self.order = self.d[COMMENT_ORDER_BY]
-
-    def __repr__(self):
-        return self.d.__repr__()
-
-class Table:
-    def __init__(self, connection, database, name, comment):
-        self.database = database
-        self.name = name
-        self.comment = TableComment(self, comment)
-        self.cols = None
-        self.fks = {}
-        self.uri = '%s@%s/%s' % (connection.user, connection.host, database)
-
-    def __repr__(self):
-        return self.name
-
-    def autocomplete(self, column, value, format=OPTION_URI_VALUE_FORMAT):
-        """Retrieves the autocomplete string for the given column and value"""
-
-        tablename = self.name
-        fks = self.fks
-        if column in fks:
-            fk = fks[column]
-            tablename = fk.b.table.name
-
-        return format % (self.uri, tablename, value)
-
-    def rows(self, connection, filter):
-        """Retrieves rows from the table with the given filter applied"""
-
-        query = QueryBuilder(connection, self, filter=filter, order=self.comment.order, limit=DEFAULT_LIMIT).build()
-
-        logging.debug('Query rows: %s' % query)
-        cur = connection.cursor()
-        start = time.time()
-        cur.execute(query)
-        logduration('Query rows', start)
-
-        def t(row): return Row(connection, self, row)
-
-        return map(t, cur.fetchall())
-    
-    def columns(self, connection):
-        """Retrieves the columns of the table"""
-
-        if not self.cols:
-            logging.debug('Retrieve columns')
-            query = COLUMNS_QUERY.format(self.name)
-            logging.debug('Query columns: %s' % query)
-            cur = connection.cursor()
-            start = time.time()
-            cur.execute(query)
-            logduration('Query columns', start)
-            self.cols = []
-            for row in cur.fetchall():
-                self.cols.append(row['column_name'])
-
-        return self.cols
-
-class Row:
-    """A table row from the database"""
-
-    def __init__(self, connection, table, row):
-        self.connection = connection
-        self.table = table
-        self.row = row
-
-    def __getitem__(self, i):
-        return self.row[i]
-
-    def values(self):
-        return self.row
-
-class Column:
-    """A table column"""
-
-    def __init__(self, table, name):
-        self.table = table
-        self.name = name
-
-    def __repr__(self):
-        return '%s.%s' % (self.table.name, self.name)
-
-class ForeignKey:
-    """A foreign key connection between the originating column a and the foreign column b"""
-
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-
-    def __repr__(self):
-        return '%s -> %s' % (self.a, self.b)
+DATABASES_QUERY = """
+select
+        datname as database_name
+    from
+        pg_database
+    where
+        datistemplate = false
+    order by datname
+"""
+FOREIGN_KEY_QUERY = """
+select
+        tc.table_name,
+        kcu.column_name,
+        ccu.table_name foreign_table_name,
+        ccu.column_name foreign_column_name
+    from
+        information_schema.table_constraints tc
+        join information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name
+        join information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name
+    where
+        constraint_type = 'FOREIGN KEY'
+"""
+TABLES_QUERY = """
+select
+        t.table_name as tbl, obj_description(c.oid) as comment
+    from
+        information_schema.tables t,
+        pg_class c
+    where
+        table_schema = 'public'
+        and t.table_name = c.relname
+        and c.relkind = 'r'
+    order by t.table_name
+"""
 
 class DatabaseConnection:
     """A database connection"""
