@@ -4,8 +4,6 @@
 import logging
 from collections import Counter
 
-from const import *
-
 QUERY_FORMAT = """
 select
         {1}

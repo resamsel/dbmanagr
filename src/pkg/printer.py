@@ -6,13 +6,13 @@ def html_escape(s):
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s
 
-class Printer:
+class DefaultPrinter:
     def write(self, items):
         print map(lambda item: self.itemtostring(item), items)
     def itemtostring(self, item):
         return str(item)
 
-class XmlPrinter(Printer):
+class XmlPrinter(DefaultPrinter):
     ITEMS_FORMAT = """<items>
 {0}</items>"""
     ITEM_FORMAT = """   <item uid="{uid}" arg="{title}" autocomplete="{autocomplete}" valid="{valid}">
@@ -28,7 +28,7 @@ class XmlPrinter(Printer):
         return XmlPrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
 
 
-class JsonPrinter(Printer):
+class JsonPrinter(DefaultPrinter):
     ITEMS_FORMAT = """{{
 {0}}}"""
     ITEM_FORMAT = """   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}
@@ -39,7 +39,7 @@ class JsonPrinter(Printer):
     def itemtostring(self, item):
         return JsonPrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
 
-class SimplePrinter(Printer):
+class SimplePrinter(DefaultPrinter):
     ITEMS_FORMAT = """Id\tTitle\tSubtitle\tAutocomplete
 {0}"""
     ITEM_FORMAT = """{uid}\t{title}\t{subtitle}\t{autocomplete}
@@ -49,3 +49,19 @@ class SimplePrinter(Printer):
         print SimplePrinter.ITEMS_FORMAT.format(s)
     def itemtostring(self, item):
         return SimplePrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
+
+class Printer:
+    printer = DefaultPrinter()
+
+    @staticmethod
+    def set(arg):
+        Printer.printer = {
+            '-x': XmlPrinter(),
+            '-s': SimplePrinter(),
+            '-j': JsonPrinter(),
+            '-p': DefaultPrinter()
+        }.get(arg, DefaultPrinter())
+
+    @staticmethod
+    def write(items):
+        Printer.printer.write(items)
