@@ -1,7 +1,7 @@
 BUILD = build
 ACTUAL = $(BUILD)/test/actual
 SUITE = test/suite
-SOURCES = src/pkg src/images src/info.plist
+SOURCES = src/pkg src/images src/info.plist src/5AD6B622-051E-41D9-A608-70919939967A.png
 ARCHIVE = $(BUILD)/dbexplorer_alfred_0.1.tgz
 ALFRED_WORKFLOW = /Volumes/Storage/Dropbox/Alfred/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD
 TESTS = $(shell echo $(SUITE)/testcase-*)

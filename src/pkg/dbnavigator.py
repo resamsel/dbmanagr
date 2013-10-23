@@ -10,9 +10,10 @@ from .model.row import *
 from .querybuilder import QueryBuilder
 from .printer import *
 from .sources import *
-from .postgresql.sources import *
 from .item import Item
 from .logger import logduration
+
+from .postgresql import *
 
 VALID = "yes"
 INVALID = "no"
@@ -42,14 +43,14 @@ class DatabaseNavigator:
 
         Options.init(args)
 
-        connections = set(DBExplorerSource().list() + PgpassSource().list())
-        theconnection = None
+        connections = Source.connections()
+        con = None
 
         # search exact match of connection
         if Options.uri:
             for connection in connections:
                 if connection.matches(Options.uri):
-                    theconnection = connection
+                    con = connection
                     break
 
         if Options.database == None:
@@ -58,32 +59,32 @@ class DatabaseNavigator:
             return
 
         try:
-            if theconnection == None:
+            if con == None:
                 Printer.write([])
                 return
 
-            theconnection.connect(Options.database)
+            con.connect(Options.database)
 
             if not Options.database or Options.table == None:
-                self.print_databases(theconnection, theconnection.databases(), Options.database)
+                self.print_databases(con, con.databases(), Options.database)
                 return
 
-            tables = [t for k, t in theconnection.table_map.iteritems()]
+            tables = [t for k, t in con.table_map.iteritems()]
             tables = sorted(tables, key=lambda t: t.name)
             if Options.table:
                 ts = [t for t in tables if Options.table == t.name]
                 if len(ts) == 1 and Options.filter != None:
                     table = ts[0]
                     if Options.filter and Options.display:
-                        self.print_values(theconnection, table, Options.filter)
+                        self.print_values(con, table, Options.filter)
                     else:
-                        self.print_rows(theconnection, table, Options.filter)
+                        self.print_rows(con, table, Options.filter)
                     return
             
             self.print_tables(tables, Options.table)
         finally:
-            if theconnection and theconnection.con:
-                theconnection.con.close()
+            if con and con.con:
+                con.con.close()
     def print_connections(self, connections):
         """Prints the given connections {connections}"""
 
@@ -140,7 +141,7 @@ class DatabaseNavigator:
         logging.debug(self.print_values.__doc__)
 
         foreign_keys = table.fks
-        query = QueryBuilder(connection, table, id=filter, limit=1).build()
+        query = QueryBuilder(connection, table, filter=filter, limit=1).build()
         
         logging.debug('Query values: %s' % query)
         cur = connection.cursor()
