@@ -3,10 +3,17 @@
 
 class Row:
     columns = {'id': 1, 'title': 'Title', 'subtitle': 'Subtitle', 'column_name': 'column', 0: '0', 1: '1', 'column': 'col'}
+    def __init__(self, *args):
+        if len(args) > 0:
+            self.columns = args[0]
+            if 'id' not in self.columns:
+                self.columns['id'] = 0
+        else:
+            self.columns = Row.columns
     def __getitem__(self, i):
-        return Row.columns[i]
+        return self.columns[i]
     def __contains__(self, item):
-        return item in Row.columns
+        return item in self.columns
 
 class Cursor:
     def execute(self, query):

@@ -96,7 +96,7 @@ class PostgreSQLConnection(DatabaseConnection):
                 database = None
 
             if database:
-                d = shelve.open(expanduser('~/.dbnavigator.cache'), writeback=True)
+                d = shelve.open(expanduser('.dbnavigator.cache'), writeback=True)
                 try:
                     uri = self.__repr__()
                     if uri in d and d['%s_time' % uri] > time.time() - CACHE_TIME:

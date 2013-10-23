@@ -53,7 +53,12 @@ class Table:
         logging.debug('Query rows: %s' % query)
         cur = connection.cursor()
         start = time.time()
-        cur.execute(query)
+        try:
+            cur.execute(query)
+        except BaseException, e:
+            logging.error('%s: check comment on table %s\n%s' % (e.__class__.__name__, self.name, str(e)))
+            from ..model import databaseconnection
+            return [Row(connection, self, databaseconnection.Row({'title': str(e), 'subtitle': 'Check comment on table %s' % self.name}))]
         logduration('Query rows', start)
 
         def t(row): return Row(connection, self, row)

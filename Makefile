@@ -12,6 +12,7 @@ init:
 
 clean:
 	rm -rf $(BUILD)
+	rm -f .dbnavigator.cache
 
 assemble: init _assemble
 
