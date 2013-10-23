@@ -131,7 +131,7 @@ class QueryBuilder:
         self.alias = '_%s' % self.table.name
 
     def build(self):
-        foreign_keys = self.table.fks
+        foreign_keys = self.table.foreign_keys()
         where = 'true=true'
         order = self.order
         limit = self.limit if self.limit else 20

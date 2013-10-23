@@ -77,3 +77,5 @@ class Table:
 
         return self.cols
 
+    def foreign_keys(self):
+        return self.fks

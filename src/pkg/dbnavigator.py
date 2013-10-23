@@ -14,6 +14,7 @@ from .item import Item
 from .logger import logduration
 
 from .postgresql import *
+from .mock import *
 
 VALID = "yes"
 INVALID = "no"
@@ -69,7 +70,7 @@ class DatabaseNavigator:
                 self.print_databases(con, con.databases(), Options.database)
                 return
 
-            tables = [t for k, t in con.table_map.iteritems()]
+            tables = [t for k, t in con.tables().iteritems()]
             tables = sorted(tables, key=lambda t: t.name)
             if Options.table:
                 ts = [t for t in tables if Options.table == t.name]
@@ -83,8 +84,8 @@ class DatabaseNavigator:
             
             self.print_tables(tables, Options.table)
         finally:
-            if con and con.con:
-                con.con.close()
+            if con and con.connected():
+                con.close()
     def print_connections(self, connections):
         """Prints the given connections {connections}"""
 

@@ -10,10 +10,11 @@ import time
 from os.path import expanduser
 
 from ..logger import logduration
-from ..model.database import Database
-from ..model.table import Table
-from ..model.column import Column
-from ..model.foreignkey import ForeignKey
+from ..model.databaseconnection import *
+from ..model.database import *
+from ..model.table import *
+from ..model.column import *
+from ..model.foreignkey import *
 
 CACHE_TIME = 2*60
 DATABASES_QUERY = """
@@ -51,7 +52,7 @@ select
     order by t.table_name
 """
 
-class DatabaseConnection:
+class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
 
     def __init__(self, host, port, database, user, password):
@@ -66,22 +67,6 @@ class DatabaseConnection:
 
     def __repr__(self):
         return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
-
-    def __str__(self):
-        return self.__repr__()
-
-    def __eq__(self, other):
-        return self.__repr__() == other.__repr__()
-
-    def __hash__(self):
-        return hash(self.__repr__())
-
-    def __getstate__(self):
-        state = dict(self.__dict__)
-        logging.debug('State: %s' % state)
-        if 'con' in state:
-            del state['con']
-        return state
 
     def autocomplete(self):
         """Retrieves the autocomplete string"""
@@ -118,7 +103,7 @@ class DatabaseConnection:
                         # foreign key have already been saved to shelve within the last 2 minutes
                         self.table_map = d[uri]
                     else:
-                        self.table_map = {t.name: t for t in self.tables(database)}
+                        self.table_map = {t.name: t for t in self.tablesof(database)}
                         self.put_foreign_keys()
                         
                         d[uri] = self.table_map
@@ -127,6 +112,13 @@ class DatabaseConnection:
                     d.close()
         else:
             self.con = psycopg2.connect(host=self.host, user=self.user, password=self.password)
+
+    def connected(self):
+        return self.con
+
+    def close(self):
+        self.con.close()
+        self.con = None
 
     def cursor(self):
         return self.con.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -147,7 +139,10 @@ class DatabaseConnection:
         
         return self.dbs
 
-    def tables(self, database):
+    def tables(self):
+        return self.table_map
+
+    def tablesof(self, database):
         if not self.tbls:
             query = TABLES_QUERY
             logging.debug('Query tables: %s' % query)

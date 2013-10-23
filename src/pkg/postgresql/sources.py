@@ -16,7 +16,7 @@ class PgpassSource(Source):
                 pgpass = f.readlines()
 
             for line in pgpass:
-                connection = DatabaseConnection(*line.strip().split(':'))
+                connection = PostgreSQLConnection(*line.strip().split(':'))
                 self.connections.append(connection)
 
         return self.connections
@@ -37,7 +37,7 @@ class DBExplorerSource(Source):
                     database = '*'
                     user = c.find('user').text
                     password = c.find('password').text
-                    connection = DatabaseConnection(host, port, database, user, password)
+                    connection = PostgreSQLConnection(host, port, database, user, password)
                     self.connections.append(connection)
         
         return self.connections
