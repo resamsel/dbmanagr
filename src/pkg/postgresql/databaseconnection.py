@@ -91,6 +91,12 @@ class DatabaseConnection:
 
         return '%s@%s/' % (self.user, self.host)
 
+    def title(self):
+        return self.autocomplete()
+
+    def subtitle(self):
+        return 'PostgreSQL Connection'
+
     def matches(self, s):
         return s.startswith("%s@%s" % (self.user, self.host))
 

@@ -8,7 +8,7 @@ TESTS = $(shell echo $(SUITE)/testcase-*)
 ACTUALS = $(TESTS:$(SUITE)/testcase-%=$(ACTUAL)/testcase-%)
 
 init:
-	mkdir -p $(BUILD)/ $(BUILD)/test $(ACTUAL) $(BUILD)/files
+	mkdir -p $(BUILD) $(BUILD)/test $(ACTUAL) $(BUILD)/files
 
 clean:
 	rm -rf $(BUILD)

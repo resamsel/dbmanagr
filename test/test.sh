@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ACTUAL_PREFIX="build/test/"
+ACTUAL_PREFIX="build/test/actual/"
 ACTUAL_SUFFIX=""
 EXPECTED_PREFIX="test/suite/expected/"
 EXPECTED_SUFFIX=""

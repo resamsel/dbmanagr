@@ -101,7 +101,7 @@ class DatabaseNavigator:
         if Options.host != None:
             cons = [c for c in cons if Options.host in c.host]
             logging.debug('Options.host != None: %s' % cons)
-        Printer.write([Item(c.autocomplete(), 'Connection', c.autocomplete(), VALID, IMAGE_CONNECTION) for c in cons])
+        Printer.write([Item(c.title(), c.subtitle(), c.autocomplete(), VALID, IMAGE_CONNECTION) for c in cons])
 
     def print_databases(self, database, dbs, filter=None):
         """Prints the given databases {dbs} according to the given filter {filter}"""
