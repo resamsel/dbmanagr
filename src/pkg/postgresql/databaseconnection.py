@@ -8,11 +8,12 @@ import psycopg2.extras
 import time
 
 from os.path import expanduser
+
 from ..logger import logduration
-from .database import Database
-from .table import Table
-from .column import Column
-from .foreignkey import ForeignKey
+from ..model.database import Database
+from ..model.table import Table
+from ..model.column import Column
+from ..model.foreignkey import ForeignKey
 
 CACHE_TIME = 2*60
 DATABASES_QUERY = """

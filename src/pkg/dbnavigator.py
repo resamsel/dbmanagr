@@ -10,6 +10,7 @@ from .model.row import *
 from .querybuilder import QueryBuilder
 from .printer import *
 from .sources import *
+from .postgresql.sources import *
 from .item import Item
 from .logger import logduration
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ACTUAL_PREFIX="build/test/"
-ACTUAL_SUFFIX=".actual"
-EXPECTED_PREFIX="test/resources/"
-EXPECTED_SUFFIX=".expected"
+ACTUAL_SUFFIX=""
+EXPECTED_PREFIX="test/suite/expected/"
+EXPECTED_SUFFIX=""
 
 TT=$(ruby -e 'puts "%.3f" % Time.now')
 STATUS=0
@@ -12,10 +12,10 @@ OK=0
 FAILED=0
 
 while (( "$#" )); do
-	TESTCASE="$(basename ${1%.sh})"
+	TESTCASE="$(basename ${1%})"
 	ACTUAL="$ACTUAL_PREFIX$TESTCASE$ACTUAL_SUFFIX"
 	EXPECTED="$EXPECTED_PREFIX$TESTCASE$EXPECTED_SUFFIX"
-	SCRIPT="python -m pkg.dbnavigator -s $(cat test/resources/$TESTCASE.sh)"
+	SCRIPT="python -m pkg.dbnavigator -s $(cat test/suite/$TESTCASE)"
 
 	echo -n "Testing $TESTCASE... "
 	T=$(ruby -e 'puts "%.3f" % Time.now')

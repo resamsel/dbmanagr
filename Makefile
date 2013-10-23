@@ -1,12 +1,14 @@
 BUILD = build
+ACTUAL = $(BUILD)/test/actual
+SUITE = test/suite
 SOURCES = src/pkg src/images src/info.plist
 ARCHIVE = $(BUILD)/dbexplorer_alfred_0.1.tgz
 ALFRED_WORKFLOW = /Volumes/Storage/Dropbox/Alfred/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD
-TESTS = $(shell echo test/resources/*.sh)
-ACTUALS = $(TESTS:test/resources/%.sh=build/test/%.actual)
+TESTS = $(shell echo $(SUITE)/testcase-*)
+ACTUALS = $(TESTS:$(SUITE)/testcase-%=$(ACTUAL)/testcase-%)
 
 init:
-	mkdir -p $(BUILD)/ $(BUILD)/test $(BUILD)/files
+	mkdir -p $(BUILD)/ $(BUILD)/test $(ACTUAL) $(BUILD)/files
 
 clean:
 	rm -rf $(BUILD)
@@ -29,5 +31,5 @@ install: build
 
 test: assemble $(ACTUALS)
 
-$(BUILD)/test/%.actual: test/resources/%.sh
+$(ACTUAL)/testcase-%: $(SUITE)/testcase-%
 	test/test.sh $^
