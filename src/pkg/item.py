@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import uuid
+import logging
+
 def hash(s):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s))
+#    logging.debug('hash(%s)' % s)
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 class Item:
     def __init__(self, title, subtitle, autocomplete, valid, icon):

@@ -6,6 +6,7 @@ bc1b7f66-023c-3b42-98dc-b7a0ad2f00b1	skiline@qa2.skiline.net/	PostgreSQL Connect
 8586ca38-dfb0-3447-9a4a-30dcaa31801a	postgres@sevensummits.easyplex.com/	PostgreSQL Connection	postgres@sevensummits.easyplex.com/
 a3b54d59-bb90-3919-b3f7-6c61cadec6d2	postgres@localhost/	PostgreSQL Connection	postgres@localhost/
 2f7ff16e-dd41-37a9-bce4-1588dcb42780	postgres@livecopy.skiline.net/	PostgreSQL Connection	postgres@livecopy.skiline.net/
+0fd7abff-8b92-3189-92df-97bb8384f295	Rene.Samselnig@gmail.com.sqlite	SQLite Connection	Rene.Samselnig@gmail.com.sqlite
 4d42aeec-03d9-3654-b011-488cf08b6125	hikeline@www.hikeline.cc/	PostgreSQL Connection	hikeline@www.hikeline.cc/
 89c53a58-e3f9-3678-923b-f6d0d0b602d3	skiline@localhost/	PostgreSQL Connection	skiline@localhost/
 8422e1be-16c9-34b7-ab23-e3d6ea0f7ea1	skiline@bmwqa.skiline.net/	PostgreSQL Connection	skiline@bmwqa.skiline.net/

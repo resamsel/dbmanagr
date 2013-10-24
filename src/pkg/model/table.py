@@ -13,15 +13,6 @@ DEFAULT_LIMIT = 50
 
 OPTION_URI_VALUE_FORMAT = '%s/%s/%s/'
 
-COLUMNS_QUERY = """
-select
-        column_name
-    from
-        information_schema.columns
-    where
-        table_name = '{0}'
-"""
-
 class Table:
     def __init__(self, connection, database, name, comment):
         self.database = database
@@ -29,7 +20,10 @@ class Table:
         self.comment = TableComment(self, comment)
         self.cols = None
         self.fks = {}
-        self.uri = '%s@%s/%s' % (connection.user, connection.host, database)
+        self.uri = str(connection)
+        if self.uri.endswith('/'):
+            self.uri += database
+        self.primary_key = 'id'
 
     def __repr__(self):
         return self.name
@@ -65,22 +59,5 @@ class Table:
 
         return map(t, cur.fetchall())
     
-    def columns(self, connection):
-        """Retrieves the columns of the table"""
-
-        if not self.cols:
-            logging.debug('Retrieve columns')
-            query = COLUMNS_QUERY.format(self.name)
-            logging.debug('Query columns: %s' % query)
-            cur = connection.cursor()
-            start = time.time()
-            cur.execute(query)
-            logduration('Query columns', start)
-            self.cols = []
-            for row in cur.fetchall():
-                self.cols.append(row['column_name'])
-
-        return self.cols
-
     def foreign_keys(self):
         return self.fks

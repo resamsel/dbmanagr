@@ -14,6 +14,7 @@ from .item import Item
 from .logger import logduration
 
 from .postgresql import *
+from .sqlite import *
 from .mock import *
 
 VALID = "yes"
@@ -30,16 +31,21 @@ IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 OPTION_URI_TABLES_FORMAT = '%s/%s/'
 OPTION_URI_ROW_FORMAT = '%s/%s/%s'
 
-
 def strip(s):
     if type(s) == str:
         return s.strip()
     return s
 
+def tostring(key):
+    if isinstance(key, unicode):
+        return key.encode('ascii', errors='ignore')
+    return key
+
 class DatabaseNavigator:
     """The main class"""
 
-    def main(self, args=[]):
+    @staticmethod
+    def main(args=[]):
         """The main method that splits the arguments and starts the magic"""
 
         Options.init(args)
@@ -50,83 +56,46 @@ class DatabaseNavigator:
         # search exact match of connection
         if Options.uri:
             for connection in connections:
-                if connection.matches(Options.uri):
-                    con = connection
-                    break
+                if connection.matches(Options):
+                    connection.proceed()
+                    return
 
         if Options.database == None:
             # print all connections
-            self.print_connections(connections)
+            cons = [c for c in connections if c.filter(Options)]
+            DatabaseNavigator.print_connections(cons)
             return
 
-        try:
-            if con == None:
-                Printer.write([])
-                return
+        Printer.write([])
 
-            con.connect(Options.database)
+    @staticmethod
+    def print_connections(cons):
+        """Prints the given connections {cons}"""
 
-            if not Options.database or Options.table == None:
-                self.print_databases(con, con.databases(), Options.database)
-                return
-
-            tables = [t for k, t in con.tables().iteritems()]
-            tables = sorted(tables, key=lambda t: t.name)
-            if Options.table:
-                ts = [t for t in tables if Options.table == t.name]
-                if len(ts) == 1 and Options.filter != None:
-                    table = ts[0]
-                    if Options.filter and Options.display:
-                        self.print_values(con, table, Options.filter)
-                    else:
-                        self.print_rows(con, table, Options.filter)
-                    return
-            
-            self.print_tables(tables, Options.table)
-        finally:
-            if con and con.connected():
-                con.close()
-    def print_connections(self, connections):
-        """Prints the given connections {connections}"""
-
-        logging.debug(self.print_connections.__doc__.format(connections=connections))
-        cons = connections
-        if Options.user:
-            filter = Options.user
-            if Options.host != None:
-                cons = [c for c in cons if filter in c.user]
-                logging.debug('Options.host: %s' % cons)
-            else:
-                cons = [c for c in cons if filter in c.user or filter in c.host]
-                logging.debug('not Options.host: %s' % cons)
-        if Options.host != None:
-            cons = [c for c in cons if Options.host in c.host]
-            logging.debug('Options.host != None: %s' % cons)
+        logging.debug(DatabaseNavigator.print_connections.__doc__.format(cons=cons))
         Printer.write([Item(c.title(), c.subtitle(), c.autocomplete(), VALID, IMAGE_CONNECTION) for c in cons])
 
-    def print_databases(self, database, dbs, filter=None):
-        """Prints the given databases {dbs} according to the given filter {filter}"""
+    @staticmethod
+    def print_databases(dbs):
+        """Prints the given databases {dbs}"""
 
-        logging.debug(self.print_databases.__doc__.format(database=database, dbs=dbs, filter=filter))
-
-        if filter:
-            dbs = [db for db in dbs if filter in db.name]
+        logging.debug(DatabaseNavigator.print_databases.__doc__.format(dbs=dbs))
 
         Printer.write([Item(database.autocomplete(), 'Database', database.autocomplete(), VALID, IMAGE_DATABASE) for database in dbs])
 
-    def print_tables(self, tables, filter):
-        """Prints the given tables according to the given filter"""
+    @staticmethod
+    def print_tables(tables):
+        """Prints the given tables {tables}"""
 
-        logging.debug(self.print_tables.__doc__)
-        if filter:
-            tables = [t for t in tables if t.name.startswith(filter)]
+        logging.debug(DatabaseNavigator.print_tables.__doc__.format(tables=tables))
+
         Printer.write([Item(t.name, 'Title: %s' % t.comment.title, OPTION_URI_TABLES_FORMAT % (t.uri, t), VALID, IMAGE_TABLE) for t in tables])
 
-    def print_rows(self, connection, table, filter):
-        """Prints the given rows according to the given filter"""
+    @staticmethod
+    def print_rows(rows):
+        """Prints the given rows"""
 
-        logging.debug(self.print_rows.__doc__)
-        rows = table.rows(connection, filter)
+        logging.debug(DatabaseNavigator.print_rows.__doc__)
 
         def val(row, column):
             colname = '%s_title' % column
@@ -134,12 +103,15 @@ class DatabaseNavigator:
                 return '%s (%s)' % (row.row[colname], row.row[column])
             return row.row[column]
 
-        Printer.write([Item(val(row, 'title'), val(row, 'subtitle'), table.autocomplete('id', row['id']), VALID, IMAGE_ROW) for row in rows])
+        def pk(row): return row.table.primary_key
 
-    def print_values(self, connection, table, filter):
+        Printer.write([Item(val(row, 'title'), val(row, 'subtitle'), row.table.autocomplete(pk(row), row[pk(row)]), VALID, IMAGE_ROW) for row in rows])
+
+    @staticmethod
+    def print_values(connection, table, filter):
         """Prints the given row values according to the given filter"""
 
-        logging.debug(self.print_values.__doc__)
+        logging.debug(DatabaseNavigator.print_values.__doc__)
 
         foreign_keys = table.fks
         query = QueryBuilder(connection, table, filter=filter, limit=1).build()
@@ -155,7 +127,7 @@ class DatabaseNavigator:
         if table.comment.display:
             keys = table.comment.display
         else:
-            keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else key)
+            keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
 
         if 'subtitle' not in keys:
             keys.insert(0, 'subtitle')
@@ -168,11 +140,11 @@ class DatabaseNavigator:
             colname = '%s_title' % column
             if colname in row.row:
                 return '%s (%s)' % (row.row[colname], row.row[column])
-            return row.row[column]
+            return row.row[tostring(column)]
 
         items = []
         for key in keys:
-            autocomplete = table.autocomplete(key, row.row[key])
+            autocomplete = table.autocomplete(key, row.row[tostring(key)])
             value = val(row, key)
             f = fkey(Column(table, key))
             icon = IMAGE_VALUE
@@ -202,7 +174,7 @@ if __name__ == "__main__":
 ###""", sys.argv)
 
     try:
-        DatabaseNavigator().main(sys.argv)
+        DatabaseNavigator.main(sys.argv)
     except BaseException, e:
         logging.exception(e)
         Printer.write([Item(str(e), type(e), '', INVALID, '')])

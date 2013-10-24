@@ -6,10 +6,10 @@ f7ff4fe2-00f3-32f9-a51d-a13df653181f	ffea0d34c9cb11e2995da3700476952a	api_key.su
 f7ff4fe2-00f3-32f9-a51d-a13df653181f	ffea0d34c9cb11e2995da3700476952a	api_key.key	skiline@localhost/skiline/api_key/ffea0d34c9cb11e2995da3700476952a/
 64dae1a9-9b72-39c2-8964-1a51aebabc8e	0	api_key.ordinal	skiline@localhost/skiline/api_key/0/
 8bf0a827-493e-3196-a22d-4fbd5c2ac2af	False	api_key.b2b_visible	skiline@localhost/skiline/api_key/False/
-9e0cc273-bca7-3ace-8f85-9375fdb3a48b	abb1e89ac9cb11e29a55ff84026c6a7b (abb1e89ac9cb11e29a55ff84026c6a7b)	api_key.client_id -> client.id	skiline@localhost/skiline/client/abb1e89ac9cb11e29a55ff84026c6a7b/
+9e0cc273-bca7-3ace-8f85-9375fdb3a48b	abb1e89ac9cb11e29a55ff84026c6a7b	api_key.client_id -> client.id	skiline@localhost/skiline/client/abb1e89ac9cb11e29a55ff84026c6a7b/
 5a1e4a11-2296-3a5b-a71c-a9b530dc11b5	Hikeline	api_key.comment	skiline@localhost/skiline/api_key/Hikeline/
-e144eb0f-8ce5-3016-847b-f986823e47f5	17003e2c226411e2a2e914feb5c97fba (17003e2c226411e2a2e914feb5c97fba)	api_key.forgot_password_email_template_id -> email_template.id	skiline@localhost/skiline/email_template/17003e2c226411e2a2e914feb5c97fba/
-97f74ef7-f707-3fdb-9b16-f4525bfca872	0d965f6c226711e2850214feb5c97fba (0d965f6c226711e2850214feb5c97fba)	api_key.registration_doi_email_template_id -> email_template.id	skiline@localhost/skiline/email_template/0d965f6c226711e2850214feb5c97fba/
+e144eb0f-8ce5-3016-847b-f986823e47f5	17003e2c226411e2a2e914feb5c97fba	api_key.forgot_password_email_template_id -> email_template.id	skiline@localhost/skiline/email_template/17003e2c226411e2a2e914feb5c97fba/
+97f74ef7-f707-3fdb-9b16-f4525bfca872	0d965f6c226711e2850214feb5c97fba	api_key.registration_doi_email_template_id -> email_template.id	skiline@localhost/skiline/email_template/0d965f6c226711e2850214feb5c97fba/
 8d38148f-6dd5-3834-aee6-7de083d31711	abfdeabc88e10912feaa0e070a12d85d	api_key.key_hash	skiline@localhost/skiline/api_key/abfdeabc88e10912feaa0e070a12d85d/
 a0fb9954-451a-3832-a37a-3511083c840e	None	api_key.sender_email_address	skiline@localhost/skiline/api_key/None/
 a0fb9954-451a-3832-a37a-3511083c840e	None	api_key.sender_name	skiline@localhost/skiline/api_key/None/

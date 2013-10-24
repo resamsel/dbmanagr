@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 def html_escape(s):
+    if isinstance(s, unicode):
+        s = s.encode('ascii', 'ignore')
     if type(s) == str:
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s

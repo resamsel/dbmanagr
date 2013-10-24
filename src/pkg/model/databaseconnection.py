@@ -36,8 +36,11 @@ class DatabaseConnection:
     def autocomplete(self):
         return 'Autocomplete'
 
-    def matches(self, s):
-        return s in self.title()
+    def matches(self, options):
+        return options.arg in self.title()
+
+    def proceed(self):
+        pass
 
     def connect(self, database):
         pass
@@ -51,11 +54,18 @@ class DatabaseConnection:
     def cursor(self):
         return Cursor()
 
+    def filter(self, options):
+        return True
+
     def databases(self):
         return []
 
     def tables(self):
         return {}
+    
+    def columns(self):
+        """Returns a list of Column objects"""
+        return []
 
     def __str__(self):
         return self.__repr__()

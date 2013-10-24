@@ -60,10 +60,25 @@ class Comment:
         self.fk_titles = {}
         self.columns = {}
         self.display = comment.display
+        table.primary_key = 'id'
+
+        columns = qb.connection.columns(table)
+        
+        # finds the primary key
+        for c in columns:
+            if c.primary_key:
+                table.primary_key = c.name
+                break
+        if not comment.id:
+            comment.id = '{0}.%s' % table.primary_key
+        if not comment.title:
+            comment.title = comment.id
+        if not comment.subtitle:
+            comment.subtitle = "'Primary key is %s'" % table.primary_key
 
         if not self.display:
-            for column in table.columns(qb.connection):
-                self.display.append(column)
+            for column in columns:
+                self.display.append(column.name)
 
         self.populate_titles(self.fk_titles, table.fks)
 
@@ -81,10 +96,10 @@ class Comment:
         self.order = map(f, comment.order)
         self.search = map(f, comment.search)
 
-        if 'id' in table.columns(qb.connection):
-            self.columns['id'] = Projection(self.id, 'id')
+        if table.primary_key in [c.name for c in columns]:
+            self.columns[table.primary_key] = Projection(self.id, 'id')
         else:
-            self.columns['id'] = Projection('1', 'id')
+            self.columns[table.primary_key] = Projection('1', 'id')
         if self.title != '*':
             self.columns['title'] = Projection(self.title, 'title')
         self.columns['subtitle'] = Projection(self.subtitle, 'subtitle')
@@ -97,6 +112,9 @@ class Comment:
             self.search.append(self.title)
             self.search.append(self.subtitle)
 
+    def __repr__(self):
+        return str(self.__dict__)
+
     def populate_titles(self, fk_titles, foreign_keys):
         logging.debug("Populate titles: %s" % foreign_keys.keys())
         for key in foreign_keys.keys():
@@ -108,7 +126,8 @@ class Comment:
                 self.qb.aliases[key] = alias
                 k = '%s_title' % key
                 try:
-                    fk_titles[k] = fktable.comment.title.format(alias)
+                    if fktable.comment.title:
+                        fk_titles[k] = fktable.comment.title.format(alias)
                 except KeyError, e:
 #                    c = Comment(self.qb, fktable)
 #                    columns = c.columns
@@ -132,10 +151,11 @@ class QueryBuilder:
 
     def build(self):
         foreign_keys = self.table.foreign_keys()
-        where = 'true=true'
+        where = '1=1'
         order = self.order
         limit = self.limit if self.limit else 20
         comment = Comment(self, self.table)
+        logging.debug('Comment for %s: %s' % (self.table, comment))
         
         for key in foreign_keys.keys():
             if key in comment.display:
@@ -144,10 +164,11 @@ class QueryBuilder:
                 if key in self.aliases:
                     alias = self.aliases[key]
                     try:
-                        title = fktable.comment.title.format(alias)
-                        if title != '*':
-                            a = ALIAS_FORMAT.format(fk.a.name)
-                            comment.columns[a] = Projection(title, a)
+                        if fktable.comment.title:
+                            title = fktable.comment.title.format(alias)
+                            if title != '*':
+                                a = ALIAS_FORMAT.format(fk.a.name)
+                                comment.columns[a] = Projection(title, a)
                         self.joins[alias] = Join(fk.b.table.name, alias, fk.b.name, self.alias, fk.a.name)
                     except KeyError, e:
                         logging.error("KeyError: %s, table=%s, comment.title=%s" % (e, fktable, fktable.comment.title))

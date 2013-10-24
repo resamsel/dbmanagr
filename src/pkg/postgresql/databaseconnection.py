@@ -51,6 +51,14 @@ select
         and c.relkind = 'r'
     order by t.table_name
 """
+COLUMNS_QUERY = """
+select
+        column_name
+    from
+        information_schema.columns
+    where
+        table_name = '{0}'
+"""
 
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
@@ -82,8 +90,62 @@ class PostgreSQLConnection(DatabaseConnection):
     def subtitle(self):
         return 'PostgreSQL Connection'
 
-    def matches(self, s):
-        return s.startswith("%s@%s" % (self.user, self.host))
+    def matches(self, options):
+        return options.uri.startswith("%s@%s" % (self.user, self.host))
+
+    def proceed(self):
+        from ..dbnavigator import DatabaseNavigator
+        from ..options import Options
+
+        if Options.database == None:
+            # print this connection
+            DatabaseNavigator.print_connections([self])
+            return
+
+        try:
+            self.connect(Options.database)
+
+            if not Options.database or Options.table == None:
+                dbs = self.databases()
+                if Options.database:
+                    dbs = [db for db in dbs if Options.database in db.name]
+
+                DatabaseNavigator.print_databases(dbs)
+                return
+
+            tables = [t for k, t in self.tables().iteritems()]
+            tables = sorted(tables, key=lambda t: t.name)
+            if Options.table:
+                ts = [t for t in tables if Options.table == t.name]
+                if len(ts) == 1 and Options.filter != None:
+                    table = ts[0]
+                    if Options.filter and Options.display:
+                        DatabaseNavigator.print_values(self, table, Options.filter)
+                    else:
+                        rows = table.rows(self, Options.filter)
+                        DatabaseNavigator.print_rows(rows)
+                    return
+            
+            if Options.table:
+                tables = [t for t in tables if t.name.startswith(Options.table)]
+            DatabaseNavigator.print_tables(tables)
+        finally:
+            if self.connected():
+                self.close()
+
+    def filter(self, options):
+        matches = True
+
+        if options.user:
+            filter = options.user
+            if options.host != None:
+                matches = filter in self.user
+            else:
+                matches = filter in self.user or filter in self.host
+        if options.host != None:
+            matches = matches and options.host in self.host
+
+        return matches
 
     def connect(self, database):
         logging.debug('Connecting to database %s' % database)
@@ -141,6 +203,18 @@ class PostgreSQLConnection(DatabaseConnection):
 
     def tables(self):
         return self.table_map
+
+    def columns(self, table):
+        logging.debug('Retrieve columns')
+
+        query = COLUMNS_QUERY.format(table.name)
+        logging.debug('Query columns: %s' % query)
+        cur = self.cursor()
+        start = time.time()
+        cur.execute(query)
+        logduration('Query columns', start)
+
+        return [Column(table, row['column_name']) for row in cur.fetchall()]
 
     def tablesof(self, database):
         if not self.tbls:

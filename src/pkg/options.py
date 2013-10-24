@@ -10,6 +10,7 @@ from .printer import *
 OPTION_URI_FORMAT = '%s@%s/%s'
 
 class Options:
+    arg = None
     user = None
     host = None
     database = None
@@ -24,18 +25,19 @@ class Options:
             del args[1]
             
         if len(args) > 1:
-            arg = args[1]
+            Options.arg = args[1]
+            arg = Options.arg
             if '@' not in arg:
                 arg += '@'
             url = urlparse('postgres://%s' % arg)
             locs = url.netloc.split('@')
-            paths = url.path.split('/')
+            Options.paths = url.path.split('/')
 
             if len(locs) > 0:  Options.user = locs[0]
-            if '@' in args[1]: Options.host = locs[1]
-            if len(paths) > 1: Options.database = paths[1]
-            if len(paths) > 2: Options.table = paths[2]
-            if len(paths) > 3: Options.filter = paths[3]
+            if '@' in Options.arg: Options.host = locs[1]
+            if len(Options.paths) > 1: Options.database = Options.paths[1]
+            if len(Options.paths) > 2: Options.table = Options.paths[2]
+            if len(Options.paths) > 3: Options.filter = Options.paths[3]
             Options.display = arg.endswith('/')
 
         Options.uri = None

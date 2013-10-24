@@ -1,0 +1,15 @@
+Id	Title	Subtitle	Autocomplete
+57c02c5d-0ee6-331b-b9a8-7db44b37bf43	2	ZNOTE.title	Rene.Samselnig@gmail.com.sqlite/ZNOTE/2/
+e0ab67bd-831c-34fe-bb4b-68f93986de0b	Primary key is Z_PK	ZNOTE.subtitle	Rene.Samselnig@gmail.com.sqlite/ZNOTE/Primary key is Z_PK/
+57c02c5d-0ee6-331b-b9a8-7db44b37bf43	2	ZNOTE.Z_PK	Rene.Samselnig@gmail.com.sqlite/ZNOTE/2/
+1880137d-b0f3-3c8c-bdbc-3be3d43c96b9	5	ZNOTE.Z_ENT	Rene.Samselnig@gmail.com.sqlite/ZNOTE/5/
+1fe33585-98a3-358f-8216-ec464d0f5d84	4	ZNOTE.Z_OPT	Rene.Samselnig@gmail.com.sqlite/ZNOTE/4/
+9a42ce82-00be-3739-a31b-a54a8937fa42	4311920	ZNOTE.ZID_NOTE	Rene.Samselnig@gmail.com.sqlite/ZNOTE/4311920/
+db95fe1b-1a2f-328b-8034-d71ea5d55caa	0	ZNOTE.ZISDELETING	Rene.Samselnig@gmail.com.sqlite/ZNOTE/0/
+5f10f5b5-bb1c-341d-8981-d592f49c1575	1	ZNOTE.ZCREATOR	Rene.Samselnig@gmail.com.sqlite/ZNOTE/1/
+7661113e-190a-3b35-8044-981a55c8e2eb	8	ZNOTE.ZTASK	Rene.Samselnig@gmail.com.sqlite/ZNOTE/8/
+980f02e2-2070-3a84-9059-63607a285cd3	353883827	ZNOTE.ZTIME_CREATED	Rene.Samselnig@gmail.com.sqlite/ZNOTE/353883827/
+29e1a0f9-7baf-3d0d-8c42-53bcc1b539ab		ZNOTE.ZFILE_NAME	Rene.Samselnig@gmail.com.sqlite/ZNOTE//
+29e1a0f9-7baf-3d0d-8c42-53bcc1b539ab		ZNOTE.ZFILE_URL	Rene.Samselnig@gmail.com.sqlite/ZNOTE//
+e62608bc-d57b-380f-bf81-e4f84d141570	Rechnung von Rad und Kotschtzern senden an: mario.deisinger-achatz@grawe.at	ZNOTE.ZMESSAGE	Rene.Samselnig@gmail.com.sqlite/ZNOTE/Rechnung von Rad und Kotschtzern senden an: mario.deisinger-achatz@grawe.at/
+

@@ -10,15 +10,14 @@ COMMENT_ORDER_BY = 'order'
 COMMENT_SEARCH = 'search'
 COMMENT_DISPLAY = 'display'
 
-ID_FORMAT = "{0}.id"
-
 class TableComment:
     """The comment on the given table that allows to display much more accurate information"""
 
     def __init__(self, table, json_string):
-        self.d = {COMMENT_TITLE: ID_FORMAT, COMMENT_ORDER_BY: [], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
-        self.d[COMMENT_SUBTITLE] = "'Id: ' || %s" % ID_FORMAT
-        self.d[COMMENT_ID] = ID_FORMAT
+        self.d = {COMMENT_ORDER_BY: [], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
+        self.id = None
+        self.title = None
+        self.subtitle = None
 
         if json_string:
             try:
@@ -26,12 +25,15 @@ class TableComment:
             except TypeError, e:
                 pass
 
-        self.id = self.d[COMMENT_ID]
-        if self.d[COMMENT_TITLE] == ID_FORMAT and self.id != ID_FORMAT:
+        if COMMENT_ID in self.d:
+            self.id = self.d[COMMENT_ID]
+        if COMMENT_TITLE in self.d and self.id:
             self.d[COMMENT_TITLE] = '{0}.%s' % self.id
 #        logging.debug('Comment on %s: %s', table, self.d)
-        self.title = self.d[COMMENT_TITLE]
-        self.subtitle = self.d[COMMENT_SUBTITLE]
+        if COMMENT_TITLE in self.d:
+            self.title = self.d[COMMENT_TITLE]
+        if COMMENT_SUBTITLE in self.d:
+            self.subtitle = self.d[COMMENT_SUBTITLE]
         self.search = self.d[COMMENT_SEARCH]
         self.display = self.d[COMMENT_DISPLAY]
         self.order = self.d[COMMENT_ORDER_BY]
