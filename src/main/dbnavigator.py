@@ -160,7 +160,7 @@ class DatabaseNavigator:
 
         Printer.write(items)
 
-if __name__ == "__main__":
+def main():
     import sys
     import os
 
@@ -185,3 +185,6 @@ if __name__ == "__main__":
     except BaseException, e:
         logger.exception(e)
         Printer.write([Item(str(e), type(e), '', INVALID, '')])
+
+if __name__ == "__main__":
+    main()

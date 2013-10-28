@@ -1,11 +1,13 @@
 BUILD = build
 ACTUAL = $(BUILD)/test/actual
-SUITE = test/suite
-SOURCES = src/pkg src/images src/info.plist src/5AD6B622-051E-41D9-A608-70919939967A.png
+SUITE = src/test/resources
+SOURCES = src/main src/images src/info.plist src/5AD6B622-051E-41D9-A608-70919939967A.png
+TEST_SOURCES = src/test/test.sh src/test/main
+TEST_RESOURCES = src/test/resources
 ARCHIVE = $(BUILD)/dbexplorer_alfred_0.1.tgz
 ALFRED_WORKFLOW = /Volumes/Storage/Dropbox/Alfred/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD
-TESTS = $(shell echo $(SUITE)/testcase-*)
-ACTUALS = $(TESTS:$(SUITE)/testcase-%=$(ACTUAL)/testcase-%)
+TESTCASES = $(shell echo $(SUITE)/testcase-*)
+ACTUALS = $(TESTCASES:$(SUITE)/testcase-%=$(ACTUAL)/testcase-%)
 
 init:
 	mkdir -p $(BUILD) $(BUILD)/test $(ACTUAL) $(BUILD)/files
@@ -30,7 +32,12 @@ build: archive test
 install: build
 	tar -C $(ALFRED_WORKFLOW) -xzf $(ARCHIVE)
 
-test: assemble $(ACTUALS)
+test-assemble: assemble
+	cp -r $(BUILD)/files $(BUILD)/testfiles
+	cp -r $(TEST_SOURCES) $(BUILD)/testfiles/
+	cp -r $(TEST_RESOURCES) $(BUILD)/testfiles/
+
+test: test-assemble $(ACTUALS)
 
 $(ACTUAL)/testcase-%: $(SUITE)/testcase-%
-	test/test.sh $^
+	$(BUILD)/testfiles/test.sh $^

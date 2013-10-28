@@ -1,10 +1,9 @@
 #!/bin/bash
 
-ACTUAL_PREFIX="build/test/actual/"
-ACTUAL_SUFFIX=""
-EXPECTED_PREFIX="test/suite/expected/"
-EXPECTED_SUFFIX=""
-LOGLEVEL=debug
+TEST_DIR="src/test/resources"
+ACTUAL_DIR="build/test/actual"
+EXPECTED_DIR="$TEST_DIR/expected"
+LOGLEVEL=info
 
 TT=$(ruby -e 'puts "%.3f" % Time.now')
 STATUS=0
@@ -14,13 +13,13 @@ FAILED=0
 
 while (( "$#" )); do
 	TESTCASE="$(basename ${1%})"
-	ACTUAL="$ACTUAL_PREFIX$TESTCASE$ACTUAL_SUFFIX"
-	EXPECTED="$EXPECTED_PREFIX$TESTCASE$EXPECTED_SUFFIX"
-	SCRIPT="/usr/bin/python -m pkg.dbnavigator -s $(cat test/suite/$TESTCASE)"
+	ACTUAL="$ACTUAL_DIR/$TESTCASE"
+	EXPECTED="$EXPECTED_DIR/$TESTCASE"
+	SCRIPT="/usr/bin/python -m main.test -s $(cat $TEST_DIR/$TESTCASE)"
 
 	echo -n "Testing $TESTCASE... "
 	T=$(ruby -e 'puts "%.3f" % Time.now')
-	LOGLEVEL=$LOGLEVEL PYTHONPATH=build/files $SCRIPT > $ACTUAL
+	LOGLEVEL=$LOGLEVEL PYTHONPATH=build/testfiles $SCRIPT > $ACTUAL
 	T=$(ruby -e 'puts "%.3f" % (Time.now - '$T')')
 
 	DIFF=$(diff -u $EXPECTED $ACTUAL)
