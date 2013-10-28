@@ -4,6 +4,7 @@ TEST_DIR="src/test/resources"
 ACTUAL_DIR="build/test/actual"
 EXPECTED_DIR="$TEST_DIR/expected"
 LOGLEVEL=info
+LOGFILE=build/dbnavigator.log
 
 TT=$(ruby -e 'puts "%.3f" % Time.now')
 STATUS=0
@@ -15,11 +16,11 @@ while (( "$#" )); do
 	TESTCASE="$(basename ${1%})"
 	ACTUAL="$ACTUAL_DIR/$TESTCASE"
 	EXPECTED="$EXPECTED_DIR/$TESTCASE"
-	SCRIPT="/usr/bin/python -m main.test -s $(cat $TEST_DIR/$TESTCASE)"
+	SCRIPT="/usr/bin/python -m main.test -l $LOGLEVEL -f $LOGFILE -s $(cat $TEST_DIR/$TESTCASE)"
 
 	echo -n "Testing $TESTCASE... "
 	T=$(ruby -e 'puts "%.3f" % Time.now')
-	LOGLEVEL=$LOGLEVEL PYTHONPATH=build/testfiles $SCRIPT > $ACTUAL
+	PYTHONPATH=build/testfiles $SCRIPT > $ACTUAL
 	T=$(ruby -e 'puts "%.3f" % (Time.now - '$T')')
 
 	DIFF=$(diff -u $EXPECTED $ACTUAL)

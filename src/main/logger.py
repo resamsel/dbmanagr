@@ -7,4 +7,4 @@ import time
 logger = logging.getLogger(__name__)
 
 def logduration(subject, start):
-    logger.debug('%s took: %0.6fs', subject, time.time() - start)
+    logger.info('%s took: %0.6fs', subject, time.time() - start)

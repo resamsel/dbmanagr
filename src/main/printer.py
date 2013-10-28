@@ -62,12 +62,7 @@ class Printer:
 
     @staticmethod
     def set(arg):
-        Printer.printer = {
-            '-x': XmlPrinter(),
-            '-s': SimplePrinter(),
-            '-j': JsonPrinter(),
-            '-p': DefaultPrinter()
-        }.get(arg, DefaultPrinter())
+        Printer.printer = arg
 
     @staticmethod
     def write(items):

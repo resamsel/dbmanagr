@@ -46,10 +46,8 @@ class DatabaseNavigator:
     """The main class"""
 
     @staticmethod
-    def main(args=[]):
+    def main():
         """The main method that splits the arguments and starts the magic"""
-
-        Options.init(args)
 
         connections = Source.connections()
         con = None
@@ -126,11 +124,6 @@ class DatabaseNavigator:
         else:
             keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
 
-        if 'subtitle' not in keys:
-            keys.insert(0, 'subtitle')
-        if 'title' not in keys:
-            keys.insert(0, 'title')
-
         def fkey(column): return foreign_keys[column.name] if column.name in foreign_keys else column
 
         def val(row, column):
@@ -160,27 +153,17 @@ class DatabaseNavigator:
         Printer.write(items)
 
 def main():
-    import sys
-    import os
+    Options.init()
 
-    loglevel = logging.WARNING
+    logging.basicConfig(filename=Options.logfile, level=Options.loglevel)
 
-    loglevel_env = os.getenv("LOGLEVEL")
-    if loglevel_env:
-        numeric_level = getattr(logging, loglevel_env.upper(), None)
-        if not isinstance(numeric_level, int):
-            raise ValueError('Invalid log level: %s' % loglevel_env)
-        loglevel = numeric_level
-
-    logging.basicConfig(filename='/tmp/dbexplorer.log', level=loglevel)
-    
     logger.debug("""
 ###
 ### Called with args: %s ###
 ###""", sys.argv)
 
     try:
-        DatabaseNavigator.main(sys.argv)
+        DatabaseNavigator.main()
     except BaseException, e:
         logger.exception(e)
         Printer.write([Item(str(e), type(e), '', INVALID, '')])
