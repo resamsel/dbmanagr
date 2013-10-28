@@ -15,7 +15,6 @@ from .logger import logduration
 
 from .postgresql import *
 from .sqlite import *
-from .mock import *
 
 VALID = "yes"
 INVALID = "no"

@@ -25,7 +25,11 @@ _assemble: $(SOURCES)
 
 archive: assemble
 	rm -f $(ARCHIVE)
-	tar -C $(BUILD)/files -czf $(ARCHIVE) --exclude=.DS_Store --exclude="*.sketch" .
+	tar -C $(BUILD)/files -czf $(ARCHIVE) \
+		--exclude=.DS_Store \
+		--exclude="*.sketch" \
+		--exclude="*.pyc" \
+		.
 
 build: archive test
 

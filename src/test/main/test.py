@@ -11,11 +11,11 @@ from main.postgresql.sources import *
 
 logger = logging.getLogger(__name__)
 
+TEST_DIR = "build/testfiles/resources"
+
 Source.sources = []
-Source.sources.append(DBExplorerPostgreSQLSource('build/testfiles/resources/dbexplorer.cfg'))
-Source.sources.append(PgpassSource('build/testfiles/resources/pgpass'))
-Source.sources.append(DBExplorerSQLiteSource('build/testfiles/resources/dbexplorer.cfg'))
+Source.sources.append(DBExplorerPostgreSQLSource('%s/dbexplorer.cfg' % TEST_DIR))
+Source.sources.append(PgpassSource('%s/pgpass' % TEST_DIR))
+Source.sources.append(DBExplorerSQLiteSource('%s/dbexplorer.cfg' % TEST_DIR))
 
 main()
-
-logger.info('Working dir: %s', os.getcwd())
