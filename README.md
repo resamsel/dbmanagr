@@ -1,9 +1,9 @@
-alfred-dbexplorer
+alfred-dbnavigator
 =================
 
-# Alfred Database Explorer
+# Alfred Database Navigator
 
-Allows you to explore your PostgreSQL database using Alfred 2.0.
+Allows you to explore your database using Alfred 2.0.
 
 ## Features
 * Use database connections from the ~/.pgpass file
@@ -21,3 +21,6 @@ Allows you to explore your PostgreSQL database using Alfred 2.0.
 Open Alfred and type:
 
 **select myuser@myhost/mydatabase/mytable/first_name=Herbert**
+
+## SQLAlchemy
+* http://docs.sqlalchemy.org/en/rel_0_8/core/reflection.html

@@ -45,10 +45,11 @@ class Table:
         query = QueryBuilder(connection, self, filter=filter, order=self.comment.order, limit=DEFAULT_LIMIT).build()
 
         logging.debug('Query rows: %s' % query)
+        result = None
         cur = connection.cursor()
         start = time.time()
         try:
-            cur.execute(query)
+            result = cur.execute(query)
         except BaseException, e:
             logging.error('%s: check comment on table %s\n%s' % (e.__class__.__name__, self.name, str(e)))
             from ..model import databaseconnection
@@ -57,7 +58,7 @@ class Table:
 
         def t(row): return Row(connection, self, row)
 
-        return map(t, cur.fetchall())
+        return map(t, result)
     
     def foreign_keys(self):
         return self.fks

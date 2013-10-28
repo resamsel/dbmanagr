@@ -3,10 +3,13 @@
 
 import shelve
 import logging
-import psycopg2
-import psycopg2.extras
+#import psycopg2
+#import psycopg2.extras
 import time
 
+from sqlalchemy import *
+from sqlalchemy.engine import reflection
+from sqlalchemy.exc import OperationalError
 from os.path import expanduser
 
 from ..logger import logduration
@@ -150,30 +153,26 @@ class PostgreSQLConnection(DatabaseConnection):
     def connect(self, database):
         logging.debug('Connecting to database %s' % database)
         
+        db = None
         if database:
             try:
-                self.con = psycopg2.connect(host=self.host, database=database, user=self.user, password=self.password)
-            except psycopg2.DatabaseError, e:
-                self.con = psycopg2.connect(host=self.host, user=self.user, password=self.password)
+                db = create_engine('postgresql://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
+                self.con = db.connect()
+                self.inspector = reflection.Inspector.from_engine(db)
+            except OperationalError, e:
+                db = create_engine('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
+                self.con = db.connect()
+                self.inspector = reflection.Inspector.from_engine(db)
                 database = None
 
             if database:
-                d = shelve.open(expanduser('.dbnavigator.cache'), writeback=True)
-                try:
-                    uri = self.__repr__()
-                    if uri in d and d['%s_time' % uri] > time.time() - CACHE_TIME:
-                        # foreign key have already been saved to shelve within the last 2 minutes
-                        self.table_map = d[uri]
-                    else:
-                        self.table_map = {t.name: t for t in self.tablesof(database)}
-                        self.put_foreign_keys()
-                        
-                        d[uri] = self.table_map
-                        d['%s_time' % uri] = time.time()
-                finally:
-                    d.close()
+                self.table_map = {t.name.encode('ascii'): t for t in self.tablesof(database)}
+                logging.debug('Table Map: %s' % self.table_map)
+                self.put_foreign_keys()
         else:
-            self.con = psycopg2.connect(host=self.host, user=self.user, password=self.password)
+            db = create_engine('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
+            self.con = db.connect()
+            self.inspector = reflection.Inspector.from_engine(db)
 
     def connected(self):
         return self.con
@@ -183,7 +182,7 @@ class PostgreSQLConnection(DatabaseConnection):
         self.con = None
 
     def cursor(self):
-        return self.con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        return self.con
 
     def databases(self):
         if not self.dbs:
@@ -192,12 +191,12 @@ class PostgreSQLConnection(DatabaseConnection):
 
             cur = self.cursor()
             start = time.time()
-            cur.execute(query)
+            result = cur.execute(query)
             logduration('Query databases', start)
     
             def d(row): return Database(self, row[0])
     
-            self.dbs = map(d, cur.fetchall())
+            self.dbs = map(d, result)
         
         return self.dbs
 
@@ -211,40 +210,45 @@ class PostgreSQLConnection(DatabaseConnection):
         logging.debug('Query columns: %s' % query)
         cur = self.cursor()
         start = time.time()
-        cur.execute(query)
+        result = cur.execute(query)
         logduration('Query columns', start)
 
-        return [Column(table, row['column_name']) for row in cur.fetchall()]
+        return [Column(table, row['column_name']) for row in result]
 
     def tablesof(self, database):
-        if not self.tbls:
-            query = TABLES_QUERY
-            logging.debug('Query tables: %s' % query)
-    
-            cur = self.cursor()
-            start = time.time()
-            cur.execute(query)
-            logduration('Query tables', start)
-    
-            def t(row): return Table(self, database, row[0], row[1])
-    
-            self.tbls = map(t, cur.fetchall())
+        #def t(t): return Table(self, database, t, '')
+        #
+        # sqlalchemy does not yet provide reflecting comments
+        #tables = map(t, [t for t in self.inspector.get_table_names()])
 
-        return self.tbls
+        query = TABLES_QUERY
+        logging.debug('Query tables: %s' % query)
+        
+        cur = self.cursor()
+        start = time.time()
+        result = cur.execute(query)
+        logduration('Query tables', start)
+        
+        def t(row): return Table(self, database, row[0], row[1])
+        
+        return map(t, result)
 
     def put_foreign_keys(self):
         """Retrieves the foreign keys of the table"""
+        
+        for key, value in self.table_map.iteritems():
+            logging.debug('Foreign keys for %s: %s' % (key, self.inspector.get_foreign_keys(value.name)))
 
         logging.debug('Retrieve foreign keys')
         query = FOREIGN_KEY_QUERY
         logging.debug('Query foreign keys: %s' % query)
         cur = self.cursor()
         start = time.time()
-        cur.execute(query)
+        result = cur.execute(query)
         logduration('Query foreign keys', start)
-        for row in cur.fetchall():
-            a = Column(self.table_map[row['table_name']], row['column_name'])
-            b = Column(self.table_map[row['foreign_table_name']], row['foreign_column_name'])
+        for row in result:
+            a = Column(self.table_map[row['table_name'].encode('ascii')], row['column_name'])
+            b = Column(self.table_map[row['foreign_table_name'].encode('ascii')], row['foreign_column_name'])
             fk = ForeignKey(a, b)
             self.table_map[a.table.name].fks[a.name] = fk
             self.table_map[b.table.name].fks[str(a)] = fk

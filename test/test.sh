@@ -15,7 +15,7 @@ while (( "$#" )); do
 	TESTCASE="$(basename ${1%})"
 	ACTUAL="$ACTUAL_PREFIX$TESTCASE$ACTUAL_SUFFIX"
 	EXPECTED="$EXPECTED_PREFIX$TESTCASE$EXPECTED_SUFFIX"
-	SCRIPT="python -m pkg.dbnavigator -s $(cat test/suite/$TESTCASE)"
+	SCRIPT="/usr/bin/python -m pkg.dbnavigator -s $(cat test/suite/$TESTCASE)"
 
 	echo -n "Testing $TESTCASE... "
 	T=$(ruby -e 'puts "%.3f" % Time.now')

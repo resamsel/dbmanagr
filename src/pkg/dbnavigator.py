@@ -119,9 +119,9 @@ class DatabaseNavigator:
         logging.debug('Query values: %s' % query)
         cur = connection.cursor()
         start = time.time()
-        cur.execute(query)
+        result = cur.execute(query)
         logduration('Query values', start)
-        row = Row(connection, table, cur.fetchone())
+        row = Row(connection, table, result.fetchone())
 
         logging.debug('Comment.display: %s' % table.comment.display)
         if table.comment.display:

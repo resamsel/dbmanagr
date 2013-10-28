@@ -3,9 +3,10 @@
 
 import shelve
 import logging
-import sqlite3
 import time
 
+from sqlalchemy import *
+from sqlalchemy.engine import reflection
 from os.path import expanduser, basename
 
 from ..logger import logduration
@@ -16,15 +17,6 @@ from ..model.column import *
 from ..model.foreignkey import *
 
 CACHE_TIME = 2*60
-TABLES_QUERY = """
-select
-        name as tbl, '' as comment
-    from
-        sqlite_master
-    where
-        type = 'table'
-    order by name
-"""
 COLUMNS_QUERY = """
 pragma table_info({0})
 """
@@ -96,8 +88,9 @@ class SQLiteConnection(DatabaseConnection):
     def connect(self, database=None):
         logging.debug('Connecting to database %s' % database)
         
-        self.con = sqlite3.connect(self.path)
-        self.con.row_factory = sqlite3.Row
+        db = create_engine('sqlite+pysqlite:///%s' % self.path)
+        self.con = db.connect()
+        self.inspector = reflection.Inspector.from_engine(db)
 
         self.table_map = {t.name: t for t in self.tablesof(database)}
 
@@ -105,11 +98,11 @@ class SQLiteConnection(DatabaseConnection):
         return self.con
 
     def close(self):
-#        self.con.close()
+        self.con.close()
         self.con = None
 
     def cursor(self):
-        return self.con.cursor()
+        return self.con
 
     def databases(self):
         logging.debug('Retrieve databases')
@@ -121,22 +114,11 @@ class SQLiteConnection(DatabaseConnection):
     def columns(self, table):
         query = COLUMNS_QUERY.format(table.name)
         cur = self.cursor()
-        cur.execute(query)
+        result = cur.execute(query)
         
-        return [Column(table, c['name'], c['pk']) for c in cur.fetchall()]
+        return [Column(table, c['name'], c['pk']) for c in result]
 
     def tablesof(self, database):
-        if not self.tbls:
-            query = TABLES_QUERY
-            logging.debug('Query tables: %s' % query)
-    
-            cur = self.cursor()
-            start = time.time()
-            cur.execute(query)
-            logduration('Query tables', start)
-    
-            def t(row): return Table(self, database, row[0], row[1])
-    
-            self.tbls = map(t, cur.fetchall())
+        def t(name): return Table(self, database, name, '')
 
-        return self.tbls
+        return map(t, [t for t in self.inspector.get_table_names()])

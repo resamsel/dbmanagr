@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+import codecs
+import sys
+
+UTF8Writer = codecs.getwriter('utf8')
+sys.stdout = UTF8Writer(sys.stdout)
+
 def html_escape(s):
-    if isinstance(s, unicode):
-        s = s.encode('ascii', 'ignore')
-    if type(s) == str:
+    if type(s) == str or type(s) == unicode:
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s
 
@@ -15,9 +20,9 @@ class DefaultPrinter:
         return str(item)
 
 class XmlPrinter(DefaultPrinter):
-    ITEMS_FORMAT = """<items>
+    ITEMS_FORMAT = u"""<items>
 {0}</items>"""
-    ITEM_FORMAT = """   <item uid="{uid}" arg="{title}" autocomplete="{autocomplete}" valid="{valid}">
+    ITEM_FORMAT = u"""   <item uid="{uid}" arg="{title}" autocomplete="{autocomplete}" valid="{valid}">
         <title>{title}</title>
         <subtitle>{subtitle}</subtitle>
         <icon>{icon}</icon>
@@ -31,9 +36,9 @@ class XmlPrinter(DefaultPrinter):
 
 
 class JsonPrinter(DefaultPrinter):
-    ITEMS_FORMAT = """{{
+    ITEMS_FORMAT = u"""{{
 {0}}}"""
-    ITEM_FORMAT = """   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}
+    ITEM_FORMAT = u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}
 """
     def write(self, items):
         s = ''.join([self.itemtostring(i) for i in items])
@@ -42,12 +47,14 @@ class JsonPrinter(DefaultPrinter):
         return JsonPrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
 
 class SimplePrinter(DefaultPrinter):
-    ITEMS_FORMAT = """Id\tTitle\tSubtitle\tAutocomplete
+    ITEMS_FORMAT = u"""Id\tTitle\tSubtitle\tAutocomplete
 {0}"""
-    ITEM_FORMAT = """{uid}\t{title}\t{subtitle}\t{autocomplete}
+    ITEM_FORMAT = u"""{uid}\t{title}\t{subtitle}\t{autocomplete}
 """
     def write(self, items):
-        s = ''.join([self.itemtostring(i) for i in items])
+        s = u''.join([self.itemtostring(i) for i in items])
+        logging.debug('type(s): %s' % type(s))
+        logging.debug('type(SimplePrinter.ITEMS_FORMAT): %s' % type(SimplePrinter.ITEMS_FORMAT))
         print SimplePrinter.ITEMS_FORMAT.format(s)
     def itemtostring(self, item):
         return SimplePrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
