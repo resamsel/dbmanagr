@@ -21,3 +21,6 @@ class Row:
 
     def values(self):
         return self.row
+
+    def autocomplete(self, pk, value):
+        return '%s/%s/%s=%s/' % (str(self.connection), self.table, pk, value)

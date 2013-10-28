@@ -88,7 +88,6 @@ class DatabaseConnection:
         
         return [Column(table, col['name'], [col['name']] == pks) for col in cols]
 
-
     def __str__(self):
         return self.__repr__()
 

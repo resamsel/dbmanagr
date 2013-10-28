@@ -72,7 +72,7 @@ class PostgreSQLConnection(DatabaseConnection):
         self.password = password
         self.con = None
         self.dbs = None
-        self.tbls = None
+        self.tbls = {}
 
     def __repr__(self):
         return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
@@ -156,17 +156,13 @@ class PostgreSQLConnection(DatabaseConnection):
             try:
                 db = create_engine('postgresql://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
                 self.con = db.connect()
+                self.database = database
                 self.inspector = reflection.Inspector.from_engine(db)
             except OperationalError, e:
                 db = create_engine('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
                 self.con = db.connect()
                 self.inspector = reflection.Inspector.from_engine(db)
                 database = None
-
-            if database:
-                self.table_map = {t.name.encode('ascii'): t for t in self.tablesof(database)}
-                logger.debug('Table Map: %s' % self.table_map)
-                self.put_foreign_keys()
         else:
             db = create_engine('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
             self.con = db.connect()
@@ -194,7 +190,12 @@ class PostgreSQLConnection(DatabaseConnection):
         return self.dbs
 
     def tables(self):
-        return self.table_map
+        if not self.tbls:
+            self.tbls = {t.name.encode('ascii'): t for t in self.tablesof(self.database)}
+            logger.debug('Table Map: %s' % self.tbls)
+            self.put_foreign_keys()
+
+        return self.tbls
 
     def tablesof(self, database):
         ## sqlalchemy does not yet provide reflecting comments
@@ -211,14 +212,11 @@ class PostgreSQLConnection(DatabaseConnection):
     def put_foreign_keys(self):
         """Retrieves the foreign keys of the table"""
         
-        for key, value in self.table_map.iteritems():
-            logger.debug('Foreign keys for %s: %s', key, self.inspector.get_foreign_keys(value.name))
-
         result = self.execute(FOREIGN_KEY_QUERY, 'Foreign Keys')
 
         for row in result:
-            a = Column(self.table_map[row['table_name'].encode('ascii')], row['column_name'])
-            b = Column(self.table_map[row['foreign_table_name'].encode('ascii')], row['foreign_column_name'])
+            a = Column(self.tbls[row['table_name'].encode('ascii')], row['column_name'])
+            b = Column(self.tbls[row['foreign_table_name'].encode('ascii')], row['foreign_column_name'])
             fk = ForeignKey(a, b)
-            self.table_map[a.table.name].fks[a.name] = fk
-            self.table_map[b.table.name].fks[str(a)] = fk
+            self.tbls[a.table.name].fks[a.name] = fk
+            self.tbls[b.table.name].fks[str(a)] = fk

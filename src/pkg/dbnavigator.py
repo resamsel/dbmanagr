@@ -107,7 +107,7 @@ class DatabaseNavigator:
 
         def pk(row): return row.table.primary_key
 
-        Printer.write([Item(val(row, 'title'), val(row, 'subtitle'), row.table.autocomplete(pk(row), row[pk(row)]), VALID, IMAGE_ROW) for row in rows])
+        Printer.write([Item(val(row, 'title'), val(row, 'subtitle'), row.autocomplete(pk(row), row[pk(row)]), VALID, IMAGE_ROW) for row in rows])
 
     @staticmethod
     def print_values(connection, table, filter):
