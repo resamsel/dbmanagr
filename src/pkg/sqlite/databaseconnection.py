@@ -21,6 +21,8 @@ COLUMNS_QUERY = """
 pragma table_info({0})
 """
 
+logger = logging.getLogger(__name__)
+
 class SQLiteConnection(DatabaseConnection):
     """A database connection"""
 
@@ -46,14 +48,14 @@ class SQLiteConnection(DatabaseConnection):
         return 'SQLite Connection'
 
     def matches(self, options):
-        logging.debug('SQLite matches')
+        logger.debug('SQLite matches')
         return options.arg.startswith(self.filename)
 
     def filter(self, options):
         return not options.arg or options.arg in self.path
 
     def proceed(self):
-        logging.debug('SQLite proceed')
+        logger.debug('SQLite proceed')
 
         from ..dbnavigator import DatabaseNavigator
         from ..options import Options
@@ -86,7 +88,7 @@ class SQLiteConnection(DatabaseConnection):
                 self.close()
 
     def connect(self, database=None):
-        logging.debug('Connecting to database %s' % database)
+        logger.debug('Connecting to database %s' % database)
         
         db = create_engine('sqlite+pysqlite:///%s' % self.path)
         self.con = db.connect()
@@ -105,19 +107,12 @@ class SQLiteConnection(DatabaseConnection):
         return self.con
 
     def databases(self):
-        logging.debug('Retrieve databases')
+        logger.debug('Retrieve databases')
         return [Database(self, '_')]
 
     def tables(self):
         return self.table_map
     
-    def columns(self, table):
-        query = COLUMNS_QUERY.format(table.name)
-        cur = self.cursor()
-        result = cur.execute(query)
-        
-        return [Column(table, c['name'], c['pk']) for c in result]
-
     def tablesof(self, database):
         def t(name): return Table(self, database, name, '')
 

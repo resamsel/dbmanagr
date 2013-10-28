@@ -4,5 +4,7 @@
 import logging
 import time
 
+logger = logging.getLogger(__name__)
+
 def logduration(subject, start):
-    logging.debug('%s took: %0.6fs' % (subject, time.time() - start))
+    logger.debug('%s took: %0.6fs', subject, time.time() - start)

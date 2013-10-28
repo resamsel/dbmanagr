@@ -4,6 +4,7 @@ ACTUAL_PREFIX="build/test/actual/"
 ACTUAL_SUFFIX=""
 EXPECTED_PREFIX="test/suite/expected/"
 EXPECTED_SUFFIX=""
+LOGLEVEL=debug
 
 TT=$(ruby -e 'puts "%.3f" % Time.now')
 STATUS=0
@@ -19,7 +20,7 @@ while (( "$#" )); do
 
 	echo -n "Testing $TESTCASE... "
 	T=$(ruby -e 'puts "%.3f" % Time.now')
-	PYTHONPATH=build/files $SCRIPT > $ACTUAL
+	LOGLEVEL=$LOGLEVEL PYTHONPATH=build/files $SCRIPT > $ACTUAL
 	T=$(ruby -e 'puts "%.3f" % (Time.now - '$T')')
 
 	DIFF=$(diff -u $EXPECTED $ACTUAL)

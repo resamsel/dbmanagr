@@ -26,6 +26,8 @@ LIST_SEPARATOR = """,
 OR_SEPARATOR = """
         or """
 
+logger = logging.getLogger(__name__)
+
 class Join:
     def __init__(self, table, alias, column, fk_alias, fk_column):
         self.table = table
@@ -86,8 +88,8 @@ class Comment:
             try:
                 return s.format(self.alias, **self.fk_titles)
             except KeyError, e:
-                logging.debug("Foreign key titles: %s" % self.fk_titles)
-                logging.error("Error: %s" % e)
+                logger.debug("Foreign key titles: %s" % self.fk_titles)
+                logger.error("Error: %s" % e)
                 return s
         
         self.id = f(comment.id)
@@ -106,8 +108,6 @@ class Comment:
         for column in self.display:
             self.columns[column] = Projection('%s.%s' % (self.alias, column), column)
         
-        logging.debug('Columns: %s' % self.columns)
-
         if not self.search:
             self.search.append(self.title)
             self.search.append(self.subtitle)
@@ -116,7 +116,7 @@ class Comment:
         return str(self.__dict__)
 
     def populate_titles(self, fk_titles, foreign_keys):
-        logging.debug("Populate titles: %s" % foreign_keys.keys())
+        #logger.debug("Populate titles: %s", foreign_keys.keys())
         for key in foreign_keys.keys():
             if key in self.display:
                 fk = foreign_keys[key]
@@ -155,7 +155,7 @@ class QueryBuilder:
         order = self.order
         limit = self.limit if self.limit else 20
         comment = Comment(self, self.table)
-        logging.debug('Comment for %s: %s' % (self.table, comment))
+        #logger.debug('Comment for %s: %s', self.table, comment)
         
         for key in foreign_keys.keys():
             if key in comment.display:
@@ -171,7 +171,7 @@ class QueryBuilder:
                                 comment.columns[a] = Projection(title, a)
                         self.joins[alias] = Join(fk.b.table.name, alias, fk.b.name, self.alias, fk.a.name)
                     except KeyError, e:
-                        logging.error("KeyError: %s, table=%s, comment.title=%s" % (e, fktable, fktable.comment.title))
+                        logger.error("KeyError: %s, table=%s, comment.title=%s" % (e, fktable, fktable.comment.title))
 
         if self.id:
             if '=' in comment.id:

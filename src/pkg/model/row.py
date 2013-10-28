@@ -3,6 +3,8 @@
 
 import logging
 
+logger = logging.getLogger(__name__)
+
 class Row:
     """A table row from the database"""
 
@@ -12,9 +14,9 @@ class Row:
         self.row = row
 
     def __getitem__(self, i):
-        if isinstance(i, unicode):
+        if type(i) == unicode:
             i = i.encode('ascii')
-        logging.debug('row[%s], type: %s' % (str(i), type(i)))
+        #logger.debug('row[%s], type: %s', str(i), type(i))
         return self.row[i]
 
     def values(self):

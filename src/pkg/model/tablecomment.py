@@ -29,7 +29,6 @@ class TableComment:
             self.id = self.d[COMMENT_ID]
         if COMMENT_TITLE in self.d and self.id:
             self.d[COMMENT_TITLE] = '{0}.%s' % self.id
-#        logging.debug('Comment on %s: %s', table, self.d)
         if COMMENT_TITLE in self.d:
             self.title = self.d[COMMENT_TITLE]
         if COMMENT_SUBTITLE in self.d:

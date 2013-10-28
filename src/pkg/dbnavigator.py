@@ -31,6 +31,8 @@ IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 OPTION_URI_TABLES_FORMAT = '%s/%s/'
 OPTION_URI_ROW_FORMAT = '%s/%s/%s'
 
+logger = logging.getLogger(__name__)
+
 def strip(s):
     if type(s) == str:
         return s.strip()
@@ -70,24 +72,24 @@ class DatabaseNavigator:
 
     @staticmethod
     def print_connections(cons):
-        """Prints the given connections {cons}"""
+        """Prints the given connections %s"""
 
-        logging.debug(DatabaseNavigator.print_connections.__doc__.format(cons=cons))
+        logger.debug(DatabaseNavigator.print_connections.__doc__, cons)
         Printer.write([Item(c.title(), c.subtitle(), c.autocomplete(), VALID, IMAGE_CONNECTION) for c in cons])
 
     @staticmethod
     def print_databases(dbs):
-        """Prints the given databases {dbs}"""
+        """Prints the given databases %s"""
 
-        logging.debug(DatabaseNavigator.print_databases.__doc__.format(dbs=dbs))
+        logger.debug(DatabaseNavigator.print_databases.__doc__, dbs)
 
         Printer.write([Item(database.autocomplete(), 'Database', database.autocomplete(), VALID, IMAGE_DATABASE) for database in dbs])
 
     @staticmethod
     def print_tables(tables):
-        """Prints the given tables {tables}"""
+        """Prints the given tables %s"""
 
-        logging.debug(DatabaseNavigator.print_tables.__doc__.format(tables=tables))
+        logger.debug(DatabaseNavigator.print_tables.__doc__, tables)
 
         Printer.write([Item(t.name, 'Title: %s' % t.comment.title, OPTION_URI_TABLES_FORMAT % (t.uri, t), VALID, IMAGE_TABLE) for t in tables])
 
@@ -95,7 +97,7 @@ class DatabaseNavigator:
     def print_rows(rows):
         """Prints the given rows"""
 
-        logging.debug(DatabaseNavigator.print_rows.__doc__)
+        logger.debug(DatabaseNavigator.print_rows.__doc__)
 
         def val(row, column):
             colname = '%s_title' % column
@@ -111,19 +113,15 @@ class DatabaseNavigator:
     def print_values(connection, table, filter):
         """Prints the given row values according to the given filter"""
 
-        logging.debug(DatabaseNavigator.print_values.__doc__)
+        logger.debug(DatabaseNavigator.print_values.__doc__)
 
         foreign_keys = table.fks
         query = QueryBuilder(connection, table, filter=filter, limit=1).build()
+        result = connection.execute(query, 'Values')
         
-        logging.debug('Query values: %s' % query)
-        cur = connection.cursor()
-        start = time.time()
-        result = cur.execute(query)
-        logduration('Query values', start)
         row = Row(connection, table, result.fetchone())
 
-        logging.debug('Comment.display: %s' % table.comment.display)
+        logger.debug('Comment.display: %s', table.comment.display)
         if table.comment.display:
             keys = table.comment.display
         else:
@@ -164,11 +162,20 @@ class DatabaseNavigator:
 
 if __name__ == "__main__":
     import sys
-    import logging
+    import os
 
-    logging.basicConfig(filename='/tmp/dbexplorer.log', level=logging.DEBUG)
+    loglevel = logging.WARNING
 
-    logging.debug("""
+    loglevel_env = os.getenv("LOGLEVEL")
+    if loglevel_env:
+        numeric_level = getattr(logging, loglevel_env.upper(), None)
+        if not isinstance(numeric_level, int):
+            raise ValueError('Invalid log level: %s' % loglevel_env)
+        loglevel = numeric_level
+
+    logging.basicConfig(filename='/tmp/dbexplorer.log', level=loglevel)
+    
+    logger.debug("""
 ###
 ### Called with args: %s ###
 ###""", sys.argv)
@@ -176,5 +183,5 @@ if __name__ == "__main__":
     try:
         DatabaseNavigator.main(sys.argv)
     except BaseException, e:
-        logging.exception(e)
+        logger.exception(e)
         Printer.write([Item(str(e), type(e), '', INVALID, '')])

@@ -4,8 +4,10 @@
 import uuid
 import logging
 
+logger = logging.getLogger(__name__)
+
 def hash(s):
-    logging.debug('hash(%s)' % s)
+    #logger.debug('hash(%s)' % s)
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 class Item:

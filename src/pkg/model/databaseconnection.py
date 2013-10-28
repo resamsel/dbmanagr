@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+import logging
+
+from ..logger import *
+from .column import *
+
+logger = logging.getLogger(__name__)
+
 class Row:
     columns = {'id': 1, 'title': 'Title', 'subtitle': 'Subtitle', 'column_name': 'column', 0: '0', 1: '1', 'column': 'col'}
     def __init__(self, *args):
@@ -53,6 +61,16 @@ class DatabaseConnection:
 
     def cursor(self):
         return Cursor()
+    
+    def execute(self, query, name='Unnamed'):
+        logger.info('Query %s: %s', name, query)
+        
+        cur = self.cursor()
+        start = time.time()
+        result = cur.execute(query)
+        logduration('Query %s' % name, start)
+        
+        return result
 
     def filter(self, options):
         return True
@@ -63,9 +81,13 @@ class DatabaseConnection:
     def tables(self):
         return {}
     
-    def columns(self):
+    def columns(self, table):
         """Returns a list of Column objects"""
-        return []
+        cols = self.inspector.get_columns(table.name)
+        pks = [pk for pk in self.inspector.get_pk_constraint(table.name)['constrained_columns']]
+        
+        return [Column(table, col['name'], [col['name']] == pks) for col in cols]
+
 
     def __str__(self):
         return self.__repr__()
@@ -78,7 +100,7 @@ class DatabaseConnection:
 
     def __getstate__(self):
         state = dict(self.__dict__)
-        logging.debug('State: %s' % state)
+        logger.debug('State: %s' % state)
         if 'con' in state:
             del state['con']
         return state

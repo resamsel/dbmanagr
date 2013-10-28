@@ -9,6 +9,8 @@ from .printer import *
 
 OPTION_URI_FORMAT = '%s@%s/%s'
 
+logger = logging.getLogger(__name__)
+
 class Options:
     arg = None
     user = None
@@ -44,7 +46,7 @@ class Options:
         if Options.user and Options.host:
             Options.uri = OPTION_URI_FORMAT % (Options.user, Options.host, Options.table if Options.table else '')
         
-        logging.debug('Options: %s' % Options.repr())
+        logger.debug('Options: %s' % Options.repr())
 
     @staticmethod
     def repr():

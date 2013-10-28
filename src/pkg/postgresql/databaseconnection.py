@@ -3,16 +3,12 @@
 
 import shelve
 import logging
-#import psycopg2
-#import psycopg2.extras
-import time
 
 from sqlalchemy import *
 from sqlalchemy.engine import reflection
 from sqlalchemy.exc import OperationalError
 from os.path import expanduser
 
-from ..logger import logduration
 from ..model.databaseconnection import *
 from ..model.database import *
 from ..model.table import *
@@ -62,6 +58,8 @@ select
     where
         table_name = '{0}'
 """
+
+logger = logging.getLogger(__name__)
 
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
@@ -151,7 +149,7 @@ class PostgreSQLConnection(DatabaseConnection):
         return matches
 
     def connect(self, database):
-        logging.debug('Connecting to database %s' % database)
+        logger.debug('Connecting to database %s' % database)
         
         db = None
         if database:
@@ -167,7 +165,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
             if database:
                 self.table_map = {t.name.encode('ascii'): t for t in self.tablesof(database)}
-                logging.debug('Table Map: %s' % self.table_map)
+                logger.debug('Table Map: %s' % self.table_map)
                 self.put_foreign_keys()
         else:
             db = create_engine('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
@@ -185,14 +183,9 @@ class PostgreSQLConnection(DatabaseConnection):
         return self.con
 
     def databases(self):
+        # does not yet work with sqlalchemy...
         if not self.dbs:
-            query = DATABASES_QUERY
-            logging.debug('Query databases: %s' % query)
-
-            cur = self.cursor()
-            start = time.time()
-            result = cur.execute(query)
-            logduration('Query databases', start)
+            result = self.execute(DATABASES_QUERY, 'Databases')
     
             def d(row): return Database(self, row[0])
     
@@ -203,49 +196,26 @@ class PostgreSQLConnection(DatabaseConnection):
     def tables(self):
         return self.table_map
 
-    def columns(self, table):
-        logging.debug('Retrieve columns')
-
-        query = COLUMNS_QUERY.format(table.name)
-        logging.debug('Query columns: %s' % query)
-        cur = self.cursor()
-        start = time.time()
-        result = cur.execute(query)
-        logduration('Query columns', start)
-
-        return [Column(table, row['column_name']) for row in result]
-
     def tablesof(self, database):
+        ## sqlalchemy does not yet provide reflecting comments
         #def t(t): return Table(self, database, t, '')
         #
-        # sqlalchemy does not yet provide reflecting comments
         #tables = map(t, [t for t in self.inspector.get_table_names()])
 
-        query = TABLES_QUERY
-        logging.debug('Query tables: %s' % query)
-        
-        cur = self.cursor()
-        start = time.time()
-        result = cur.execute(query)
-        logduration('Query tables', start)
-        
+        result = self.execute(TABLES_QUERY, 'Tables')
+
         def t(row): return Table(self, database, row[0], row[1])
-        
+
         return map(t, result)
 
     def put_foreign_keys(self):
         """Retrieves the foreign keys of the table"""
         
         for key, value in self.table_map.iteritems():
-            logging.debug('Foreign keys for %s: %s' % (key, self.inspector.get_foreign_keys(value.name)))
+            logger.debug('Foreign keys for %s: %s', key, self.inspector.get_foreign_keys(value.name))
 
-        logging.debug('Retrieve foreign keys')
-        query = FOREIGN_KEY_QUERY
-        logging.debug('Query foreign keys: %s' % query)
-        cur = self.cursor()
-        start = time.time()
-        result = cur.execute(query)
-        logduration('Query foreign keys', start)
+        result = self.execute(FOREIGN_KEY_QUERY, 'Foreign Keys')
+
         for row in result:
             a = Column(self.table_map[row['table_name'].encode('ascii')], row['column_name'])
             b = Column(self.table_map[row['foreign_table_name'].encode('ascii')], row['foreign_column_name'])

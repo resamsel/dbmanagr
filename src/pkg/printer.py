@@ -53,8 +53,6 @@ class SimplePrinter(DefaultPrinter):
 """
     def write(self, items):
         s = u''.join([self.itemtostring(i) for i in items])
-        logging.debug('type(s): %s' % type(s))
-        logging.debug('type(SimplePrinter.ITEMS_FORMAT): %s' % type(SimplePrinter.ITEMS_FORMAT))
         print SimplePrinter.ITEMS_FORMAT.format(s)
     def itemtostring(self, item):
         return SimplePrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
