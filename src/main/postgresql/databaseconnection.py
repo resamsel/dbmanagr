@@ -14,6 +14,7 @@ from ..model.database import *
 from ..model.table import *
 from ..model.column import *
 from ..model.foreignkey import *
+from ..options import Options
 
 CACHE_TIME = 2*60
 DATABASES_QUERY = """
@@ -65,6 +66,7 @@ class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
 
     def __init__(self, host, port, database, user, password):
+        DatabaseConnection.__init__(self)
         self.host = host
         self.port = port
         self.database = database
@@ -92,49 +94,57 @@ class PostgreSQLConnection(DatabaseConnection):
         return 'PostgreSQL Connection'
 
     def matches(self, options):
-        return options.uri.startswith("%s@%s" % (self.user, self.host))
+        options = Options.parser['postgresql']
+        logger.debug('Options: %s', options.__dict__)
+        if options.gen:
+            return options.gen.startswith("%s@%s" % (self.user, self.host))
+        return False
 
     def proceed(self):
         from ..dbnavigator import DatabaseNavigator
-        from ..options import Options
 
-        if Options.database == None:
+        options = Options.parser['postgresql']
+
+        if options.database == None:
             # print this connection
             DatabaseNavigator.print_connections([self])
             return
 
         try:
-            self.connect(Options.database)
+            self.connect(options.database)
 
-            if not Options.database or Options.table == None:
+            if not options.database or options.table == None:
                 dbs = self.databases()
-                if Options.database:
-                    dbs = [db for db in dbs if Options.database in db.name]
+                if options.database:
+                    dbs = [db for db in dbs if options.database in db.name]
 
                 DatabaseNavigator.print_databases(dbs)
                 return
 
+            if options.showcolumns:
+                table = self.tables()[options.table]
+                if options.showcolumns and options.filter == None:
+                    columns = table.columns(self, options.column)
+                    DatabaseNavigator.print_columns(columns)
+                elif options.showvalues:
+                    DatabaseNavigator.print_values(self, table, '%s=%s' % (options.column, options.filter))
+                else:
+                    rows = table.rows(self, options.filter)
+                    DatabaseNavigator.print_rows(rows)
+                return
+
             tables = [t for k, t in self.tables().iteritems()]
             tables = sorted(tables, key=lambda t: t.name)
-            if Options.table:
-                ts = [t for t in tables if Options.table == t.name]
-                if len(ts) == 1 and Options.filter != None:
-                    table = ts[0]
-                    if Options.filter and Options.display:
-                        DatabaseNavigator.print_values(self, table, Options.filter)
-                    else:
-                        rows = table.rows(self, Options.filter)
-                        DatabaseNavigator.print_rows(rows)
-                    return
-            
-            if Options.table:
-                tables = [t for t in tables if t.name.startswith(Options.table)]
+
+            if options.table:
+                tables = [t for t in tables if t.name.startswith(options.table)]
+
             DatabaseNavigator.print_tables(tables)
         finally:
-            if self.connected():
-                self.close()
+            self.close()
 
     def filter(self, options):
+        options = options.parser['postgresql']
         matches = True
 
         if options.user:
@@ -168,16 +178,6 @@ class PostgreSQLConnection(DatabaseConnection):
             self.con = db.connect()
             self.inspector = reflection.Inspector.from_engine(db)
 
-    def connected(self):
-        return self.con
-
-    def close(self):
-        self.con.close()
-        self.con = None
-
-    def cursor(self):
-        return self.con
-
     def databases(self):
         # does not yet work with sqlalchemy...
         if not self.dbs:
@@ -188,14 +188,6 @@ class PostgreSQLConnection(DatabaseConnection):
             self.dbs = map(d, result)
         
         return self.dbs
-
-    def tables(self):
-        if not self.tbls:
-            self.tbls = {t.name.encode('ascii'): t for t in self.tablesof(self.database)}
-            logger.debug('Table Map: %s' % self.tbls)
-            self.put_foreign_keys()
-
-        return self.tbls
 
     def tablesof(self, database):
         ## sqlalchemy does not yet provide reflecting comments

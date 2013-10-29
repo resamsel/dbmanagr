@@ -1,0 +1,6 @@
+Id	Title	Subtitle	Autocomplete
+d5ed36cc-4b22-3361-89fe-b0fe94a3d097	id	api_key	skiline@localhost/skiline/api_key/id
+a2e1a17d-5d87-3d0d-9715-0d20b2dd935c	client_id	api_key	skiline@localhost/skiline/api_key/client_id
+8812d122-45d0-3565-881d-433f247b1270	forgot_password_email_template_id	api_key	skiline@localhost/skiline/api_key/forgot_password_email_template_id
+0594eafa-fd34-3027-ad33-56c6c3266c4b	registration_doi_email_template_id	api_key	skiline@localhost/skiline/api_key/registration_doi_email_template_id
+

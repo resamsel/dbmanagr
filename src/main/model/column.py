@@ -13,7 +13,10 @@ class Column:
         self.name = name
         self.primary_key = primary_key
 
-        logger.debug('Column: %s', self.__dict__)
+        #logger.debug('Column: %s', self.__dict__)
 
     def __repr__(self):
         return '%s.%s' % (self.table.name, self.name)
+
+    def autocomplete(self):
+        return '%s/%s/%s' % (self.table.uri, self.table.name, self.name)

@@ -15,6 +15,7 @@ from ..model.database import *
 from ..model.table import *
 from ..model.column import *
 from ..model.foreignkey import *
+from ..options import *
 
 CACHE_TIME = 2*60
 COLUMNS_QUERY = """
@@ -27,18 +28,18 @@ class SQLiteConnection(DatabaseConnection):
     """A database connection"""
 
     def __init__(self, path):
+        DatabaseConnection.__init__(self)
         self.path = path
         self.filename = basename(self.path)
         self.con = None
         self.dbs = None
+        self.database = self.databases()[0]
         self.tbls = None
 
     def __repr__(self):
         return self.filename
 
     def autocomplete(self):
-        """Retrieves the autocomplete string"""
-
         return self.filename
 
     def title(self):
@@ -48,44 +49,44 @@ class SQLiteConnection(DatabaseConnection):
         return 'SQLite Connection'
 
     def matches(self, options):
-        logger.debug('SQLite matches')
-        return options.arg.startswith(self.filename)
+        options = Options.parser['sqlite']
+        if options.uri:
+            return options.uri.startswith(self.filename)
+        return False
 
     def filter(self, options):
-        return not options.arg or options.arg in self.path
+        options = Options.parser['sqlite']
+        return not options.uri or options.uri in self.path
 
     def proceed(self):
-        logger.debug('SQLite proceed')
-
         from ..dbnavigator import DatabaseNavigator
-        from ..options import Options
 
-        if len(Options.paths) > 1: Options.table = Options.paths[1]
-        if len(Options.paths) > 2: Options.filter = Options.paths[2]
-        Options.display = len(Options.paths) > 3
+        options = Options.parser['sqlite']
 
         try:
             self.connect()
 
+            if options.showcolumns:
+                table = self.tables()[options.table]
+                if options.showcolumns and options.filter == None:
+                    columns = table.columns(self, options.column)
+                    DatabaseNavigator.print_columns(columns)
+                elif options.showvalues:
+                    DatabaseNavigator.print_values(self, table, '%s=%s' % (options.column, options.filter))
+                else:
+                    rows = table.rows(self, options.filter)
+                    DatabaseNavigator.print_rows(rows)
+                return
+
             tables = [t for k, t in self.tables().iteritems()]
             tables = sorted(tables, key=lambda t: t.name)
-            if Options.table:
-                ts = [t for t in tables if Options.table == t.name]
-                if len(ts) == 1 and Options.filter != None:
-                    table = ts[0]
-                    if Options.filter and Options.display:
-                        DatabaseNavigator.print_values(self, table, Options.filter)
-                    else:
-                        rows = table.rows(self, Options.filter)
-                        DatabaseNavigator.print_rows(rows)
-                    return
-            
-            if Options.table:
-                tables = [t for t in tables if t.name.startswith(Options.table)]
+
+            if options.table:
+                tables = [t for t in tables if t.name.startswith(options.table)]
+
             DatabaseNavigator.print_tables(tables)
         finally:
-            if self.connected():
-                self.close()
+            self.close()
 
     def connect(self, database=None):
         logger.debug('Connecting to database %s' % database)
@@ -94,25 +95,10 @@ class SQLiteConnection(DatabaseConnection):
         self.con = db.connect()
         self.inspector = reflection.Inspector.from_engine(db)
 
-        self.table_map = {t.name: t for t in self.tablesof(database)}
-
-    def connected(self):
-        return self.con
-
-    def close(self):
-        self.con.close()
-        self.con = None
-
-    def cursor(self):
-        return self.con
-
     def databases(self):
         logger.debug('Retrieve databases')
         return [Database(self, '_')]
 
-    def tables(self):
-        return self.table_map
-    
     def tablesof(self, database):
         def t(name): return Table(self, database, name, '')
 

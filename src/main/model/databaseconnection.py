@@ -33,7 +33,8 @@ class Cursor:
 
 class DatabaseConnection:
     def __init__(self, *args):
-        pass
+        self.database = None
+        self.tbls = None
 
     def title(self):
         return 'Title'
@@ -42,6 +43,8 @@ class DatabaseConnection:
         return 'Subtitle'
 
     def autocomplete(self):
+        """Retrieves the autocomplete string"""
+
         return 'Autocomplete'
 
     def matches(self, options):
@@ -54,14 +57,16 @@ class DatabaseConnection:
         pass
 
     def connected(self):
-        return True
+        return self.con
 
     def close(self):
-        pass
+        if self.con:
+            self.con.close()
+            self.con = None
 
     def cursor(self):
-        return Cursor()
-    
+        return self.con
+
     def execute(self, query, name='Unnamed'):
         logger.info('Query %s: %s', name, query)
         
@@ -79,8 +84,19 @@ class DatabaseConnection:
         return []
 
     def tables(self):
+        if not self.tbls:
+            self.tbls = {t.name.encode('ascii'): t for t in self.tablesof(self.database)}
+            #logger.debug('Table Map: %s' % self.tbls)
+            self.put_foreign_keys()
+
+        return self.tbls
+
+    def tablesof(self, database):
         return {}
-    
+
+    def put_foreign_keys(self):
+        pass
+
     def columns(self, table):
         """Returns a list of Column objects"""
         cols = self.inspector.get_columns(table.name)

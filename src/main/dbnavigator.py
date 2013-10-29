@@ -53,19 +53,17 @@ class DatabaseNavigator:
         con = None
 
         # search exact match of connection
-        if Options.uri:
-            for connection in connections:
-                if connection.matches(Options):
-                    connection.proceed()
-                    return
+        for connection in connections:
+            if connection.matches(Options):
+                connection.proceed()
+                return
 
-        if Options.database == None:
-            # print all connections
-            cons = [c for c in connections if c.filter(Options)]
-            DatabaseNavigator.print_connections(cons)
-            return
+        # print all connections
+        cons = [c for c in connections if c.filter(Options)]
+        DatabaseNavigator.print_connections(cons)
+        #return
 
-        Printer.write([])
+        #Printer.write([])
 
     @staticmethod
     def print_connections(cons):
@@ -89,6 +87,14 @@ class DatabaseNavigator:
         logger.debug(DatabaseNavigator.print_tables.__doc__, tables)
 
         Printer.write([Item(t.name, 'Title: %s' % t.comment.title, OPTION_URI_TABLES_FORMAT % (t.uri, t), VALID, IMAGE_TABLE) for t in tables])
+
+    @staticmethod
+    def print_columns(columns):
+        """Prints the given columns %s"""
+
+        logger.debug(DatabaseNavigator.print_columns.__doc__, columns)
+
+        Printer.write([Item(c.name, c.table.name, c.autocomplete(), VALID, IMAGE_TABLE) for c in columns])
 
     @staticmethod
     def print_rows(rows):
@@ -156,11 +162,12 @@ def main():
     Options.init()
 
     logging.basicConfig(filename=Options.logfile, level=Options.loglevel)
-
+    
     logger.debug("""
 ###
 ### Called with args: %s ###
 ###""", sys.argv)
+    logger.debug(Options.repr())
 
     try:
         DatabaseNavigator.main()

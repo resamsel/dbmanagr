@@ -6,7 +6,8 @@ import logging
 
 from ..logger import logduration
 from .tablecomment import TableComment
-from .row import Row
+from .column import *
+from .row import *
 from ..querybuilder import QueryBuilder
 
 DEFAULT_LIMIT = 50
@@ -40,6 +41,13 @@ class Table:
             tablename = fk.b.table.name
 
         return format % (self.uri, tablename, value)
+
+    def columns(self, connection, column):
+        """Retrieves columns of table with given filter applied"""
+        
+        cols = connection.inspector.get_columns(self.name)
+        
+        return [Column(self, c['name']) for c in cols if column in c['name']]
 
     def rows(self, connection, filter):
         """Retrieves rows from the table with the given filter applied"""
