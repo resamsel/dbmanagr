@@ -95,7 +95,7 @@
 				<key>runningsubtext</key>
 				<string>Searching...</string>
 				<key>script</key>
-				<string>python -m main.dbnavigator -x skiline@localhost/skiline/resort/{query}</string>
+				<string>python -m main.dbnavigator -x skiline@localhost/skiline/resort/~{query}%</string>
 				<key>title</key>
 				<string>Skiresort</string>
 				<key>type</key>

@@ -20,7 +20,7 @@ JOIN_FORMAT = """
         left outer join \"{0}\" {1} on {1}.{2} = {3}.{4}"""
 ALIAS_FORMAT = "{0}_title"
 PROJECTION_FORMAT = """{0} {1}"""
-SEARCH_FORMAT = "cast(%s as text) like '%s%%%%'"
+SEARCH_FORMAT = "cast(%s as text) %s '%s'"
 LIST_SEPARATOR = """,
         """
 OR_SEPARATOR = """
@@ -180,19 +180,22 @@ class QueryBuilder:
             else:
                 where = "%s = '%s'" % (comment.id, self.id)
         elif self.filter:
-            if '=' in self.filter:
-                (name, value) = self.filter.split('=')
-                where = "{0}.{1} = '{2}'".format(self.alias, name, value.replace('%', '%%'))
-            elif '~' in self.filter:
-                (name, value) = self.filter.split('~')
-                where = "{0}.{1} like '{2}'".format(self.alias, name, value.replace('%', '%%'))
+            operator = {
+                '=': '=',
+                '~': 'like'
+            }.get(self.filter.operator, '=')
+            if self.filter.column != '':
+                if self.filter.operator:
+                    name = self.filter.column
+                    value = self.filter.filter.replace('%', '%%')
+                    where = "{0}.{1} {2} '{3}'".format(self.alias, name, operator, value)
             elif comment.search:
-                f = self.filter.replace('%', '%%')
+                f = self.filter.filter.replace('%', '%%')
                 conjunctions = []
                 for search_field in comment.search:
-                    conjunctions.append(SEARCH_FORMAT % (search_field, f))
+                    conjunctions.append(SEARCH_FORMAT % (search_field, operator, f))
                 if 'id' in comment.columns:
-                    conjunctions.append("%s || '' = '%s'" % (comment.columns['id'].value, f))
+                    conjunctions.append(SEARCH_FORMAT % (comment.columns['id'].value, operator, f))
                 where = OR_SEPARATOR.join(conjunctions)
 
         if not order:

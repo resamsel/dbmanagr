@@ -130,10 +130,10 @@ class PostgreSQLConnection(DatabaseConnection):
                 if options.filter == None:
                     return DatabaseNavigator.print_columns(table.columns(self, options.column))
                 else:
-                    return DatabaseNavigator.print_rows(table.rows(self, filter))
+                    return DatabaseNavigator.print_rows(table.rows(self, options))
             
             if options.show == 'values':
-                return DatabaseNavigator.print_values(self, table, filter)
+                return DatabaseNavigator.print_values(self, table, options)
         finally:
             self.close()
 
