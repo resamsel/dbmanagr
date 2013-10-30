@@ -5,8 +5,6 @@ import shelve
 import logging
 import time
 
-from sqlalchemy import *
-from sqlalchemy.engine import reflection
 from os.path import expanduser, basename
 
 from ..logger import logduration
@@ -50,13 +48,18 @@ class SQLiteConnection(DatabaseConnection):
 
     def matches(self, options):
         options = Options.parser['sqlite']
-        if options.uri:
+        if options.show != 'connections' and options.uri:
             return options.uri.startswith(self.filename)
         return False
 
     def filter(self, options):
         options = Options.parser['sqlite']
         return not options.uri or options.uri in self.path
+
+    def connect(self, database=None):
+        logger.debug('Connecting to database %s' % database)
+        
+        self.connect_to('sqlite+pysqlite:///%s' % self.path)
 
     def proceed(self):
         from ..dbnavigator import DatabaseNavigator
@@ -66,34 +69,25 @@ class SQLiteConnection(DatabaseConnection):
         try:
             self.connect()
 
-            if options.showcolumns:
-                table = self.tables()[options.table]
-                if options.showcolumns and options.filter == None:
-                    columns = table.columns(self, options.column)
-                    DatabaseNavigator.print_columns(columns)
-                elif options.showvalues:
-                    DatabaseNavigator.print_values(self, table, '%s=%s' % (options.column, options.filter))
+            if options.show == 'tables':
+                tables = [t for k, t in self.tables().iteritems()]
+                if options.table:
+                    tables = [t for t in tables if t.name.startswith(options.table)]
+
+                return DatabaseNavigator.print_tables(sorted(tables, key=lambda t: t.name))
+
+            table = self.tables()[options.table]
+            filter = '%s%s%s' % (options.column, options.operator, options.filter)
+            if options.show == 'columns':
+                if options.filter == None:
+                    return DatabaseNavigator.print_columns(table.columns(self, options.column))
                 else:
-                    rows = table.rows(self, options.filter)
-                    DatabaseNavigator.print_rows(rows)
-                return
+                    return DatabaseNavigator.print_rows(table.rows(self, filter))
 
-            tables = [t for k, t in self.tables().iteritems()]
-            tables = sorted(tables, key=lambda t: t.name)
-
-            if options.table:
-                tables = [t for t in tables if t.name.startswith(options.table)]
-
-            DatabaseNavigator.print_tables(tables)
+            if options.show == 'values':
+                return DatabaseNavigator.print_values(self, table, filter)
         finally:
             self.close()
-
-    def connect(self, database=None):
-        logger.debug('Connecting to database %s' % database)
-        
-        db = create_engine('sqlite+pysqlite:///%s' % self.path)
-        self.con = db.connect()
-        self.inspector = reflection.Inspector.from_engine(db)
 
     def databases(self):
         logger.debug('Retrieve databases')

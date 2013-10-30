@@ -51,11 +51,10 @@ class Options:
     def __init__(self):
         self.uri = None
         self.table = None
+        self.column = ''
+        self.operator = None
         self.filter = None
-        self.showdatabases = False
-        self.showtables = False
-        self.showcolumns = False
-        self.showvalues = False
+        self.show = 'connections'
 
     def parse_options(self):
         self.uri = Options.uri

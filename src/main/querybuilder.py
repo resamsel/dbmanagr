@@ -20,7 +20,7 @@ JOIN_FORMAT = """
         left outer join \"{0}\" {1} on {1}.{2} = {3}.{4}"""
 ALIAS_FORMAT = "{0}_title"
 PROJECTION_FORMAT = """{0} {1}"""
-SEARCH_FORMAT = "%s like '%s%%%%'"
+SEARCH_FORMAT = "cast(%s as text) like '%s%%%%'"
 LIST_SEPARATOR = """,
         """
 OR_SEPARATOR = """
@@ -182,7 +182,10 @@ class QueryBuilder:
         elif self.filter:
             if '=' in self.filter:
                 (name, value) = self.filter.split('=')
-                where = "{0}.{1} = '{2}'".format(self.alias, name, value)
+                where = "{0}.{1} = '{2}'".format(self.alias, name, value.replace('%', '%%'))
+            elif '~' in self.filter:
+                (name, value) = self.filter.split('~')
+                where = "{0}.{1} like '{2}'".format(self.alias, name, value.replace('%', '%%'))
             elif comment.search:
                 f = self.filter.replace('%', '%%')
                 conjunctions = []

@@ -4,8 +4,6 @@
 import shelve
 import logging
 
-from sqlalchemy import *
-from sqlalchemy.engine import reflection
 from sqlalchemy.exc import OperationalError
 from os.path import expanduser
 
@@ -96,7 +94,7 @@ class PostgreSQLConnection(DatabaseConnection):
     def matches(self, options):
         options = Options.parser['postgresql']
         logger.debug('Options: %s', options.__dict__)
-        if options.gen:
+        if options.show != 'connections' and options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
@@ -105,41 +103,37 @@ class PostgreSQLConnection(DatabaseConnection):
 
         options = Options.parser['postgresql']
 
-        if options.database == None:
+        if options.show == 'connections':
             # print this connection
-            DatabaseNavigator.print_connections([self])
-            return
+            return DatabaseNavigator.print_connections([self])
 
         try:
             self.connect(options.database)
 
-            if not options.database or options.table == None:
+            if options.show == 'databases':
                 dbs = self.databases()
                 if options.database:
                     dbs = [db for db in dbs if options.database in db.name]
 
-                DatabaseNavigator.print_databases(dbs)
-                return
+                return DatabaseNavigator.print_databases(dbs)
 
-            if options.showcolumns:
-                table = self.tables()[options.table]
-                if options.showcolumns and options.filter == None:
-                    columns = table.columns(self, options.column)
-                    DatabaseNavigator.print_columns(columns)
-                elif options.showvalues:
-                    DatabaseNavigator.print_values(self, table, '%s=%s' % (options.column, options.filter))
+            if options.show == 'tables':
+                tables = [t for k, t in self.tables().iteritems()]
+                if options.table:
+                    tables = [t for t in tables if t.name.startswith(options.table)]
+
+                return DatabaseNavigator.print_tables(sorted(tables, key=lambda t: t.name))
+
+            table = self.tables()[options.table]
+            filter = '%s%s%s' % (options.column, options.operator, options.filter)
+            if options.show == 'columns':
+                if options.filter == None:
+                    return DatabaseNavigator.print_columns(table.columns(self, options.column))
                 else:
-                    rows = table.rows(self, options.filter)
-                    DatabaseNavigator.print_rows(rows)
-                return
-
-            tables = [t for k, t in self.tables().iteritems()]
-            tables = sorted(tables, key=lambda t: t.name)
-
-            if options.table:
-                tables = [t for t in tables if t.name.startswith(options.table)]
-
-            DatabaseNavigator.print_tables(tables)
+                    return DatabaseNavigator.print_rows(table.rows(self, filter))
+            
+            if options.show == 'values':
+                return DatabaseNavigator.print_values(self, table, filter)
         finally:
             self.close()
 
@@ -161,22 +155,15 @@ class PostgreSQLConnection(DatabaseConnection):
     def connect(self, database):
         logger.debug('Connecting to database %s' % database)
         
-        db = None
         if database:
             try:
-                db = create_engine('postgresql://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
-                self.con = db.connect()
+                self.connect_to('postgresql://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
                 self.database = database
-                self.inspector = reflection.Inspector.from_engine(db)
             except OperationalError, e:
-                db = create_engine('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
-                self.con = db.connect()
-                self.inspector = reflection.Inspector.from_engine(db)
+                self.connect_to('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
                 database = None
         else:
-            db = create_engine('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
-            self.con = db.connect()
-            self.inspector = reflection.Inspector.from_engine(db)
+            self.connect_to('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
 
     def databases(self):
         # does not yet work with sqlalchemy...
@@ -191,9 +178,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
     def tablesof(self, database):
         ## sqlalchemy does not yet provide reflecting comments
-        #def t(t): return Table(self, database, t, '')
-        #
-        #tables = map(t, [t for t in self.inspector.get_table_names()])
+        #tables = [Table(self, database, t, '') for t in self.inspector.get_table_names()]
 
         result = self.execute(TABLES_QUERY, 'Tables')
 

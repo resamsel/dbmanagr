@@ -4,6 +4,9 @@
 import time
 import logging
 
+from sqlalchemy import *
+from sqlalchemy.engine import reflection
+
 from ..logger import *
 from .column import *
 
@@ -55,6 +58,11 @@ class DatabaseConnection:
 
     def connect(self, database):
         pass
+
+    def connect_to(self, source):
+        self.engine = create_engine(source)
+        self.con = self.engine.connect()
+        self.inspector = reflection.Inspector.from_engine(self.engine)
 
     def connected(self):
         return self.con
