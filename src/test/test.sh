@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TEST_DIR="src/test/resources"
-ACTUAL_DIR="build/test/actual"
+ACTUAL_DIR="build/testfiles/actual"
 EXPECTED_DIR="$TEST_DIR/expected"
 LOGLEVEL=info
 LOGFILE=build/dbnavigator.log
