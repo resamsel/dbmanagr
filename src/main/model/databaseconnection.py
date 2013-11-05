@@ -8,6 +8,7 @@ from sqlalchemy import *
 from sqlalchemy.engine import reflection
 
 from ..logger import *
+from ..options import Options
 from .column import *
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,7 @@ class DatabaseConnection:
     def __init__(self, *args):
         self.database = None
         self.tbls = None
+        self.driver = None
 
     def title(self):
         return 'Title'
@@ -54,7 +56,42 @@ class DatabaseConnection:
         return options.arg in self.title()
 
     def proceed(self):
-        pass
+        from ..dbnavigator import DatabaseNavigator
+
+        options = Options.parser[self.driver]
+
+        if options.show == 'connections':
+            # print this connection
+            return DatabaseNavigator.print_connections([self])
+
+        try:
+            self.connect(options.database)
+
+            if options.show == 'databases':
+                dbs = self.databases()
+                if options.database:
+                    dbs = [db for db in dbs if options.database in db.name]
+
+                return DatabaseNavigator.print_databases(dbs)
+
+            if options.show == 'tables':
+                tables = [t for k, t in self.tables().iteritems()]
+                if options.table:
+                    tables = [t for t in tables if t.name.startswith(options.table)]
+
+                return DatabaseNavigator.print_tables(sorted(tables, key=lambda t: t.name))
+
+            table = self.tables()[options.table]
+            if options.show == 'columns':
+                if options.filter == None:
+                    return DatabaseNavigator.print_columns(table.columns(self, options.column))
+                else:
+                    return DatabaseNavigator.print_rows(table.rows(self, options))
+            
+            if options.show == 'values':
+                return DatabaseNavigator.print_values(self, table, options)
+        finally:
+            self.close()
 
     def connect(self, database):
         pass

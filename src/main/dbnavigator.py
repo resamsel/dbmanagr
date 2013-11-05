@@ -50,20 +50,17 @@ class DatabaseNavigator:
         """The main method that splits the arguments and starts the magic"""
 
         connections = Source.connections()
-        con = None
 
         # search exact match of connection
         for connection in connections:
-            if connection.matches(Options):
+            options = Options.parser[connection.driver]
+            if options.show != 'connections' and connection.matches(Options):
                 connection.proceed()
                 return
 
         # print all connections
         cons = [c for c in connections if c.filter(Options)]
-        DatabaseNavigator.print_connections(cons)
-        #return
-
-        #Printer.write([])
+        return DatabaseNavigator.print_connections(cons)
 
     @staticmethod
     def print_connections(cons):

@@ -1,12 +1,11 @@
-alfred-dbnavigator
-=================
-
 # Alfred Database Navigator
 
 Allows you to explore your database using Alfred 2.0.
 
+![Alfred Database Navigator Sample](https://github.com/resamsel/alfred-dbnavigator/raw/master/docs/images/select.png "Alfred Database Navigator Sample")
+
 ## Features
-* Use database connections from the ~/.pgpass file
+* Use database connections from the `~/.pgpass` file
 * Shows databases of said connections
 * Shows tables of databases
 * Shows rows of tables with filtering
@@ -21,24 +20,21 @@ Allows you to explore your database using Alfred 2.0.
 Open Alfred and type:
 
 ### Show Available Connections
-**select **
+`select`
 
 ### Show Databases of Connection
-**select myuser@myhost/**
+`select myuser@myhost/`
 
 ### Show Tables of Database
-**select myuser@myhost/mydatabase/**
+`select myuser@myhost/mydatabase/`
 
 ### Show Columns of Table
-**select myuser@myhost/mydatabase/mytable/**
+`select myuser@myhost/mydatabase/mytable/`
 
 ### Show Rows Matching Given Pattern
-**select myuser@myhost/mydatabase/mytable/first_name=Herbert**
-
-## SQLAlchemy
-* http://docs.sqlalchemy.org/en/rel_0_8/core/reflection.html
+`select myuser@myhost/mydatabase/mytable/first_name=Herbert`
 
 ## Installation
 * sudo easy_install SQLAlchemy
 * sudo easy_install psycopg2
-* Open the .alfredworkflow file
+* Open the .alfredworkflow file created by the build

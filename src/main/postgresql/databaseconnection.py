@@ -73,6 +73,7 @@ class PostgreSQLConnection(DatabaseConnection):
         self.con = None
         self.dbs = None
         self.tbls = {}
+        self.driver = 'postgresql'
 
     def __repr__(self):
         return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
@@ -93,49 +94,9 @@ class PostgreSQLConnection(DatabaseConnection):
 
     def matches(self, options):
         options = Options.parser['postgresql']
-        logger.debug('Options: %s', options.__dict__)
-        if options.show != 'connections' and options.gen:
+        if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
-
-    def proceed(self):
-        from ..dbnavigator import DatabaseNavigator
-
-        options = Options.parser['postgresql']
-
-        if options.show == 'connections':
-            # print this connection
-            return DatabaseNavigator.print_connections([self])
-
-        try:
-            self.connect(options.database)
-
-            if options.show == 'databases':
-                dbs = self.databases()
-                if options.database:
-                    dbs = [db for db in dbs if options.database in db.name]
-
-                return DatabaseNavigator.print_databases(dbs)
-
-            if options.show == 'tables':
-                tables = [t for k, t in self.tables().iteritems()]
-                if options.table:
-                    tables = [t for t in tables if t.name.startswith(options.table)]
-
-                return DatabaseNavigator.print_tables(sorted(tables, key=lambda t: t.name))
-
-            table = self.tables()[options.table]
-            filter = '%s%s%s' % (options.column, options.operator, options.filter)
-            if options.show == 'columns':
-                if options.filter == None:
-                    return DatabaseNavigator.print_columns(table.columns(self, options.column))
-                else:
-                    return DatabaseNavigator.print_rows(table.rows(self, options))
-            
-            if options.show == 'values':
-                return DatabaseNavigator.print_values(self, table, options)
-        finally:
-            self.close()
 
     def filter(self, options):
         options = options.parser['postgresql']

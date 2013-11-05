@@ -33,6 +33,7 @@ class SQLiteConnection(DatabaseConnection):
         self.dbs = None
         self.database = self.databases()[0]
         self.tbls = None
+        self.driver = 'sqlite'
 
     def __repr__(self):
         return self.filename
@@ -47,47 +48,19 @@ class SQLiteConnection(DatabaseConnection):
         return 'SQLite Connection'
 
     def matches(self, options):
-        options = Options.parser['sqlite']
-        if options.show != 'connections' and options.uri:
+        options = Options.parser[self.driver]
+        if options.uri:
             return options.uri.startswith(self.filename)
         return False
 
     def filter(self, options):
-        options = Options.parser['sqlite']
+        options = Options.parser[self.driver]
         return not options.uri or options.uri in self.path
 
     def connect(self, database=None):
         logger.debug('Connecting to database %s' % database)
         
         self.connect_to('sqlite+pysqlite:///%s' % self.path)
-
-    def proceed(self):
-        from ..dbnavigator import DatabaseNavigator
-
-        options = Options.parser['sqlite']
-
-        try:
-            self.connect()
-
-            if options.show == 'tables':
-                tables = [t for k, t in self.tables().iteritems()]
-                if options.table:
-                    tables = [t for t in tables if t.name.startswith(options.table)]
-
-                return DatabaseNavigator.print_tables(sorted(tables, key=lambda t: t.name))
-
-            table = self.tables()[options.table]
-            filter = '%s%s%s' % (options.column, options.operator, options.filter)
-            if options.show == 'columns':
-                if options.filter == None:
-                    return DatabaseNavigator.print_columns(table.columns(self, options.column))
-                else:
-                    return DatabaseNavigator.print_rows(table.rows(self, options))
-
-            if options.show == 'values':
-                return DatabaseNavigator.print_values(self, table, options)
-        finally:
-            self.close()
 
     def databases(self):
         logger.debug('Retrieve databases')

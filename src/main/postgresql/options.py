@@ -12,7 +12,6 @@ class PostgreSQLOptions(Options):
         self.gen = None
         self.user = None
         self.host = None
-        self.database = None
 
     def parse_options(self):
         Options.parse_options(self)

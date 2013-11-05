@@ -34,7 +34,7 @@ class Options:
         group.add_argument('-j', '--json', help='use JSON printer', action='store_true')
         group.add_argument('-x', '--xml', help='use XML printer', action='store_true')
         parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
-        parser.add_argument('-l', '--loglevel', default='info', help='the minimum level to log')
+        parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
         args = parser.parse_args()
 
         if args.default: Printer.set(DefaultPrinter())
@@ -50,6 +50,7 @@ class Options:
 
     def __init__(self):
         self.uri = None
+        self.database = None
         self.table = None
         self.column = ''
         self.operator = None
