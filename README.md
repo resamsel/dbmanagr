@@ -36,5 +36,6 @@ Open Alfred and type:
 
 ## Installation
 * ```sudo easy_install SQLAlchemy
-sudo easy_install psycopg2```
+sudo easy_install psycopg2
+```
 * Open the .alfredworkflow file created by the build
