@@ -35,7 +35,8 @@ Open Alfred and type:
 `select myuser@myhost/mydatabase/mytable/first_name=Herbert`
 
 ## Installation
-```sudo easy_install SQLAlchemy
+```
+sudo easy_install SQLAlchemy
 sudo easy_install psycopg2
 ```
 Then open the *.alfredworkflow* file created by the build.
