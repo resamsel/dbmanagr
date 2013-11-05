@@ -42,6 +42,9 @@ Open Alfred and type:
 
 **Warning: this is a potentially slow query! See configuration for options to resolve this problem.**
 
+### Show Values of selected Row
+`select myuser@myhost/mydatabase/mytable/id=23/`
+
 ## Installation
 ```
 sudo easy_install SQLAlchemy
@@ -86,6 +89,6 @@ select
 		or cast(col7 as text) like '%erber%'
 ```
 ### Display
-The *display* array contains the columns that will be added to the projection list of the SQL query. It will be added as is (no replacements will take place).
+The *display* array contains the columns that will be added to the projection list of the SQL query. All items present in the projection list will be shown in the *values* view (see example **Show Values of selected Row**). It will be added as is (no replacements will take place).
 ### Order
 The *order* array will be added to the *order by* part of the SQL query. It will be added as is (no replacements will take place).
