@@ -5,19 +5,22 @@ Allows you to explore your database using Alfred 2.0.
 ![Alfred Database Navigator Sample](https://github.com/resamsel/alfred-dbnavigator/raw/master/docs/images/select.png "Alfred Database Navigator Sample")
 
 ## Features
-* Use database connections from the `~/.pgpass` file
+* Supported databases: PostgreSQL, SQLite
+* Use database connection definitions from
+  * the `~/.pgpass` file (PGAdmin)
+  * the `~/.dbexplorer/dbexplorer.cfg` file (DBExplorer)
 * Shows databases of said connections
 * Shows tables of databases
-* Shows rows of tables with filtering
+* Shows columns of tables for filtering
+* Shows rows of tables with filtering (operators: =, ~)
 * Shows detailed row information
 * Shows info of foreign table row (based on the foreign key)
 * Switch to the foreign table row
-* Configuration of what is shown based on table comments
-* Ability to filter rows
 * Shows foreign keys that point to the current table row
+* Configuration of what is shown based on table comments
 
-## Examples
-Open Alfred and type:
+## Usage
+Open the Alfred query window. The keyword is *select*.
 
 ### Show Available Connections
 `select`
@@ -36,6 +39,8 @@ Open Alfred and type:
 
 ### Show Rows where Column matches Pattern
 `select myuser@myhost/mydatabase/mytable/first_name~%erber%`
+
+The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
 ### Show Rows where any (Search) Column matches Pattern
 `select myuser@myhost/mydatabase/mytable/~%erber%`
