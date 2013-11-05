@@ -59,7 +59,7 @@ It's possible to configure the content of the Alfred result items. This happens 
 {  "title": "{0}.fname || ' ' || {0}.lname",  "subtitle": "{0}.email || ' (' || {0}.user_name || ')'",  "search": ["{0}.email", "{0}.user_name"],  "display": ["fname", "lname", "email", "user_name", "security_info_id", "staff", "disqualified", "time_zone_id", "address", "id"],  "order": ["fname", "lname"]}
 ```
 ### Title
-The *title* is the main entry within the Alfred result item. The string *{0}* will be replaced with the table alias (useful when joining with other tables that also have the given attribute present).
+The *title* is the main entry within the Alfred result item. The string *{0}* will be replaced with the table alias (useful when joining with other tables that also have the given attribute present). The replaced content will then be added to the projection list as is (SQL functions may be added as well as string concatenation as in the example above).
 ### Subtitle
 The *subtitle* is the second line within the Alfred result item. The same replacements as with the title will be applied.
 ### Search
