@@ -57,6 +57,7 @@ aeca0b04-aeaa-3137-8ef1-c3ac87d6481e	cpoint	Title: None	skiline@localhost/skilin
 1dcdc8db-27bc-39a8-872b-6afc7af9ef38	decorator	Title: None	skiline@localhost/skiline/decorator/
 2025e747-0a75-3f2f-8494-1c00f826ad97	deleted_skicard	Title: None	skiline@localhost/skiline/deleted_skicard/
 1ad037c6-7c7d-36e6-87fa-72db78dde489	deleted_skicard_per_day	Title: None	skiline@localhost/skiline/deleted_skicard_per_day/
+a9453a7b-c071-32c5-ab01-a4463d490ac9	document	Title: None	skiline@localhost/skiline/document/
 4ef54b51-1299-3cfd-a07d-3a040ad1effc	donation	Title: None	skiline@localhost/skiline/donation/
 2fc7a099-7a08-3a50-81d3-77fb21098947	donee	Title: None	skiline@localhost/skiline/donee/
 b4cd24fb-aade-3d9d-99bf-59c11b6c6116	email_blacklist	Title: None	skiline@localhost/skiline/email_blacklist/
@@ -107,6 +108,7 @@ de51ba07-f8f0-3c05-a235-fae16c5d26fc	mail_box_item	Title: None	skiline@localhost
 9a0935c0-b327-3b58-96c4-610a164e9214	mail_box_item_2_receiver	Title: None	skiline@localhost/skiline/mail_box_item_2_receiver/
 e41eed84-3263-3eec-8f50-a730b9e6dc3b	marketplace_sport2000rent	Title: None	skiline@localhost/skiline/marketplace_sport2000rent/
 2c851451-786b-3c25-bbed-71f197a18be5	media	Title: None	skiline@localhost/skiline/media/
+e52457c2-3d04-3bca-803d-f487fb124348	media_share	Title: None	skiline@localhost/skiline/media_share/
 f99c2ccd-9ab4-35ea-9910-ed6a0f206901	media_visit	Title: None	skiline@localhost/skiline/media_visit/
 c445e4dd-2190-3e3e-8724-3c795adfdcf6	messages	Title: None	skiline@localhost/skiline/messages/
 cb248f98-f925-3393-bd4f-e26ce50168d0	newsfeed	Title: None	skiline@localhost/skiline/newsfeed/
@@ -150,7 +152,6 @@ ee3d3ad6-f51c-3f5f-86e8-31b545c895eb	rel_skicard_route	Title: None	skiline@local
 4d35ef86-a039-3696-add6-e8424f75a3f5	rel_skicardpd_route	Title: None	skiline@localhost/skiline/rel_skicardpd_route/
 9cf46d9f-6d74-3391-97e6-bbd930309cc1	rel_skicardpd_skicardsectionsupp	Title: None	skiline@localhost/skiline/rel_skicardpd_skicardsectionsupp/
 059429a5-7270-3e43-923a-a81812d54069	resort	Title: trim({0}.name)	skiline@localhost/skiline/resort/
-79e0414a-bbc2-34f0-9fd0-54c370851fdd	resort_connection_status	Title: None	skiline@localhost/skiline/resort_connection_status/
 4a3dccfb-74df-3ea2-843a-296fa8b34673	resort_details	Title: None	skiline@localhost/skiline/resort_details/
 83b0c7e0-54a6-3bf4-87bd-503323abab7a	resort_panorama	Title: None	skiline@localhost/skiline/resort_panorama/
 98cb2aec-6e1e-3cf5-b576-d75bb698383a	resort_panorama_section	Title: None	skiline@localhost/skiline/resort_panorama_section/
@@ -161,6 +162,7 @@ a1cb517e-615c-3c87-a3ee-dbf99c898dc6	resort_season_statistics	Title: None	skilin
 7f7efc48-f128-32de-856f-ab5f23707d2a	route	Title: None	skiline@localhost/skiline/route/
 ffc2c91f-4a1d-33ce-af24-470834893e3a	route_sections	Title: None	skiline@localhost/skiline/route_sections/
 c5b736bf-f72b-3873-9dfe-3c2678068b65	routing_rules	Title: None	skiline@localhost/skiline/routing_rules/
+4bd434d2-7be5-3bc6-988d-b0700c36bbfa	routing_rules_first_section	Title: None	skiline@localhost/skiline/routing_rules_first_section/
 76ff18a2-9c69-3bf3-b33c-9876bb149519	routing_rules_last_section	Title: None	skiline@localhost/skiline/routing_rules_last_section/
 74442cb1-cf81-3edd-8efb-ebdb43b4f7f6	schema_version	Title: None	skiline@localhost/skiline/schema_version/
 7a9b6f01-d356-31bb-8e9f-bcc22db47c49	season	Title: None	skiline@localhost/skiline/season/

@@ -11,4 +11,5 @@ a2e1a17d-5d87-3d0d-9715-0d20b2dd935c	client_id	api_key	skiline@localhost/skiline
 16090cde-d544-3b4d-a4cb-1353f5498de1	key_hash	api_key	skiline@localhost/skiline/api_key/key_hash
 c2ae9f46-2e50-3741-bd52-140a6b82eff3	sender_email_address	api_key	skiline@localhost/skiline/api_key/sender_email_address
 50b5446f-6891-3bb0-8b1b-cc11b9e1d23b	sender_name	api_key	skiline@localhost/skiline/api_key/sender_name
+7d718eb9-08a2-323b-8b10-f045c7b75a73	registration_doi_reminder_template_id	api_key	skiline@localhost/skiline/api_key/registration_doi_reminder_template_id
 

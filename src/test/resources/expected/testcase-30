@@ -5,7 +5,7 @@ eed6f799-a955-3e9a-8719-6697a1496c77	Samselnig	user.lname	skiline@localhost/skil
 b473ea9c-0473-3159-b63b-a7f46887e01e	resamsel	user.user_name	skiline@localhost/skiline/user/resamsel/
 59bd62ed-f604-38ca-9b6e-b23456d211aa	DOI: -, locked: false (2204662af954f84426e79a4aa41c956c)	user.security_info_id -> security_info.id	skiline@localhost/skiline/security_info/2204662af954f84426e79a4aa41c956c/
 81bf2ceb-d9eb-3530-8b51-5b0fa95ee7c6	True	user.staff	skiline@localhost/skiline/user/True/
-81bf2ceb-d9eb-3530-8b51-5b0fa95ee7c6	True	user.disqualified	skiline@localhost/skiline/user/True/
+99b228a6-d29b-3073-aac4-a369c3a02944	False	user.disqualified	skiline@localhost/skiline/user/False/
 988e7ff8-40cd-38d1-a4dc-f51adb257ee6	GMT	user.time_zone_id	skiline@localhost/skiline/user/GMT/
 74f43be7-6e53-33a5-89c8-719b3c775b05	8a67815327524e2301277fbe998c3717	user.address -> address.id	skiline@localhost/skiline/address/8a67815327524e2301277fbe998c3717/
 c71fa7f2-f4cb-3de0-8c76-98dd36510aeb	8a67815327524e2301277fbe998c3716	user.id	skiline@localhost/skiline/user/8a67815327524e2301277fbe998c3716/

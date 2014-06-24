@@ -2,3 +2,4 @@ build
 *.pyc
 .dbnavigator.cache
 .dbnavigator.cache.db
+target

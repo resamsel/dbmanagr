@@ -4,12 +4,14 @@
 __all__ = ["databaseconnection", "sources"]
 
 from os.path import expanduser
+from os import getenv
 
 from ..sources import Source
 from .sources import *
 from ..options import Options
 from .options import *
 
-Source.sources.append(DBExplorerSQLiteSource(expanduser('~/.dbexplorer/dbexplorer.cfg')))
+file = getenv('DBEXPLORER_CFG', expanduser('~/.dbexplorer/dbexplorer.cfg'))
+Source.sources.append(DBExplorerSQLiteSource(file))
 
 Options.parser['sqlite'] = SQLiteOptions()

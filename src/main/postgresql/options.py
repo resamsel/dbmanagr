@@ -29,7 +29,7 @@ class PostgreSQLOptions(Options):
             if len(paths) > 2: self.table = paths[2]
             if len(paths) > 3:
                 self.column = paths[3]
-                for operator in '=~':
+                for operator in '=~*':
                     if operator in self.column:
                         self.operator = operator
                         f = self.column.split(operator, 1)

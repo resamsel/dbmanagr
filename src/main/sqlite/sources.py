@@ -6,9 +6,13 @@ from urlparse import urlparse
 
 from ..sources import *
 from .databaseconnection import *
+from ..logger import *
+
+logger = logging.getLogger(__name__)
 
 class DBExplorerSQLiteSource(Source):
     def __init__(self, file):
+        logger.debug("DBExplorerSQLiteSource.__init__(%s)", file)
         Source.__init__(self)
         self.file = file
     def list(self):
@@ -21,6 +25,7 @@ class DBExplorerSQLiteSource(Source):
             for c in root.iter('connection'):
                 url = urlparse(c.find('url').text.replace('jdbc:',''))
                 if url.scheme == 'sqlite':
+                    logger.debug("Found connection: %s", url)
                     connection = SQLiteConnection(url.path)
                     self.connections.append(connection)
         

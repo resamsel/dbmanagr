@@ -14,9 +14,11 @@ class Row:
         self.row = row
 
     def __getitem__(self, i):
+        #logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
+        if i == None:
+            return None
         if type(i) == unicode:
             i = i.encode('ascii')
-        #logger.debug('row[%s], type: %s', str(i), type(i))
         return self.row[i]
 
     def values(self):

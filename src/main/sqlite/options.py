@@ -11,7 +11,7 @@ class SQLiteOptions(Options):
             if len(paths) > 1: self.table = paths[1]
             if len(paths) > 2:
                 self.column = paths[2]
-                for operator in '=~':
+                for operator in '=~*':
                     if operator in self.column:
                         self.operator = operator
                         f = self.column.split(operator, 1)

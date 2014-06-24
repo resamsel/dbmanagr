@@ -62,7 +62,7 @@ class Comment:
         self.fk_titles = {}
         self.columns = {}
         self.display = comment.display
-        table.primary_key = 'id'
+        table.primary_key = None
 
         columns = qb.connection.columns(table)
         
@@ -71,12 +71,22 @@ class Comment:
             if c.primary_key:
                 table.primary_key = c.name
                 break
-        if not comment.id:
+        logger.debug("Primary key of table %s: %s", table.name, table.primary_key)
+
+        if not comment.id and table.primary_key:
             comment.id = '{0}.%s' % table.primary_key
         if not comment.title:
-            comment.title = comment.id
+            if comment.id:
+                comment.title = comment.id
+            else:
+                comment.title = '{0}.%s' % columns[0].name
         if not comment.subtitle:
-            comment.subtitle = "'Primary key is %s'" % table.primary_key
+            if table.primary_key:
+                comment.subtitle = "'Primary key is %s'" % table.primary_key
+            else:
+                comment.subtitle = "'There is no primary key'"
+        if not comment.id:
+            comment.id = "'-'"
 
         if not self.display:
             for column in columns:
@@ -101,7 +111,7 @@ class Comment:
         if table.primary_key in [c.name for c in columns]:
             self.columns[table.primary_key] = Projection(self.id, 'id')
         else:
-            self.columns[table.primary_key] = Projection('1', 'id')
+            self.columns[table.primary_key] = Projection("'-'", 'id')
         if self.title != '*':
             self.columns['title'] = Projection(self.title, 'title')
         self.columns['subtitle'] = Projection(self.subtitle, 'subtitle')
@@ -150,12 +160,13 @@ class QueryBuilder:
         self.alias = '_%s' % self.table.name
 
     def build(self):
+        logger.debug("build(): %s", self.filter)
         foreign_keys = self.table.foreign_keys()
         where = '1=1'
         order = self.order
         limit = self.limit if self.limit else 20
         comment = Comment(self, self.table)
-        #logger.debug('Comment for %s: %s', self.table, comment)
+        logger.debug('Comment for %s: %s', self.table, comment)
         
         for key in foreign_keys.keys():
             if key in comment.display:
@@ -180,17 +191,22 @@ class QueryBuilder:
             else:
                 where = "%s = '%s'" % (comment.id, self.id)
         elif self.filter:
+            logger.debug("Filter: column=%s, operator=%s, filter=%s",
+                 self.filter.column, self.filter.operator, self.filter.filter)
             operator = {
                 '=': '=',
-                '~': 'like'
+                '~': 'like',
+                '*': 'like'
             }.get(self.filter.operator, '=')
-            if self.filter.column != '':
+            if self.filter.column != '' and self.filter.column in comment.columns:
                 if self.filter.operator:
                     name = self.filter.column
                     value = self.filter.filter.replace('%', '%%')
                     where = "{0}.{1} {2} '{3}'".format(self.alias, name, operator, value)
             elif comment.search:
                 f = self.filter.filter.replace('%', '%%')
+                if f == '' and self.filter.operator == '*':
+                    f = '%%'
                 conjunctions = []
                 for search_field in comment.search:
                     conjunctions.append(SEARCH_FORMAT % (search_field, operator, f))

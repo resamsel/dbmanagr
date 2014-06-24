@@ -158,13 +158,16 @@ class DatabaseNavigator:
 def main():
     Options.init()
 
-    logging.basicConfig(filename=Options.logfile, level=Options.loglevel)
+    logging.basicConfig(filename=Options.logfile,
+        level=Options.loglevel,
+        format="%(asctime)s %(levelname)s %(filename)s:%(lineno)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S")
     
-    logger.debug("""
+    logger.info("""
 ###
-### Called with args: %s ###
+### Called with args: %s
 ###""", sys.argv)
-    logger.debug(Options.repr())
+    logger.debug("Options: %s", Options.repr())
 
     try:
         DatabaseNavigator.main()

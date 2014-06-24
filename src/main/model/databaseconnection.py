@@ -23,6 +23,9 @@ class Row:
         else:
             self.columns = Row.columns
     def __getitem__(self, i):
+        logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
+        if i == None:
+            return None
         return self.columns[i]
     def __contains__(self, item):
         return item in self.columns
@@ -131,7 +134,7 @@ class DatabaseConnection:
     def tables(self):
         if not self.tbls:
             self.tbls = {t.name.encode('ascii'): t for t in self.tablesof(self.database)}
-            #logger.debug('Table Map: %s' % self.tbls)
+            logger.debug('Table Map: %s' % self.tbls)
             self.put_foreign_keys()
 
         return self.tbls

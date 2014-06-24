@@ -11,7 +11,9 @@ e144eb0f-8ce5-3016-847b-f986823e47f5	17003e2c226411e2a2e914feb5c97fba	api_key.fo
 06166e62-6031-3eb3-b8df-d1614b4cb4be	4d71cf85c9a74d010a5e9bcea23513f6	api_key.key_hash	skiline@localhost/skiline/api_key/4d71cf85c9a74d010a5e9bcea23513f6/
 a0fb9954-451a-3832-a37a-3511083c840e	None	api_key.sender_email_address	skiline@localhost/skiline/api_key/None/
 a0fb9954-451a-3832-a37a-3511083c840e	None	api_key.sender_name	skiline@localhost/skiline/api_key/None/
+c7e8c892-0a66-37ec-beb4-ab72358bff32	962569ca666511e3bf11000c29c2ac8f	api_key.registration_doi_reminder_template_id -> email_template.id	skiline@localhost/skiline/email_template/962569ca666511e3bf11000c29c2ac8f/
 b01c74ff-df5c-33f2-911e-03248d22471b	Ref: api_key_2_badge_definition.api_key_id	api_key_2_badge_definition.api_key_id	skiline@localhost/skiline/api_key_2_badge_definition/api_key_id=09e76932355b11e191dfaf54d84cf92e
 65801748-0e3a-393f-b662-cfe653908d12	Ref: api_key_2_competition.api_key_id	api_key_2_competition.api_key_id	skiline@localhost/skiline/api_key_2_competition/api_key_id=09e76932355b11e191dfaf54d84cf92e
 2b9495ec-62d3-32fc-865b-ce1103e6fda1	Ref: api_permission.api_key_id	api_permission.api_key_id	skiline@localhost/skiline/api_permission/api_key_id=09e76932355b11e191dfaf54d84cf92e
+695225b6-6ec3-3318-8e34-56d1b81f5fa2	Ref: user.created_by_api_key_id	user.created_by_api_key_id	skiline@localhost/skiline/user/created_by_api_key_id=09e76932355b11e191dfaf54d84cf92e
 

@@ -26,6 +26,7 @@ class SQLiteConnection(DatabaseConnection):
     """A database connection"""
 
     def __init__(self, path):
+        logger.debug("SQLiteConnection.__init__(%s)", path)
         DatabaseConnection.__init__(self)
         self.path = path
         self.filename = basename(self.path)
