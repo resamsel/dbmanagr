@@ -25,7 +25,7 @@ clean:
 assemble: init assemble-main
 
 assemble-main:
-	$(SETUPTOOLS) build
+	$(SETUPTOOLS) bdist_egg
 
 assemble-alfred: $(SOURCES)
 	rm -rf $(ALFRED)

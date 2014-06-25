@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "dbnav",
-    version = "0.1",
+    version = "0.2",
 
     packages = find_packages('src/main'),
     package_dir = {'':'src/main'},
@@ -23,5 +23,10 @@ setup(
         'console_scripts': [
             'dbnav = dbnav.navigator:main'
         ]
-    }
+    },
+    
+    author = "René Samselnig",
+    author_email = "me@resamsel.com",
+    description = "The database navigator for the command line",
+    keywords = "database navigator postgres sqlite"
 )

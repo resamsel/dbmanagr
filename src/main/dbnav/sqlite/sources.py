@@ -4,6 +4,7 @@
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
 from plistlib import readPlist
+from os.path import isfile
 
 from ..sources import *
 from .databaseconnection import *
@@ -17,6 +18,8 @@ class DBExplorerSQLiteSource(Source):
         Source.__init__(self)
         self.file = file
     def list(self):
+        if not isfile(self.file):
+            return self.connections
         if not self.connections:
             try:
                 tree = ET.parse(self.file)
@@ -37,6 +40,8 @@ class NavicatSQLiteSource(Source):
         Source.__init__(self)
         self.file = file
     def list(self):
+        if not isfile(self.file):
+            return self.connections
         if not self.connections:
             plist = readPlist(self.file)
 
