@@ -11,7 +11,9 @@ from .sources import *
 from ..options import Options
 from .options import *
 
-file = getenv('DBEXPLORER_CFG', expanduser('~/.dbexplorer/dbexplorer.cfg'))
-Source.sources.append(DBExplorerSQLiteSource(file))
+Source.sources.append(DBExplorerSQLiteSource(getenv('DBEXPLORER_CFG',
+    expanduser('~/.dbexplorer/dbexplorer.cfg'))))
+Source.sources.append(NavicatSQLiteSource(getenv('NAVICAT_CFG',
+    expanduser('~/Library/Application Support/PremiumSoft CyberTech/preference.plist'))))
 
 Options.parser['sqlite'] = SQLiteOptions()

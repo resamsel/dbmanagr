@@ -3,3 +3,5 @@ build
 .dbnavigator.cache
 .dbnavigator.cache.db
 target
+dist
+src/main/dbnav.egg-info

@@ -6,9 +6,12 @@ ACTUAL_DIR="$TARGET/testfiles/actual"
 EXPECTED_DIR="$TEST_DIR/expected"
 LOGLEVEL=debug
 LOGFILE=$TARGET/dbnavigator.log
+DBNAV_EGG=$(ls dist/dbnav*.egg)
+DBNAV="/usr/bin/python -m dbnav.navigator -l $LOGLEVEL -f $LOGFILE -s "
 
 export DBEXPLORER_CFG="$TARGET/testfiles/resources/dbexplorer.cfg"
 export PGPASS_CFG="$TARGET/testfiles/resources/pgpass"
+export NAVICAT_CFG="$TARGET/testfiles/resources/navicat.plist"
 
 TT=$(ruby -e 'puts "%.3f" % Time.now')
 STATUS=0
@@ -20,11 +23,10 @@ while (( "$#" )); do
 	TESTCASE="$(basename ${1%})"
 	ACTUAL="$ACTUAL_DIR/$TESTCASE"
 	EXPECTED="$EXPECTED_DIR/$TESTCASE"
-	SCRIPT="/usr/bin/python -m main.dbnavigator -l $LOGLEVEL -f $LOGFILE -s $(cat $TEST_DIR/$TESTCASE)"
 
 	echo -n "Testing $TESTCASE... "
 	T=$(ruby -e 'puts "%.3f" % Time.now')
-	PYTHONPATH=$TARGET/testfiles $SCRIPT > $ACTUAL
+	PYTHONPATH=$DBNAV_EGG $DBNAV $(cat $TEST_DIR/$TESTCASE) > $ACTUAL
 	T=$(ruby -e 'puts "%.3f" % (Time.now - '$T')')
 
 	DIFF=$(diff -u $EXPECTED $ACTUAL)

@@ -62,11 +62,11 @@
 				<key>escaping</key>
 				<integer>127</integer>
 				<key>keyword</key>
-				<string>select</string>
+				<string>dbnav</string>
 				<key>runningsubtext</key>
 				<string>Retrieving...</string>
 				<key>script</key>
-				<string>python -m main.dbnavigator -x {query}</string>
+				<string>/usr/local/bin/dbnav -x {query}</string>
 				<key>subtext</key>
 				<string>Shows database contents</string>
 				<key>title</key>
@@ -95,7 +95,7 @@
 				<key>runningsubtext</key>
 				<string>Searching...</string>
 				<key>script</key>
-				<string>python -m main.dbnavigator -x skiline@localhost/skiline/resort/~{query}%</string>
+				<string>/usr/local/bin/dbnav -x skiline@localhost/skiline/resort/~{query}%</string>
 				<key>title</key>
 				<string>Skiresort</string>
 				<key>type</key>

@@ -3,6 +3,7 @@
 
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
+from plistlib import readPlist
 
 from ..sources import *
 from .databaseconnection import *
@@ -29,4 +30,18 @@ class DBExplorerSQLiteSource(Source):
                     connection = SQLiteConnection(url.path)
                     self.connections.append(connection)
         
+        return self.connections
+
+class NavicatSQLiteSource(Source):
+    def __init__(self, file):
+        Source.__init__(self)
+        self.file = file
+    def list(self):
+        if not self.connections:
+            plist = readPlist(self.file)
+
+            for k, v in plist['SQLite']['servers'].items():
+                connection = SQLiteConnection(v['dbfilename'])
+                self.connections.append(connection)
+
         return self.connections

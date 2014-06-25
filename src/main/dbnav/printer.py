@@ -57,8 +57,28 @@ class SimplePrinter(DefaultPrinter):
     def itemtostring(self, item):
         return SimplePrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
 
+class StdoutPrinter(DefaultPrinter):
+    ITEMS_FORMAT = u"""Title\tSubtitle\tAutocomplete
+{0}"""
+    ITEM_FORMAT = u"""{title}\t{subtitle}\t{autocomplete}
+"""
+    def write(self, items):
+        s = u''.join([self.itemtostring(i) for i in items])
+        print StdoutPrinter.ITEMS_FORMAT.format(s)
+    def itemtostring(self, item):
+        return StdoutPrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
+
+class AutocompletePrinter(DefaultPrinter):
+    ITEMS_FORMAT = u"""{0}"""
+    ITEM_FORMAT = u"""{autocomplete} """
+    def write(self, items):
+        s = u''.join([self.itemtostring(i) for i in items])
+        print AutocompletePrinter.ITEMS_FORMAT.format(s)
+    def itemtostring(self, item):
+        return AutocompletePrinter.ITEM_FORMAT.format(**item.escaped(html_escape))
+
 class Printer:
-    printer = DefaultPrinter()
+    printer = StdoutPrinter()
 
     @staticmethod
     def set(arg):

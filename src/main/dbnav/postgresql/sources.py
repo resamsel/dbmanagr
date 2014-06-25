@@ -3,6 +3,7 @@
 
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
+from plistlib import readPlist
 
 from ..sources import *
 from .databaseconnection import *
@@ -44,4 +45,20 @@ class DBExplorerPostgreSQLSource(Source):
                     connection = PostgreSQLConnection(host, port, database, user, password)
                     self.connections.append(connection)
         
+        return self.connections
+
+class NavicatPostgreSQLSource(Source):
+    def __init__(self, file):
+        Source.__init__(self)
+        self.file = file
+    def list(self):
+        if not self.connections:
+            plist = readPlist(self.file)
+
+            for k, v in plist['PostgreSQL']['servers'].items():
+                # The key is a big problem here: it is encrypted
+                connection = PostgreSQLConnection(v['host'], v['port'],
+                     v['defaultdatabase'], v['username'], v['key'])
+                self.connections.append(connection)
+
         return self.connections
