@@ -23,32 +23,32 @@ Allows you to explore your database using Alfred 2.0.
 Open the Alfred query window. The keyword is *select*.
 
 ### Show Available Connections
-`select`
+`dbnav`
 
 ### Show Databases of Connection
-`select myuser@myhost/`
+`dbnav myuser@myhost/`
 
 ### Show Tables of Database
-`select myuser@myhost/mydatabase/`
+`dbnav myuser@myhost/mydatabase/`
 
 ### Show Columns of Table
-`select myuser@myhost/mydatabase/mytable/`
+`dbnav myuser@myhost/mydatabase/mytable/`
 
 ### Show Rows where Column equals Value
-`select myuser@myhost/mydatabase/mytable/first_name=Herbert`
+`dbnav myuser@myhost/mydatabase/mytable/first_name=Herbert`
 
 ### Show Rows where Column matches Pattern
-`select myuser@myhost/mydatabase/mytable/first_name~%erber%`
+`dbnav myuser@myhost/mydatabase/mytable/first_name~%erber%`
 
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
 ### Show Rows where any (Search) Column matches Pattern
-`select myuser@myhost/mydatabase/mytable/~%erber%`
+`dbnav myuser@myhost/mydatabase/mytable/~%erber%`
 
 **Warning: this is a potentially slow query! See configuration for options to resolve this problem.**
 
 ### Show Values of selected Row
-`select myuser@myhost/mydatabase/mytable/id=23/`
+`dbnav myuser@myhost/mydatabase/mytable/id=23/`
 
 ## Installation
 ```
@@ -61,7 +61,13 @@ Then open the *.alfredworkflow* file created by the build.
 It's possible to configure the content of the Alfred result items. This happens as a table comment (currently Postgres only).
 
 ```
-{  "title": "{0}.fname || ' ' || {0}.lname",  "subtitle": "{0}.email || ' (' || {0}.user_name || ')'",  "search": ["{0}.email", "{0}.user_name"],  "display": ["fname", "lname", "email", "user_name", "security_info_id", "staff", "disqualified", "time_zone_id", "address", "id"],  "order": ["fname", "lname"]}
+{
+  "title": "{0}.fname || ' ' || {0}.lname",
+  "subtitle": "{0}.email || ' (' || {0}.user_name || ')'",
+  "search": ["{0}.email", "{0}.user_name"],
+  "display": ["fname", "lname", "email", "user_name", "security_info_id", "staff", "disqualified", "time_zone_id", "address", "id"],
+  "order": ["fname", "lname"]
+}
 ```
 ### Title
 The *title* is the main entry within the Alfred result item. The string *{0}* will be replaced with the table alias (useful when joining with other tables that also have the given attribute present). The replaced content will then be added to the projection list as is (SQL functions may be added as well as string concatenation as in the example above).
