@@ -7,11 +7,13 @@ setup(
     name = "dbnav",
     version = "0.2",
 
-    packages = find_packages('src/main'),
-    package_dir = {'':'src/main'},
+    packages = find_packages('src', exclude=['tests']),
+    package_dir = {'':'src'},
     package_data = {
         'src/images': ['*.png']
     },
+
+    test_suite = "dbnav.tests.load_suite",
 
     # dependencies
     install_requires = [
