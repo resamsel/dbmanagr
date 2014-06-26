@@ -93,13 +93,13 @@ class PostgreSQLConnection(DatabaseConnection):
         return 'PostgreSQL Connection'
 
     def matches(self, options):
-        options = Options.parser['postgresql']
+        options = options.get(self.driver)
         if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
     def filter(self, options):
-        options = options.parser['postgresql']
+        options = options.get(self.driver)
         matches = True
 
         if options.user:

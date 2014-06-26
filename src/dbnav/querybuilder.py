@@ -158,15 +158,15 @@ class QueryBuilder:
         self.counter = Counter()
 
         self.alias = '_%s' % self.table.name
+        logger.debug("QueryBuilder: order=%s, self=%s", order, self.__dict__)
 
     def build(self):
-        logger.debug("build(): %s", self.filter)
+        logger.debug("QueryBuilder: %s", self.__dict__)
         foreign_keys = self.table.foreign_keys()
         where = '1=1'
         order = self.order
         limit = self.limit if self.limit else 20
         comment = Comment(self, self.table)
-        logger.debug('Comment for %s: %s', self.table, comment)
         
         for key in foreign_keys.keys():
             if key in comment.display:
@@ -183,6 +183,8 @@ class QueryBuilder:
                         self.joins[alias] = Join(fk.b.table.name, alias, fk.b.name, self.alias, fk.a.name)
                     except KeyError, e:
                         logger.error("KeyError: %s, table=%s, comment.title=%s" % (e, fktable, fktable.comment.title))
+
+        logger.debug('Comment for %s: %s', self.table, comment)
 
         if self.id:
             if '=' in comment.id:
@@ -214,11 +216,15 @@ class QueryBuilder:
                     conjunctions.append(SEARCH_FORMAT % (comment.columns['id'].value, operator, f))
                 where = OR_SEPARATOR.join(conjunctions)
 
+        logger.debug('Order before: %s', order)
+
         if not order:
             if 'id' in comment.columns:
                 order.append(comment.columns['id'].value)
             else:
                 order.append('1')
+        
+        logger.debug('Order after: %s', order)
 
         return QUERY_FORMAT.format(self.table.name,
             LIST_SEPARATOR.join(map(str, comment.columns.values())),

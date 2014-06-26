@@ -26,4 +26,4 @@ init_postgresql(
         expanduser('~/Library/Application Support/PremiumSoft CyberTech/preference.plist'))
 )
 
-Options.parser['postgresql'] = PostgreSQLOptions()
+Options.parser['postgresql'] = PostgreSQLOptionsParser()

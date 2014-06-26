@@ -49,13 +49,13 @@ class SQLiteConnection(DatabaseConnection):
         return 'SQLite Connection'
 
     def matches(self, options):
-        options = Options.parser[self.driver]
+        options = options.get(self.driver)
         if options.uri:
             return options.uri.startswith(self.filename)
         return False
 
     def filter(self, options):
-        options = Options.parser[self.driver]
+        options = options.get(self.driver)
         return not options.uri or options.uri in self.path
 
     def connect(self, database=None):

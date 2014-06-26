@@ -22,4 +22,4 @@ init_sqlite(
         expanduser('~/Library/Application Support/PremiumSoft CyberTech/preference.plist'))
 )
 
-Options.parser['sqlite'] = SQLiteOptions()
+Options.parser['sqlite'] = SQLiteOptionsParser()

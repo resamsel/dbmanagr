@@ -21,7 +21,7 @@ class Row:
             if 'id' not in self.columns:
                 self.columns['id'] = 0
         else:
-            self.columns = Row.columns
+            self.columns = Row.columns.copy()
     def __getitem__(self, i):
         logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
         if i == None:
@@ -58,10 +58,8 @@ class DatabaseConnection:
     def matches(self, options):
         return options.arg in self.title()
 
-    def proceed(self):
+    def proceed(self, options):
         from dbnav.navigator import create_connections, create_databases, create_tables, create_columns, create_rows, create_values
-
-        options = Options.parser[self.driver]
 
         if options.show == 'connections':
             # print this connection

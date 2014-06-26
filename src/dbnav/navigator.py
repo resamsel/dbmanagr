@@ -104,7 +104,9 @@ def create_values(connection, table, filter):
     """Creates row values according to the given filter"""
 
     foreign_keys = table.fks
-    query = QueryBuilder(connection, table, filter=filter, limit=1).build()
+    logger.debug('QueryBuilder(connection=%s, table=%s, filter=%s, limit=1)',
+        connection, table, filter)
+    query = QueryBuilder(connection, table, filter=filter, order=[], limit=1).build()
     result = connection.execute(query, 'Values')
         
     row = Row(connection, table, result.fetchone())
@@ -152,41 +154,40 @@ class DatabaseNavigator:
     """The main class"""
 
     @staticmethod
-    def main():
+    def main(options):
         """The main method that splits the arguments and starts the magic"""
 
         cons = Source.connections()
 
         # search exact match of connection
         for connection in cons:
-            options = Options.parser[connection.driver]
-            if options.show != 'connections' and connection.matches(Options):
-                return connection.proceed()
+            opts = options.get(connection.driver)
+            if opts.show != 'connections' and connection.matches(opts):
+                return connection.proceed(opts)
 
         # print all connections
-        return create_connections([c for c in cons if c.filter(Options)])
+        return create_connections([c for c in cons if c.filter(options)])
 
 def main():
     Writer.write(run(sys.argv))
 
 def run(argv):
-    Options.init(argv)
+    options = Options(argv)
 
-    logging.basicConfig(filename=Options.logfile,
-        level=Options.loglevel,
+    logging.basicConfig(filename=options.logfile,
+        level=options.loglevel,
         format="%(asctime)s %(levelname)s %(filename)s:%(lineno)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S")
     
     logger.info("""
 ###
 ### Called with args: %s
-###""", Options.argv)
-    logger.debug("Options: %s", Options.repr())
+###""", options.argv)
+    logger.debug("Options: %s", options)
 
     try:
-        return DatabaseNavigator.main()
+        return DatabaseNavigator.main(options)
     except BaseException, e:
-        logger.debug(Options.repr())
         logger.exception(e)
         return [Item(str(e), type(e), '', INVALID, '')]
 
