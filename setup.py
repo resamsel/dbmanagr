@@ -5,13 +5,15 @@ from setuptools import setup, find_packages
 
 setup(
     name = "dbnav",
-    version = "0.1",
+    version = "0.3",
 
-    packages = find_packages('src/main'),
-    package_dir = {'':'src/main'},
+    packages = find_packages('src', exclude=['tests']),
+    package_dir = {'':'src'},
     package_data = {
         'src/images': ['*.png']
     },
+
+    test_suite = "dbnav.tests.load_suite",
 
     # dependencies
     install_requires = [
@@ -23,5 +25,10 @@ setup(
         'console_scripts': [
             'dbnav = dbnav.navigator:main'
         ]
-    }
+    },
+    
+    author = "René Samselnig",
+    author_email = "me@resamsel.com",
+    description = "The database navigator for the command line",
+    keywords = "database navigator postgres sqlite"
 )
