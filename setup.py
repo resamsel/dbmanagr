@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "dbnav",
-    version = "0.2",
+    version = "0.3",
 
     packages = find_packages('src', exclude=['tests']),
     package_dir = {'':'src'},

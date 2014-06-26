@@ -50,7 +50,6 @@ install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
 assemble-test: assemble
-#	$(SETUPTOOLS) bdist_egg
 	cp -r $(TEST_RESOURCES) $(TARGET)/testfiles/
 
 test: assemble-test #$(ACTUALS)
