@@ -7,8 +7,9 @@ Allows you to explore your database using Alfred 2.0.
 ## Features
 * Supported databases: PostgreSQL, SQLite
 * Use database connection definitions from
-  * the `~/.pgpass` file (PGAdmin)
-  * the `~/.dbexplorer/dbexplorer.cfg` file (DBExplorer)
+  * the `~/.pgpass` configuration file (PGAdmin)
+  * the `~/.dbexplorer/dbexplorer.cfg` configuration file (DBExplorer)
+  * the Navicat configuration file (SQLite)
 * Shows databases of said connections
 * Shows tables of databases
 * Shows columns of tables for filtering
@@ -52,10 +53,9 @@ The tilde (~) will be translated to the *like* operator in SQL. Use the percent 
 
 ## Installation
 ```
-sudo easy_install SQLAlchemy
-sudo easy_install psycopg2
+make install
 ```
-Then open the *.alfredworkflow* file created by the build.
+Then open the *.alfredworkflow* file in the target directory using the finder.
 
 ## Configuration
 It's possible to configure the content of the Alfred result items. This happens as a table comment (currently Postgres only).
