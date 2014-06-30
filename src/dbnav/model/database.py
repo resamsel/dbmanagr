@@ -10,9 +10,6 @@ class Database:
         self.connection = connection
         self.name = name
 
-    def __repr__(self):
-        return "%s@%s/%s" % (self.connection.user, self.connection.host, self.name)
-
     def autocomplete(self):
         """Retrieves the autocomplete string"""
 

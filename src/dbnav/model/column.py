@@ -19,4 +19,4 @@ class Column:
         return '%s.%s' % (self.table.name, self.name)
 
     def autocomplete(self):
-        return '%s/%s/%s' % (self.table.uri, self.table.name, self.name)
+        return '%s%s/%s' % (self.table.uri, self.table.name, self.name)

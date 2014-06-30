@@ -57,8 +57,16 @@ select
     where
         table_name = '{0}'
 """
+AUTOCOMPLETE_FORMAT = '%s@%s/%s'
 
 logger = logging.getLogger(__name__)
+
+class PostgreSQLDatabase(Database):
+    def __init__(self, connection, name):
+        self.connection = connection
+        self.name = name
+    def __repr__(self):
+        return AUTOCOMPLETE_FORMAT % (self.connection.user, self.connection.host, self.name)
 
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
@@ -131,7 +139,7 @@ class PostgreSQLConnection(DatabaseConnection):
         if not self.dbs:
             result = self.execute(DATABASES_QUERY, 'Databases')
     
-            def d(row): return Database(self, row[0])
+            def d(row): return PostgreSQLDatabase(self, row[0])
     
             self.dbs = map(d, result)
         

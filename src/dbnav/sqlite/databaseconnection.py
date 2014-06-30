@@ -19,8 +19,15 @@ CACHE_TIME = 2*60
 COLUMNS_QUERY = """
 pragma table_info({0})
 """
+AUTOCOMPLETE_FORMAT = "%s/"
 
 logger = logging.getLogger(__name__)
+
+class SQLiteDatabase(Database):
+    def __init__(self, filename):
+        self.filename = filename
+    def __repr__(self):
+        return AUTOCOMPLETE_FORMAT % self.filename
 
 class SQLiteConnection(DatabaseConnection):
     """A database connection"""
@@ -37,16 +44,19 @@ class SQLiteConnection(DatabaseConnection):
         self.driver = 'sqlite'
 
     def __repr__(self):
-        return self.filename
+        return AUTOCOMPLETE_FORMAT % self.filename
 
     def autocomplete(self):
-        return self.filename
+        return self.__repr__()
 
     def title(self):
-        return self.filename
+        return self.__repr__()
 
     def subtitle(self):
         return 'SQLite Connection'
+
+    def uri(self, table):
+        return '%s%s' % (self.autocomplete(), table)
 
     def matches(self, options):
         options = options.get(self.driver)
@@ -65,7 +75,7 @@ class SQLiteConnection(DatabaseConnection):
 
     def databases(self):
         logger.debug('Retrieve databases')
-        return [Database(self, '_')]
+        return [SQLiteDatabase(self)]
 
     def tablesof(self, database):
         def t(name): return Table(self, database, name, '')

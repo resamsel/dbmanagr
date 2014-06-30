@@ -27,8 +27,8 @@ IMAGE_VALUE = 'images/value.png'
 IMAGE_FOREIGN_KEY = 'images/foreign-key.png'
 IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 
-OPTION_URI_TABLES_FORMAT = '%s/%s/'
-OPTION_URI_ROW_FORMAT = '%s/%s/%s'
+OPTION_URI_TABLES_FORMAT = '%s%s/'
+OPTION_URI_ROW_FORMAT = '%s%s/%s'
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def create_tables(tables):
     return [
         Item(t.name,
             'Title: %s' % t.comment.title,
-            OPTION_URI_TABLES_FORMAT % (t.uri, t),
+            t.autocomplete(),
             VALID,
             IMAGE_TABLE) for t in tables]
 
@@ -84,6 +84,8 @@ def create_columns(columns):
 
 def create_rows(rows):
     """Creates row items"""
+
+    logger.debug('create_rows(rows=%s)', rows)
 
     def val(row, column):
         colname = '%s_title' % column
@@ -102,6 +104,8 @@ def create_rows(rows):
 
 def create_values(connection, table, filter):
     """Creates row values according to the given filter"""
+    
+    logger.debug('create_values(connection=%s, table=%s, filter=%s)', connection, table, filter)
 
     foreign_keys = table.fks
     logger.debug('QueryBuilder(connection=%s, table=%s, filter=%s, limit=1)',
@@ -166,7 +170,7 @@ class DatabaseNavigator:
                 return connection.proceed(opts)
 
         # print all connections
-        return create_connections([c for c in cons if c.filter(options)])
+        return create_connections(sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
 
 def main():
     Writer.write(run(sys.argv))

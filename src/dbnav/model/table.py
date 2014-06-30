@@ -12,7 +12,7 @@ from ..querybuilder import QueryBuilder
 
 DEFAULT_LIMIT = 50
 
-OPTION_URI_VALUE_FORMAT = '%s/%s/%s/'
+OPTION_URI_VALUE_FORMAT = '%s%s/%s/'
 
 logger = logging.getLogger(__name__)
 
@@ -23,22 +23,24 @@ class Table:
         self.comment = TableComment(self, comment)
         self.cols = None
         self.fks = {}
-        self.uri = str(connection)
-        if self.uri.endswith('/'):
-            self.uri += database
+        self.uri = connection.autocomplete()
         self.primary_key = 'id'
 
     def __repr__(self):
         return self.name
 
-    def autocomplete(self, column, value, format=OPTION_URI_VALUE_FORMAT):
+    def autocomplete(self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
+
+        if column == None:
+            return '%s%s/' % (self.uri, self.name)
 
         tablename = self.name
         fks = self.fks
         if column in fks:
             fk = fks[column]
             tablename = fk.b.table.name
+            value = '%s=%s' % (fk.b.name, value)
 
         return format % (self.uri, tablename, value)
 

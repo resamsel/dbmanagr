@@ -25,4 +25,4 @@ class Row:
         return self.row
 
     def autocomplete(self, pk, value):
-        return '%s/%s/%s=%s/' % (str(self.connection), self.table, pk, value)
+        return '%s%s=%s/' % (self.table.autocomplete(), pk, value)
