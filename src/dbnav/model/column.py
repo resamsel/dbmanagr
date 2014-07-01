@@ -8,10 +8,11 @@ logger = logging.getLogger(__name__)
 class Column:
     """A table column"""
 
-    def __init__(self, table, name, primary_key=False):
+    def __init__(self, table, name, primary_key=False, type=None):
         self.table = table
         self.name = name
         self.primary_key = primary_key
+        self.type = type
 
         #logger.debug('Column: %s', self.__dict__)
 

@@ -22,6 +22,7 @@ select
         pg_database
     where
         datistemplate = false
+        and pg_catalog.pg_get_userbyid(datdba) = '%s'
     order by datname
 """
 FOREIGN_KEY_QUERY = """
@@ -137,7 +138,7 @@ class PostgreSQLConnection(DatabaseConnection):
     def databases(self):
         # does not yet work with sqlalchemy...
         if not self.dbs:
-            result = self.execute(DATABASES_QUERY, 'Databases')
+            result = self.execute(DATABASES_QUERY % self.user, 'Databases')
     
             def d(row): return PostgreSQLDatabase(self, row[0])
     

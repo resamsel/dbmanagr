@@ -131,8 +131,13 @@ def create_values(connection, table, filter):
 
     items = []
     for key in keys:
-        autocomplete = table.autocomplete(key, row.row[tostring(key)])
         value = val(row, key)
+        if key in table.fks:
+            # if key is a foreign key column
+            fk = table.fks[key]
+            autocomplete = fk.b.table.autocomplete(fk.b.name, row.row[tostring(key)])
+        else:
+            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_ROW_FORMAT)
         f = fkey(Column(table, key))
         icon = IMAGE_VALUE
         if f.__class__.__name__ == 'ForeignKey':
@@ -142,7 +147,8 @@ def create_values(connection, table, filter):
     for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
         fk = foreign_keys[key]
         if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(fk.b.name, "{0}={1}".format(fk.a.name, row.row[fk.b.name]), OPTION_URI_ROW_FORMAT)
+            autocomplete = fk.a.table.autocomplete(fk.a.name, row.row[fk.b.name], OPTION_URI_ROW_FORMAT)
+            logger.debug('table.name=%s, fk=%s, autocomplete=%s', table.name, fk, autocomplete)
             colname = fk.a.name
             f = fkey(Column(fk.a.table, fk.a.name))
             items.append(

@@ -1,14 +1,14 @@
 Id	Title	Subtitle	Autocomplete
-7b5a4aa0-0522-301e-8f84-dc25a4308f4d	Rene	user.fname	skiline@localhost/skiline/user/Rene/
-eed6f799-a955-3e9a-8719-6697a1496c77	Samselnig	user.lname	skiline@localhost/skiline/user/Samselnig/
-78e28f1e-2098-34b7-8da3-2ff9fcd1014a	rene.samselnig@gmail.com	user.email	skiline@localhost/skiline/user/rene.samselnig@gmail.com/
-b473ea9c-0473-3159-b63b-a7f46887e01e	resamsel	user.user_name	skiline@localhost/skiline/user/resamsel/
+8644cdfe-7329-3e49-a862-8c13542e369c	Rene	user.fname	skiline@localhost/skiline/user/fname=Rene
+2a035244-e757-3fbe-8a17-6a5afa140d94	Samselnig	user.lname	skiline@localhost/skiline/user/lname=Samselnig
+3ac57791-2489-3504-bf2a-05c9d2d44f9d	rene.samselnig@gmail.com	user.email	skiline@localhost/skiline/user/email=rene.samselnig@gmail.com
+6417dc93-beb7-3c6e-8629-98c0c160fbbf	resamsel	user.user_name	skiline@localhost/skiline/user/user_name=resamsel
 3462de49-2532-347b-93d2-630b3dbcddba	DOI: -, locked: false (2204662af954f84426e79a4aa41c956c)	user.security_info_id -> security_info.id	skiline@localhost/skiline/security_info/id=2204662af954f84426e79a4aa41c956c/
-81bf2ceb-d9eb-3530-8b51-5b0fa95ee7c6	True	user.staff	skiline@localhost/skiline/user/True/
-99b228a6-d29b-3073-aac4-a369c3a02944	False	user.disqualified	skiline@localhost/skiline/user/False/
-988e7ff8-40cd-38d1-a4dc-f51adb257ee6	GMT	user.time_zone_id	skiline@localhost/skiline/user/GMT/
+3c6b0411-8d5c-3eaf-8872-e390299763ed	True	user.staff	skiline@localhost/skiline/user/staff=True
+b8045fa1-4d9c-3681-93aa-2730ac2e5703	False	user.disqualified	skiline@localhost/skiline/user/disqualified=False
+544ef2d5-a87f-3baf-8cb6-23f147ea1ace	GMT	user.time_zone_id	skiline@localhost/skiline/user/time_zone_id=GMT
 c9a43485-c3ae-3c44-b30c-9d598451ba77	8a67815327524e2301277fbe998c3717	user.address -> address.id	skiline@localhost/skiline/address/id=8a67815327524e2301277fbe998c3717/
-c71fa7f2-f4cb-3de0-8c76-98dd36510aeb	8a67815327524e2301277fbe998c3716	user.id	skiline@localhost/skiline/user/8a67815327524e2301277fbe998c3716/
+be0c27b2-1734-3c7b-a04e-c7e57da1bdf2	8a67815327524e2301277fbe998c3716	user.id	skiline@localhost/skiline/user/id=8a67815327524e2301277fbe998c3716
 95a6b8e7-5a3b-3012-870c-3fc8651256bc	Ref: album.user_id	album.user_id	skiline@localhost/skiline/album/user_id=8a67815327524e2301277fbe998c3716
 a1b21f95-d450-3b20-9251-5e7871e28b2d	Ref: badge.user_id	badge.user_id	skiline@localhost/skiline/badge/user_id=8a67815327524e2301277fbe998c3716
 a72d666d-afe7-3a2e-804b-1f00bc7b2119	Ref: challenge.owner	challenge.owner	skiline@localhost/skiline/challenge/owner=8a67815327524e2301277fbe998c3716

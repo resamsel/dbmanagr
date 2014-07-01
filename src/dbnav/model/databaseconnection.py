@@ -151,7 +151,8 @@ class DatabaseConnection:
         cols = self.inspector.get_columns(table.name)
         pks = [pk for pk in self.inspector.get_pk_constraint(table.name)['constrained_columns']]
         
-        return [Column(table, col['name'], [col['name']] == pks) for col in cols]
+        logger.debug('Columns for %s: %s', table, cols)
+        return [Column(table, col['name'], [col['name']] == pks, col['type']) for col in cols]
 
     def __str__(self):
         return self.__repr__()

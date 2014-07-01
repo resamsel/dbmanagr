@@ -32,15 +32,14 @@ class Table:
     def autocomplete(self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 
+        logger.debug('autocomplete(self=%s, column=%s, value=%s, format=%s)', self, column, value, format)
+
         if column == None:
             return '%s%s/' % (self.uri, self.name)
 
         tablename = self.name
         fks = self.fks
-        if column in fks:
-            fk = fks[column]
-            tablename = fk.b.table.name
-            value = '%s=%s' % (fk.b.name, value)
+        value = '%s=%s' % (column, value)
 
         return format % (self.uri, tablename, value)
 

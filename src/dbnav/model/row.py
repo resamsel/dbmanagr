@@ -24,5 +24,8 @@ class Row:
     def values(self):
         return self.row
 
+    def __repr__(self):
+        return str(self.row)
+
     def autocomplete(self, pk, value):
         return '%s%s=%s/' % (self.table.autocomplete(), pk, value)
