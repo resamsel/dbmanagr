@@ -17,8 +17,11 @@ class BaseItem:
         return 'yes'
     def icon(self):
         return 'images/icon.png'
+    def value(self):
+        return self.title()
     def item(self):
-        return Item(self.title(),
+        return Item(self.value(),
+            self.title(),
             self.subtitle(),
             self.autocomplete(),
             self.validity(),

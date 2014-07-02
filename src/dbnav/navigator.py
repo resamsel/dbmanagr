@@ -7,10 +7,11 @@ import time
 from .options import *
 from .model.column import *
 from .model.row import *
+from .model.value import *
 from .querybuilder import QueryBuilder
+from .item import Item
 from .writer import *
 from .sources import *
-from .item import Item
 from .logger import logduration
 
 from .postgresql import *
@@ -22,9 +23,6 @@ INVALID = "no"
 IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
 IMAGE_TABLE = 'images/table.png'
-IMAGE_VALUE = 'images/value.png'
-IMAGE_FOREIGN_KEY = 'images/foreign-key.png'
-IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 
 OPTION_URI_TABLES_FORMAT = '%s%s/'
 OPTION_URI_ROW_FORMAT = '%s%s/%s'
@@ -74,8 +72,6 @@ def create_values(connection, table, filter):
     logger.debug('create_values(connection=%s, table=%s, filter=%s)', connection, table, filter)
 
     foreign_keys = table.fks
-    logger.debug('QueryBuilder(connection=%s, table=%s, filter=%s, limit=1)',
-        connection, table, filter)
     query = QueryBuilder(connection, table, filter=filter, order=[], limit=1).build()
     result = connection.execute(query, 'Values')
         
@@ -95,7 +91,7 @@ def create_values(connection, table, filter):
             return '%s (%s)' % (row.row[colname], row.row[column])
         return row.row[tostring(column)]
 
-    items = []
+    values = []
     for key in keys:
         value = val(row, key)
         if key in table.fks:
@@ -105,26 +101,24 @@ def create_values(connection, table, filter):
         else:
             autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_ROW_FORMAT)
         f = fkey(Column(table, key))
-        icon = IMAGE_VALUE
+        kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
-            icon = IMAGE_FOREIGN_KEY
-        items.append(Item(value, f, autocomplete, VALID, icon))
+            kind = KIND_FOREIGN_KEY
+        values.append(Value(value, f, autocomplete, VALID, kind))
 
     for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
         fk = foreign_keys[key]
         if fk.b.table.name == table.name:
             autocomplete = fk.a.table.autocomplete(fk.a.name, row.row[fk.b.name], OPTION_URI_ROW_FORMAT)
             logger.debug('table.name=%s, fk=%s, autocomplete=%s', table.name, fk, autocomplete)
-            colname = fk.a.name
-            f = fkey(Column(fk.a.table, fk.a.name))
-            items.append(
-                Item('Ref: %s' % fk.a,
-                    f,
+            values.append(
+                Value(fk.a,
+                    fkey(Column(fk.a.table, fk.a.name)),
                     autocomplete,
                     INVALID,
-                    IMAGE_FOREIGN_VALUE))
+                    KIND_FOREIGN_VALUE))
 
-    return items
+    return [v.item() for v in values]
 
 class DatabaseNavigator:
     """The main class"""

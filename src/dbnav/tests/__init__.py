@@ -14,6 +14,11 @@ import codecs
 DIR = path.dirname(__file__)
 TEST_CASES = map(lambda p: path.basename(p), glob.glob(path.join(DIR, 'resources/testcase-*')))
 
+def escape(s):
+    if type(s) == unicode:
+        return s.replace('"', '&quot;')
+    return s
+
 class TestWriter(StringWriter):
     ITEMS_FORMAT = u"""Title\tAutocomplete
 {0}"""
@@ -23,7 +28,7 @@ class TestWriter(StringWriter):
         s = u''.join([self.itemtostring(i) for i in items])
         return TestWriter.ITEMS_FORMAT.format(s)
     def itemtostring(self, item):
-        return TestWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
+        return TestWriter.ITEM_FORMAT.format(**item.escaped(escape))
     def write(self, items):
         return self.str(items)
 
@@ -65,7 +70,7 @@ def test_generator(tc):
         actual = Writer.write(items)
 
         # WARNING: this is code that creates the expected output - only uncomment when in need!
-        # update_expected(tc, actual)
+        #update_expected(tc, actual)
 
         self.assertEqual(e, actual)
     return test

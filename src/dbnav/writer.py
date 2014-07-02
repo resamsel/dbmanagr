@@ -26,7 +26,7 @@ class DefaultWriter:
 class XmlWriter(DefaultWriter):
     ITEMS_FORMAT = u"""<items>
 {0}</items>"""
-    ITEM_FORMAT = u"""   <item uid="{uid}" arg="{title}" autocomplete="{autocomplete}" valid="{valid}">
+    ITEM_FORMAT = u"""   <item uid="{uid}" arg="{value}" autocomplete="{autocomplete}" valid="{valid}">
         <title>{title}</title>
         <subtitle>{subtitle}</subtitle>
         <icon>{icon}</icon>

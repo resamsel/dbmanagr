@@ -11,7 +11,8 @@ def hash(s):
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 class Item:
-    def __init__(self, title, subtitle, autocomplete, valid, icon):
+    def __init__(self, value, title, subtitle, autocomplete, valid, icon):
+        self.value = value
         self.title = title
         self.subtitle = subtitle
         self.autocomplete = autocomplete
