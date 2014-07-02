@@ -26,7 +26,7 @@ class DefaultWriter:
 class XmlWriter(DefaultWriter):
     ITEMS_FORMAT = u"""<items>
 {0}</items>"""
-    ITEM_FORMAT = u"""   <item uid="{uid}" arg="{title}" autocomplete="{autocomplete}" valid="{valid}">
+    ITEM_FORMAT = u"""   <item uid="{uid}" arg="{value}" autocomplete="{autocomplete}" valid="{valid}">
         <title>{title}</title>
         <subtitle>{subtitle}</subtitle>
         <icon>{icon}</icon>
@@ -74,7 +74,8 @@ class StdoutWriter(DefaultWriter):
 
 class AutocompleteWriter(DefaultWriter):
     ITEMS_FORMAT = u"""{0}"""
-    ITEM_FORMAT = u"""{autocomplete} """
+    ITEM_FORMAT = u"""{autocomplete}
+"""
     def str(self, items):
         s = u''.join([self.itemtostring(i) for i in items])
         return AutocompleteWriter.ITEMS_FORMAT.format(s)

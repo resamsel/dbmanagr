@@ -54,3 +54,6 @@ assemble-test: assemble
 test: assemble-test
 	$(SETUPTOOLS) test
 
+develop:
+	$(SETUPTOOLS) develop
+

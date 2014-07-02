@@ -3,6 +3,7 @@
 
 import logging
 from collections import Counter
+from sqlalchemy.types import Integer
 
 QUERY_FORMAT = """
 select
@@ -75,11 +76,6 @@ class Comment:
 
         if not comment.id and table.primary_key:
             comment.id = '{0}.%s' % table.primary_key
-        if not comment.title:
-            if comment.id:
-                comment.title = comment.id
-            else:
-                comment.title = '{0}.%s' % columns[0].name
         if not comment.subtitle:
             if table.primary_key:
                 comment.subtitle = "'Primary key is %s'" % table.primary_key
@@ -93,6 +89,9 @@ class Comment:
                 self.display.append(column.name)
 
         self.populate_titles(self.fk_titles, table.fks)
+
+        if not comment.title:
+            comment.title = self.create_title(comment, columns)
 
         def f(s):
             try:
@@ -124,6 +123,30 @@ class Comment:
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def create_title(self, comment, columns):
+        logger.debug('create_title(comment=%s, columns=%s)', comment, columns)
+
+        # find specially named columns (but is not an integer - integers are no good names)
+        for c in columns:
+            logger.debug('Column %s', c.name)
+            for name in ['name', 'username', 'user_name', 'email', 'comment']:
+                if c.name == name:
+                    if not isinstance(c.type, Integer):
+                        return '{0}.%s' % c.name
+                    elif self.fk_titles['%s_title' % name]:
+                        return self.fk_titles['%s_title' % name]
+
+        # find columns that end with special names
+        for c in columns:
+            for name in ['name']:
+                if c.name.endswith(name) and not isinstance(c.type, Integer):
+                    return '{0}.%s' % c.name
+
+        if comment.id:
+            return comment.id
+
+        return '{0}.%s' % columns[0].name
 
     def populate_titles(self, fk_titles, foreign_keys):
         #logger.debug("Populate titles: %s", foreign_keys.keys())

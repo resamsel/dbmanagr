@@ -1,16 +1,16 @@
-Id	Title	Subtitle	Autocomplete
-9c9b1ee9-9c57-329d-97f2-0e7e73e93c27	ZACTIVITY	Title: None	Rene.Samselnig@gmail.com.sqlite/ZACTIVITY/
-61f6639d-faa4-3a70-b0e2-028144789ab5	ZAVATAR	Title: None	Rene.Samselnig@gmail.com.sqlite/ZAVATAR/
-2bd8291c-3ec5-3ceb-bf77-95dd89874549	ZFACEBOOKPROFILE	Title: None	Rene.Samselnig@gmail.com.sqlite/ZFACEBOOKPROFILE/
-843de6bf-efa8-3aa4-b481-3cfbdd3e1563	ZLABEL	Title: None	Rene.Samselnig@gmail.com.sqlite/ZLABEL/
-1b43d2a7-f2ab-3b07-916a-02f0f904abfe	ZNOTE	Title: None	Rene.Samselnig@gmail.com.sqlite/ZNOTE/
-fc04da7c-4f3a-343e-9c1b-6f66aec04e63	ZSMARTFILTER	Title: None	Rene.Samselnig@gmail.com.sqlite/ZSMARTFILTER/
-84e232b3-25c6-3a45-9d97-fedaaed9d461	ZSUBTASK	Title: None	Rene.Samselnig@gmail.com.sqlite/ZSUBTASK/
-adc3c97d-13bc-38e3-b1f2-ef94e122e795	ZTASK	Title: None	Rene.Samselnig@gmail.com.sqlite/ZTASK/
-5886eaa8-fd46-3148-b5a9-75b89577b078	ZTASKACTIVITY	Title: None	Rene.Samselnig@gmail.com.sqlite/ZTASKACTIVITY/
-badb9ba5-4b7e-3744-9039-bd5ae74f31f8	ZUSER	Title: None	Rene.Samselnig@gmail.com.sqlite/ZUSER/
-c5daf022-16ad-32fe-92cf-0700e8619ba3	ZWORKSPACE	Title: None	Rene.Samselnig@gmail.com.sqlite/ZWORKSPACE/
-6023658e-54e3-3699-b496-9591dbced35f	ZWORKSPACEUSERINFO	Title: None	Rene.Samselnig@gmail.com.sqlite/ZWORKSPACEUSERINFO/
-8f82be80-6448-3838-89d0-c5c78e1c8e13	Z_4TASKS	Title: None	Rene.Samselnig@gmail.com.sqlite/Z_4TASKS/
-280614c2-c5f5-35ff-be3c-0cff43293e8c	Z_METADATA	Title: None	Rene.Samselnig@gmail.com.sqlite/Z_METADATA/
-c69bc649-7492-397b-a8de-5416e904b9ca	Z_PRIMARYKEY	Title: None	Rene.Samselnig@gmail.com.sqlite/Z_PRIMARYKEY/
+Title	Autocomplete
+Z_4TASKS	Rene.Samselnig@gmail.com.sqlite/Z_4TASKS/
+Z_METADATA	Rene.Samselnig@gmail.com.sqlite/Z_METADATA/
+Z_PRIMARYKEY	Rene.Samselnig@gmail.com.sqlite/Z_PRIMARYKEY/
+ZACTIVITY	Rene.Samselnig@gmail.com.sqlite/ZACTIVITY/
+ZAVATAR	Rene.Samselnig@gmail.com.sqlite/ZAVATAR/
+ZFACEBOOKPROFILE	Rene.Samselnig@gmail.com.sqlite/ZFACEBOOKPROFILE/
+ZLABEL	Rene.Samselnig@gmail.com.sqlite/ZLABEL/
+ZNOTE	Rene.Samselnig@gmail.com.sqlite/ZNOTE/
+ZSMARTFILTER	Rene.Samselnig@gmail.com.sqlite/ZSMARTFILTER/
+ZSUBTASK	Rene.Samselnig@gmail.com.sqlite/ZSUBTASK/
+ZTASK	Rene.Samselnig@gmail.com.sqlite/ZTASK/
+ZTASKACTIVITY	Rene.Samselnig@gmail.com.sqlite/ZTASKACTIVITY/
+ZUSER	Rene.Samselnig@gmail.com.sqlite/ZUSER/
+ZWORKSPACE	Rene.Samselnig@gmail.com.sqlite/ZWORKSPACE/
+ZWORKSPACEUSERINFO	Rene.Samselnig@gmail.com.sqlite/ZWORKSPACEUSERINFO/

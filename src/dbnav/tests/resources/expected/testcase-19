@@ -1,4 +1,4 @@
-Id	Title	Subtitle	Autocomplete
-74b93cba-97a4-3dcb-9ea1-4b30a26f2a63	api_key	Title: {0}.comment	skiline@localhost/skiline/api_key/
-13537490-5fcd-3732-86e7-bb478671e5a9	api_key_2_badge_definition	Title: {api_key_id_title} || ': ' || {badge_definition_id_title}	skiline@localhost/skiline/api_key_2_badge_definition/
-9ecd7960-3bfb-37b5-b567-54783f29c611	api_key_2_competition	Title: {api_key_id_title} || ': ' || {competition_id_title}	skiline@localhost/skiline/api_key_2_competition/
+Title	Autocomplete
+api_key	skiline@localhost/skiline/api_key/
+api_key_2_badge_definition	skiline@localhost/skiline/api_key_2_badge_definition/
+api_key_2_competition	skiline@localhost/skiline/api_key_2_competition/

@@ -7,10 +7,11 @@ import time
 from .options import *
 from .model.column import *
 from .model.row import *
+from .model.value import *
 from .querybuilder import QueryBuilder
+from .item import Item
 from .writer import *
 from .sources import *
-from .item import Item
 from .logger import logduration
 
 from .postgresql import *
@@ -22,13 +23,9 @@ INVALID = "no"
 IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
 IMAGE_TABLE = 'images/table.png'
-IMAGE_ROW = 'images/row.png'
-IMAGE_VALUE = 'images/value.png'
-IMAGE_FOREIGN_KEY = 'images/foreign-key.png'
-IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 
-OPTION_URI_TABLES_FORMAT = '%s/%s/'
-OPTION_URI_ROW_FORMAT = '%s/%s/%s'
+OPTION_URI_TABLES_FORMAT = '%s%s/'
+OPTION_URI_ROW_FORMAT = '%s%s/%s'
 
 logger = logging.getLogger(__name__)
 
@@ -45,67 +42,36 @@ def tostring(key):
 def create_connections(cons):
     """Creates connection items"""
 
-    return [
-        Item(c.title(),
-            c.subtitle(),
-            c.autocomplete(),
-            VALID,
-            IMAGE_CONNECTION) for c in cons]
+    return [c.item() for c in cons]
 
 def create_databases(dbs):
     """Creates database items"""
 
-    return [
-        Item(database.autocomplete(),
-            'Database',
-            database.autocomplete(),
-            VALID,
-            IMAGE_DATABASE) for database in dbs]
+    return [database.item() for database in dbs]
 
 def create_tables(tables):
     """Creates table items"""
 
-    return [
-        Item(t.name,
-            'Title: %s' % t.comment.title,
-            OPTION_URI_TABLES_FORMAT % (t.uri, t),
-            VALID,
-            IMAGE_TABLE) for t in tables]
+    return [t.item() for t in tables]
 
 def create_columns(columns):
     """Creates column items"""
 
-    return [
-        Item(c.name,
-            c.table.name,
-            c.autocomplete(),
-            VALID,
-            IMAGE_TABLE) for c in columns]
+    return [c.item() for c in columns]
 
 def create_rows(rows):
     """Creates row items"""
 
-    def val(row, column):
-        colname = '%s_title' % column
-        if colname in row.row:
-            return '%s (%s)' % (row.row[colname], row.row[column])
-        return row.row[column]
+    logger.debug('create_rows(rows=%s)', rows)
 
-    def pk(row): return row.table.primary_key
-
-    return [
-        Item(val(row, 'title'),
-            val(row, 'subtitle'),
-            row.autocomplete(pk(row), row[pk(row)]),
-            VALID,
-            IMAGE_ROW) for row in rows]
+    return [row.item() for row in rows]
 
 def create_values(connection, table, filter):
     """Creates row values according to the given filter"""
+    
+    logger.debug('create_values(connection=%s, table=%s, filter=%s)', connection, table, filter)
 
     foreign_keys = table.fks
-    logger.debug('QueryBuilder(connection=%s, table=%s, filter=%s, limit=1)',
-        connection, table, filter)
     query = QueryBuilder(connection, table, filter=filter, order=[], limit=1).build()
     result = connection.execute(query, 'Values')
         
@@ -125,30 +91,34 @@ def create_values(connection, table, filter):
             return '%s (%s)' % (row.row[colname], row.row[column])
         return row.row[tostring(column)]
 
-    items = []
+    values = []
     for key in keys:
-        autocomplete = table.autocomplete(key, row.row[tostring(key)])
         value = val(row, key)
+        if key in table.fks:
+            # if key is a foreign key column
+            fk = table.fks[key]
+            autocomplete = fk.b.table.autocomplete(fk.b.name, row.row[tostring(key)])
+        else:
+            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_ROW_FORMAT)
         f = fkey(Column(table, key))
-        icon = IMAGE_VALUE
+        kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
-            icon = IMAGE_FOREIGN_KEY
-        items.append(Item(value, f, autocomplete, VALID, icon))
+            kind = KIND_FOREIGN_KEY
+        values.append(Value(value, f, autocomplete, VALID, kind))
 
     for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
         fk = foreign_keys[key]
         if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(fk.b.name, "{0}={1}".format(fk.a.name, row.row[fk.b.name]), OPTION_URI_ROW_FORMAT)
-            colname = fk.a.name
-            f = fkey(Column(fk.a.table, fk.a.name))
-            items.append(
-                Item('Ref: %s' % fk.a,
-                    f,
+            autocomplete = fk.a.table.autocomplete(fk.a.name, row.row[fk.b.name], OPTION_URI_ROW_FORMAT)
+            logger.debug('table.name=%s, fk=%s, autocomplete=%s', table.name, fk, autocomplete)
+            values.append(
+                Value(fk.a,
+                    fkey(Column(fk.a.table, fk.a.name)),
                     autocomplete,
                     INVALID,
-                    IMAGE_FOREIGN_VALUE))
+                    KIND_FOREIGN_VALUE))
 
-    return items
+    return [v.item() for v in values]
 
 class DatabaseNavigator:
     """The main class"""
@@ -166,7 +136,7 @@ class DatabaseNavigator:
                 return connection.proceed(opts)
 
         # print all connections
-        return create_connections([c for c in cons if c.filter(options)])
+        return create_connections(sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
 
 def main():
     Writer.write(run(sys.argv))

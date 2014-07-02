@@ -1,8 +1,8 @@
-Id	Title	Subtitle	Autocomplete
-bc1b7f66-023c-3b42-98dc-b7a0ad2f00b1	skiline@qa2.skiline.net/	PostgreSQL Connection	skiline@qa2.skiline.net/
-89c53a58-e3f9-3678-923b-f6d0d0b602d3	skiline@localhost/	PostgreSQL Connection	skiline@localhost/
-8422e1be-16c9-34b7-ab23-e3d6ea0f7ea1	skiline@bmwqa.skiline.net/	PostgreSQL Connection	skiline@bmwqa.skiline.net/
-6f63cf71-c255-3871-9d2d-e406d9414d8b	skiline-php@localhost/	PostgreSQL Connection	skiline-php@localhost/
-ab3598ae-a4d0-382f-9987-34e3e8b76a43	skiline@qa.skiline.net/	PostgreSQL Connection	skiline@qa.skiline.net/
-ee5670e7-557f-320d-9f4d-c93df811b226	skiline@188.65.75.24/	PostgreSQL Connection	skiline@188.65.75.24/
-ff14bcf5-c571-3be6-93ec-6fa53f19c152	skiline@livecopy.skiline.net/	PostgreSQL Connection	skiline@livecopy.skiline.net/
+Title	Autocomplete
+skiline-php@localhost/	skiline-php@localhost/
+skiline@188.65.75.24/	skiline@188.65.75.24/
+skiline@bmwqa.skiline.net/	skiline@bmwqa.skiline.net/
+skiline@livecopy.skiline.net/	skiline@livecopy.skiline.net/
+skiline@localhost/	skiline@localhost/
+skiline@qa.skiline.net/	skiline@qa.skiline.net/
+skiline@qa2.skiline.net/	skiline@qa2.skiline.net/

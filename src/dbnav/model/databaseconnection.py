@@ -10,6 +10,7 @@ from sqlalchemy.engine import reflection
 from ..logger import *
 from ..options import Options
 from .column import *
+from .baseitem import BaseItem
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class Cursor:
     def fetchall(self):
         return [Row()]
 
-class DatabaseConnection:
+class DatabaseConnection(BaseItem):
     def __init__(self, *args):
         self.database = None
         self.tbls = None
@@ -54,6 +55,12 @@ class DatabaseConnection:
         """Retrieves the autocomplete string"""
 
         return 'Autocomplete'
+
+    def icon(self):
+        return 'images/connection.png'
+
+    def uri(self, table):
+        return '%s%s' % (self.autocomplete(), table)
 
     def matches(self, options):
         return options.arg in self.title()
@@ -73,21 +80,21 @@ class DatabaseConnection:
                 if options.database:
                     dbs = [db for db in dbs if options.database in db.name]
 
-                return create_databases(dbs)
+                return create_databases(sorted(dbs, key=lambda db: db.name.lower()))
 
             if options.show == 'tables':
                 tables = [t for k, t in self.tables().iteritems()]
                 if options.table:
                     tables = [t for t in tables if t.name.startswith(options.table)]
 
-                return create_tables(sorted(tables, key=lambda t: t.name))
+                return create_tables(sorted(tables, key=lambda t: t.name.lower()))
 
             table = self.tables()[options.table]
             if options.show == 'columns':
                 if options.filter == None:
-                    return create_columns(table.columns(self, options.column))
+                    return create_columns(sorted(table.columns(self, options.column), key=lambda c: c.name.lower()))
                 else:
-                    return create_rows(table.rows(self, options))
+                    return create_rows(sorted(table.rows(self, options), key=lambda r: r[0]))
             
             if options.show == 'values':
                 return create_values(self, table, options)
@@ -148,7 +155,8 @@ class DatabaseConnection:
         cols = self.inspector.get_columns(table.name)
         pks = [pk for pk in self.inspector.get_pk_constraint(table.name)['constrained_columns']]
         
-        return [Column(table, col['name'], [col['name']] == pks) for col in cols]
+        logger.debug('Columns for %s: %s', table, cols)
+        return [Column(table, col['name'], [col['name']] == pks, col['type']) for col in cols]
 
     def __str__(self):
         return self.__repr__()

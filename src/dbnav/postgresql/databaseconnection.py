@@ -17,13 +17,18 @@ from ..options import Options
 CACHE_TIME = 2*60
 DATABASES_QUERY = """
 select
-        datname as database_name
+        db.datname as database_name
     from
-        pg_database
+        pg_database db,
+        pg_roles r
     where
-        datistemplate = false
-    order by datname
-"""
+        db.datistemplate = false
+        and r.rolname = '%s'
+        and (
+            r.rolsuper
+            or pg_catalog.pg_get_userbyid(db.datdba) = r.rolname
+        )
+    order by 1"""
 FOREIGN_KEY_QUERY = """
 select
         tc.table_name,
@@ -39,16 +44,20 @@ select
 """
 TABLES_QUERY = """
 select
-        t.table_name as tbl, obj_description(c.oid) as comment
+        t.table_name as tbl,
+        obj_description(c.oid) as comment,
+        pg_catalog.pg_get_userbyid(c.relowner) as owner,
+        pg_size_pretty(pg_total_relation_size(io.relid)) as size
     from
         information_schema.tables t,
-        pg_class c
+        pg_class c,
+        pg_catalog.pg_statio_user_tables io
     where
-        table_schema = 'public'
+        t.table_schema = 'public'
         and t.table_name = c.relname
+        and io.relname = t.table_name
         and c.relkind = 'r'
-    order by t.table_name
-"""
+    order by t.table_name"""
 COLUMNS_QUERY = """
 select
         column_name
@@ -57,8 +66,16 @@ select
     where
         table_name = '{0}'
 """
+AUTOCOMPLETE_FORMAT = '%s@%s/%s'
 
 logger = logging.getLogger(__name__)
+
+class PostgreSQLDatabase(Database):
+    def __init__(self, connection, name):
+        self.connection = connection
+        self.name = name
+    def __repr__(self):
+        return AUTOCOMPLETE_FORMAT % (self.connection.user, self.connection.host, self.name)
 
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
@@ -129,9 +146,9 @@ class PostgreSQLConnection(DatabaseConnection):
     def databases(self):
         # does not yet work with sqlalchemy...
         if not self.dbs:
-            result = self.execute(DATABASES_QUERY, 'Databases')
+            result = self.execute(DATABASES_QUERY % self.user, 'Databases')
     
-            def d(row): return Database(self, row[0])
+            def d(row): return PostgreSQLDatabase(self, row[0])
     
             self.dbs = map(d, result)
         
@@ -143,7 +160,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
         result = self.execute(TABLES_QUERY, 'Tables')
 
-        def t(row): return Table(self, database, row[0], row[1])
+        def t(row): return Table(self, database, row[0], row[1], row[2], row[3])
 
         return map(t, result)
 

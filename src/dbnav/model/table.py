@@ -9,36 +9,40 @@ from .tablecomment import TableComment
 from .column import *
 from .row import *
 from ..querybuilder import QueryBuilder
+from .baseitem import BaseItem
 
 DEFAULT_LIMIT = 50
 
-OPTION_URI_VALUE_FORMAT = '%s/%s/%s/'
+OPTION_URI_VALUE_FORMAT = '%s%s/%s/'
 
 logger = logging.getLogger(__name__)
 
-class Table:
-    def __init__(self, connection, database, name, comment):
+class Table(BaseItem):
+    def __init__(self, connection, database, name, comment, owner=None, size=None):
         self.database = database
         self.name = name
         self.comment = TableComment(self, comment)
+        self.owner = owner
+        self.size = size
         self.cols = None
         self.fks = {}
-        self.uri = str(connection)
-        if self.uri.endswith('/'):
-            self.uri += database
+        self.uri = connection.autocomplete()
         self.primary_key = 'id'
 
     def __repr__(self):
         return self.name
 
-    def autocomplete(self, column, value, format=OPTION_URI_VALUE_FORMAT):
+    def autocomplete(self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
+
+        logger.debug('autocomplete(self=%s, column=%s, value=%s, format=%s)', self, column, value, format)
+
+        if column == None:
+            return '%s%s/' % (self.uri, self.name)
 
         tablename = self.name
         fks = self.fks
-        if column in fks:
-            fk = fks[column]
-            tablename = fk.b.table.name
+        value = '%s=%s' % (column, value)
 
         return format % (self.uri, tablename, value)
 
@@ -77,3 +81,14 @@ class Table:
     
     def foreign_keys(self):
         return self.fks
+
+    def title(self):
+        return self.name
+
+    def subtitle(self):
+        if self.owner and self.size:
+            return 'Owner: %s (%s)' % (self.owner, self.size)
+        return 'Table'
+
+    def icon(self):
+        return 'images/table.png'

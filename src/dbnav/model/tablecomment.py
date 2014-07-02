@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import logging
 
 COMMENT_ID = 'id'
 COMMENT_TITLE = 'title'
@@ -9,6 +10,8 @@ COMMENT_SUBTITLE = 'subtitle'
 COMMENT_ORDER_BY = 'order'
 COMMENT_SEARCH = 'search'
 COMMENT_DISPLAY = 'display'
+
+logger = logging.getLogger(__name__)
 
 class TableComment:
     """The comment on the given table that allows to display much more accurate information"""
@@ -36,6 +39,8 @@ class TableComment:
         self.search = self.d[COMMENT_SEARCH]
         self.display = self.d[COMMENT_DISPLAY]
         self.order = self.d[COMMENT_ORDER_BY]
+        
+        logger.debug('Table comment for %s: %s', table, self)
 
     def __repr__(self):
         return self.d.__repr__()
