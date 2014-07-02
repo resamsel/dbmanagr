@@ -76,11 +76,6 @@ class Comment:
 
         if not comment.id and table.primary_key:
             comment.id = '{0}.%s' % table.primary_key
-        if not comment.subtitle:
-            if table.primary_key:
-                comment.subtitle = "'Primary key is %s'" % table.primary_key
-            else:
-                comment.subtitle = "'There is no primary key'"
         if not comment.id:
             comment.id = "'-'"
 
@@ -91,7 +86,18 @@ class Comment:
         self.populate_titles(self.fk_titles, table.fks)
 
         if not comment.title:
-            comment.title = self.create_title(comment, columns)
+            name, title = self.create_title(comment, columns)
+            comment.title = title
+            if not comment.subtitle:
+                if name == table.primary_key:
+                    comment.subtitle = "'%s'" % name
+                else:
+                    comment.subtitle = "'%s (id=' || %s || ')'" % (name, comment.id)
+        if not comment.subtitle:
+            if table.primary_key:
+                comment.subtitle = "'%s'" % table.primary_key
+            else:
+                comment.subtitle = "'There is no primary key'"
 
         def f(s):
             try:
@@ -130,23 +136,23 @@ class Comment:
         # find specially named columns (but is not an integer - integers are no good names)
         for c in columns:
             logger.debug('Column %s', c.name)
-            for name in ['name', 'username', 'user_name', 'email', 'comment']:
+            for name in ['name', 'key', 'username', 'user_name', 'email', 'comment']:
                 if c.name == name:
                     if not isinstance(c.type, Integer):
-                        return '{0}.%s' % c.name
+                        return (name, '{0}.%s' % c.name)
                     elif self.fk_titles['%s_title' % name]:
-                        return self.fk_titles['%s_title' % name]
+                        return (name, self.fk_titles['%s_title' % name])
 
         # find columns that end with special names
         for c in columns:
-            for name in ['name']:
+            for name in ['name', 'key']:
                 if c.name.endswith(name) and not isinstance(c.type, Integer):
-                    return '{0}.%s' % c.name
+                    return (name, '{0}.%s' % c.name)
 
         if comment.id:
-            return comment.id
+            return ('id', comment.id)
 
-        return '{0}.%s' % columns[0].name
+        return ('First column', '{0}.%s' % columns[0].name)
 
     def populate_titles(self, fk_titles, foreign_keys):
         #logger.debug("Populate titles: %s", foreign_keys.keys())
