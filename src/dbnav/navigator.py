@@ -22,7 +22,6 @@ INVALID = "no"
 IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
 IMAGE_TABLE = 'images/table.png'
-IMAGE_ROW = 'images/row.png'
 IMAGE_VALUE = 'images/value.png'
 IMAGE_FOREIGN_KEY = 'images/foreign-key.png'
 IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
@@ -45,62 +44,29 @@ def tostring(key):
 def create_connections(cons):
     """Creates connection items"""
 
-    return [
-        Item(c.title(),
-            c.subtitle(),
-            c.autocomplete(),
-            VALID,
-            IMAGE_CONNECTION) for c in cons]
+    return [c.item() for c in cons]
 
 def create_databases(dbs):
     """Creates database items"""
 
-    return [
-        Item(database.autocomplete(),
-            'Database',
-            database.autocomplete(),
-            VALID,
-            IMAGE_DATABASE) for database in dbs]
+    return [database.item() for database in dbs]
 
 def create_tables(tables):
     """Creates table items"""
 
-    return [
-        Item(t.name,
-            'Title: %s' % t.comment.title,
-            t.autocomplete(),
-            VALID,
-            IMAGE_TABLE) for t in tables]
+    return [t.item() for t in tables]
 
 def create_columns(columns):
     """Creates column items"""
 
-    return [
-        Item(c.name,
-            c.table.name,
-            c.autocomplete(),
-            VALID,
-            IMAGE_TABLE) for c in columns]
+    return [c.item() for c in columns]
 
 def create_rows(rows):
     """Creates row items"""
 
     logger.debug('create_rows(rows=%s)', rows)
 
-    def val(row, column):
-        colname = '%s_title' % column
-        if colname in row.row:
-            return '%s (%s)' % (row.row[colname], row.row[column])
-        return row.row[column]
-
-    def pk(row): return row.table.primary_key
-
-    return [
-        Item(val(row, 'title'),
-            val(row, 'subtitle'),
-            row.autocomplete(pk(row), row[pk(row)]),
-            VALID,
-            IMAGE_ROW) for row in rows]
+    return [row.item() for row in rows]
 
 def create_values(connection, table, filter):
     """Creates row values according to the given filter"""

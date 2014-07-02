@@ -14,7 +14,20 @@ import codecs
 DIR = path.dirname(__file__)
 TEST_CASES = map(lambda p: path.basename(p), glob.glob(path.join(DIR, 'resources/testcase-*')))
 
-Writer.set(StringWriter())
+class TestWriter(StringWriter):
+    ITEMS_FORMAT = u"""Title\tAutocomplete
+{0}"""
+    ITEM_FORMAT = u"""{title}\t{autocomplete}
+"""
+    def str(self, items):
+        s = u''.join([self.itemtostring(i) for i in items])
+        return TestWriter.ITEMS_FORMAT.format(s)
+    def itemtostring(self, item):
+        return TestWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
+    def write(self, items):
+        return self.str(items)
+
+Writer.set(TestWriter())
 Source.sources = []
 init_postgresql(
     path.join(DIR, 'resources/dbexplorer.cfg'),
@@ -34,6 +47,10 @@ def expected(testcase):
     with codecs.open(path.join(DIR, 'resources/expected/%s' % testcase), encoding='utf-8', mode='r') as f:
         return f.read()
 
+def update_expected(testcase, content):
+    with codecs.open(path.join(DIR, 'resources/expected/%s' % testcase), encoding='utf-8', mode='w') as f:
+        return f.write(content)
+
 class OutputTestCase(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -45,7 +62,12 @@ def test_generator(tc):
             '-l', 'debug',
             '-f', 'target/dbnavigator.log',
             p])
-        self.assertEqual(e, Writer.write(items))
+        actual = Writer.write(items)
+
+        # WARNING: this is code that creates the expected output - only uncomment when in need!
+        # update_expected(tc, actual)
+
+        self.assertEqual(e, actual)
     return test
 
 def load_suite():

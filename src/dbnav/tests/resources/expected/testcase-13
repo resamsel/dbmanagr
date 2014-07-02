@@ -1,14 +1,14 @@
-Id	Title	Subtitle	Autocomplete
-e4a84223-56e2-3ff7-b548-acf1c9eb4328	b2b_visible	api_key	skiline@localhost/skiline/api_key/b2b_visible
-a2e1a17d-5d87-3d0d-9715-0d20b2dd935c	client_id	api_key	skiline@localhost/skiline/api_key/client_id
-3a5b8b42-bf45-3baf-9fa8-b3f03439ef59	comment	api_key	skiline@localhost/skiline/api_key/comment
-8812d122-45d0-3565-881d-433f247b1270	forgot_password_email_template_id	api_key	skiline@localhost/skiline/api_key/forgot_password_email_template_id
-d5ed36cc-4b22-3361-89fe-b0fe94a3d097	id	api_key	skiline@localhost/skiline/api_key/id
-bc57cfce-e231-3d8a-a8df-c96e83dc915a	key	api_key	skiline@localhost/skiline/api_key/key
-16090cde-d544-3b4d-a4cb-1353f5498de1	key_hash	api_key	skiline@localhost/skiline/api_key/key_hash
-57519277-ac47-33e4-acd8-fc71afc2d444	ordinal	api_key	skiline@localhost/skiline/api_key/ordinal
-0594eafa-fd34-3027-ad33-56c6c3266c4b	registration_doi_email_template_id	api_key	skiline@localhost/skiline/api_key/registration_doi_email_template_id
-7d718eb9-08a2-323b-8b10-f045c7b75a73	registration_doi_reminder_template_id	api_key	skiline@localhost/skiline/api_key/registration_doi_reminder_template_id
-c2ae9f46-2e50-3741-bd52-140a6b82eff3	sender_email_address	api_key	skiline@localhost/skiline/api_key/sender_email_address
-50b5446f-6891-3bb0-8b1b-cc11b9e1d23b	sender_name	api_key	skiline@localhost/skiline/api_key/sender_name
-2eaafda9-d96e-30ab-8931-c337633237df	version	api_key	skiline@localhost/skiline/api_key/version
+Title	Autocomplete
+b2b_visible	skiline@localhost/skiline/api_key/b2b_visible
+client_id	skiline@localhost/skiline/api_key/client_id
+comment	skiline@localhost/skiline/api_key/comment
+forgot_password_email_template_id	skiline@localhost/skiline/api_key/forgot_password_email_template_id
+id	skiline@localhost/skiline/api_key/id
+key	skiline@localhost/skiline/api_key/key
+key_hash	skiline@localhost/skiline/api_key/key_hash
+ordinal	skiline@localhost/skiline/api_key/ordinal
+registration_doi_email_template_id	skiline@localhost/skiline/api_key/registration_doi_email_template_id
+registration_doi_reminder_template_id	skiline@localhost/skiline/api_key/registration_doi_reminder_template_id
+sender_email_address	skiline@localhost/skiline/api_key/sender_email_address
+sender_name	skiline@localhost/skiline/api_key/sender_name
+version	skiline@localhost/skiline/api_key/version

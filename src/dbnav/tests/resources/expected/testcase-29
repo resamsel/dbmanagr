@@ -1,12 +1,12 @@
-Id	Title	Subtitle	Autocomplete
-c8b7d3f7-1e1e-3def-bc29-7ccc37b945a5	2	ZNOTE.Z_PK	Rene.Samselnig@gmail.com.sqlite/ZNOTE/Z_PK=2
-8aa53455-cb68-321d-8984-b0f0c05b2450	5	ZNOTE.Z_ENT	Rene.Samselnig@gmail.com.sqlite/ZNOTE/Z_ENT=5
-e830e249-899f-31ab-aa09-af317babb97b	4	ZNOTE.Z_OPT	Rene.Samselnig@gmail.com.sqlite/ZNOTE/Z_OPT=4
-47ac2e36-8e47-3a2f-837d-04e5cc82ad13	4311920	ZNOTE.ZID_NOTE	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZID_NOTE=4311920
-bce9de34-1d7b-38fe-8af5-8bb847d2f779	0	ZNOTE.ZISDELETING	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZISDELETING=0
-f4f1de2a-bc5f-379d-ab02-609dacda661e	1	ZNOTE.ZCREATOR	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZCREATOR=1
-2c0cab2d-4b1f-350a-b0a7-f61c7eb00f13	8	ZNOTE.ZTASK	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZTASK=8
-0c061143-8fee-30f8-9db7-6030225ddd76	353883827	ZNOTE.ZTIME_CREATED	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZTIME_CREATED=353883827
-d9cab136-6164-364d-b704-9d8400fe4b94		ZNOTE.ZFILE_NAME	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZFILE_NAME=
-c7e7b1ba-ca94-33f1-a34a-4d38f36580e7		ZNOTE.ZFILE_URL	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZFILE_URL=
-76be8548-7e78-39b5-9c58-1550f6b99ca2	Rechnung von Rad und Kotschützern senden an: mario.deisinger-achatz@grawe.at	ZNOTE.ZMESSAGE	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZMESSAGE=Rechnung von Rad und Kotschützern senden an: mario.deisinger-achatz@grawe.at
+Title	Autocomplete
+2	Rene.Samselnig@gmail.com.sqlite/ZNOTE/Z_PK=2
+5	Rene.Samselnig@gmail.com.sqlite/ZNOTE/Z_ENT=5
+4	Rene.Samselnig@gmail.com.sqlite/ZNOTE/Z_OPT=4
+4311920	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZID_NOTE=4311920
+0	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZISDELETING=0
+1	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZCREATOR=1
+8	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZTASK=8
+353883827	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZTIME_CREATED=353883827
+	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZFILE_NAME=
+	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZFILE_URL=
+Rechnung von Rad und Kotschützern senden an: mario.deisinger-achatz@grawe.at	Rene.Samselnig@gmail.com.sqlite/ZNOTE/ZMESSAGE=Rechnung von Rad und Kotschützern senden an: mario.deisinger-achatz@grawe.at

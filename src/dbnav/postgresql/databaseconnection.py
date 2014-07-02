@@ -44,16 +44,20 @@ select
 """
 TABLES_QUERY = """
 select
-        t.table_name as tbl, obj_description(c.oid) as comment
+        t.table_name as tbl,
+        obj_description(c.oid) as comment,
+        pg_catalog.pg_get_userbyid(c.relowner) as owner,
+        pg_size_pretty(pg_total_relation_size(io.relid)) as size
     from
         information_schema.tables t,
-        pg_class c
+        pg_class c,
+        pg_catalog.pg_statio_user_tables io
     where
-        table_schema = 'public'
+        t.table_schema = 'public'
         and t.table_name = c.relname
+        and io.relname = t.table_name
         and c.relkind = 'r'
-    order by t.table_name
-"""
+    order by t.table_name"""
 COLUMNS_QUERY = """
 select
         column_name
@@ -156,7 +160,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
         result = self.execute(TABLES_QUERY, 'Tables')
 
-        def t(row): return Table(self, database, row[0], row[1])
+        def t(row): return Table(self, database, row[0], row[1], row[2], row[3])
 
         return map(t, result)
 

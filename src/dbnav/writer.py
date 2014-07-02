@@ -74,7 +74,8 @@ class StdoutWriter(DefaultWriter):
 
 class AutocompleteWriter(DefaultWriter):
     ITEMS_FORMAT = u"""{0}"""
-    ITEM_FORMAT = u"""{autocomplete} """
+    ITEM_FORMAT = u"""{autocomplete}
+"""
     def str(self, items):
         s = u''.join([self.itemtostring(i) for i in items])
         return AutocompleteWriter.ITEMS_FORMAT.format(s)

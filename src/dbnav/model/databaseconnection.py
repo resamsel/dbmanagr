@@ -10,6 +10,7 @@ from sqlalchemy.engine import reflection
 from ..logger import *
 from ..options import Options
 from .column import *
+from .baseitem import BaseItem
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class Cursor:
     def fetchall(self):
         return [Row()]
 
-class DatabaseConnection:
+class DatabaseConnection(BaseItem):
     def __init__(self, *args):
         self.database = None
         self.tbls = None
@@ -54,6 +55,9 @@ class DatabaseConnection:
         """Retrieves the autocomplete string"""
 
         return 'Autocomplete'
+
+    def icon(self):
+        return 'images/connection.png'
 
     def uri(self, table):
         return '%s%s' % (self.autocomplete(), table)
