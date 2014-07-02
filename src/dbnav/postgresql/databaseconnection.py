@@ -17,14 +17,18 @@ from ..options import Options
 CACHE_TIME = 2*60
 DATABASES_QUERY = """
 select
-        datname as database_name
+        db.datname as database_name
     from
-        pg_database
+        pg_database db,
+        pg_roles r
     where
-        datistemplate = false
-        and pg_catalog.pg_get_userbyid(datdba) = '%s'
-    order by datname
-"""
+        db.datistemplate = false
+        and r.rolname = '%s'
+        and (
+            r.rolsuper
+            or pg_catalog.pg_get_userbyid(db.datdba) = r.rolname
+        )
+    order by 1"""
 FOREIGN_KEY_QUERY = """
 select
         tc.table_name,
