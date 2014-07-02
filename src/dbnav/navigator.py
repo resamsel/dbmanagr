@@ -159,7 +159,7 @@ def run(argv):
         return DatabaseNavigator.main(options)
     except BaseException, e:
         logger.exception(e)
-        return [Item(str(e), type(e), '', INVALID, '')]
+        return [Item('', str(e), type(e), '', INVALID, '')]
 
 if __name__ == "__main__":
     main()
