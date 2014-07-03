@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class Table(BaseItem):
     def __init__(self, connection, database, name, comment, owner=None, size=None):
+        self.connection = connection
         self.database = database
         self.name = name
         self.comment = TableComment(self, comment)
@@ -35,8 +36,6 @@ class Table(BaseItem):
     def autocomplete(self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 
-        logger.debug('autocomplete(self=%s, column=%s, value=%s, format=%s)', self, column, value, format)
-
         if column == None:
             return '%s%s/' % (self.uri, self.name)
 
@@ -46,12 +45,26 @@ class Table(BaseItem):
 
         return format % (self.uri, tablename, value)
 
+    def init_columns(self, connection):
+        self.cols = connection.columns(self)
+
     def columns(self, connection, column):
         """Retrieves columns of table with given filter applied"""
         
-        cols = connection.inspector.get_columns(self.name)
+        if not self.cols:
+            self.init_columns(connection)
         
-        return [Column(self, c['name']) for c in cols if column in c['name']]
+        return [c for c in self.cols if column in c.name]
+
+    def column(self, name):
+        if not self.cols:
+            self.init_columns(self.connection)
+        
+        for col in self.cols:
+            if col.name == name:
+                return col
+
+        return None
 
     def rows(self, connection, filter):
         """Retrieves rows from the table with the given filter applied"""

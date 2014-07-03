@@ -18,7 +18,9 @@ class Column(BaseItem):
         #logger.debug('Column: %s', self.__dict__)
 
     def __repr__(self):
-        return '%s.%s' % (self.table.name, self.name)
+        if self.table:
+            return '%s.%s' % (self.table.name, self.name)
+        return self.name
 
     def title(self):
         return self.name

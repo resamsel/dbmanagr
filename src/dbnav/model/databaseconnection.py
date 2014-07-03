@@ -158,6 +158,9 @@ class DatabaseConnection(BaseItem):
         logger.debug('Columns for %s: %s', table, cols)
         return [Column(table, col['name'], [col['name']] == pks, col['type']) for col in cols]
 
+    def restriction(self, alias, column, operator, value):
+        return "{0}.{1} {2} '{3}'".format(alias, column.name, operator, value)
+
     def __str__(self):
         return self.__repr__()
 

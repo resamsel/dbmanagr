@@ -5,6 +5,7 @@ import shelve
 import logging
 
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.types import Integer
 from os.path import expanduser
 
 from ..model.databaseconnection import *
@@ -175,3 +176,15 @@ class PostgreSQLConnection(DatabaseConnection):
             fk = ForeignKey(a, b)
             self.tbls[a.table.name].fks[a.name] = fk
             self.tbls[b.table.name].fks[str(a)] = fk
+
+    def restriction(self, alias, column, operator, value):
+        logger.debug('restriction(alias=%s, column=%s, operator=%s, value=%s)', alias, column, operator, value)
+
+        lhs = column.name
+        if column.table:
+            lhs = '{0}.{1}'.format(alias, column.name)
+        if isinstance(column.type, Integer):
+            lhs = 'cast({0}.{1} as text)'.format(alias, column.name)
+        rhs = "'{0}'".format(value)
+
+        return ' '.join([lhs, operator, rhs])

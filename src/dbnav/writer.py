@@ -4,6 +4,7 @@
 import logging
 import codecs
 import sys
+from .item import Item
 
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
@@ -15,6 +16,8 @@ def html_escape(s):
 
 class DefaultWriter:
     def write(self, items):
+        if not items:
+            items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
         s = self.str(items)
         print s
         return s
