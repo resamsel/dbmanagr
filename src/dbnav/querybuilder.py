@@ -4,6 +4,7 @@
 import logging
 from collections import Counter
 from sqlalchemy.types import Integer
+from .model.column import Column
 
 QUERY_FORMAT = """
 select
@@ -88,11 +89,10 @@ class Comment:
         if not comment.title:
             name, title = self.create_title(comment, columns)
             comment.title = title
-            if not comment.subtitle:
-                if name == table.primary_key:
-                    comment.subtitle = "'%s'" % name
-                else:
-                    comment.subtitle = "'%s (id=' || %s || ')'" % (name, comment.id)
+            if name == table.primary_key:
+                comment.subtitle = "'%s'" % name
+            else:
+                comment.subtitle = "'%s (id=' || %s || ')'" % (name, comment.id)
         if not comment.subtitle:
             if table.primary_key:
                 comment.subtitle = "'%s'" % table.primary_key
@@ -136,16 +136,16 @@ class Comment:
         # find specially named columns (but is not an integer - integers are no good names)
         for c in columns:
             logger.debug('Column %s', c.name)
-            for name in ['name', 'key', 'username', 'user_name', 'email', 'comment']:
+            for name in ['name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment']:
                 if c.name == name:
                     if not isinstance(c.type, Integer):
                         return (name, '{0}.%s' % c.name)
                     elif self.fk_titles['%s_title' % name]:
-                        return (name, self.fk_titles['%s_title' % name])
+                        return ('%s_title' % name, self.fk_titles['%s_title' % name])
 
         # find columns that end with special names
         for c in columns:
-            for name in ['name', 'key']:
+            for name in ['name', 'title', 'key', 'text']:
                 if c.name.endswith(name) and not isinstance(c.type, Integer):
                     return (name, '{0}.%s' % c.name)
 
@@ -233,16 +233,34 @@ class QueryBuilder:
                 if self.filter.operator:
                     name = self.filter.column
                     value = self.filter.filter.replace('%', '%%')
-                    where = "{0}.{1} {2} '{3}'".format(self.alias, name, operator, value)
+                    logger.debug('name=%s, comment.columns=%s', name, comment.columns)
+                    where = self.connection.restriction(self.alias, self.table.column(name), operator, value)
             elif comment.search:
                 f = self.filter.filter.replace('%', '%%')
                 if f == '' and self.filter.operator == '*':
                     f = '%%'
                 conjunctions = []
                 for search_field in comment.search:
-                    conjunctions.append(SEARCH_FORMAT % (search_field, operator, f))
+                    def col(alias, field):
+                        prefix = '%s.' % alias
+                        if field.startswith(prefix):
+                            field = field[len(prefix):]
+                        c = self.table.column(field)
+                        if c:
+                            return c
+                        return Column(None, field, False, 'String')
+                    logger.debug('Search field: %s', search_field)
+                    conjunctions.append(self.connection.restriction(
+                        self.alias,
+                        col(self.alias, search_field),
+                        operator,
+                        f))
                 if 'id' in comment.columns:
-                    conjunctions.append(SEARCH_FORMAT % (comment.columns['id'].value, operator, f))
+                    conjunctions.append(self.connection.restriction(
+                        self.alias,
+                        self.table.column('id'),
+                        operator,
+                        f))
                 where = OR_SEPARATOR.join(conjunctions)
 
         logger.debug('Order before: %s', order)
