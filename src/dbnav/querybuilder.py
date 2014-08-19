@@ -30,6 +30,11 @@ OR_SEPARATOR = """
 
 logger = logging.getLogger(__name__)
 
+class QueryFilter:
+    def __init__(self, lhs, operator, rhs):
+        self.lhs = lhs
+        self.operator = operator
+        self.rhs = rhs
 class Join:
     def __init__(self, table, alias, column, fk_alias, fk_column):
         self.table = table
@@ -175,7 +180,7 @@ class Comment:
 #                    self.qb.joins[fktable.name] = Join(fktable.name, alias, fk.b.name, self.alias, fk.a.name)
         
 class QueryBuilder:
-    def __init__(self, connection, table, id=None, filter=None, order=[], limit=None):
+    def __init__(self, connection, table, id=None, filter=None, order=[], limit=None, artificial_projection=True):
         self.connection = connection
         self.table = table
         self.id = id
@@ -185,6 +190,7 @@ class QueryBuilder:
         self.aliases = {}
         self.joins = {}
         self.counter = Counter()
+        self.artificial_projection = artificial_projection
 
         self.alias = '_%s' % self.table.name
         logger.debug("QueryBuilder: order=%s, self=%s", order, self.__dict__)
@@ -223,20 +229,26 @@ class QueryBuilder:
                 where = "%s = '%s'" % (comment.id, self.id)
         elif self.filter:
             logger.debug("Filter: column=%s, operator=%s, filter=%s",
-                 self.filter.column, self.filter.operator, self.filter.filter)
+                 self.filter.lhs, self.filter.operator, self.filter.rhs)
             operator = {
                 '=': '=',
                 '~': 'like',
-                '*': 'like'
+                '*': 'like',
+                '>': '>',
+                '>=': '>=',
+                '<=': '<=',
+                '<': '<',
+                'in': 'in'
             }.get(self.filter.operator, '=')
-            if self.filter.column != '' and self.filter.column in comment.columns:
+            if self.filter.lhs != '':
+                # and self.filter.lhs in comment.columns:
                 if self.filter.operator:
-                    name = self.filter.column
-                    value = self.filter.filter.replace('%', '%%')
+                    name = self.filter.lhs
+                    value = self.filter.rhs
                     logger.debug('name=%s, comment.columns=%s', name, comment.columns)
                     where = self.connection.restriction(self.alias, self.table.column(name), operator, value)
             elif comment.search:
-                f = self.filter.filter.replace('%', '%%')
+                f = self.filter.rhs.replace('%', '%%')
                 if f == '' and self.filter.operator == '*':
                     f = '%%'
                 conjunctions = []
@@ -272,9 +284,13 @@ class QueryBuilder:
                 order.append('1')
         
         logger.debug('Order after: %s', order)
+        
+        projection = [Projection('%s.%s' % (self.alias, col.name), col.name) for col in self.table.cols]
+        if self.artificial_projection:
+            projection = comment.columns.values()
 
         return QUERY_FORMAT.format(self.table.name,
-            LIST_SEPARATOR.join(map(str, comment.columns.values())),
+            LIST_SEPARATOR.join(map(str, projection)),
             self.alias,
             ''.join(map(str, self.joins.values())),
             where,

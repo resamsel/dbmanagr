@@ -14,6 +14,9 @@ def html_escape(s):
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s
 
+def stdout_escape(s):
+    return s
+
 class DefaultWriter:
     def write(self, items):
         if not items:
@@ -65,15 +68,16 @@ class SimpleWriter(DefaultWriter):
         return SimpleWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
 
 class StdoutWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""Title\tSubtitle\tAutocomplete
-{0}"""
-    ITEM_FORMAT = u"""{title}\t{subtitle}\t{autocomplete}
-"""
+    def __init__(self, items_format=u"""Title\tSubtitle\tAutocomplete
+{0}""", item_format=u"""{title}\t{subtitle}\t{autocomplete}
+"""):
+        self.items_format = items_format
+        self.item_format = item_format
     def str(self, items):
         s = u''.join([self.itemtostring(i) for i in items])
-        return StdoutWriter.ITEMS_FORMAT.format(s)
+        return self.items_format.format(s)
     def itemtostring(self, item):
-        return StdoutWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
+        return self.item_format.format(**item.escaped(stdout_escape))
 
 class AutocompleteWriter(DefaultWriter):
     ITEMS_FORMAT = u"""{0}"""
@@ -95,6 +99,14 @@ class Writer:
     @staticmethod
     def set(arg):
         Writer.writer = arg
+    
+    @staticmethod
+    def from_options(options):
+        if options.default: Writer.set(DefaultWriter())
+        if options.simple: Writer.set(SimpleWriter())
+        if options.json: Writer.set(JsonWriter())
+        if options.xml: Writer.set(XmlWriter())
+        if options.autocomplete: Writer.set(AutocompleteWriter())
 
     @staticmethod
     def write(items):

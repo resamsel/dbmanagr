@@ -66,29 +66,31 @@ class Table(BaseItem):
 
         return None
 
-    def rows(self, connection, filter):
+    def rows(self, filter, artificial_projection=False):
         """Retrieves rows from the table with the given filter applied"""
-
-        query = QueryBuilder(connection,
+        
+        query = QueryBuilder(self.connection,
             self,
             filter=filter,
             order=self.comment.order,
-            limit=DEFAULT_LIMIT).build()
+            limit=DEFAULT_LIMIT,
+            artificial_projection=artificial_projection).build()
 
         try:
-            result = connection.execute(query, 'Rows')
+            result = self.connection.execute(query, 'Rows')
         except BaseException, e:
             logger.error(
                 '%s: check comment on table %s\n%s' % (
                     e.__class__.__name__,
                     self.name,
                     str(e)))
+            logger.error(e, exc_info=1)
             from ..model import databaseconnection
-            return [Row(connection,
+            return [Row(self.connection,
                 self,
                 databaseconnection.Row({'title': str(e), 'subtitle': 'Check comment on table %s' % self.name}))]
 
-        def t(row): return Row(connection, self, row)
+        def t(row): return Row(self.connection, self, row)
 
         return map(t, result)
     

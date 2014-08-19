@@ -5,6 +5,7 @@ from dbnav.options import *
 from urlparse import urlparse
 
 OPTION_URI_FORMAT = '%s@%s/%s'
+OPERATORS = ['>=','<=','=','~','*','>','<']
 
 class PostgreSQLOptions:
     def __init__(self):
@@ -32,7 +33,7 @@ class PostgreSQLOptionsParser:
             if len(paths) > 2: opts.table = paths[2]
             if len(paths) > 3:
                 opts.column = paths[3]
-                for operator in '=~*':
+                for operator in OPERATORS:
                     if operator in opts.column:
                         opts.operator = operator
                         f = opts.column.split(operator, 1)
