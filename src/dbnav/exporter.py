@@ -40,16 +40,23 @@ def create_items(items, include, exclude):
     if include:
         for item in items:
             for i in include:
-                if '.' in i:
-                    continue
-                col = item.table.column(i)
+                c = re.sub('([^\\.]*)\\..*', '\\1', i)
+                col = item.table.column(c)
                 if not col:
-                    raise Exception("Column '{0}' does not exist in table '{1}'".format(i, item.table.name))
+                    raise Exception("Include column '{0}' does not exist in table '{1}'".format(i, item.table.name))
                 fk = item.table.fks[col.name]
                 fk.b.table.connection = item.table.connection
                 if fk not in includes:
                     includes[fk] = []
                 includes[fk].append(item[col.name])
+    if exclude:
+        for item in items:
+            for x in exclude:
+                c = re.sub('([^\\.]*)\\..*', '\\1', x)
+                if not item.table.column(c):
+                    raise Exception("Exclude column '{0}' does not exist in table '{1}'".format(c, item.table.name))
+            # only check first item, as we expect all items are from the same table
+            break
     for fk in includes.keys():
         table = fk.b.table
         result += create_items(table.rows(QueryFilter(fk.b.name, 'in', includes[fk])), remove_prefix(fk.a.name, include), remove_prefix(fk.a.name, exclude))
@@ -90,7 +97,7 @@ def run(argv):
         return DatabaseExporter.export(options)
     except BaseException, e:
         logger.exception(e)
-        return [Item('', str(e), type(e), '', INVALID, '')]
+        sys.stderr.write(str(e))
 
 if __name__ == "__main__":
     main()
