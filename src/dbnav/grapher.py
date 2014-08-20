@@ -22,26 +22,38 @@ parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
 parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
-def create_fks(table, include, exclude):
+def create_fks(table, include, exclude, indent=0):
     logger.debug('create_fks(table=%s, include=%s, exclude=%s)', table, include, exclude)
     
     result = []
     includes = {}
-    if include:
-        for key, fk in table.fks.iteritems():
-            for i in include:
-                c = re.sub('([^\\.]*)\\..*', '\\1', i)
-                logger.debug('include table=%s, fk.a.table=%s, include=%s, c=%s', table.name, fk.a.table.name, i, c)
-                if fk.a.table.name == c:
-                    result += create_fks(fk.a.table, remove_prefix(c, include), remove_prefix(c, exclude))
+    for key, fk in table.fks.iteritems():
+        result.append(FkHolder(fk, table, indent))
+        if include:
+            for i in set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in include]):
+                logger.debug('include table=%s, fk.a.table=%s, include=%s', table.name, fk.a.table.name, i)
+                if fk.a.table.name == i:
+                    result += create_fks(fk.a.table, remove_prefix(i, include), remove_prefix(i, exclude), indent+1)
 
-    return sorted(
-        list(set(result + [fk for fk in table.fks.itervalues()])),
-        key=lambda fk: fk.a.table.name)
+    return result
+        
 
 def remove_prefix(prefix, list):
     p = '%s.' % prefix
     return [re.sub('^%s' % p, '', i) for i in list if i.startswith(p)]
+
+class FkHolder:
+    def __init__(self, fk, table, indent):
+        self.fk = fk
+        self.table = table
+        self.indent = indent
+    def __getattr__(self, name):
+        return getattr(self.fk, name)
+    def __repr__(self):
+        indent = '  '*self.indent
+        if self.fk.a.table.name == self.table.name:
+            return '{0}- {1} -> {2}'.format(indent, self.fk.a.name, self.fk.b)
+        return '{0}+ {1} ({2} -> {3})'.format(indent, self.fk.a.table.name, self.fk.a.name, self.fk.b.name)
 
 class DatabaseGrapher:
     """The main class"""
@@ -59,7 +71,7 @@ class DatabaseGrapher:
                 try:
                     connection.connect(opts.database)
                     table = connection.tables()[opts.table]
-                    return [Item('', str(fk), '', '', '', '') for fk in create_fks(table, opts.include, opts.exclude)]
+                    return [Item('', table.name, '', '', '', '')] + [Item('', str(fk), '', '', '', '') for fk in create_fks(table, opts.include, opts.exclude)]
                 finally:
                     connection.close()
 
