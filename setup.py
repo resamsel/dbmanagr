@@ -24,7 +24,8 @@ setup(
     entry_points = {
         'console_scripts': [
             'dbnav = dbnav.navigator:main',
-            'dbexport = dbnav.exporter:main'
+            'dbexport = dbnav.exporter:main',
+            'dbgraph = dbnav.grapher:main'
         ]
     },
     

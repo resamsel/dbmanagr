@@ -7,7 +7,7 @@ import logging
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
 from os.path import expanduser
-from datetime import datetime
+from datetime import date, datetime
 
 from ..model.databaseconnection import *
 from ..model.database import *
@@ -202,6 +202,8 @@ class PostgreSQLConnection(DatabaseConnection):
             return '({0})'.format(','.join([self.format_value(column, v) for v in value]))
         if type(value) is datetime:
             return "'%s'" % value
+        if type(value) is date:
+            return "'%s'" % value
         if column is None:
             try:
                 return '%d' % int(value)
@@ -219,7 +221,7 @@ class PostgreSQLConnection(DatabaseConnection):
                 return '%d' % int(value)
             except ValueError:
                 pass
-        return u"'%s'" % value.replace('%', '%%')
+        return u"'%s'" % value.replace('%', '%%').replace("'", "''")
 
     def escape_keyword(self, keyword):
         if keyword in ['user', 'select']:
