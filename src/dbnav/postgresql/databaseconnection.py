@@ -183,8 +183,11 @@ class PostgreSQLConnection(DatabaseConnection):
         lhs = column.name
         if column.table:
             lhs = '{0}.{1}'.format(alias, column.name)
-        if isinstance(column.type, Integer) and not isinstance(value, int):
-            lhs = 'cast({0}.{1} as text)'.format(alias, column.name)
+        if isinstance(column.type, Integer) and type(value) is not list:
+            try:
+                int(value)
+            except ValueError:
+                lhs = 'cast({0}.{1} as text)'.format(alias, column.name)
         rhs = self.format_value(column, value)
 
         return ' '.join([lhs, operator, rhs])
@@ -193,16 +196,25 @@ class PostgreSQLConnection(DatabaseConnection):
         if value == None:
             return 'null'
         if type(value) is list:
-            return '({0})'.format(','.join([self.format_value(None, v) for v in value]))
+            return '({0})'.format(','.join([self.format_value(column, v) for v in value]))
         if column is None:
-            return u"'%s'" % value
-        if isinstance(column.type, Boolean) and isinstance(value, bool):
-            return '%s' % str(value).lower()
-        if isinstance(column.type, Float) and isinstance(value, float):
-            return '%s' % value
-        if isinstance(column.type, Integer) and isinstance(value, int):
-            return '%s' % value
-        return u"'%s'" % value
+            try:
+                return '%d' % int(value)
+            except ValueError:
+                return u"'%s'" % value
+        if isinstance(column.type, Boolean) and value in ['true', 'false']:
+            return value
+        if isinstance(column.type, Float):
+            try:
+                return '%f' % float(value)
+            except ValueError:
+                pass
+        if isinstance(column.type, Integer):
+            try:
+                return '%d' % int(value)
+            except ValueError:
+                pass
+        return u"'%s'" % value.replace('%', '%%')
 
     def escape_keyword(self, keyword):
         if keyword in ['user', 'select']:

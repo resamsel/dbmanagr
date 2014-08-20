@@ -88,7 +88,7 @@ class Table(BaseItem):
             from ..model import databaseconnection
             return [Row(self.connection,
                 self,
-                databaseconnection.Row({'title': str(e), 'subtitle': 'Check comment on table %s' % self.name}))]
+                databaseconnection.DatabaseRow({'title': str(e), 'subtitle': 'Check comment on table %s' % self.name}))]
 
         def t(row): return Row(self.connection, self, row)
 

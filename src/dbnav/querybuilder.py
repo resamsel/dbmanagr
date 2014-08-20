@@ -245,12 +245,12 @@ class QueryBuilder:
                 if self.filter.operator:
                     name = self.filter.lhs
                     value = self.filter.rhs
-                    logger.debug('name=%s, comment.columns=%s', name, comment.columns)
+                    logger.debug('name=%s, value=%s', name, value)
                     where = self.connection.restriction(self.alias, self.table.column(name), operator, value)
             elif comment.search:
-                f = self.filter.rhs.replace('%', '%%')
+                f = self.filter.rhs
                 if f == '' and self.filter.operator == '*':
-                    f = '%%'
+                    f = '%'
                 conjunctions = []
                 for search_field in comment.search:
                     def col(alias, field):

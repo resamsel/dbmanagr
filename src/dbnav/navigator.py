@@ -16,20 +16,12 @@ IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
 IMAGE_TABLE = 'images/table.png'
 
-OPTION_URI_TABLES_FORMAT = '%s%s/'
-OPTION_URI_ROW_FORMAT = '%s%s/%s'
-
 logger = logging.getLogger(__name__)
 
 def strip(s):
     if type(s) == str:
         return s.strip()
     return s
-
-def tostring(key):
-    if isinstance(key, unicode):
-        return key.encode('ascii', errors='ignore')
-    return key
 
 parser = argparse.ArgumentParser(prog='dbnav')
 parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table/filter/; for SQLite: databasefile.db/table/filter/""", nargs='?')

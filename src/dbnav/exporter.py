@@ -13,8 +13,9 @@ from .writer import Writer, StdoutWriter
 from .sources import Source
 from .logger import logger, logduration
 from dbnav.querybuilder import QueryFilter
+from dbnav.model.databaseconnection import values
 
-parser = argparse.ArgumentParser(prog='dbexp')
+parser = argparse.ArgumentParser(prog='dbexport')
 parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value""")
 parser.add_argument('-i', '--include', help='Include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
@@ -59,7 +60,10 @@ def create_items(items, include, exclude):
             break
     for fk in includes.keys():
         table = fk.b.table
-        result += create_items(table.rows(QueryFilter(fk.b.name, 'in', includes[fk])), remove_prefix(fk.a.name, include), remove_prefix(fk.a.name, exclude))
+        result += create_items(
+            table.rows(QueryFilter(fk.b.name, 'in', includes[fk])),
+            remove_prefix(fk.a.name, include),
+            remove_prefix(fk.a.name, exclude))
     return result + [create_item(item, exclude) for item in items]
 
 def remove_prefix(prefix, list):
@@ -81,7 +85,15 @@ class DatabaseExporter:
             if ((opts.show == 'values'
                 or opts.show == 'columns' and opts.filter != None)
                 and connection.matches(opts)):
-                return create_items(connection.proceed(opts, auto_close=False), opts.include, opts.exclude)
+                try:
+                    connection.connect(opts.database)
+                    table = connection.tables()[opts.table]
+                    return create_items(
+                        table.rows(QueryFilter(opts.column, opts.operator, opts.filter)),
+                        opts.include,
+                        opts.exclude)
+                finally:
+                    connection.close()
 
         raise Exception('Specify the complete URI to a table')
 

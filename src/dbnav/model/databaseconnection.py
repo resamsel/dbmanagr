@@ -10,9 +10,20 @@ from sqlalchemy.engine import reflection
 from ..logger import *
 from ..querybuilder import QueryBuilder, QueryFilter
 from .column import *
+from dbnav.item import VALID, INVALID
 from .baseitem import BaseItem
+from dbnav.model.row import Row
+from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
 
 logger = logging.getLogger(__name__)
+
+OPTION_URI_TABLES_FORMAT = '%s%s/'
+OPTION_URI_ROW_FORMAT = '%s%s/%s'
+
+def tostring(key):
+    if isinstance(key, unicode):
+        return key.encode('ascii', errors='ignore')
+    return key
 
 def values(connection, table, filter):
     """Creates row values according to the given filter"""
@@ -20,7 +31,12 @@ def values(connection, table, filter):
     logger.debug('values(connection=%s, table=%s, filter=%s)', connection, table, filter)
 
     foreign_keys = table.fks
-    query = QueryBuilder(connection, table, filter=QueryFilter(filter.column, filter.operator, filter.filter), order=[], limit=1).build()
+    query = QueryBuilder(connection,
+                table,
+                filter=QueryFilter(filter.column, filter.operator, filter.filter),
+                order=[],
+                limit=1,
+                artificial_projection=filter.artificial_projection).build()
     result = connection.execute(query, 'Values')
         
     row = Row(connection, table, result.fetchone())
@@ -68,17 +84,16 @@ def values(connection, table, filter):
 
     return values
 
-class Row:
+class DatabaseRow:
     columns = {'id': 1, 'title': 'Title', 'subtitle': 'Subtitle', 'column_name': 'column', 0: '0', 1: '1', 'column': 'col'}
     def __init__(self, *args):
+        self.columns = DatabaseRow.columns.copy()
         if len(args) > 0:
-            self.columns = args[0]
+            self.columns.update(args[0])
             if 'id' not in self.columns:
                 self.columns['id'] = 0
-        else:
-            self.columns = Row.columns.copy()
     def __getitem__(self, i):
-        logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
+        logger.debug('DatabaseRow.__getitem__(%s: %s)', str(i), type(i))
         if i == None:
             return None
         return self.columns[i]
@@ -89,9 +104,9 @@ class Cursor:
     def execute(self, query):
         pass
     def fetchone(self):
-        return Row()
+        return DatabaseRow()
     def fetchall(self):
-        return [Row()]
+        return [DatabaseRow()]
 
 class DatabaseConnection(BaseItem):
     def __init__(self, *args):
@@ -119,7 +134,7 @@ class DatabaseConnection(BaseItem):
     def matches(self, options):
         return options.arg in self.title()
 
-    def proceed(self, options, auto_close=True):
+    def proceed(self, options):
         if options.show == 'connections':
             # print this connection
             return [self]
@@ -151,8 +166,7 @@ class DatabaseConnection(BaseItem):
             if options.show == 'values':
                 return values(self, table, options)
         finally:
-            if auto_close:
-                self.close()
+            self.close()
 
     def connect(self, database):
         pass
@@ -210,7 +224,7 @@ class DatabaseConnection(BaseItem):
         cols = self.inspector.get_columns(table.name)
         pks = [pk for pk in self.inspector.get_pk_constraint(table.name)['constrained_columns']]
         
-        logger.debug('Columns for %s: %s', table, cols)
+        logger.debug('Columns for %s: %s', table, [c['name'] for c in cols])
         return [Column(table, col['name'], [col['name']] == pks, col['type']) for col in cols]
 
     def restriction(self, alias, column, operator, value):
