@@ -31,6 +31,7 @@ group.add_argument('-s', '--simple', help='use simple writer', action='store_tru
 group.add_argument('-j', '--json', help='use JSON writer', action='store_true')
 group.add_argument('-x', '--xml', help='use XML writer', action='store_true')
 group.add_argument('-a', '--autocomplete', help='use autocomplete writer', action='store_true')
+parser.add_argument('-m', '--limit', type=int, default=50, help='Limit the results of the main query to this amount of rows')
 parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
 parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 

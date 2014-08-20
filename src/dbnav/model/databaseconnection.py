@@ -8,7 +8,7 @@ from sqlalchemy import *
 from sqlalchemy.engine import reflection
 
 from ..logger import *
-from ..querybuilder import QueryBuilder, QueryFilter
+from ..querybuilder import QueryBuilder
 from .column import *
 from dbnav.item import VALID, INVALID
 from .baseitem import BaseItem
@@ -33,7 +33,7 @@ def values(connection, table, filter):
     foreign_keys = table.fks
     query = QueryBuilder(connection,
                 table,
-                filter=QueryFilter(filter.column, filter.operator, filter.filter),
+                filter=filter.filter,
                 order=[],
                 limit=1,
                 artificial_projection=filter.artificial_projection).build()
@@ -158,10 +158,16 @@ class DatabaseConnection(BaseItem):
 
             table = self.tables()[options.table]
             if options.show == 'columns':
-                if options.filter == None:
-                    return sorted(table.columns(self, options.column), key=lambda c: c.name.lower())
+                logger.debug('columns, check filter=%s', options.filter)
+                if len(options.filter) == 1 and options.filter[0].rhs == None:
+                    return sorted(table.columns(self, options.filter[0].lhs), key=lambda c: c.name.lower())
                 else:
-                    return sorted(table.rows(QueryFilter(options.column, options.operator, options.filter), artificial_projection=options.artificial_projection), key=lambda r: r[0])
+                    return sorted(
+                        table.rows(
+                            options.filter,
+                            limit=options.limit,
+                            artificial_projection=options.artificial_projection),
+                        key=lambda r: r[0])
             
             if options.show == 'values':
                 return values(self, table, options)

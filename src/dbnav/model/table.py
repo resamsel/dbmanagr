@@ -66,14 +66,14 @@ class Table(BaseItem):
 
         return None
 
-    def rows(self, filter, artificial_projection=False):
+    def rows(self, filter=[], limit=DEFAULT_LIMIT, artificial_projection=False):
         """Retrieves rows from the table with the given filter applied"""
         
         query = QueryBuilder(self.connection,
             self,
             filter=filter,
             order=self.comment.order,
-            limit=DEFAULT_LIMIT,
+            limit=limit,
             artificial_projection=artificial_projection).build()
 
         try:

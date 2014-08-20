@@ -6,6 +6,10 @@ import logging
 
 from dbnav.writer import *
 from dbnav.item import *
+from dbnav.querybuilder import QueryFilter
+
+AND_OPERATOR = '&'
+OPERATORS = ['>=','<=','=','~','*','>','<']
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +20,28 @@ def parse_loglevel(level):
         Writer.write([Item(str(e), type(e), '', 'no', '')])
         sys.exit()
     return numeric_level
+
+def parse_filter(s):
+    filter = []
+    for term in s.split(AND_OPERATOR):
+        found = False
+        for operator in OPERATORS:
+            if operator in term:
+                f = term.split(operator, 1)
+                lhs = f[0]
+                rhs = f[1] if len(f) > 1 else None
+                filter.append(QueryFilter(lhs, operator, rhs))
+                found = True
+                break
+        if not found:
+            filter.append(QueryFilter(term))
+    return filter
+
+class Filter:
+    def __init__(self, lhs, operator, rhs=None):
+        self.lhs = lhs
+        self.operator = operator
+        self.rhs = rhs
 
 class Options:
     parser = {}

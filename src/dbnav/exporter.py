@@ -19,6 +19,7 @@ parser = argparse.ArgumentParser(prog='dbexport')
 parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value""")
 parser.add_argument('-i', '--include', help='Include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
+parser.add_argument('-m', '--limit', type=int, default=50, help='Limit the results of the main query to this amount of rows')
 parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
 parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
@@ -61,7 +62,7 @@ def create_items(items, include, exclude):
     for fk in includes.keys():
         table = fk.b.table
         result += create_items(
-            table.rows(QueryFilter(fk.b.name, 'in', includes[fk])),
+            table.rows([QueryFilter(fk.b.name, 'in', includes[fk])], limit=-1),
             remove_prefix(fk.a.name, include),
             remove_prefix(fk.a.name, exclude))
     return result + [create_item(item, exclude) for item in items]
@@ -89,7 +90,7 @@ class DatabaseExporter:
                     connection.connect(opts.database)
                     table = connection.tables()[opts.table]
                     return create_items(
-                        table.rows(QueryFilter(opts.column, opts.operator, opts.filter)),
+                        table.rows(opts.filter, opts.limit),
                         opts.include,
                         opts.exclude)
                 finally:
