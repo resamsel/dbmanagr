@@ -43,9 +43,12 @@ class Options:
 
         args = parser.parse_args(argv[1:])
 
-        if args.loglevel: args.loglevel = parse_loglevel(args.loglevel)
-        if hasattr(args, 'include'): args.include = args.include.split(',')
-        if hasattr(args, 'exclude'): args.exclude = args.exclude.split(',')
+        if args.loglevel:
+            args.loglevel = parse_loglevel(args.loglevel)
+        if hasattr(args, 'include'):
+            args.include = args.include.split(',') if args.include else []
+        if hasattr(args, 'exclude'):
+            args.exclude = args.exclude.split(',') if args.exclude else []
 
         self.__dict__.update(args.__dict__)
         

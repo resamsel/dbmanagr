@@ -7,6 +7,7 @@ import logging
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
 from os.path import expanduser
+from datetime import datetime
 
 from ..model.databaseconnection import *
 from ..model.database import *
@@ -193,17 +194,21 @@ class PostgreSQLConnection(DatabaseConnection):
         return ' '.join([lhs, operator, rhs])
 
     def format_value(self, column, value):
+        logger.debug('format_value(column=%s, value=%s: %s)', column, value, type(value))
+
         if value == None:
             return 'null'
         if type(value) is list:
             return '({0})'.format(','.join([self.format_value(column, v) for v in value]))
+        if type(value) is datetime:
+            return "'%s'" % value
         if column is None:
             try:
                 return '%d' % int(value)
             except ValueError:
                 return u"'%s'" % value
-        if isinstance(column.type, Boolean) and value in ['true', 'false']:
-            return value
+        if isinstance(column.type, Boolean) and (type(value) is bool or value in ['true', 'false']):
+            return '%s' % str(value).lower()
         if isinstance(column.type, Float):
             try:
                 return '%f' % float(value)
