@@ -27,14 +27,24 @@ def create_fks(table, include, exclude, indent=0):
     
     result = []
     includes = {}
-    for key, fk in table.fks.iteritems():
-        result.append(FkHolder(fk, table, indent))
-        if include:
+    table.init_columns(table.connection)
+    for col in table.cols:
+        fk = table.foreign_key(col.name)
+        result.append(Node(col.name, table, fk, indent))
+        if fk and include:
             for i in set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in include]):
                 logger.debug('include table=%s, fk.a.table=%s, include=%s', table.name, fk.a.table.name, i)
-                if fk.a.table.name == i:
-                    result += create_fks(fk.a.table, remove_prefix(i, include), remove_prefix(i, exclude), indent+1)
-
+                if fk.a.name == i:
+                    result += create_fks(fk.b.table, remove_prefix(i, include), remove_prefix(i, exclude), indent+1)
+    for key, fk in table.fks.iteritems():
+        if fk.b.table.name == table.name:
+            result.append(Node(col.name, table, fk, indent))
+            if include:
+                for i in set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in include]):
+                    logger.debug('include table=%s, fk.a.table=%s, include=%s', table.name, fk.a.table.name, i)
+                    if fk.a.table.name == i:
+                        result += create_fks(fk.a.table, remove_prefix(i, include), remove_prefix(i, exclude), indent+1)
+    
     return result
         
 
@@ -42,18 +52,24 @@ def remove_prefix(prefix, list):
     p = '%s.' % prefix
     return [re.sub('^%s' % p, '', i) for i in list if i.startswith(p)]
 
-class FkHolder:
-    def __init__(self, fk, table, indent):
+class Node:
+    def __init__(self, name, parent=None, fk=None, indent=0):
+        self.__dict__['name'] = name
+        self.parent = parent
         self.fk = fk
-        self.table = table
         self.indent = indent
     def __getattr__(self, name):
         return getattr(self.fk, name)
-    def __repr__(self):
+    def __str__(self):
         indent = '  '*self.indent
-        if self.fk.a.table.name == self.table.name:
-            return '{0}- {1} -> {2}'.format(indent, self.fk.a.name, self.fk.b)
-        return '{0}+ {1} ({2} -> {3})'.format(indent, self.fk.a.table.name, self.fk.a.name, self.fk.b.name)
+        if self.fk:
+            if self.fk.a.table.name == self.parent.name:
+                return '{0}+ {1} -> {2}'.format(indent,
+                    self.fk.a.name,
+                    self.fk.b)
+            return '{0}+ {1} ({2} -> {3})'.format(indent,
+                self.fk.a.table.name, self.fk.a.name, self.fk.b.name)
+        return '{0}- {1}'.format(indent, self.__dict__['name'])
 
 class DatabaseGrapher:
     """The main class"""

@@ -97,6 +97,11 @@ class Table(BaseItem):
     def foreign_keys(self):
         return self.fks
 
+    def foreign_key(self, name):
+        if name in self.fks:
+            return self.fks[name]
+        return None
+
     def title(self):
         return self.name
 
