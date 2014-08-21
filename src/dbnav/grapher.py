@@ -23,34 +23,42 @@ parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the
 parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
 def create_fks(table, include, exclude, indent=0):
+    """Collects columns of that table and foreign keys that point to it"""
+
     logger.debug('create_fks(table=%s, include=%s, exclude=%s)', table, include, exclude)
     
     result = []
-    includes = {}
     table.init_columns(table.connection)
-    for col in table.cols:
+
+    # Collects the columns
+    for col in filter(lambda col: col.name not in exclude, table.cols):
         fk = table.foreign_key(col.name)
         result.append(Node(col.name, table, fk, indent))
-        if fk and include:
-            for i in set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in include]):
-                logger.debug('include table=%s, fk.a.table=%s, include=%s', table.name, fk.a.table.name, i)
-                if fk.a.name == i:
-                    result += create_fks(fk.b.table, remove_prefix(i, include), remove_prefix(i, exclude), indent+1)
-    for key, fk in table.fks.iteritems():
-        if fk.b.table.name == table.name:
-            result.append(Node(col.name, table, fk, indent))
-            if include:
-                for i in set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in include]):
-                    logger.debug('include table=%s, fk.a.table=%s, include=%s', table.name, fk.a.table.name, i)
-                    if fk.a.table.name == i:
-                        result += create_fks(fk.a.table, remove_prefix(i, include), remove_prefix(i, exclude), indent+1)
+        for i in filter(lambda name: fk and fk.a.name == name, prefixes(include)):
+            result += create_fks(fk.b.table,
+                remove_prefix(i, include),
+                remove_prefix(i, exclude),
+                indent + 1)
+
+    # Collects foreign keys that point to this table
+    for key, fk in filter(
+            lambda (key, fk): fk.b.table.name == table.name and fk.a.table.name not in exclude,
+            table.fks.iteritems()):
+        result.append(Node(col.name, table, fk, indent))
+        for i in filter(lambda name: fk.a.table.name == name, prefixes(include)):
+            result += create_fks(fk.a.table,
+                remove_prefix(col.name, include),
+                remove_prefix(col.name, exclude),
+                indent + 1)
     
     return result
-        
 
-def remove_prefix(prefix, list):
+def prefixes(items):
+    return set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in items])
+
+def remove_prefix(prefix, items):
     p = '%s.' % prefix
-    return [re.sub('^%s' % p, '', i) for i in list if i.startswith(p)]
+    return [re.sub('^%s' % p, '', i) for i in items if i.startswith(p)]
 
 class Node:
     def __init__(self, name, parent=None, fk=None, indent=0):
