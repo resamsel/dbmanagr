@@ -7,6 +7,7 @@ import sys
 import argparse
 import re
 
+from collections import deque
 from .config import Config
 from .item import Item, INVALID
 from .writer import Writer, StdoutWriter
@@ -128,13 +129,13 @@ def bfs(start, consumed=[], include=[], exclude=[], indent=0, opts=None):
     found = True
     while found:
         found = False
-        tail = list(head)
+        tail = deque(head)
         head = []
 
 #        logger.debug('found=%s, tail=%s, consumed=%s, indent=%d', found, tail, consumed, indent)
 
         while tail:
-            node = tail.pop(0)
+            node = tail.popleft()
 
             if isinstance(node, Table):
                 table = node
@@ -186,7 +187,7 @@ class DatabaseGrapher:
         # search exact match of connection
         for connection in cons:
             opts = options.get(connection.driver)
-            if opts.show in ['tables', 'columns', 'values'] and connection.matches(opts):
+            if connection.matches(opts) and opts.show in ['tables', 'columns', 'values']:
                 try:
                     connection.connect(opts.database)
                     tables = connection.tables()
