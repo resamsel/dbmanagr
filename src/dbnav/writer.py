@@ -14,9 +14,6 @@ def html_escape(s):
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s
 
-def stdout_escape(s):
-    return s
-
 class DefaultWriter:
     def write(self, items):
         if not items:
@@ -29,47 +26,12 @@ class DefaultWriter:
     def itemtostring(self, item):
         return str(item)
 
-class XmlWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""<items>
-{0}</items>"""
-    ITEM_FORMAT = u"""   <item uid="{uid}" arg="{value}" autocomplete="{autocomplete}" valid="{valid}">
-        <title>{title}</title>
-        <subtitle>{subtitle}</subtitle>
-        <icon>{icon}</icon>
-    </item>
-"""
-    def str(self, items):
-        s = ''.join([self.itemtostring(i) for i in items])
-        return XmlWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return XmlWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
-
-
-class JsonWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""{{
-{0}}}"""
-    ITEM_FORMAT = u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}
-"""
-    def str(self, items):
-        s = ''.join([self.itemtostring(i) for i in items])
-        return JsonWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return JsonWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
-
-class SimpleWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""Id\tTitle\tSubtitle\tAutocomplete
-{0}"""
-    ITEM_FORMAT = u"""{uid}\t{title}\t{subtitle}\t{autocomplete}
-"""
-    def str(self, items):
-        s = u''.join([self.itemtostring(i) for i in items])
-        return SimpleWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return SimpleWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
-
 class StdoutWriter(DefaultWriter):
-    def __init__(self, items_format=u"""Title\tSubtitle\tAutocomplete
-{0}""", item_format=u"""{title}\t{subtitle}\t{autocomplete}""", item_separator=u"""
+    def __init__(self,
+            items_format=u"""Title\tSubtitle\tAutocomplete
+{0}""",
+            item_format=u"""{title}\t{subtitle}\t{autocomplete}""",
+            item_separator=u"""
 """):
         self.items_format = items_format
         self.item_format = item_format
@@ -78,17 +40,37 @@ class StdoutWriter(DefaultWriter):
         s = self.item_separator.join([self.itemtostring(i) for i in items])
         return self.items_format.format(s)
     def itemtostring(self, item):
-        return self.item_format.format(item=str(item), **item.escaped(stdout_escape))
+        return self.item_format.format(item=str(item), **item.__dict__)
 
-class AutocompleteWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""{0}"""
-    ITEM_FORMAT = u"""{autocomplete}
-"""
-    def str(self, items):
-        s = u''.join([self.itemtostring(i) for i in items])
-        return AutocompleteWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return AutocompleteWriter.ITEM_FORMAT.format(item=item, **item.escaped(html_escape))
+class AutocompleteWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self, u'{0}', u'{autocomplete}')
+
+class SimpleWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self,
+            u"""Id\tTitle\tSubtitle\tAutocomplete
+{0}""",
+            u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""")
+
+class JsonWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self,
+            u"""{{
+{0}}}""",
+            u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""")
+
+class XmlWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self,
+            u"""<items>
+{0}
+</items>""",
+            u"""   <item uid="{uid}" arg="{value}" autocomplete="{autocomplete}" valid="{valid}">
+        <title>{title}</title>
+        <subtitle>{subtitle}</subtitle>
+        <icon>{icon}</icon>
+    </item>""")
 
 class StringWriter(SimpleWriter):
     def write(self, items):
