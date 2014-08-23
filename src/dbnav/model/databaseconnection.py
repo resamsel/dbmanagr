@@ -230,8 +230,7 @@ class DatabaseConnection(BaseItem):
         cols = self.inspector.get_columns(table.name)
         pks = [pk for pk in self.inspector.get_pk_constraint(table.name)['constrained_columns']]
         
-        logger.debug('Columns for %s: %s', table, [c['name'] for c in cols])
-        return [Column(table, col['name'], [col['name']] == pks, col['type']) for col in cols]
+        return [Column(table, col['name'], [col['name']] == pks, col['type'], col['nullable']) for col in cols]
 
     def restriction(self, alias, column, operator, value):
         return "{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))

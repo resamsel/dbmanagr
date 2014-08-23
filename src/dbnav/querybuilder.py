@@ -31,6 +31,7 @@ OR_SEPARATOR = """
         or """
 OPERATORS = {
     '=': '=',
+    '!=': '!=',
     '~': 'like',
     '*': 'like',
     '>': '>',
@@ -90,7 +91,6 @@ class Comment:
             if c.primary_key:
                 table.primary_key = c.name
                 break
-        logger.debug("Primary key of table %s: %s", table.name, table.primary_key)
 
         if not comment.id and table.primary_key:
             comment.id = '{0}.%s' % table.primary_key
@@ -152,7 +152,6 @@ class Comment:
 
         # find specially named columns (but is not an integer - integers are no good names)
         for c in columns:
-            logger.debug('Column %s', c.name)
             for name in ['name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment']:
                 if c.name == name:
                     if not isinstance(c.type, Integer):
@@ -205,10 +204,8 @@ class QueryBuilder:
         self.artificial_projection = artificial_projection
 
         self.alias = '_%s' % self.table.name
-        logger.debug("QueryBuilder: order=%s, self=%s", order, self.__dict__)
 
     def build(self):
-        logger.debug("QueryBuilder: %s", self.__dict__)
         foreign_keys = self.table.foreign_keys()
         where = '1=1'
         order = self.order

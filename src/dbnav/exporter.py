@@ -12,6 +12,7 @@ from .item import Item, INVALID
 from .writer import Writer, StdoutWriter
 from .sources import Source
 from .logger import logger, logduration
+from dbnav.utils import remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
 
@@ -35,41 +36,64 @@ def create_item(row, exclude):
     return Item('', u'insert into {table} ({columns}) values ({values});'.format(table=table.connection.escape_keyword(table.name), columns=create_columns(row, exclude), values=create_values(row, exclude)), '', '', '', '')
 
 def create_items(items, include, exclude):
-    logger.debug('create_items(items=%s)', items)
+    logger.debug('create_items(items=%s, include=%s, exclude=%s)', items, include, exclude)
 
-    result = []
+    results_pre = []
+    results_post = []
     includes = {}
-    if include:
-        for item in items:
-            for i in include:
-                c = re.sub('([^\\.]*)\\..*', '\\1', i)
-                col = item.table.column(c)
-                if not col:
-                    raise Exception("Include column '{0}' does not exist in table '{1}'".format(i, item.table.name))
+    for item in items:
+        for i in include:
+            c = re.sub('([^\\.]*)\\..*', '\\1', i)
+            fk = None
+            for key, val in item.table.fks.iteritems():
+                if val.a.table.name == c:
+                    fk = val
+                    break
+            col = item.table.column(c)
+            if not col and not fk:
+                raise Exception("Include column '{0}' or foreign key '{0}' does not exist in table '{1}'".format(i, item.table.name))
+            if fk:
+                fk.a.table.connection = item.table.connection
+                if fk not in includes:
+                    includes[fk] = []
+                includes[fk].append(item[fk.b.name])
+            if col:
                 fk = item.table.fks[col.name]
                 fk.b.table.connection = item.table.connection
                 if fk not in includes:
                     includes[fk] = []
-                includes[fk].append(item[col.name])
+                includes[fk].append(item[fk.a.name])
     if exclude:
         for item in items:
             for x in exclude:
                 c = re.sub('([^\\.]*)\\..*', '\\1', x)
-                if not item.table.column(c):
-                    raise Exception("Exclude column '{0}' does not exist in table '{1}'".format(c, item.table.name))
+                for key, val in item.table.fks.iteritems():
+                    if val.a.table.name == c:
+                        fk = val
+                        break
+                col = item.table.column(c)
+                if not col and not fk:
+                    raise Exception("Exclude column '{0}' or foreign key '{0}' does not exist in table '{1}'".format(i, item.table.name))
             # only check first item, as we expect all items are from the same table
             break
     for fk in includes.keys():
-        table = fk.b.table
-        result += create_items(
-            table.rows([QueryFilter(fk.b.name, 'in', includes[fk])], limit=-1),
-            remove_prefix(fk.a.name, include),
-            remove_prefix(fk.a.name, exclude))
-    return result + [create_item(item, exclude) for item in items]
+        if fk.a.table.name == item.table.name:
+            # forward references, must be in pre
+            results_pre += create_items(
+                fk.b.table.rows([QueryFilter(fk.b.name, 'in', includes[fk])], limit=-1),
+                remove_prefix(fk.a.name, include),
+                remove_prefix(fk.a.name, exclude))
+        else:
+            # backward reference, must be in post
+            results_post += create_items(
+                fk.a.table.rows([QueryFilter(fk.a.name, 'in', includes[fk])], limit=-1),
+                remove_prefix(fk.a.table.name, include),
+                remove_prefix(fk.a.table.name, exclude))
+            
+    return results_pre + [create_item(item, exclude) for item in items] + results_post
 
-def remove_prefix(prefix, list):
-    p = '%s.' % prefix
-    return [re.sub('^%s' % p, '', i) for i in list if i.startswith(p)]
+def prefix(s):
+    return re.sub('([^\\.]*)\\..*', '\\1', s)
 
 class DatabaseExporter:
     """The main class"""
@@ -99,7 +123,7 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 def main():
-    Writer.set(StdoutWriter(u'{0}', u'{title}\n'))
+    Writer.set(StdoutWriter(u'{0}', u'{title}'))
     Writer.write(run(sys.argv))
 
 def run(argv):

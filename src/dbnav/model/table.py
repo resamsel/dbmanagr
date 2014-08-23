@@ -112,3 +112,7 @@ class Table(BaseItem):
 
     def icon(self):
         return 'images/table.png'
+    
+    def escaped(self, f):
+        return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
+    

@@ -9,11 +9,12 @@ logger = logging.getLogger(__name__)
 class Column(BaseItem):
     """A table column"""
 
-    def __init__(self, table, name, primary_key=False, type=None):
+    def __init__(self, table, name, primary_key=False, type=None, nullable=None):
         self.table = table
         self.name = name
         self.primary_key = primary_key
         self.type = type
+        self.nullable = nullable
 
         #logger.debug('Column: %s', self.__dict__)
 

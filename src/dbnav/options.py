@@ -9,7 +9,7 @@ from dbnav.item import *
 from dbnav.querybuilder import QueryFilter
 
 AND_OPERATOR = '&'
-OPERATORS = ['>=','<=','=','~','*','>','<']
+OPERATORS = ['>=','<=','!=','=','~','*','>','<']
 
 logger = logging.getLogger(__name__)
 

@@ -35,12 +35,15 @@ FOREIGN_KEY_QUERY = """
 select
         tc.table_name,
         kcu.column_name,
+        case c.is_nullable when 'YES' then true else false end column_nullable,
         ccu.table_name foreign_table_name,
-        ccu.column_name foreign_column_name
+        ccu.column_name foreign_column_name,
+        false foreign_column_nullable
     from
         information_schema.table_constraints tc
         join information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name
         join information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name
+        join information_schema.columns c on (c.table_name = tc.table_name and c.column_name = kcu.column_name)
     where
         constraint_type = 'FOREIGN KEY'
 """
@@ -172,8 +175,8 @@ class PostgreSQLConnection(DatabaseConnection):
         result = self.execute(FOREIGN_KEY_QUERY, 'Foreign Keys')
 
         for row in result:
-            a = Column(self.tbls[row['table_name'].encode('ascii')], row['column_name'])
-            b = Column(self.tbls[row['foreign_table_name'].encode('ascii')], row['foreign_column_name'])
+            a = Column(self.tbls[row['table_name'].encode('ascii')], row['column_name'], nullable=row['column_nullable'])
+            b = Column(self.tbls[row['foreign_table_name'].encode('ascii')], row['foreign_column_name'], nullable=row['foreign_column_nullable'])
             fk = ForeignKey(a, b)
             self.tbls[a.table.name].fks[a.name] = fk
             self.tbls[b.table.name].fks[str(a)] = fk
@@ -194,7 +197,7 @@ class PostgreSQLConnection(DatabaseConnection):
         return ' '.join([lhs, operator, rhs])
 
     def format_value(self, column, value):
-        logger.debug('format_value(column=%s, value=%s: %s)', column, value, type(value))
+        #logger.debug('format_value(column=%s, value=%s: %s)', column, value, type(value))
 
         if value == None:
             return 'null'

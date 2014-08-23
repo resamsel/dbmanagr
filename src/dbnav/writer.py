@@ -69,15 +69,16 @@ class SimpleWriter(DefaultWriter):
 
 class StdoutWriter(DefaultWriter):
     def __init__(self, items_format=u"""Title\tSubtitle\tAutocomplete
-{0}""", item_format=u"""{title}\t{subtitle}\t{autocomplete}
+{0}""", item_format=u"""{title}\t{subtitle}\t{autocomplete}""", item_separator=u"""
 """):
         self.items_format = items_format
         self.item_format = item_format
+        self.item_separator = item_separator
     def str(self, items):
-        s = u''.join([self.itemtostring(i) for i in items])
+        s = self.item_separator.join([self.itemtostring(i) for i in items])
         return self.items_format.format(s)
     def itemtostring(self, item):
-        return self.item_format.format(**item.escaped(stdout_escape))
+        return self.item_format.format(item=str(item), **item.escaped(stdout_escape))
 
 class AutocompleteWriter(DefaultWriter):
     ITEMS_FORMAT = u"""{0}"""
@@ -87,7 +88,7 @@ class AutocompleteWriter(DefaultWriter):
         s = u''.join([self.itemtostring(i) for i in items])
         return AutocompleteWriter.ITEMS_FORMAT.format(s)
     def itemtostring(self, item):
-        return AutocompleteWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
+        return AutocompleteWriter.ITEM_FORMAT.format(item=item, **item.escaped(html_escape))
 
 class StringWriter(SimpleWriter):
     def write(self, items):
