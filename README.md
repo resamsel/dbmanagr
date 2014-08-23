@@ -26,7 +26,35 @@ Allows you to explore, visualise and export your database. Additionally allows t
 * Configuration of what is shown based on table comments (currently PostgreSQL only)
 
 ### Usage
-Open the Alfred query window. The keyword is *select*.
+Open the Alfred query window. The keyword is *dbnav*.
+
+```
+usage: dbnav [-h] [-d | -s | -j | -x | -a] [-m LIMIT] [-f LOGFILE]
+             [-l LOGLEVEL]
+             [uri]
+
+positional arguments:
+  uri                   The URI to parse. Format for PostgreSQL:
+                        user@host/database/table/filter/; for SQLite:
+                        databasefile.db/table/filter/
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --default         use default writer
+  -s, --simple          use simple writer
+  -j, --json            use JSON writer
+  -x, --xml             use XML writer
+  -a, --autocomplete    use autocomplete writer
+  -m LIMIT, --limit LIMIT
+                        Limit the results of the main query to this amount of
+                        rows
+  -f LOGFILE, --logfile LOGFILE
+                        the file to log to
+  -l LOGLEVEL, --loglevel LOGLEVEL
+                        the minimum level to log
+```
+
+### Examples
 
 #### Show Available Connections
 `dbnav`
@@ -57,8 +85,9 @@ The tilde (~) will be translated to the *like* operator in SQL. Use the percent 
 `dbnav myuser@myhost/mydatabase/mytable/id=23/`
 
 ## Database Visualisation
+Visualises the dependencies of a table using its foreign key references (forward and back references).
+
 ### Features
-* Visualises the dependencies of a tables using foreign keys (forward and back references)
 * Optionally display columns as well as references
 * Highlights primary keys (*) and optional columns (?)
 * Optionally include or exclude columns/dependencies from the graph
@@ -67,7 +96,38 @@ The tilde (~) will be translated to the *like* operator in SQL. Use the percent 
 * Uses the same configuration and URI patterns as the Database Navigator
 
 ### Usage
-The command for the Database Visualisation is `dbgraph`.
+```
+usage: dbgraph [-h] [-d | -g] [-c] [-r | -i INCLUDE] [-x EXCLUDE] [-f LOGFILE]
+               [-l LOGLEVEL]
+               uri
+
+positional arguments:
+  uri                   The URI to parse. Format for PostgreSQL:
+                        user@host/database/table; for SQLite:
+                        databasefile.db/table
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --default         Output format: human readable hierarchical text
+  -g, --graphviz        Output format: a Graphviz graph
+  -c, --include-columns
+                        Include columns in output (does not work with graphviz
+                        as output)
+  -r, --recursive       Include any forward/back reference to the starting
+                        table, recursing through all tables eventually
+  -i INCLUDE, --include INCLUDE
+                        Include the specified columns and their foreign rows,
+                        if any. Multiple columns can be specified by
+                        separating them with a comma (,)
+  -x EXCLUDE, --exclude EXCLUDE
+                        Exclude the specified columns
+  -f LOGFILE, --logfile LOGFILE
+                        The file to log to
+  -l LOGLEVEL, --loglevel LOGLEVEL
+                        The minimum level to log
+```
+
+### Examples
 
 #### Show references of table
 `dbgraph access@localhost/access/owner`
@@ -146,6 +206,44 @@ digraph dbgraph {
   permission -> sales_channel [xlabel="sales_channel_id -> id"];
   access_transaction -> permission [xlabel="permission_id -> id"];
 }
+```
+
+## Database Exporter
+Exports specific rows from the database along with their references rows from other tables.
+
+### Features
+* Exports the rows matching the given URI as SQL insert statements
+* Allows inclusion of referenced tables (forward and back references)
+* Allows exclusion of specific columns (useful if columns are optional, or cyclic references exist)
+* Takes into account the ordering of the statements (when table A references table B, then the referenced row from B must be inserted first)
+* Limits the number of returned rows of the main query (does not limit referenced rows)
+
+### Usage
+```
+usage: dbexport [-h] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT] [-f LOGFILE]
+                [-l LOGLEVEL]
+                uri
+
+positional arguments:
+  uri                   The URI to parse. Format for PostgreSQL:
+                        user@host/database/table/column=value; for SQLite:
+                        databasefile.db/table/column=value
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i INCLUDE, --include INCLUDE
+                        Include the specified columns and their foreign rows,
+                        if any. Multiple columns can be specified by
+                        separating them with a comma (,)
+  -x EXCLUDE, --exclude EXCLUDE
+                        Exclude the specified columns
+  -m LIMIT, --limit LIMIT
+                        Limit the results of the main query to this amount of
+                        rows
+  -f LOGFILE, --logfile LOGFILE
+                        the file to log to
+  -l LOGLEVEL, --loglevel LOGLEVEL
+                        the minimum level to log
 ```
 
 ## Installation
