@@ -1,55 +1,152 @@
-# Alfred Database Navigator
+# Database Navigator
 
-Allows you to explore your database using Alfred 2.0.
+Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
 ![Alfred Database Navigator Sample](https://github.com/resamsel/alfred-dbnavigator/raw/master/docs/images/select.png "Alfred Database Navigator Sample")
 
-## Features
+## Main Features
+* Database Navigation
+* Database Visualisation
+* Database Export
 * Supported databases: PostgreSQL, SQLite
 * Use database connection definitions from
   * the `~/.pgpass` configuration file (PGAdmin)
   * the `~/.dbexplorer/dbexplorer.cfg` configuration file (DBExplorer)
   * the Navicat configuration file (SQLite)
-* Shows databases of said connections
+## Database Navigator
+### Features
+* Shows databases of configured connections
 * Shows tables of databases
-* Shows columns of tables for filtering
-* Shows rows of tables with filtering (operators: =, ~)
+* Shows columns of tables for restricting rows
+* Shows rows of tables with multiple restrictions (operators: =, !=, >, <, >=, <=, like)
 * Shows detailed row information
 * Shows info of foreign table row (based on the foreign key)
-* Switch to the foreign table row
-* Shows foreign keys that point to the current table row
-* Configuration of what is shown based on table comments
+* Switch to the foreign table row (forward references)
+* Shows foreign keys that point to the current table row (back references)
+* Configuration of what is shown based on table comments (currently PostgreSQL only)
 
-## Usage
+### Usage
 Open the Alfred query window. The keyword is *select*.
 
-### Show Available Connections
+#### Show Available Connections
 `dbnav`
 
-### Show Databases of Connection
+#### Show Databases of Connection
 `dbnav myuser@myhost/`
 
-### Show Tables of Database
+#### Show Tables of Database
 `dbnav myuser@myhost/mydatabase/`
 
-### Show Columns of Table
+#### Show Columns of Table
 `dbnav myuser@myhost/mydatabase/mytable/`
 
-### Show Rows where Column equals Value
+#### Show Rows where Column equals Value
 `dbnav myuser@myhost/mydatabase/mytable/first_name=Herbert`
 
-### Show Rows where Column matches Pattern
+#### Show Rows where Column matches Pattern
 `dbnav myuser@myhost/mydatabase/mytable/first_name~%erber%`
 
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
-### Show Rows where any (Search) Column matches Pattern
+#### Show Rows where any (Search) Column matches Pattern
 `dbnav myuser@myhost/mydatabase/mytable/~%erber%`
 
 **Warning: this is a potentially slow query! See configuration for options to resolve this problem.**
 
-### Show Values of selected Row
+#### Show Values of selected Row
 `dbnav myuser@myhost/mydatabase/mytable/id=23/`
+
+## Database Visualisation
+### Features
+* Visualises the dependencies of a tables using foreign keys (forward and back references)
+* Optionally display columns as well as references
+* Highlights primary keys (*) and optional columns (?)
+* Optionally include or exclude columns/dependencies from the graph
+* Optionally enable recursive inclusion (outputs each table only once, so cycles are not an issue)
+* Ouput formats include hierarchical text and a Graphviz directed graph
+* Uses the same configuration and URI patterns as the Database Navigator
+
+### Usage
+The command for the Database Visualisation is `dbgraph`.
+
+#### Show references of table
+`dbgraph access@localhost/access/owner`
+
+```
+owner
++ permission_id -> permission.id
+```
+
+#### Show References and Columns
+`dbgraph -c access@localhost/access/owner`
+
+```
+owner
+- id*
+- version
+- created
++ permission_id -> permission.id
+- gender?
+- first_name?
+- last_name?
+- email?
+- street?
+- zip_code?
+- city?
+- country_code?
+```
+#### Show all References recursively
+`dbgraph -r access@localhost/access/owner`
+
+```
+owner
++ permission_id -> permission.id
+  + api_key_id -> api_key.id
+    + access_transaction (api_key_id -> id)
+    + sales_channel (api_key_id -> id)
+  + sales_channel_id -> sales_channel.id
+    + teaser_template_id? -> email_template.id
+  + access_transaction (permission_id -> id)
+    + device_id -> device.id
+    + permission_consumption (access_transaction_id -> id)
+```
+#### Show specific References
+`dbgraph -i permission_id.api_key_id access@localhost/access/owner`
+
+```
+owner
++ permission_id -> permission.id
+  + api_key_id -> api_key.id
+    + access_transaction (api_key_id -> id)
+    + sales_channel (api_key_id -> id)
+  + sales_channel_id -> sales_channel.id
+  + access_transaction (permission_id -> id)
+```
+
+#### Show specific References and exclude others
+`dbgraph -i permission_id.api_key_id -x permission_id.sales_channel_id access@localhost/access/owner`
+
+```
+owner
++ permission_id -> permission.id
+  + api_key_id -> api_key.id
+    + access_transaction (api_key_id -> id)
+    + sales_channel (api_key_id -> id)
+  + access_transaction (permission_id -> id)
+```
+
+#### Show specific References as Graphviz Graph
+`dbgraph -g -i permission_id access@localhost/access/owner`
+
+```
+digraph dbgraph {
+  root=owner;
+  owner -> permission [xlabel="permission_id -> id"];
+  permission -> api_key [xlabel="api_key_id -> id"];
+  permission -> sales_channel [xlabel="sales_channel_id -> id"];
+  access_transaction -> permission [xlabel="permission_id -> id"];
+}
+```
 
 ## Installation
 ```

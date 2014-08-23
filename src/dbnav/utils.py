@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
+
 def prefixes(items):
     return set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in items])
 

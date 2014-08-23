@@ -5,7 +5,6 @@ import logging
 import time
 import sys
 import argparse
-import re
 
 from collections import deque
 from .config import Config
