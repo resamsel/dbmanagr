@@ -32,15 +32,20 @@ class StdoutWriter(DefaultWriter):
 {0}""",
             item_format=u"""{title}\t{subtitle}\t{autocomplete}""",
             item_separator=u"""
-"""):
+""",
+            format_error_format=u'{0}'):
         self.items_format = items_format
         self.item_format = item_format
         self.item_separator = item_separator
+        self.format_error_format = format_error_format
     def str(self, items):
         s = self.item_separator.join([self.itemtostring(i) for i in items])
         return self.items_format.format(s)
     def itemtostring(self, item):
-        return self.item_format.format(item=str(item), **item.__dict__)
+        try:
+            return self.item_format.format(item=str(item), **item.__dict__)
+        except:
+            return self.format_error_format.format(item=item, **item.__dict__)
 
 class AutocompleteWriter(StdoutWriter):
     def __init__(self):

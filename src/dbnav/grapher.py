@@ -31,8 +31,10 @@ NULLABLE_OPTIONS = {
 
 DEFAULT_ITEMS_FORMAT = u'{0}'
 DEFAULT_ITEM_FORMAT = u'{item}'
-GRAPHVIZ_ITEMS_FORMAT = u"""digraph dbgraph {{{0}}}"""
-GRAPHVIZ_ITEM_FORMAT = u"""  {fk.a.table.name} -> {fk.b.table.name} [label="{fk.a.name} -> {fk.b.name}"];"""
+GRAPHVIZ_ITEMS_FORMAT = u"""digraph dbgraph {{
+{0}
+}}"""
+GRAPHVIZ_ITEM_FORMAT = u"""  {fk.a.table.name} -> {fk.b.table.name} [xlabel="{fk.a.name} -> {fk.b.name}"];"""
 
 parser = argparse.ArgumentParser(prog='dbgraph')
 parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table""")
@@ -194,7 +196,7 @@ class DatabaseGrapher:
                     if  opts.table not in tables:
                         raise Exception("Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
-                    return [table] + bfs(
+                    return [Node(Column(table, table.name))] + bfs(
                         table,
                         include=opts.include,
                         exclude=opts.exclude,
@@ -212,7 +214,7 @@ def run(argv):
     if options.default:
         Writer.set(StdoutWriter(DEFAULT_ITEMS_FORMAT, DEFAULT_ITEM_FORMAT))
     if options.graphviz:
-        Writer.set(StdoutWriter(GRAPHVIZ_ITEMS_FORMAT, GRAPHVIZ_ITEM_FORMAT))
+        Writer.set(StdoutWriter(GRAPHVIZ_ITEMS_FORMAT, GRAPHVIZ_ITEM_FORMAT, format_error_format=u'  root={item.column.name};'))
 
     try:
         nodes = DatabaseGrapher.export(options)
