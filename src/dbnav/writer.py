@@ -15,11 +15,13 @@ def html_escape(s):
     return s
 
 class DefaultWriter:
+    PRINT = True
     def write(self, items):
         if not items:
             items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
         s = self.str(items)
-        print s
+        if DefaultWriter.PRINT:
+            print s
         return s
     def str(self, items):
         return map(lambda item: self.itemtostring(item), items)
@@ -38,8 +40,10 @@ class StdoutWriter(DefaultWriter):
         self.item_format = item_format
         self.item_separator = item_separator
         self.format_error_format = format_error_format
+    def filter(self, items):
+        return items
     def str(self, items):
-        s = self.item_separator.join([self.itemtostring(i) for i in items])
+        s = self.item_separator.join([self.itemtostring(i) for i in self.filter(items)])
         return self.items_format.format(s)
     def itemtostring(self, item):
         try:

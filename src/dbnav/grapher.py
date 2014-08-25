@@ -6,7 +6,7 @@ import time
 import sys
 import argparse
 
-from collections import deque
+from collections import deque, OrderedDict
 from .config import Config
 from .item import Item, INVALID
 from .writer import Writer, StdoutWriter
@@ -48,11 +48,16 @@ parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='The file to log to')
 parser.add_argument('-l', '--loglevel', default='warning', help='The minimum level to log')
 
-class Node:
-    def __init__(self, column, parent=None, fk=None, indent=0):
-        self.__dict__['column'] = column
-        self.parent = parent
+class BaseNode:
+    def __hash__(self):
+        return hash(self.__dict__)
+    def __eq__(self, o):
+        return hash(self) == hash(o)
+
+class ForeignKeyNode(BaseNode):
+    def __init__(self, fk, parent=None, indent=0):
         self.fk = fk
+        self.parent = parent
         self.indent = indent
     def escaped(self, f):
         return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
@@ -62,35 +67,50 @@ class Node:
         if name in self.__dict__:
             return self.__dict__[name]
         return None
+    def __hash__(self):
+        return hash(str(self.fk))
     def __repr__(self):
         return self.__str__()
     def __str__(self):
         indent = '  '*self.indent
-        if self.fk:
-            if self.fk.a.table.name == self.parent.name:
-                return '{0}+ {1}{3} -> {2}'.format(indent,
-                    self.fk.a.name,
-                    self.fk.b,
-                    NULLABLE_OPTIONS.get(self.fk.a.nullable))
-            return '{0}+ {1} ({2} -> {3})'.format(indent,
-                self.fk.a.table.name, self.fk.a.name, self.fk.b.name)
-        column = self.__dict__['column']
-        return '{0}- {1}{2}{3}'.format(indent,
-            column.name,
-            PRIMARY_KEY_OPTIONS.get(column.primary_key),
-            NULLABLE_OPTIONS.get(column.nullable),
-            column.table.name)
+        if self.fk.a.table.name == self.parent.name:
+            return '{0}+ {1}{3} -> {2}'.format(indent,
+                self.fk.a.name,
+                self.fk.b,
+                NULLABLE_OPTIONS.get(self.fk.a.nullable))
+        return '{0}+ {1} ({2} -> {3})'.format(indent,
+            self.fk.a.table.name, self.fk.a.name, self.fk.b.name)
 
-class TableNode:
+class ColumnNode(BaseNode):
+    def __init__(self, column, indent=0):
+        self.column = column
+        self.indent = indent
+    def __hash__(self):
+        return hash(str(self.column))
+    def __str__(self):
+        indent = '  '*self.indent
+        return '{0}- {1}{2}{3}'.format(indent,
+            self.column.name,
+            PRIMARY_KEY_OPTIONS.get(self.column.primary_key),
+            NULLABLE_OPTIONS.get(self.column.nullable),
+            self.column.table.name)
+
+class TableNode(BaseNode):
     def __init__(self, table, include=[], exclude=[]):
         self.table = table
         self.include = include
         self.exclude = exclude
+    def __hash__(self):
+        return hash(self.table.name)
+    def __str__(self):
+        return table.name
 
-class NameNode:
+class NameNode(BaseNode):
     def __init__(self, name, indent=0):
         self.name = name
         self.indent = indent
+    def __hash__(self):
+        return hash(self.name)
     def __str__(self):
         return '{0}{1}'.format('  '*self.indent, self.name)
 
@@ -107,10 +127,10 @@ def dfs(table, consumed=[], include=[], exclude=[], indent=0, opts=None):
         if not fk:
             if opts.include_columns:
                 # Add column
-                result.append(Node(col, table, None, indent))
+                result.append(ColumnNode(col, indent))
         elif fk.a.table.name == table.name and fk.b.table.name not in consumed:
             # Collects the forward references
-            result.append(Node(fk.b, table, fk, indent))
+            result.append(ForeignKeyNode(fk, table, indent))
             if opts.recursive or fk.a.name in prefixes(include):
                 result += dfs(fk.b.table,
                     consumed,
@@ -124,7 +144,7 @@ def dfs(table, consumed=[], include=[], exclude=[], indent=0, opts=None):
             table.fks.iteritems()):
         if fk.a.table.name not in consumed:
             # Collects the back references
-            result.append(Node(fk.a, table, fk, indent))
+            result.append(ForeignKeyNode(fk, table, indent))
             if opts.recursive or fk.a.table.name in prefixes(include):
                 result += dfs(fk.a.table,
                     consumed,
@@ -168,11 +188,11 @@ def bfs(start, consumed=[], include=[], exclude=[], indent=0, opts=None):
                     if not fk:
                         if opts.include_columns:
                             # Add column
-                            head.append(Node(col, table, None, indent))
+                            head.append(ColumnNode(col, indent))
                     elif fk.a.table.name == table.name:
                         # Collects the forward references
                         logger.debug('adds forward reference: fk=%s, include=%s', fk, include)
-                        head.append(Node(fk.b, table, fk, indent))
+                        head.append(ForeignKeyNode(fk, table, indent))
                         if (fk.a.name in prefixes(include)
                                 or (opts.recursive and fk.b.table.name not in consumed)):
 #                            logger.debug('adds table=%s', fk.b.table)
@@ -185,7 +205,7 @@ def bfs(start, consumed=[], include=[], exclude=[], indent=0, opts=None):
                         lambda (key, fk): fk.b.table.name == table.name and fk.a.table.name not in exclude,
                         table.fks.iteritems()):
                     logger.debug('adds back reference: fk=%s, include=%s', fk, include)
-                    head.append(Node(fk.a, table, fk, indent))
+                    head.append(ForeignKeyNode(fk, table, indent))
                     if (fk.a.table.name in prefixes(include)
                             or (opts.recursive and fk.a.table.name not in consumed)):
                         # Collects the back references
@@ -204,7 +224,7 @@ class DatabaseGrapher:
     """The main class"""
 
     @staticmethod
-    def export(options):
+    def graph(options):
         """The main method that splits the arguments and starts the magic"""
 
         cons = Source.connections()
@@ -229,6 +249,14 @@ class DatabaseGrapher:
 
         raise Exception('Specify the complete URI to a table')
 
+class GraphvizWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self, GRAPHVIZ_ITEMS_FORMAT, GRAPHVIZ_ITEM_FORMAT, format_error_format=u'  root={item.name};')
+    def filter(self, items):
+        # Removes duplicate items and keeps order
+        return list(OrderedDict.fromkeys(
+            filter(lambda i: not isinstance(i, ColumnNode), items)))
+
 def main():
     Writer.write(run(sys.argv))
 
@@ -237,10 +265,10 @@ def run(argv):
     if options.default:
         Writer.set(StdoutWriter(DEFAULT_ITEMS_FORMAT, DEFAULT_ITEM_FORMAT))
     if options.graphviz:
-        Writer.set(StdoutWriter(GRAPHVIZ_ITEMS_FORMAT, GRAPHVIZ_ITEM_FORMAT, format_error_format=u'  root={item.column.name};'))
+        Writer.set(GraphvizWriter())
 
     try:
-        nodes = DatabaseGrapher.export(options)
+        nodes = DatabaseGrapher.graph(options)
         return nodes
     except BaseException, e:
         logger.exception(e)

@@ -199,13 +199,22 @@ owner
 owner
 + permission_id -> permission.id
   + api_key_id -> api_key.id
+    + permission (api_key_id -> id)
     + access_transaction (api_key_id -> id)
     + sales_channel (api_key_id -> id)
   + sales_channel_id -> sales_channel.id
+    + api_key_id -> api_key.id
     + teaser_template_id? -> email_template.id
+      + sales_channel (teaser_template_id -> id)
+    + permission (sales_channel_id -> id)
   + access_transaction (permission_id -> id)
+    + api_key_id -> api_key.id
     + device_id -> device.id
+      + access_transaction (device_id -> id)
+    + permission_id? -> permission.id
     + permission_consumption (access_transaction_id -> id)
+      + access_transaction_id? -> access_transaction.id
+  + owner (permission_id -> id)
 ```
 #### Show specific References
 `dbgraph -i permission_id.api_key_id access@localhost/access/owner`
@@ -214,10 +223,12 @@ owner
 owner
 + permission_id -> permission.id
   + api_key_id -> api_key.id
+    + permission (api_key_id -> id)
     + access_transaction (api_key_id -> id)
     + sales_channel (api_key_id -> id)
   + sales_channel_id -> sales_channel.id
   + access_transaction (permission_id -> id)
+  + owner (permission_id -> id)
 ```
 
 #### Show specific References and exclude others
@@ -227,9 +238,11 @@ owner
 owner
 + permission_id -> permission.id
   + api_key_id -> api_key.id
+    + permission (api_key_id -> id)
     + access_transaction (api_key_id -> id)
     + sales_channel (api_key_id -> id)
   + access_transaction (permission_id -> id)
+  + owner (permission_id -> id)
 ```
 
 #### Show specific References as Graphviz Graph
@@ -242,6 +255,7 @@ digraph dbgraph {
   permission -> api_key [xlabel="api_key_id -> id"];
   permission -> sales_channel [xlabel="sales_channel_id -> id"];
   access_transaction -> permission [xlabel="permission_id -> id"];
+  owner -> permission [xlabel="permission_id -> id"];
 }
 ```
 

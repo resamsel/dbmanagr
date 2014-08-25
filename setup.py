@@ -13,7 +13,7 @@ setup(
         'src/images': ['*.png']
     },
 
-    test_suite = "dbnav.tests.load_suite",
+    test_suite = 'dbnav.tests.load_suite',
 
     # dependencies
     install_requires = [
