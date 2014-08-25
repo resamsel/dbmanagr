@@ -37,11 +37,14 @@ class Table(BaseItem):
         """Retrieves the autocomplete string for the given column and value"""
 
         if column == None:
-            return '%s%s/' % (self.uri, self.name)
+            return u'%s%s/' % (self.uri, self.name)
 
         tablename = self.name
         fks = self.fks
-        value = '%s=%s' % (column, value)
+        if type(value) is buffer:
+            value = '[BLOB]'
+        else:
+            value = u'%s=%s' % (column, value)
 
         return format % (self.uri, tablename, value)
 
@@ -107,8 +110,8 @@ class Table(BaseItem):
 
     def subtitle(self):
         if self.owner and self.size:
-            return 'Owner: %s (%s)' % (self.owner, self.size)
-        return 'Table'
+            return u'Owner: %s (%s)' % (self.owner, self.size)
+        return u'Table'
 
     def icon(self):
         return 'images/table.png'

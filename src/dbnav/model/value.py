@@ -25,6 +25,8 @@ class Value(BaseItem):
         self.kind = kind
 
     def title(self):
+        if type(self._value) is buffer:
+            return '[BLOB]'
         return {
             KIND_FOREIGN_VALUE: u'← %s',
             KIND_FOREIGN_KEY: u'→ %s',

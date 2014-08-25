@@ -17,8 +17,8 @@ from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_
 
 logger = logging.getLogger(__name__)
 
-OPTION_URI_TABLES_FORMAT = '%s%s/'
-OPTION_URI_ROW_FORMAT = '%s%s/%s'
+OPTION_URI_TABLES_FORMAT = u'%s%s/'
+OPTION_URI_ROW_FORMAT = u'%s%s/%s'
 
 def tostring(key):
     if isinstance(key, unicode):
@@ -52,7 +52,7 @@ def values(connection, table, filter):
     def val(row, column):
         colname = '%s_title' % column
         if colname in row.row:
-            return '%s (%s)' % (row.row[colname], row.row[column])
+            return u'%s (%s)' % (row.row[colname], row.row[column])
         return row.row[tostring(column)]
 
     values = []
@@ -129,7 +129,7 @@ class DatabaseConnection(BaseItem):
         return 'images/connection.png'
 
     def uri(self, table):
-        return '%s%s' % (self.autocomplete(), table)
+        return u'%s%s' % (self.autocomplete(), table)
 
     def matches(self, options):
         return options.arg in self.title()
@@ -236,6 +236,8 @@ class DatabaseConnection(BaseItem):
         return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):
+        if type(value) is buffer:
+            return u"'[BLOB]'"
         return u"'{0}'".format(value)
 
     def escape_keyword(self, keyword):
