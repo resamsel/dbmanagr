@@ -6,7 +6,7 @@ from collections import Counter
 from sqlalchemy.types import Integer
 from .model.column import Column
 
-QUERY_FORMAT = """
+QUERY_FORMAT = u"""
 select
         {1}
     from
@@ -17,17 +17,17 @@ select
         {5}
     {6}
 """
-LIMIT_FORMAT = "limit {0}"
-JOIN_FORMAT = """
+LIMIT_FORMAT = u"limit {0}"
+JOIN_FORMAT = u"""
         left outer join \"{0}\" {1} on {1}.{2} = {3}.{4}"""
-ALIAS_FORMAT = "{0}_title"
-PROJECTION_FORMAT = """{0} {1}"""
-SEARCH_FORMAT = "cast(%s as text) %s '%s'"
-LIST_SEPARATOR = """,
+ALIAS_FORMAT = u"{0}_title"
+PROJECTION_FORMAT = u"""{0} {1}"""
+SEARCH_FORMAT = u"cast(%s as text) %s '%s'"
+LIST_SEPARATOR = u""",
         """
-AND_SEPARATOR = """
+AND_SEPARATOR = u"""
         and """
-OR_SEPARATOR = """
+OR_SEPARATOR = u"""
         or """
 OPERATORS = {
     '=': '=',

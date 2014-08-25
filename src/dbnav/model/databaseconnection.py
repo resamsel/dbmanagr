@@ -93,7 +93,7 @@ class DatabaseRow:
             if 'id' not in self.columns:
                 self.columns['id'] = 0
     def __getitem__(self, i):
-        logger.debug('DatabaseRow.__getitem__(%s: %s)', str(i), type(i))
+        logger.debug('DatabaseRow.__getitem__(%s: %s), columns=%s', str(i), type(i), self.columns)
         if i == None:
             return None
         return self.columns[i]
@@ -233,10 +233,10 @@ class DatabaseConnection(BaseItem):
         return [Column(table, col['name'], [col['name']] == pks, col['type'], col['nullable']) for col in cols]
 
     def restriction(self, alias, column, operator, value):
-        return "{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
+        return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):
-        return "'{0}'".format(value)
+        return u"'{0}'".format(value)
 
     def escape_keyword(self, keyword):
         return keyword

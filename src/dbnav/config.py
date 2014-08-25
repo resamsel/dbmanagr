@@ -13,7 +13,7 @@ from .sqlite import *
 class Config:
     @staticmethod
     def init(argv, parser):
-        options = Options(argv, parser)
+        options = Options(map(lambda arg: arg.decode("utf-8"), argv), parser)
 
         logging.basicConfig(filename=options.logfile,
             level=options.loglevel,
