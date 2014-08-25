@@ -16,7 +16,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
-- [Database Navigation](#user-content-database-navigator)
+- [Database Navigation](#user-content-database-navigation)
 	- [Features](#user-content-features)
 	- [Usage](#user-content-usage)
 	- [Examples](#user-content-examples)

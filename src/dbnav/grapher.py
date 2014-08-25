@@ -81,6 +81,19 @@ class Node:
             NULLABLE_OPTIONS.get(column.nullable),
             column.table.name)
 
+class TableNode:
+    def __init__(self, table, include=[], exclude=[]):
+        self.table = table
+        self.include = include
+        self.exclude = exclude
+
+class NameNode:
+    def __init__(self, name, indent=0):
+        self.name = name
+        self.indent = indent
+    def __str__(self):
+        return '{0}{1}'.format('  '*self.indent, self.name)
+
 def dfs(table, consumed=[], include=[], exclude=[], indent=0, opts=None):
     logger.debug('dfs(table=%s, consumed=%s, include=%s, exclude=%s, indent=%d)',
         table, consumed, include, exclude, indent)
@@ -126,50 +139,61 @@ def bfs(start, consumed=[], include=[], exclude=[], indent=0, opts=None):
     logger.debug('bfs(start=%s, consumed=%s, include=%s, exclude=%s, indent=%d)',
         start, consumed, include, exclude, indent)
 
-    head = [start]
+    head = [TableNode(start, include, exclude)]
     found = True
     while found:
         found = False
         tail = deque(head)
         head = []
 
-#        logger.debug('found=%s, tail=%s, consumed=%s, indent=%d', found, tail, consumed, indent)
-
         while tail:
             node = tail.popleft()
 
-            if isinstance(node, Table):
-                table = node
-                if table.name in consumed:
+            if isinstance(node, TableNode):
+                table = node.table
+                if opts.recursive and table.name in consumed:
                     continue
+
+                include = node.include
+                exclude = node.exclude
 
                 consumed.append(table.name)
                 table.init_columns(table.connection)
 
-                logger.debug('consume table=%s, consumed=%s, indent=%d', table, consumed, indent)
+                logger.debug('consume table=%s ,include=%s, exclude=%s, consumed=%s, indent=%d', table, include, exclude, consumed, indent)
 
                 for col in filter(lambda col: col.name not in exclude, table.cols):
                     fk = table.foreign_key(col.name)
+#                    logger.debug('consumed=%s', consumed)
                     if not fk:
                         if opts.include_columns:
                             # Add column
                             head.append(Node(col, table, None, indent))
-                    elif fk.a.table.name == table.name and fk.b.table.name not in consumed:
+                    elif fk.a.table.name == table.name:
                         # Collects the forward references
+                        logger.debug('adds forward reference: fk=%s, include=%s', fk, include)
                         head.append(Node(fk.b, table, fk, indent))
-                        if opts.recursive or fk.a.name in prefixes(include):
-                            head.append(fk.b.table)
+                        if (fk.a.name in prefixes(include)
+                                or (opts.recursive and fk.b.table.name not in consumed)):
+#                            logger.debug('adds table=%s', fk.b.table)
+                            head.append(TableNode(fk.b.table,
+                                include=remove_prefix(fk.a.name, include),
+                                exclude=remove_prefix(fk.a.name, exclude)))
                             found = True
 
                 for key, fk in filter(
                         lambda (key, fk): fk.b.table.name == table.name and fk.a.table.name not in exclude,
                         table.fks.iteritems()):
-                    if fk.a.table.name not in consumed:
+                    logger.debug('adds back reference: fk=%s, include=%s', fk, include)
+                    head.append(Node(fk.a, table, fk, indent))
+                    if (fk.a.table.name in prefixes(include)
+                            or (opts.recursive and fk.a.table.name not in consumed)):
                         # Collects the back references
-                        head.append(Node(fk.a, table, fk, indent))
-                        if opts.recursive or fk.a.table.name in prefixes(include):
-                            head.append(fk.a.table)
-                            found = True
+#                        logger.debug('adds table=%s', fk.a.table)
+                        head.append(TableNode(fk.a.table,
+                            include=remove_prefix(fk.a.table.name, include),
+                            exclude=remove_prefix(fk.a.table.name, exclude)))
+                        found = True
             else:
                 head.append(node)
         indent += 1
@@ -195,7 +219,7 @@ class DatabaseGrapher:
                     if  opts.table not in tables:
                         raise Exception("Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
-                    return [Node(Column(table, table.name))] + bfs(
+                    return [NameNode(table.name)] + bfs(
                         table,
                         include=opts.include,
                         exclude=opts.exclude,
