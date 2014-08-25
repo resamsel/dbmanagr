@@ -17,6 +17,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 **Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
 
 - [Database Navigation](#user-content-database-navigator)
+	- [Features](#user-content-features)
 	- [Usage](#user-content-usage)
 	- [Examples](#user-content-examples)
 		- [Show Available Connections](#user-content-show-available-connections)
@@ -28,7 +29,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 		- [Show Rows where any (Search) Column matches Pattern](#user-content-show-rows-where-any-search-column-matches-pattern)
 		- [Show Values of selected Row](#user-content-show-values-of-selected-row)
 - [Database Visualisation](#user-content-database-visualisation)
-	- [Features](#user-content-features)
+	- [Features](#user-content-features-1)
 	- [Usage](#user-content-usage-1)
 	- [Examples](#user-content-examples-1)
 		- [Show references of table](#user-content-show-references-of-table)
@@ -48,7 +49,8 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Display](#user-content-display)
 	- [Order](#user-content-order)
 
-## Database Navigator
+## Database Navigation
+
 ### Features
 * Shows databases of configured connections
 * Shows tables of databases
