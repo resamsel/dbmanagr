@@ -13,6 +13,41 @@ Allows you to explore, visualise and export your database. Additionally allows t
   * the `~/.pgpass` configuration file (PGAdmin)
   * the `~/.dbexplorer/dbexplorer.cfg` configuration file (DBExplorer)
   * the Navicat configuration file (SQLite)
+
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Database Navigation](#user-content-database-navigator)
+	- [Usage](#user-content-usage)
+	- [Examples](#user-content-examples)
+		- [Show Available Connections](#user-content-show-available-connections)
+		- [Show Databases of Connection](#user-content-show-databases-of-connection)
+		- [Show Tables of Database](#user-content-show-tables-of-database)
+		- [Show Columns of Table](#user-content-show-columns-of-table)
+		- [Show Rows where Column equals Value](#user-content-show-rows-where-column-equals-value)
+		- [Show Rows where Column matches Pattern](#user-content-show-rows-where-column-matches-pattern)
+		- [Show Rows where any (Search) Column matches Pattern](#user-content-show-rows-where-any-search-column-matches-pattern)
+		- [Show Values of selected Row](#user-content-show-values-of-selected-row)
+- [Database Visualisation](#user-content-database-visualisation)
+	- [Features](#user-content-features)
+	- [Usage](#user-content-usage-1)
+	- [Examples](#user-content-examples-1)
+		- [Show references of table](#user-content-show-references-of-table)
+		- [Show References and Columns](#user-content-show-references-and-columns)
+		- [Show all References recursively](#user-content-show-all-references-recursively)
+		- [Show specific References](#user-content-show-specific-references)
+		- [Show specific References and exclude others](#user-content-show-specific-references-and-exclude-others)
+		- [Show specific References as Graphviz Graph](#user-content-show-specific-references-as-graphviz-graph)
+- [Database Exporter](#user-content-database-exporter)
+	- [Features](#user-content-features-1)
+	- [Usage](#user-content-usage-2)
+- [Installation](#user-content-installation)
+- [Configuration](#user-content-configuration)
+	- [Title](#user-content-title)
+	- [Subtitle](#user-content-subtitle)
+	- [Search](#user-content-search)
+	- [Display](#user-content-display)
+	- [Order](#user-content-order)
+
 ## Database Navigator
 ### Features
 * Shows databases of configured connections
