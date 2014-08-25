@@ -134,7 +134,7 @@ def run(argv):
         return DatabaseExporter.export(options)
     except BaseException, e:
         logger.exception(e)
-        sys.stderr.write(str(e))
+        raise
 
 if __name__ == "__main__":
     main()

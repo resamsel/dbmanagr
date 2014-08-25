@@ -304,8 +304,9 @@ make install
 Then open the *.alfredworkflow* file in the target directory using the finder.
 
 ## Configuration
-It's possible to configure the content of the Alfred result items. This happens as a table comment (currently Postgres only).
+It's possible to configure the content of the result items for the Database Navigation. The configuration is placed as a table comment (currently PostgreSQL only). This is mostly helpful for displaying results in Alfred, but may come in handy for the command line tools as well.
 
+### Usage
 ```
 {
   "title": "{0}.fname || ' ' || {0}.lname",

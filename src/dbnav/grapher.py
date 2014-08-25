@@ -268,8 +268,7 @@ def run(argv):
         Writer.set(GraphvizWriter())
 
     try:
-        nodes = DatabaseGrapher.graph(options)
-        return nodes
+        return DatabaseGrapher.graph(options)
     except BaseException, e:
         logger.exception(e)
         raise
