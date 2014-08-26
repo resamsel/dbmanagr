@@ -264,7 +264,7 @@ class QueryBuilder:
                             if c:
                                 return c
                             return Column(None, field, False, 'String')
-                        logger.debug('Search field: %s', search_field)
+                        logger.debug('Search field=%s, col(alias, search_field)=%s', search_field, col(self.alias, search_field).__dict__)
                         conjunctions.append(self.connection.restriction(
                             self.alias,
                             col(self.alias, search_field),

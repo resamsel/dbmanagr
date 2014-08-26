@@ -9,7 +9,6 @@ from dbnav.tests.generator import test_generator, params
 from dbnav import grapher
 from dbnav.postgresql import init_postgresql
 from dbnav.sqlite import init_sqlite
-from dbnav.writer import DefaultWriter
 from dbnav.sources import Source
 
 DIR = path.dirname(__file__)
@@ -25,8 +24,6 @@ init_sqlite(
     path.join(DIR, 'resources/dbexplorer.cfg'),
     path.join(DIR, 'resources/navicat.plist')
 )
-
-DefaultWriter.PRINT = False
 
 class OutputTestCase(unittest.TestCase):
     def setUp(self):

@@ -233,9 +233,13 @@ class DatabaseConnection(BaseItem):
         return [Column(table, col['name'], [col['name']] == pks, col['type'], col['nullable']) for col in cols]
 
     def restriction(self, alias, column, operator, value):
-        return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
+        if column.table:
+            return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
+        return u'{0} {1} {2}'.format(column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):
+        if not value:
+            return u'null'
         if type(value) is buffer:
             return u"'[BLOB]'"
         return u"'{0}'".format(value)

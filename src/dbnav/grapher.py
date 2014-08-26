@@ -40,6 +40,7 @@ parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-d', '--default', default=True, help='Output format: human readable hierarchical text', action='store_true')
 group.add_argument('-g', '--graphviz', help='Output format: a Graphviz graph', action='store_true')
+group.add_argument('-t', '--test', help='use test writer', action='store_true')
 parser.add_argument('-c', '--include-columns', default=False, help='Include columns in output (does not work with graphviz as output)', action='store_true')
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-r', '--recursive', help='Include any forward/back reference to the starting table, recursing through all tables eventually', action='store_true')
@@ -155,11 +156,12 @@ def dfs(table, consumed=[], include=[], exclude=[], indent=0, opts=None):
 
     return result
 
-def bfs(start, consumed=[], include=[], exclude=[], indent=0, opts=None):
-    logger.debug('bfs(start=%s, consumed=%s, include=%s, exclude=%s, indent=%d)',
-        start, consumed, include, exclude, indent)
+def bfs(start, include=[], exclude=[], indent=0, opts=None):
+    logger.debug('bfs(start=%s, include=%s, exclude=%s, indent=%d)',
+        start, include, exclude, indent)
 
     head = [TableNode(start, include, exclude)]
+    consumed=[]
     found = True
     while found:
         found = False
@@ -258,7 +260,7 @@ class GraphvizWriter(StdoutWriter):
             filter(lambda i: not isinstance(i, ColumnNode), items)))
 
 def main():
-    Writer.write(run(sys.argv))
+    print Writer.write(run(sys.argv))
 
 def run(argv):
     options = Config.init(argv, parser)

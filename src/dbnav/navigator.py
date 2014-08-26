@@ -31,6 +31,7 @@ group.add_argument('-s', '--simple', help='use simple writer', action='store_tru
 group.add_argument('-j', '--json', help='use JSON writer', action='store_true')
 group.add_argument('-x', '--xml', help='use XML writer', action='store_true')
 group.add_argument('-a', '--autocomplete', help='use autocomplete writer', action='store_true')
+group.add_argument('-t', '--test', help='use test writer', action='store_true')
 parser.add_argument('-m', '--limit', type=int, default=50, help='Limit the results of the main query to this amount of rows')
 parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
 parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
@@ -39,7 +40,7 @@ class DatabaseNavigator:
     """The main class"""
 
     @staticmethod
-    def main(options):
+    def navigate(options):
         """The main method that splits the arguments and starts the magic"""
 
         cons = Source.connections()
@@ -54,13 +55,13 @@ class DatabaseNavigator:
         return create_connections(sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
 
 def main():
-    Writer.write(run(sys.argv))
+    print Writer.write(run(sys.argv))
 
 def run(argv):
     options = Config.init(argv, parser)
 
     try:
-        return DatabaseNavigator.main(options)
+        return DatabaseNavigator.navigate(options)
     except BaseException, e:
         logger.exception(e)
         return [Item('', str(e), type(e), '', INVALID, '')]

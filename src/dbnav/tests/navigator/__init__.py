@@ -9,7 +9,7 @@ from dbnav.tests.generator import test_generator, params
 from dbnav import navigator
 from dbnav.postgresql import init_postgresql
 from dbnav.sqlite import init_sqlite
-from dbnav.writer import StringWriter, Writer
+from dbnav.writer import TestWriter, Writer
 from dbnav.sources import Source
 
 DIR = path.dirname(__file__)
@@ -25,24 +25,6 @@ init_sqlite(
     path.join(DIR, 'resources/dbexplorer.cfg'),
     path.join(DIR, 'resources/navicat.plist')
 )
-
-def escape(s):
-    if type(s) == unicode:
-        return s.replace('"', '&quot;')
-    return s
-
-class TestWriter(StringWriter):
-    ITEMS_FORMAT = u"""Title\tAutocomplete
-{0}"""
-    ITEM_FORMAT = u"""{title}\t{autocomplete}
-"""
-    def str(self, items):
-        s = u''.join([self.itemtostring(i) for i in items])
-        return TestWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return TestWriter.ITEM_FORMAT.format(**item.escaped(escape))
-    def write(self, items):
-        return self.str(items)
 
 Writer.set(TestWriter())
 

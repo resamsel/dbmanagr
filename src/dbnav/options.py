@@ -66,6 +66,7 @@ class Options:
         self.json = False
         self.xml = False
         self.autocomplete = False
+        self.test = False
 
         args = parser.parse_args(argv[1:])
 

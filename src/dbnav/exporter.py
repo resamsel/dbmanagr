@@ -18,6 +18,8 @@ from dbnav.model.databaseconnection import values
 
 parser = argparse.ArgumentParser(prog='dbexport')
 parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value""")
+group = parser.add_mutually_exclusive_group()
+group.add_argument('-d', '--default', default=True, help='Output format: SQL insert into statements', action='store_true')
 parser.add_argument('-i', '--include', help='Include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-m', '--limit', type=int, default=50, help='Limit the results of the main query to this amount of rows')
@@ -123,12 +125,13 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 def main():
-    Writer.set(StdoutWriter(u'{0}', u'{title}'))
-    Writer.write(run(sys.argv))
+    print Writer.write(run(sys.argv))
 
 def run(argv):
     options = Config.init(argv, parser)
     options.artificial_projection = False
+    if options.default:
+        Writer.set(StdoutWriter(u'{0}', u'{title}'))
 
     try:
         return DatabaseExporter.export(options)

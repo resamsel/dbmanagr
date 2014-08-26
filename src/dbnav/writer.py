@@ -14,15 +14,16 @@ def html_escape(s):
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s
 
+def escape(s):
+    if type(s) == unicode:
+        return s.replace('"', '&quot;')
+    return s
+
 class DefaultWriter:
-    PRINT = True
     def write(self, items):
         if not items:
             items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
-        s = self.str(items)
-        if DefaultWriter.PRINT:
-            print s
-        return s
+        return self.str(items)
     def str(self, items):
         return map(lambda item: self.itemtostring(item), items)
     def itemtostring(self, item):
@@ -85,6 +86,15 @@ class StringWriter(SimpleWriter):
     def write(self, items):
         return self.str(items)
 
+class TestWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self, u"""Title\tAutocomplete
+{0}""", u"""{title}\t{autocomplete}""")
+    def itemtostring(self, item):
+        return self.item_format.format(**item.escaped(escape))
+    def write(self, items):
+        return self.str(items)
+
 class Writer:
     writer = StdoutWriter()
 
@@ -99,6 +109,7 @@ class Writer:
         if options.json: Writer.set(JsonWriter())
         if options.xml: Writer.set(XmlWriter())
         if options.autocomplete: Writer.set(AutocompleteWriter())
+        if options.test: Writer.set(TestWriter())
 
     @staticmethod
     def write(items):
