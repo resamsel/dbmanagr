@@ -156,7 +156,11 @@ class DatabaseConnection(BaseItem):
 
                 return sorted(tables, key=lambda t: t.name.lower())
 
-            table = self.tables()[options.table]
+            tables = self.tables()
+            if options.table not in tables:
+                raise Exception("Could not find table '{0}'".format(options.table))
+
+            table = tables[options.table]
             if options.show == 'columns':
                 logger.debug('columns, check filter=%s', options.filter)
                 if len(options.filter) == 1 and options.filter[0].rhs == None:

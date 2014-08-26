@@ -55,7 +55,10 @@ class DatabaseNavigator:
         return create_connections(sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
 
 def main():
-    print Writer.write(run(sys.argv))
+    try:
+        print Writer.write(run(sys.argv))
+    except BaseException, e:
+        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
 
 def run(argv):
     options = Config.init(argv, parser)

@@ -114,7 +114,10 @@ class DatabaseExporter:
                 and connection.matches(opts)):
                 try:
                     connection.connect(opts.database)
-                    table = connection.tables()[opts.table]
+                    tables = connection.tables()
+                    if opts.table not in tables:
+                        raise Exception("Could not find table '{0}'".format(opts.table))
+                    table = tables[opts.table]
                     return create_items(
                         table.rows(opts.filter, opts.limit),
                         opts.include,
@@ -125,7 +128,10 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 def main():
-    print Writer.write(run(sys.argv))
+    try:
+        print Writer.write(run(sys.argv))
+    except BaseException, e:
+        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
 
 def run(argv):
     options = Config.init(argv, parser)
