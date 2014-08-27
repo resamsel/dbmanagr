@@ -163,8 +163,10 @@ class DatabaseConnection(BaseItem):
             table = tables[options.table]
             if options.show == 'columns':
                 logger.debug('columns, check filter=%s', options.filter)
-                if len(options.filter) == 1 and options.filter[0].rhs == None:
-                    return sorted(table.columns(self, options.filter[0].lhs), key=lambda c: c.name.lower())
+                if len(options.filter) > 0 and options.filter[-1].rhs == None:
+                    return sorted(
+                        table.columns(self, options.filter[-1].lhs),
+                        key=lambda c: c.name.lower())
                 else:
                     return sorted(
                         table.rows(
