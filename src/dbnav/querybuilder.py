@@ -191,7 +191,7 @@ class Comment:
 #                    self.qb.joins[fktable.name] = Join(fktable.name, alias, fk.b.name, self.alias, fk.a.name)
         
 class QueryBuilder:
-    def __init__(self, connection, table, id=None, filter=[], order=[], limit=None, artificial_projection=True):
+    def __init__(self, connection, table, id=None, filter=[], order=[], limit=None, simplify=True):
         self.connection = connection
         self.table = table
         self.id = id
@@ -201,7 +201,7 @@ class QueryBuilder:
         self.aliases = {}
         self.joins = {}
         self.counter = Counter()
-        self.artificial_projection = artificial_projection
+        self.simplify = simplify
 
         self.alias = '_%s' % self.table.name
 
@@ -280,20 +280,20 @@ class QueryBuilder:
             if wheres:
                 where = AND_SEPARATOR.join(wheres)
 
-        logger.debug('Order before: %s', order)
-
         if not order:
             if 'id' in comment.columns:
                 order.append(comment.columns['id'].value)
             else:
                 order.append('1')
         
-        logger.debug('Order after: %s', order)
+        logger.debug('Order: %s', order)
         
-        if self.artificial_projection:
+        if self.simplify:
             projection = comment.columns.values()
         else:
-            projection = [Projection('%s.%s' % (self.alias, col.name), col.name) for col in self.table.cols]
+            projection = map(
+                lambda col: Projection('%s.%s' % (self.alias, col.name), col.name),
+                self.table.cols)
 
         return QUERY_FORMAT.format(self.table.name,
             LIST_SEPARATOR.join(map(str, projection)),

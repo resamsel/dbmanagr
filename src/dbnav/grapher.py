@@ -6,10 +6,9 @@ import time
 import sys
 import argparse
 
-from collections import deque, OrderedDict
+from collections import deque
 from .config import Config
 from .item import Item, INVALID
-from .writer import Writer, StdoutWriter
 from .sources import Source
 from .logger import logger, logduration
 from .model.column import Column
@@ -17,23 +16,12 @@ from .model.table import Table
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
-
-PRIMARY_KEY_OPTIONS = {
-    True: '*',
-    False: ''
-}
-NULLABLE_OPTIONS = {
-    True: '?',
-    False: '',
-    None: ''
-}
+from dbnav.node import BaseNode, ColumnNode, ForeignKeyNode, NameNode, TableNode
+from dbnav.formatter import Formatter, DefaultFormatter, TestFormatter
+from dbnav.writer import Writer, StdoutWriter, GraphvizWriter, FormatWriter
 
 DEFAULT_ITEMS_FORMAT = u'{0}'
 DEFAULT_ITEM_FORMAT = u'{item}'
-GRAPHVIZ_ITEMS_FORMAT = u"""digraph dbgraph {{
-{0}
-}}"""
-GRAPHVIZ_ITEM_FORMAT = u"""  {fk.a.table.name} -> {fk.b.table.name} [xlabel="{fk.a.name} -> {fk.b.name}"];"""
 
 parser = argparse.ArgumentParser(prog='dbgraph')
 parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table""")
@@ -48,72 +36,6 @@ group.add_argument('-i', '--include', help='Include the specified columns and th
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='The file to log to')
 parser.add_argument('-l', '--loglevel', default='warning', help='The minimum level to log')
-
-class BaseNode:
-    def __hash__(self):
-        return hash(self.__dict__)
-    def __eq__(self, o):
-        return hash(self) == hash(o)
-
-class ForeignKeyNode(BaseNode):
-    def __init__(self, fk, parent=None, indent=0):
-        self.fk = fk
-        self.parent = parent
-        self.indent = indent
-    def escaped(self, f):
-        return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
-    def __getattr__(self, name):
-        if self.fk:
-            return getattr(self.fk, name)
-        if name in self.__dict__:
-            return self.__dict__[name]
-        return None
-    def __hash__(self):
-        return hash(str(self.fk))
-    def __repr__(self):
-        return self.__str__()
-    def __str__(self):
-        indent = '  '*self.indent
-        if self.fk.a.table.name == self.parent.name:
-            return '{0}+ {1}{3} -> {2}'.format(indent,
-                self.fk.a.name,
-                self.fk.b,
-                NULLABLE_OPTIONS.get(self.fk.a.nullable))
-        return '{0}+ {1} ({2} -> {3})'.format(indent,
-            self.fk.a.table.name, self.fk.a.name, self.fk.b.name)
-
-class ColumnNode(BaseNode):
-    def __init__(self, column, indent=0):
-        self.column = column
-        self.indent = indent
-    def __hash__(self):
-        return hash(str(self.column))
-    def __str__(self):
-        indent = '  '*self.indent
-        return '{0}- {1}{2}{3}'.format(indent,
-            self.column.name,
-            PRIMARY_KEY_OPTIONS.get(self.column.primary_key),
-            NULLABLE_OPTIONS.get(self.column.nullable),
-            self.column.table.name)
-
-class TableNode(BaseNode):
-    def __init__(self, table, include=[], exclude=[]):
-        self.table = table
-        self.include = include
-        self.exclude = exclude
-    def __hash__(self):
-        return hash(self.table.name)
-    def __str__(self):
-        return table.name
-
-class NameNode(BaseNode):
-    def __init__(self, name, indent=0):
-        self.name = name
-        self.indent = indent
-    def __hash__(self):
-        return hash(self.name)
-    def __str__(self):
-        return '{0}{1}'.format('  '*self.indent, self.name)
 
 def dfs(table, consumed=[], include=[], exclude=[], indent=0, opts=None):
     logger.debug('dfs(table=%s, consumed=%s, include=%s, exclude=%s, indent=%d)',
@@ -251,26 +173,23 @@ class DatabaseGrapher:
 
         raise Exception('Specify the complete URI to a table')
 
-class GraphvizWriter(StdoutWriter):
-    def __init__(self):
-        StdoutWriter.__init__(self, GRAPHVIZ_ITEMS_FORMAT, GRAPHVIZ_ITEM_FORMAT, format_error_format=u'  root={item.name};')
-    def filter(self, items):
-        # Removes duplicate items and keeps order
-        return list(OrderedDict.fromkeys(
-            filter(lambda i: not isinstance(i, ColumnNode), items)))
-
 def main():
     try:
         print Writer.write(run(sys.argv))
     except BaseException, e:
         sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
+        raise
 
 def run(argv):
     options = Config.init(argv, parser)
     if options.default:
+        Formatter.set(DefaultFormatter())
         Writer.set(StdoutWriter(DEFAULT_ITEMS_FORMAT, DEFAULT_ITEM_FORMAT))
     if options.graphviz:
         Writer.set(GraphvizWriter())
+    if options.test:
+        Formatter.set(DefaultFormatter())
+        Writer.set(StdoutWriter(DEFAULT_ITEMS_FORMAT, DEFAULT_ITEM_FORMAT))
 
     try:
         return DatabaseGrapher.graph(options)

@@ -4,7 +4,11 @@
 import logging
 import codecs
 import sys
-from .item import Item
+
+from collections import OrderedDict
+from dbnav.item import Item
+from dbnav.node import ColumnNode
+from dbnav.formatter import Formatter, XmlFormatter, SimplifiedFormatter, TestFormatter, GraphvizFormatter, DefaultFormatter
 
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
@@ -21,13 +25,11 @@ def escape(s):
 
 class DefaultWriter:
     def write(self, items):
-        if not items:
-            items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
         return self.str(items)
     def str(self, items):
         return map(lambda item: self.itemtostring(item), items)
     def itemtostring(self, item):
-        return str(item)
+        return unicode(item)
 
 class StdoutWriter(DefaultWriter):
     def __init__(self,
@@ -41,16 +43,23 @@ class StdoutWriter(DefaultWriter):
         self.item_format = item_format
         self.item_separator = item_separator
         self.format_error_format = format_error_format
+        
+        Formatter.set(DefaultFormatter())
     def filter(self, items):
         return items
     def str(self, items):
-        s = self.item_separator.join([self.itemtostring(i) for i in self.filter(items)])
+        s = self.item_separator.join(
+            map(lambda i: self.itemtostring(i),
+                self.filter(items)))
         return self.items_format.format(s)
     def itemtostring(self, item):
-        try:
-            return self.item_format.format(item=str(item), **item.__dict__)
-        except:
-            return self.format_error_format.format(item=item, **item.__dict__)
+        if hasattr(item, '__dict__'):
+            try:
+                return self.item_format.format(item=unicode(item), **item.__dict__)
+            except:
+                raise
+                return self.format_error_format.format(item=item, **item.__dict__)
+        return self.item_format.format(item=item)
 
 class AutocompleteWriter(StdoutWriter):
     def __init__(self):
@@ -70,30 +79,56 @@ class JsonWriter(StdoutWriter):
 {0}}}""",
             u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""")
 
-class XmlWriter(StdoutWriter):
-    def __init__(self):
-        StdoutWriter.__init__(self,
-            u"""<items>
-{0}
-</items>""",
-            u"""   <item uid="{uid}" arg="{value}" autocomplete="{autocomplete}" valid="{valid}">
-        <title>{title}</title>
-        <subtitle>{subtitle}</subtitle>
-        <icon>{icon}</icon>
-    </item>""")
-
 class StringWriter(SimpleWriter):
     def write(self, items):
         return self.str(items)
 
-class TestWriter(StdoutWriter):
-    def __init__(self):
-        StdoutWriter.__init__(self, u"""Title\tAutocomplete
-{0}""", u"""{title}\t{autocomplete}""")
+class FormatWriter(StdoutWriter):
+    def __init__(self,
+            items_format=u"""Title\tSubtitle\tAutocomplete
+{0}""",
+            item_format=u"""{title}\t{subtitle}\t{autocomplete}""",
+            item_separator=u"""
+""",
+            format_error_format=u'{0}'):
+        StdoutWriter.__init__(self, items_format, item_format, item_separator, format_error_format)
     def itemtostring(self, item):
-        return self.item_format.format(**item.escaped(escape))
+        return item.format()
+
+class SimplifiedWriter(FormatWriter):
+    def __init__(self):
+        FormatWriter.__init__(self, u'{0}')
+        Formatter.set(SimplifiedFormatter())
+
+class XmlWriter(FormatWriter):
+    def __init__(self):
+        FormatWriter.__init__(self,
+            u"""<items>
+{0}
+</items>""")
+        Formatter.set(XmlFormatter())
     def write(self, items):
+        if not items:
+            items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
         return self.str(items)
+
+class GraphvizWriter(FormatWriter):
+    def __init__(self):
+        FormatWriter.__init__(self, u"""digraph dbgraph {{
+{0}
+}}""")
+        Formatter.set(GraphvizFormatter())
+    def filter(self, items):
+        # Removes duplicate items and keeps order
+        return list(OrderedDict.fromkeys(
+            filter(lambda i: not isinstance(i, ColumnNode), items)))
+
+class TestWriter(FormatWriter):
+    def __init__(self, items_format=u"""Title\tAutocomplete
+{0}""",
+            item_format=u"""{title}\t{autocomplete}"""):
+        FormatWriter.__init__(self, items_format, item_format)
+        Formatter.set(TestFormatter())
 
 class Writer:
     writer = StdoutWriter()

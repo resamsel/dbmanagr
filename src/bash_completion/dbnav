@@ -20,4 +20,6 @@ _dbnav_completer()
 }
 
 complete -o nospace -F _dbnav_completer dbnav
-
+complete -o nospace -F _dbnav_completer dbgraph
+complete -o nospace -F _dbnav_completer dbexport
+complete -o nospace -F _dbnav_completer dbexec

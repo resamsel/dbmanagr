@@ -7,7 +7,6 @@ import logging
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
 from os.path import expanduser
-import datetime
 
 from ..model.databaseconnection import *
 from ..model.database import *
@@ -175,14 +174,21 @@ class PostgreSQLConnection(DatabaseConnection):
         result = self.execute(FOREIGN_KEY_QUERY, 'Foreign Keys')
 
         for row in result:
-            a = Column(self.tbls[row['table_name'].encode('ascii')], row['column_name'], nullable=row['column_nullable'])
-            b = Column(self.tbls[row['foreign_table_name'].encode('ascii')], row['foreign_column_name'], nullable=row['foreign_column_nullable'])
+            a = Column(
+                self.tbls[row['table_name'].encode('ascii')],
+                row['column_name'],
+                nullable=row['column_nullable'])
+            b = Column(
+                self.tbls[row['foreign_table_name'].encode('ascii')],
+                row['foreign_column_name'],
+                nullable=row['foreign_column_nullable'])
             fk = ForeignKey(a, b)
             self.tbls[a.table.name].fks[a.name] = fk
             self.tbls[b.table.name].fks[str(a)] = fk
 
     def restriction(self, alias, column, operator, value):
-        logger.debug('restriction(alias=%s, column=%s, operator=%s, value=%s)', alias, column, operator, value)
+        logger.debug('restriction(alias=%s, column=%s, operator=%s, value=%s)',
+            alias, column, operator, value)
 
         lhs = column.name
         if column.table:
@@ -201,34 +207,6 @@ class PostgreSQLConnection(DatabaseConnection):
         rhs = self.format_value(column, value)
 
         return ' '.join([lhs, operator, rhs])
-
-    def format_value(self, column, value):
-#        logger.debug('format_value(column=%s, value=%s: %s)', column, value, type(value))
-
-        if value == None:
-            return 'null'
-        if type(value) is list:
-            return '({0})'.format(','.join([self.format_value(column, v) for v in value]))
-        if type(value) in [datetime.datetime, datetime.date, datetime.time]:
-            return "'%s'" % value
-        if column is None:
-            try:
-                return '%d' % int(value)
-            except ValueError:
-                return u"'%s'" % value
-        if isinstance(column.type, Boolean) and (type(value) is bool or value in ['true', 'false']):
-            return '%s' % str(value).lower()
-        if isinstance(column.type, Float):
-            try:
-                return '%f' % float(value)
-            except ValueError:
-                pass
-        if isinstance(column.type, Integer):
-            try:
-                return '%d' % int(value)
-            except ValueError:
-                pass
-        return u"'%s'" % value.replace('%', '%%').replace("'", "''")
 
     def escape_keyword(self, keyword):
         if keyword in ['user', 'select']:

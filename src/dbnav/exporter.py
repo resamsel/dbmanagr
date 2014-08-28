@@ -9,17 +9,19 @@ import re
 
 from .config import Config
 from .item import Item, INVALID
-from .writer import Writer, StdoutWriter
 from .sources import Source
 from .logger import logger, logduration
 from dbnav.utils import remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
+from dbnav.formatter import Formatter, DefaultFormatter, TestFormatter
+from dbnav.writer import Writer, StdoutWriter, FormatWriter, TestWriter
 
 parser = argparse.ArgumentParser(prog='dbexport')
 parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value""")
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-d', '--default', default=True, help='Output format: SQL insert into statements', action='store_true')
+group.add_argument('-t', '--test', help='use test writer', action='store_true')
 parser.add_argument('-i', '--include', help='Include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-m', '--limit', type=int, default=50, help='Limit the results of the main query to this amount of rows')
@@ -135,9 +137,11 @@ def main():
 
 def run(argv):
     options = Config.init(argv, parser)
-    options.artificial_projection = False
+    Writer.set(StdoutWriter(u'{0}', u'{title}'))
     if options.default:
-        Writer.set(StdoutWriter(u'{0}', u'{title}'))
+        Formatter.set(DefaultFormatter())
+    if options.test:
+        Writer.set(TestWriter(u'{0}'))
 
     try:
         return DatabaseExporter.export(options)

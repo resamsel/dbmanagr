@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from .baseitem import BaseItem
+from dbnav.model.baseitem import BaseItem
+from dbnav.formatter import Formatter
 
 logger = logging.getLogger(__name__)
 
@@ -48,3 +49,6 @@ class Row(BaseItem):
 
     def icon(self):
         return 'images/row.png'
+
+    def format(self):
+        return Formatter.format_row(self)

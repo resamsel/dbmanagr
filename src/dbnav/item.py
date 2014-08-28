@@ -4,6 +4,8 @@
 import uuid
 import logging
 
+from dbnav.formatter import Formatter
+
 VALID = "yes"
 INVALID = "no"
 
@@ -12,6 +14,11 @@ logger = logging.getLogger(__name__)
 def hash(s):
     #logger.debug('hash(%s)' % s)
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
+
+def item(v):
+    if v.__class__.__name__ == 'BaseItem':
+        return v.item()
+    return v
 
 def create_connections(cons):
     """Creates connection items"""
@@ -38,14 +45,14 @@ def create_rows(rows):
 
     logger.debug('create_rows(rows=%s)', rows)
 
-    return [row.item() for row in rows]
+    return map(Formatter.format_row, rows)
 
 def create_values(values):
     """Creates value items"""
 
     logger.debug('create_values(values=%s)', values)
 
-    return [v.item() for v in values]
+    return [item(v) for v in values]
 
 def create_items(items, options):
     """Creates any items"""
@@ -85,3 +92,5 @@ class Item:
         return str(self.__dict__)
     def __repr__(self):
         return self.title
+    def format(self):
+        return Formatter.format_item(self)

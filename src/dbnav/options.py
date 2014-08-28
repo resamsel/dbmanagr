@@ -60,13 +60,15 @@ class Options:
         self.operator = None
         self.filter = None
         self.show = 'connections'
-        self.artificial_projection = True
+        self.simplify = False
         self.default = False
         self.simple = False
         self.json = False
         self.xml = False
         self.autocomplete = False
         self.test = False
+        self.infile = None
+        self.separator = None
 
         args = parser.parse_args(argv[1:])
 

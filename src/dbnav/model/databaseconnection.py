@@ -6,6 +6,8 @@ import logging
 
 from sqlalchemy import *
 from sqlalchemy.engine import reflection
+from sqlalchemy.types import TIMESTAMP
+import datetime
 
 from ..logger import *
 from ..querybuilder import QueryBuilder
@@ -36,7 +38,7 @@ def values(connection, table, filter):
                 filter=filter.filter,
                 order=[],
                 limit=1,
-                artificial_projection=filter.artificial_projection).build()
+                simplify=filter.simplify).build()
     result = connection.execute(query, 'Values')
         
     row = Row(connection, table, result.fetchone())
@@ -145,14 +147,16 @@ class DatabaseConnection(BaseItem):
             if options.show == 'databases':
                 dbs = self.databases()
                 if options.database:
-                    dbs = [db for db in dbs if options.database in db.name]
+                    dbs = filter(lambda db: options.database in db.name, dbs)
 
                 return sorted(dbs, key=lambda db: db.name.lower())
 
             if options.show == 'tables':
-                tables = [t for k, t in self.tables().iteritems()]
+                tables = map(lambda (k, t): t, self.tables().iteritems())
                 if options.table:
-                    tables = [t for t in tables if t.name.startswith(options.table)]
+                    tables = filter(
+                        lambda t: t.name.startswith(options.table),
+                        tables)
 
                 return sorted(tables, key=lambda t: t.name.lower())
 
@@ -172,7 +176,7 @@ class DatabaseConnection(BaseItem):
                         table.rows(
                             options.filter,
                             limit=options.limit,
-                            artificial_projection=options.artificial_projection),
+                            simplify=options.simplify),
                         key=lambda r: r[0])
             
             if options.show == 'values':
@@ -233,10 +237,18 @@ class DatabaseConnection(BaseItem):
 
     def columns(self, table):
         """Returns a list of Column objects"""
+
         cols = self.inspector.get_columns(table.name)
-        pks = [pk for pk in self.inspector.get_pk_constraint(table.name)['constrained_columns']]
+        pks = self.inspector.get_pk_constraint(table.name)['constrained_columns']
         
-        return [Column(table, col['name'], [col['name']] == pks, col['type'], col['nullable']) for col in cols]
+        return map(
+            lambda col: Column(
+                table,
+                col['name'],
+                [col['name']] == pks,
+                col['type'],
+                col['nullable']),
+            cols)
 
     def restriction(self, alias, column, operator, value):
         if column.table:
@@ -244,11 +256,38 @@ class DatabaseConnection(BaseItem):
         return u'{0} {1} {2}'.format(column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):
-        if not value:
-            return u'null'
+        #print column.type, value, value == None
+        if value == None:
+            return 'null'
+        if type(value) is list:
+            return '({0})'.format(','.join([self.format_value(column, v) for v in value]))
+        if type(value) in [datetime.datetime, datetime.date, datetime.time]:
+            return "'%s'" % value
         if type(value) is buffer:
             return u"'[BLOB]'"
-        return u"'{0}'".format(value)
+        if column is None:
+            try:
+                return '%d' % int(value)
+            except ValueError:
+                return u"'%s'" % value
+        if isinstance(column.type, Boolean) and (type(value) is bool or value in ['true', 'false']):
+            return '%s' % str(value).lower()
+        if isinstance(column.type, Float):
+            try:
+                return '%f' % float(value)
+            except ValueError:
+                pass
+        if isinstance(column.type, Integer):
+            try:
+                return '%d' % int(value)
+            except ValueError:
+                pass
+        if isinstance(column.type, TIMESTAMP):
+            try:
+                return '%d' % int(value)
+            except ValueError:
+                pass
+        return u"'%s'" % value.replace('%', '%%').replace("'", "''")
 
     def escape_keyword(self, keyword):
         return keyword

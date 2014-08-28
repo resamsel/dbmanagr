@@ -69,7 +69,7 @@ class Table(BaseItem):
 
         return None
 
-    def rows(self, filter=[], limit=DEFAULT_LIMIT, artificial_projection=False):
+    def rows(self, filter=[], limit=DEFAULT_LIMIT, simplify=False):
         """Retrieves rows from the table with the given filter applied"""
         
         query = QueryBuilder(self.connection,
@@ -77,7 +77,7 @@ class Table(BaseItem):
             filter=filter,
             order=self.comment.order,
             limit=limit,
-            artificial_projection=artificial_projection).build()
+            simplify=simplify).build()
 
         try:
             result = self.connection.execute(query, 'Rows')
@@ -93,10 +93,8 @@ class Table(BaseItem):
                 self,
                 databaseconnection.DatabaseRow({'title': str(e), 'subtitle': 'Check comment on table %s' % self.name}))]
 
-        def t(row): return Row(self.connection, self, row)
+        return map(lambda row: Row(self.connection, self, row), result)
 
-        return map(t, result)
-    
     def foreign_keys(self):
         return self.fks
 

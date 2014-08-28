@@ -1,16 +1,16 @@
 api_key
-+ client_id -> client.id
-  + api_key (client_id -> id)
-    + forgot_password_email_template_id -> email_template.id
-    + registration_doi_email_template_id -> email_template.id
-    + registration_doi_reminder_template_id -> email_template.id
-    + user (created_by_api_key_id -> id)
-    + api_key_2_competition (api_key_id -> id)
-    + api_permission (api_key_id -> id)
-    + api_key_2_badge_definition (api_key_id -> id)
-+ forgot_password_email_template_id -> email_template.id
-+ registration_doi_email_template_id -> email_template.id
-+ registration_doi_reminder_template_id -> email_template.id
-+ api_key_2_competition (api_key_id -> id)
-+ api_permission (api_key_id -> id)
-+ api_key_2_badge_definition (api_key_id -> id)
+→ client_id → client.id
+  ← api_key (client_id → client.id)
+    → forgot_password_email_template_id → email_template.id
+    → registration_doi_email_template_id → email_template.id
+    → registration_doi_reminder_template_id → email_template.id
+    ← user (created_by_api_key_id → api_key.id)
+    ← api_key_2_competition (api_key_id → api_key.id)
+    ← api_permission (api_key_id → api_key.id)
+    ← api_key_2_badge_definition (api_key_id → api_key.id)
+→ forgot_password_email_template_id → email_template.id
+→ registration_doi_email_template_id → email_template.id
+→ registration_doi_reminder_template_id → email_template.id
+← api_key_2_competition (api_key_id → api_key.id)
+← api_permission (api_key_id → api_key.id)
+← api_key_2_badge_definition (api_key_id → api_key.id)

@@ -1,598 +1,598 @@
 api_key
-+ client_id -> client.id
-  + api_key (client_id -> id)
-+ forgot_password_email_template_id -> email_template.id
-  + api_key (registration_doi_reminder_template_id -> id)
-  + api_key (registration_doi_email_template_id -> id)
-  + api_key (forgot_password_email_template_id -> id)
-+ registration_doi_email_template_id -> email_template.id
-+ registration_doi_reminder_template_id -> email_template.id
-+ user (created_by_api_key_id -> id)
-  + address -> address.id
-    + country -> countries.id
-      + contact_collect (country -> id)
-        + country? -> countries.id
-      + address (country -> id)
-    + user (address -> id)
-    + resort (address -> id)
-      + address -> address.id
-      + newsfeed? -> newsfeed.id
-      + description? -> localized_text.id
-      + custom_message? -> localized_text.id
-      + logo -> svg_logo.id
-        + svg_template (logo_1 -> id)
-        + svg_template (logo_2 -> id)
-        + svg_template (logo_3 -> id)
-        + svg_template_2_ski_resort (logo_1 -> id)
-        + svg_template_2_ski_resort (logo_2 -> id)
-        + svg_template_2_ski_resort (logo_3 -> id)
-        + resort (logo -> id)
-      + resort_panorama_id -> resort_panorama.id
-        + resort_panorama_section (panorama_id -> id)
-          + panorama_id -> resort_panorama.id
-          + section_id -> section.s_id
-        + resort (resort_panorama_id -> id)
-      + info -> ski_resort_info.id
-        + notes -> localized_text.id
-        + resort (info -> id)
-      + skicard_per_day (first_resort -> id)
-      + competition (enter_ticket_resort -> id)
-      + webcams (resort_id -> id)
-        + resort_id -> resort.id
-        + panorama_branding -> localized_text.id
-        + section_2_webcam (webcam_id -> id)
-      + skiline_access_log (resort_id -> id)
-      + competition_instance_2_ski_resort (resort_id -> id)
-        + competition_instance_id -> competition_instance.id
-        + resort_id -> resort.id
-      + top100_sharing (resort_id -> id)
-        + resort_id -> resort.id
-        + sees_data_from -> resort.id
-      + album (resort_id -> id)
-      + rel_resort_skicard_type (resort_id -> id)
-        + resort_id? -> resort.id
-        + ktnr? -> skidata_card_types.ktnr
-          + rel_resort_skicard_type (ktnr -> ktnr)
-      + forum (ski_resort_id -> id)
-      + challenge_purchase (resort_id -> id)
-      + resort_sharing (sees_data_from -> id)
-        + resort_id -> resort.id
-        + sees_data_from -> resort.id
-      + skiline_statistics (resort_id -> id)
-        + resort_id -> resort.id
-      + rel_resort_skidataconnection (resort_id -> id)
-        + resort_id? -> resort.id
-        + conn_id? -> skidata_connection_params.id
-          + rel_resort_skidataconnection (conn_id -> id)
-        + daz_id? -> daz.id
-          + rel_daz_resort (daz_id -> id)
-          + rel_resort_skidataconnection (daz_id -> id)
-      + resort_season_statistics (resort_id -> id)
-        + resort_id -> resort.id
-      + section (resort_id -> id)
-        + cp_end -> cpoint.id
-          + section (cp_end -> id)
-          + section (cp_start -> id)
-          + photo_point (cpoint_id -> id)
-        + cp_start -> cpoint.id
-        + type -> section_type.id
-          + section (type -> id)
-        + resort_id -> resort.id
-        + section_2_webcam (section_id -> s_id)
-        + skicard_section_supplement (s_id -> s_id)
-        + rel_skicardpd_skicardsectionsupp (section_id -> s_id)
-          + section_id? -> section.s_id
-        + axess_lift_2_section (section_id -> s_id)
-          + section_id -> section.s_id
-        + resort_panorama_section (section_id -> s_id)
-        + route_sections (section_id -> s_id)
-      + rel_daz_resort (resort_id -> id)
-        + daz_id? -> daz.id
-        + resort_id? -> resort.id
-      + photo_point (ski_resort -> id)
-        + ski_resort -> resort.id
-        + cpoint_id? -> cpoint.id
-        + badge_rule (photopoint_name -> name)
-        + photo (camera -> name)
-        + media (photopoint_name -> name)
-      + top100_sharing (sees_data_from -> id)
-      + skicard_section_supplement (resort_id -> id)
-        + s_id? -> section.s_id
-        + resort_id? -> resort.id
-      + user_2_ski_resort (ski_resort_id -> id)
-      + badge_rule_2_ski_resort (resort_id -> id)
-        + badge_rule_id -> badge_rule.id
-        + resort_id -> resort.id
-      + competition_instance_2_badge_rule (badge_rule_id -> id)
-        + competition_instance_id -> competition_instance.id
-        + badge_rule_id -> resort.id
-      + rel_section_resort (resort -> id)
-        + resort? -> resort.id
-      + anon_mail (resort -> id)
-      + skimovie_statistics (resort_id -> id)
-        + resort_id -> resort.id
-        + spot_id -> spot.id
-      + resort_sharing (resort_id -> id)
-      + rel_pool_company (resort_id -> id)
-        + resort_id -> resort.id
-      + ski_resort_performance (resort -> id)
-        + resort -> resort.id
-      + handicap_log (resort -> id)
-        + resort? -> resort.id
-      + skier_level (resort -> id)
-        + resort -> resort.id
-      + group (ski_resort_id -> id)
-      + badge_rule (input_resort_id -> id)
-      + axess_connection_params (resort_id -> id)
-        + resort_id -> resort.id
-      + contact_info (ski_resort_id -> id)
-      + section_2_webcam (resort_id -> id)
-        + section_id -> section.s_id
-        + webcam_id -> webcams.id
-        + resort_id -> resort.id
-      + spot (resort_id -> id)
-      + skicard (resort -> id)
-      + ski_diary (ski_resort -> id)
-      + video (resort_id -> id)
-      + ski_resort_province (ski_resort -> id)
-        + province? -> province.id
-          + ski_resort_province (province -> id)
-        + ski_resort? -> resort.id
-  + current_fitness_profile? -> fitness_profile.id
-    + user_id? -> user.id
-    + user (current_fitness_profile -> id)
-  + race_profile -> race_profile.id
-    + current_ski? -> race_profile_equipment.id
-      + equipment? -> equipment.id
-        + brand -> equipment_brand.id
-          + equipment (brand -> id)
-        + race_profile_equipment (equipment -> id)
-      + snowboard_race_profile_id? -> race_profile.id
-      + ski_race_profile_id? -> race_profile.id
-      + race_profile (current_ski -> id)
-      + race_profile (current_snowboard -> id)
-    + current_snowboard? -> race_profile_equipment.id
-    + race_profile_equipment (ski_race_profile_id -> id)
-    + user (race_profile -> id)
-    + race_profile_equipment (snowboard_race_profile_id -> id)
-    + ski_handicap (race_profile_id -> id)
-      + race_profile_id? -> race_profile.id
-  + newsfeed -> newsfeed.id
-    + resort (newsfeed -> id)
-    + user (newsfeed -> id)
-    + newsfeed_item (newsfeed -> id)
-      + newsfeed -> newsfeed.id
-  + current_season_statistics -> user_season_statistics.id
-    + season? -> season.id
-      + user_season_statistics (season -> id)
-    + user_id? -> user.id
-    + user (current_season_statistics -> id)
-  + security_info_id? -> security_info.id
-    + user (security_info_id -> id)
-  + created_by_api_key_id -> api_key.id
-  + lead_bmw_2010 (user_id -> id)
-    + user_id -> user.id
-  + user_visit (user_id -> id)
-    + visitor_id -> user.id
-    + user_id -> user.id
-  + user_season_statistics (user_id -> id)
-  + ski_diary (user_id -> id)
-    + user_id -> user.id
-    + ski_resort -> resort.id
-  + forum_visit (user_id -> id)
-    + user_id -> user.id
-    + forum_id -> forum.id
-  + user_2_skimovie (user_id -> id)
-    + skimovie_id? -> video.id
-      + resort_id -> resort.id
-      + spot_id -> spot.id
-      + category_id -> skimovie_category.id
-        + video (category_id -> id)
-      + preview_medium -> video_details.id
-        + video_id? -> video.id
-        + video (preview_medium -> id)
-      + skimovie_visit (skimovie_id -> id)
-      + video_details (video_id -> id)
-      + kiosk_competition_entry (video_id -> id)
-        + video_id? -> video.id
-      + competition_result_item (skimovie_id -> id)
-      + user_2_skimovie (skimovie_id -> id)
-      + rating (skimovie_id -> id)
-    + user_id? -> user.id
-    + skicard_per_day_id -> skicard_per_day.id
-    + competition_result_item (user_skimovie_id -> id)
-    + badge (user_2_skimovie_id -> id)
-  + user_facebook_info (user_id -> id)
-    + user_id -> user.id
-  + contact_info (user_id -> id)
-    + user? -> user.id
-    + user_id? -> user.id
-    + ski_resort_id? -> resort.id
-  + donation (user_id -> id)
-    + ski_ticket_id? -> skicard.id
-    + user_id? -> user.id
-    + donee_id -> donee.id
-      + competition_id -> competition.id
-      + competition_result_item (donee_id -> id)
-      + donation (donee_id -> id)
-  + newsletter_2_user (user_id -> id)
-    + newsletter_id? -> newsletter.id
-      + newsletter_2_user (newsletter_id -> id)
-    + user_id? -> user.id
-  + skicard_per_day (user_id -> id)
-    + first_resort? -> resort.id
-    + skicard_id? -> skicard.id
-    + user_id? -> user.id
-    + swisscom_performance_status (skicard_per_day_id -> id)
-      + skicard_per_day_id -> skicard_per_day.id
-    + badge (skicard_per_day_id -> id)
-    + user_2_skimovie (skicard_per_day_id -> id)
-    + rel_skicardpd_route (skicard_per_day_id -> id)
-      + skicard_per_day_id? -> skicard_per_day.id
-      + route_id -> route.id
-  + mail_box (owner -> id)
-    + owner -> user.id
-    + mail_box_item (mailbox -> id)
-  + user_2_welcome_email (user_id -> id)
-    + user_id -> user.id
-  + fitness_profile (user_id -> id)
-  + media_visit (user_id -> id)
-    + media_id -> media.id
-      + album_id? -> album.id
-      + photopoint_name -> photo_point.name
-      + photo_id -> photo.id
-        + camera? -> photo_point.name
-        + media (photo_id -> id)
-      + rating (media_id -> id)
-      + media_visit (media_id -> id)
-      + badge (photo_id -> id)
-      + location (media_id -> id)
-      + album (cover_media_id -> id)
-    + user_id -> user.id
-  + competition_invitation (user_id -> id)
-    + competition_id? -> competition.id
-    + inviter_id? -> user.id
-    + user_id? -> user.id
-  + user_2_role (user_id -> id)
-    + user_id -> user.id
-  + lead (user_id -> id)
-    + user_id -> user.id
-  + forum (user_id -> id)
-    + ski_resort_id? -> resort.id
-    + user_id? -> user.id
-    + group_id? -> group.id
-      + ski_resort_id? -> resort.id
-      + user_2_group (group_id -> id)
-      + group_2_competition (group_id -> id)
-      + album (group_id -> id)
-      + group_invitation (group_id -> id)
-      + forum (group_id -> id)
-    + competition_id? -> competition.id
-    + thread (forum_id -> id)
-      + forum_id -> forum.id
-      + last_post_id? -> post.id
-        + thread_id -> thread.id
-        + thread (last_post_id -> id)
-      + thread_visit (thread_id -> id)
-      + post (thread_id -> id)
-    + forum_visit (forum_id -> id)
-  + user_feature (user_id -> id)
-    + user_id? -> user.id
-  + user_2_group (user_id -> id)
-    + group_id? -> group.id
-    + user_id? -> user.id
-  + user_2_route (user_id -> id)
-    + route_id -> route.id
-      + rel_skicardpd_route (route_id -> id)
-      + user_2_route (route_id -> id)
-      + competition_instance (safari_route_id -> id)
-      + badge_rule (route_id -> id)
-      + route_sections (route_id -> id)
-        + route_id -> route.id
-        + section_id -> section.s_id
-    + user_id -> user.id
-  + thread_visit (user_id -> id)
-    + thread_id -> thread.id
-    + user_id -> user.id
-  + track (user_id -> id)
-    + user_id -> user.id
-    + location (track_id -> id)
-      + track_id -> track.id
-      + media_id -> media.id
-  + user_2_ski_resort (user_id -> id)
-    + ski_resort_id? -> resort.id
-    + user_id? -> user.id
-  + rating (user -> id)
-    + user? -> user.id
-    + skimovie_id? -> video.id
-    + media_id? -> media.id
-  + login_history (user -> id)
-    + user? -> user.id
-  + user_2_user (user_id -> id)
-    + friend_id? -> user.id
-    + user_id? -> user.id
-  + user_alarm (target -> id)
-    + target? -> user.id
-    + owner? -> user.id
-  + skiline_access_log (user_id -> id)
-    + resort_id? -> resort.id
-    + card_id? -> skicard.id
-    + user_id? -> user.id
-  + contact_info (user -> id)
-  + group_invitation (user_id -> id)
-    + group_id? -> group.id
-    + inviter_id? -> user.id
-    + user_id? -> user.id
-  + user_competition_reminder_email (user_id -> id)
-    + competition -> competition.id
-    + user_id -> user.id
-    + ski_ticket -> skicard.id
-  + mail_box_item (sender -> id)
-    + first_receiver -> user.id
-    + mailbox -> mail_box.id
-    + sender -> user.id
-    + mail_box_item_2_receiver (mail_box_item_id -> id)
-  + mail_box_item_2_receiver (receiver_id -> id)
-    + mail_box_item_id -> mail_box_item.id
-    + receiver_id -> user.id
-  + mail_box_item (first_receiver -> id)
-  + deleted_skicard (user_id -> id)
-    + user_id? -> user.id
-    + delete_user_agent_id? -> user_agent.id
-      + deleted_skicard (delete_user_agent_id -> id)
-    + deleted_skicard_per_day (skicard_id -> id)
-      + skicard_id? -> deleted_skicard.id
-  + group_invitation (inviter_id -> id)
-  + skicard (user_id -> id)
-    + original_user_id? -> user.id
-    + resort -> resort.id
-    + user_id? -> user.id
-    + donation (ski_ticket_id -> id)
-    + skicard_per_day (skicard_id -> id)
-    + user_competition_reminder_email (ski_ticket -> id)
-    + skiline_access_log (card_id -> id)
-    + anon_mail (skicard_id -> id)
-      + resort? -> resort.id
-      + skicard_id? -> skicard.id
-  + user_2_user (friend_id -> id)
-  + spot_2_user (user_id -> id)
-    + spot_id -> spot.id
-      + resort_id -> resort.id
-      + video (spot_id -> id)
-      + badge_rule (spot_id -> id)
-      + competition_instance (skimovie_spot_id -> id)
-      + spot_2_user (spot_id -> id)
-      + skimovie_statistics (spot_id -> id)
-      + competition_backup (ski_movie_spot_id -> id)
-        + ski_movie_spot_id? -> spot.id
-        + parent -> competition_backup.id
-        + registration_client -> competition_backup.id
-        + clone_of -> competition_backup.id
-        + registration_client -> competition_backup.id
-        + clone_of -> competition_backup.id
-        + parent -> competition_backup.id
-        + parent -> competition_backup.id
-        + clone_of -> competition_backup.id
-        + registration_client -> competition_backup.id
-      + swisscom_skimovie_status (spot_id -> id)
-        + spot_id -> spot.id
-    + user_id -> user.id
-  + friend_invitation (invited_user -> id)
-    + invited_user? -> user.id
-    + invitor -> user.id
-  + skicard (original_user_id -> id)
-  + album (user_id -> id)
-    + cover_media_id? -> media.id
-    + user_id? -> user.id
-    + group_id? -> group.id
-    + resort_id? -> resort.id
-    + media (album_id -> id)
-  + user_2_competition (user_id -> id)
-    + competition_id? -> competition.id
-    + user_id? -> user.id
-    + competition_terms -> competition_terms.id
-      + competition -> competition.id
-      + user_2_competition (competition_terms -> id)
-    + registration_key_id? -> competition_registration_key.id
-      + competition -> competition.id
-      + user_2_competition (registration_key_id -> id)
-  + challenge (owner -> id)
-    + owner -> user.id
-    + challenge_log (challenge_id -> id)
-      + challenge_id -> challenge.id
-    + challenge_penalty (challenge_id -> id)
-      + challenge_id -> challenge.id
-    + challenge_purchase (template_challenge_id -> id)
-    + challenge_invitation (challenge_id -> id)
-    + challenge_ranking_filter (challenge_id -> id)
-      + challenge_id -> challenge.id
-  + competition_invitation (inviter_id -> id)
-  + user_visit (visitor_id -> id)
-  + user_2_language (user_id -> id)
-    + user_id -> user.id
-  + user_alarm (owner -> id)
-  + friend_invitation (invitor -> id)
-  + competition_result_item (user_id -> id)
-    + result_id -> competition_result.id
-      + competition_instance -> competition_instance.id
-      + competition_result_item (result_id -> id)
-      + competition_instance (current_result -> id)
-    + user_id -> user.id
-    + user_skimovie_id -> user_2_skimovie.id
-    + donee_id? -> donee.id
-    + photo_book_id? -> photobook.id
-    + skimovie_id -> video.id
-  + user_2_checkpoint (user_id -> id)
-    + checkpoint_id? -> checkpoint.id
-      + user_2_checkpoint (checkpoint_id -> id)
-      + competition_instance_2_checkpoint (checkpoint_id -> id)
-        + competition_instance_id -> competition_instance.id
-        + checkpoint_id -> checkpoint.id
-    + user_id? -> user.id
-  + challenge_purchase (user_id -> id)
-    + resort_id -> resort.id
-    + user_id -> user.id
-    + template_challenge_id -> challenge.id
-  + skimovie_visit (user_id -> id)
-    + skimovie_id -> video.id
-    + user_id -> user.id
-  + badge (user_id -> id)
-    + badge_rule_id -> badge_rule.id
-      + badge_definition -> badge_definition.id
-      + competition -> competition.id
-      + competition_instance -> competition_instance.id
-      + route_id -> route.id
-      + spot_id -> spot.id
-      + name -> localized_text.id
-      + description -> localized_text.id
-      + certificate_template -> localized_text.id
-      + certificate_mail_subject -> localized_text.id
-      + photopoint_name -> photo_point.name
-      + short_description -> localized_text.id
-      + input_resort_id? -> resort.id
-      + competition_instance_2_badge_rule (badge_rule_id -> id)
-      + competition_instance_2_ski_resort (resort_id -> id)
-      + badge_rule_2_ski_resort (badge_rule_id -> id)
-      + badge (badge_rule_id -> id)
-    + competition_instance_id -> competition_instance.id
-      + safari_route_id? -> route.id
-      + skimovie_spot_id? -> spot.id
-      + current_result -> competition_result.id
-      + definition -> competition_definition.id
-      + name -> localized_text.id
-      + short_name -> localized_text.id
-      + period_name -> localized_text.id
-      + description_properties -> localized_text.id
-      + prices_properties -> localized_text.id
-      + teaser_properties -> localized_text.id
-      + unit_name -> localized_text.id
-      + email_template -> localized_text.id
-      + email_subject -> localized_text.id
-      + competition_instance_aggregation (aggregated_instance -> id)
-        + aggregated_instance? -> competition_instance.id
-        + parent_instance? -> competition_instance.id
-      + badge (competition_instance_id -> id)
-      + competition_result (competition_instance -> id)
-      + photobook (competition_instance_id -> id)
-      + badge_rule (competition_instance -> id)
-      + competition_instance_2_checkpoint (competition_instance_id -> id)
-      + competition_instance_aggregation (parent_instance -> id)
-      + competition_instance_2_ski_resort (competition_instance_id -> id)
-      + competition_instance_2_badge_rule (competition_instance_id -> id)
-    + skicard_per_day_id -> skicard_per_day.id
-    + user_id -> user.id
-    + user_2_skimovie_id -> user_2_skimovie.id
-    + photo_id -> media.id
-  + challenge_invitation (user_id -> id)
-    + challenge_id -> challenge.id
-    + user_id? -> user.id
-  + photobook (user_id -> id)
-    + user_id -> user.id
-    + competition_instance_id -> competition_instance.id
-    + competition_result_item (photo_book_id -> id)
-+ api_key_2_competition (api_key_id -> id)
-  + api_key_id -> api_key.id
-  + competition_id -> competition.id
-    + name -> localized_text.id
-      + badge_rule (certificate_mail_subject -> id)
-      + competition (reminder_email -> id)
-      + competition_definition (description -> id)
-      + badge_rule (description -> id)
-      + badge_rule (certificate_template -> id)
-      + competition_definition (name -> id)
-      + competition (short_name -> id)
-      + poi (description -> id)
-        + name -> localized_text.id
-        + description? -> localized_text.id
-      + badge_definition (description -> id)
-      + resort (custom_message -> id)
-      + competition_instance (prices_properties -> id)
-      + competition_instance (short_name -> id)
-      + competition (teaser_popup -> id)
-      + competition_instance (unit_name -> id)
-      + ski_resort_info (notes -> id)
-      + competition_instance (email_subject -> id)
-      + competition_instance (teaser_properties -> id)
-      + poi (name -> id)
-      + competition (name -> id)
-      + badge_rule (name -> id)
-      + competition (teaser -> id)
-      + svg_template (text4 -> id)
-        + text1 -> localized_text.id
-        + text2 -> localized_text.id
-        + text3 -> localized_text.id
-        + text4 -> localized_text.id
-        + logo_1 -> svg_logo.id
-        + logo_2 -> svg_logo.id
-        + logo_3 -> svg_logo.id
-        + svg_template_2_ski_resort (svg_template_id -> id)
-      + competition (reminder_email_subject -> id)
-      + svg_template (text1 -> id)
-      + competition (winner_tab -> id)
-      + svg_template (text3 -> id)
-      + competition_instance (period_name -> id)
-      + badge_definition (name -> id)
-      + competition_instance (name -> id)
-      + svg_template_2_ski_resort (text4 -> id)
-        + svg_template_id? -> svg_template.id
-        + text1 -> localized_text.id
-        + text2 -> localized_text.id
-        + text3 -> localized_text.id
-        + text4 -> localized_text.id
-        + logo_1 -> svg_logo.id
-        + logo_2 -> svg_logo.id
-        + logo_3 -> svg_logo.id
-      + svg_template_2_ski_resort (text1 -> id)
-      + svg_template_2_ski_resort (text2 -> id)
-      + svg_template_2_ski_resort (text3 -> id)
-      + competition_instance (description_properties -> id)
-      + competition (description -> id)
-      + svg_template (text2 -> id)
-      + competition_definition (teaser -> id)
-      + webcams (panorama_branding -> id)
-      + badge_rule (short_description -> id)
-      + resort (description -> id)
-      + competition_instance (email_template -> id)
-      + competition_definition (prices -> id)
-    + short_name -> localized_text.id
-    + description -> localized_text.id
-    + teaser -> localized_text.id
-    + teaser_popup -> localized_text.id
-    + winner_tab -> localized_text.id
-    + reminder_email -> localized_text.id
-    + reminder_email_subject -> localized_text.id
-    + enter_ticket_resort -> resort.id
-    + competition_definition (competition -> id)
-      + competition -> competition.id
-      + name -> localized_text.id
-      + description -> localized_text.id
-      + prices -> localized_text.id
-      + teaser -> localized_text.id
-      + type -> competition_type.key
-        + competition_result_format_id -> competition_result_format.id
-          + competition_type (competition_result_format_id -> id)
-        + competition_definition (type -> key)
-      + competition_instance (definition -> id)
-    + competition_invitation (competition_id -> id)
-    + group_2_competition (competition_id -> id)
-      + competition_id? -> competition.id
-      + group_id? -> group.id
-    + user_competition_reminder_email (competition -> id)
-    + competition_registration_key (competition -> id)
-    + api_key_2_competition (competition_id -> id)
-    + forum (competition_id -> id)
-    + user_2_competition (competition_id -> id)
-    + badge_rule (competition -> id)
-    + donee (competition_id -> id)
-    + competition_terms (competition -> id)
-+ api_permission (api_key_id -> id)
-  + api_key_id -> api_key.id
-  + api_service_method_id -> api_service_method.id
-    + api_permission (api_service_method_id -> id)
-+ api_key_2_badge_definition (api_key_id -> id)
-  + api_key_id -> api_key.id
-  + badge_definition_id? -> badge_definition.id
-    + description -> localized_text.id
-    + name -> localized_text.id
-    + badge_rule (badge_definition -> id)
-    + api_key_2_badge_definition (badge_definition_id -> id)
+→ client_id → client.id
+  ← api_key (client_id → client.id)
+→ forgot_password_email_template_id → email_template.id
+  ← api_key (registration_doi_reminder_template_id → email_template.id)
+  ← api_key (registration_doi_email_template_id → email_template.id)
+  ← api_key (forgot_password_email_template_id → email_template.id)
+→ registration_doi_email_template_id → email_template.id
+→ registration_doi_reminder_template_id → email_template.id
+← user (created_by_api_key_id → api_key.id)
+  → address → address.id
+    → country → countries.id
+      ← contact_collect (country → countries.id)
+        → country? → countries.id
+      ← address (country → countries.id)
+    ← user (address → address.id)
+    ← resort (address → address.id)
+      → address → address.id
+      → newsfeed? → newsfeed.id
+      → description? → localized_text.id
+      → custom_message? → localized_text.id
+      → logo → svg_logo.id
+        ← svg_template (logo_1 → svg_logo.id)
+        ← svg_template (logo_2 → svg_logo.id)
+        ← svg_template (logo_3 → svg_logo.id)
+        ← svg_template_2_ski_resort (logo_1 → svg_logo.id)
+        ← svg_template_2_ski_resort (logo_2 → svg_logo.id)
+        ← svg_template_2_ski_resort (logo_3 → svg_logo.id)
+        ← resort (logo → svg_logo.id)
+      → resort_panorama_id → resort_panorama.id
+        ← resort_panorama_section (panorama_id → resort_panorama.id)
+          → panorama_id → resort_panorama.id
+          → section_id → section.s_id
+        ← resort (resort_panorama_id → resort_panorama.id)
+      → info → ski_resort_info.id
+        → notes → localized_text.id
+        ← resort (info → ski_resort_info.id)
+      ← skicard_per_day (first_resort → resort.id)
+      ← competition (enter_ticket_resort → resort.id)
+      ← webcams (resort_id → resort.id)
+        → resort_id → resort.id
+        → panorama_branding → localized_text.id
+        ← section_2_webcam (webcam_id → webcams.id)
+      ← skiline_access_log (resort_id → resort.id)
+      ← competition_instance_2_ski_resort (resort_id → resort.id)
+        → competition_instance_id → competition_instance.id
+        → resort_id → resort.id
+      ← top100_sharing (resort_id → resort.id)
+        → resort_id → resort.id
+        → sees_data_from → resort.id
+      ← album (resort_id → resort.id)
+      ← rel_resort_skicard_type (resort_id → resort.id)
+        → resort_id? → resort.id
+        → ktnr? → skidata_card_types.ktnr
+          ← rel_resort_skicard_type (ktnr → skidata_card_types.ktnr)
+      ← forum (ski_resort_id → resort.id)
+      ← challenge_purchase (resort_id → resort.id)
+      ← resort_sharing (sees_data_from → resort.id)
+        → resort_id → resort.id
+        → sees_data_from → resort.id
+      ← skiline_statistics (resort_id → resort.id)
+        → resort_id → resort.id
+      ← rel_resort_skidataconnection (resort_id → resort.id)
+        → resort_id? → resort.id
+        → conn_id? → skidata_connection_params.id
+          ← rel_resort_skidataconnection (conn_id → skidata_connection_params.id)
+        → daz_id? → daz.id
+          ← rel_daz_resort (daz_id → daz.id)
+          ← rel_resort_skidataconnection (daz_id → daz.id)
+      ← resort_season_statistics (resort_id → resort.id)
+        → resort_id → resort.id
+      ← section (resort_id → resort.id)
+        → cp_end → cpoint.id
+          ← section (cp_end → cpoint.id)
+          ← section (cp_start → cpoint.id)
+          ← photo_point (cpoint_id → cpoint.id)
+        → cp_start → cpoint.id
+        → type → section_type.id
+          ← section (type → section_type.id)
+        → resort_id → resort.id
+        ← section_2_webcam (section_id → section.s_id)
+        ← skicard_section_supplement (s_id → section.s_id)
+        ← rel_skicardpd_skicardsectionsupp (section_id → section.s_id)
+          → section_id? → section.s_id
+        ← axess_lift_2_section (section_id → section.s_id)
+          → section_id → section.s_id
+        ← resort_panorama_section (section_id → section.s_id)
+        ← route_sections (section_id → section.s_id)
+      ← rel_daz_resort (resort_id → resort.id)
+        → daz_id? → daz.id
+        → resort_id? → resort.id
+      ← photo_point (ski_resort → resort.id)
+        → ski_resort → resort.id
+        → cpoint_id? → cpoint.id
+        ← badge_rule (photopoint_name → photo_point.name)
+        ← photo (camera → photo_point.name)
+        ← media (photopoint_name → photo_point.name)
+      ← top100_sharing (sees_data_from → resort.id)
+      ← skicard_section_supplement (resort_id → resort.id)
+        → s_id? → section.s_id
+        → resort_id? → resort.id
+      ← user_2_ski_resort (ski_resort_id → resort.id)
+      ← badge_rule_2_ski_resort (resort_id → resort.id)
+        → badge_rule_id → badge_rule.id
+        → resort_id → resort.id
+      ← competition_instance_2_badge_rule (badge_rule_id → resort.id)
+        → competition_instance_id → competition_instance.id
+        → badge_rule_id → resort.id
+      ← rel_section_resort (resort → resort.id)
+        → resort? → resort.id
+      ← anon_mail (resort → resort.id)
+      ← skimovie_statistics (resort_id → resort.id)
+        → resort_id → resort.id
+        → spot_id → spot.id
+      ← resort_sharing (resort_id → resort.id)
+      ← rel_pool_company (resort_id → resort.id)
+        → resort_id → resort.id
+      ← ski_resort_performance (resort → resort.id)
+        → resort → resort.id
+      ← handicap_log (resort → resort.id)
+        → resort? → resort.id
+      ← skier_level (resort → resort.id)
+        → resort → resort.id
+      ← group (ski_resort_id → resort.id)
+      ← badge_rule (input_resort_id → resort.id)
+      ← axess_connection_params (resort_id → resort.id)
+        → resort_id → resort.id
+      ← contact_info (ski_resort_id → resort.id)
+      ← section_2_webcam (resort_id → resort.id)
+        → section_id → section.s_id
+        → webcam_id → webcams.id
+        → resort_id → resort.id
+      ← spot (resort_id → resort.id)
+      ← skicard (resort → resort.id)
+      ← ski_diary (ski_resort → resort.id)
+      ← video (resort_id → resort.id)
+      ← ski_resort_province (ski_resort → resort.id)
+        → province? → province.id
+          ← ski_resort_province (province → province.id)
+        → ski_resort? → resort.id
+  → current_fitness_profile? → fitness_profile.id
+    → user_id? → user.id
+    ← user (current_fitness_profile → fitness_profile.id)
+  → race_profile → race_profile.id
+    → current_ski? → race_profile_equipment.id
+      → equipment? → equipment.id
+        → brand → equipment_brand.id
+          ← equipment (brand → equipment_brand.id)
+        ← race_profile_equipment (equipment → equipment.id)
+      → snowboard_race_profile_id? → race_profile.id
+      → ski_race_profile_id? → race_profile.id
+      ← race_profile (current_ski → race_profile_equipment.id)
+      ← race_profile (current_snowboard → race_profile_equipment.id)
+    → current_snowboard? → race_profile_equipment.id
+    ← race_profile_equipment (ski_race_profile_id → race_profile.id)
+    ← user (race_profile → race_profile.id)
+    ← race_profile_equipment (snowboard_race_profile_id → race_profile.id)
+    ← ski_handicap (race_profile_id → race_profile.id)
+      → race_profile_id? → race_profile.id
+  → newsfeed → newsfeed.id
+    ← resort (newsfeed → newsfeed.id)
+    ← user (newsfeed → newsfeed.id)
+    ← newsfeed_item (newsfeed → newsfeed.id)
+      → newsfeed → newsfeed.id
+  → current_season_statistics → user_season_statistics.id
+    → season? → season.id
+      ← user_season_statistics (season → season.id)
+    → user_id? → user.id
+    ← user (current_season_statistics → user_season_statistics.id)
+  → security_info_id? → security_info.id
+    ← user (security_info_id → security_info.id)
+  → created_by_api_key_id → api_key.id
+  ← lead_bmw_2010 (user_id → user.id)
+    → user_id → user.id
+  ← user_visit (user_id → user.id)
+    → visitor_id → user.id
+    → user_id → user.id
+  ← user_season_statistics (user_id → user.id)
+  ← ski_diary (user_id → user.id)
+    → user_id → user.id
+    → ski_resort → resort.id
+  ← forum_visit (user_id → user.id)
+    → user_id → user.id
+    → forum_id → forum.id
+  ← user_2_skimovie (user_id → user.id)
+    → skimovie_id? → video.id
+      → resort_id → resort.id
+      → spot_id → spot.id
+      → category_id → skimovie_category.id
+        ← video (category_id → skimovie_category.id)
+      → preview_medium → video_details.id
+        → video_id? → video.id
+        ← video (preview_medium → video_details.id)
+      ← skimovie_visit (skimovie_id → video.id)
+      ← video_details (video_id → video.id)
+      ← kiosk_competition_entry (video_id → video.id)
+        → video_id? → video.id
+      ← competition_result_item (skimovie_id → video.id)
+      ← user_2_skimovie (skimovie_id → video.id)
+      ← rating (skimovie_id → video.id)
+    → user_id? → user.id
+    → skicard_per_day_id → skicard_per_day.id
+    ← competition_result_item (user_skimovie_id → user_2_skimovie.id)
+    ← badge (user_2_skimovie_id → user_2_skimovie.id)
+  ← user_facebook_info (user_id → user.id)
+    → user_id → user.id
+  ← contact_info (user_id → user.id)
+    → user? → user.id
+    → user_id? → user.id
+    → ski_resort_id? → resort.id
+  ← donation (user_id → user.id)
+    → ski_ticket_id? → skicard.id
+    → user_id? → user.id
+    → donee_id → donee.id
+      → competition_id → competition.id
+      ← competition_result_item (donee_id → donee.id)
+      ← donation (donee_id → donee.id)
+  ← newsletter_2_user (user_id → user.id)
+    → newsletter_id? → newsletter.id
+      ← newsletter_2_user (newsletter_id → newsletter.id)
+    → user_id? → user.id
+  ← skicard_per_day (user_id → user.id)
+    → first_resort? → resort.id
+    → skicard_id? → skicard.id
+    → user_id? → user.id
+    ← swisscom_performance_status (skicard_per_day_id → skicard_per_day.id)
+      → skicard_per_day_id → skicard_per_day.id
+    ← badge (skicard_per_day_id → skicard_per_day.id)
+    ← user_2_skimovie (skicard_per_day_id → skicard_per_day.id)
+    ← rel_skicardpd_route (skicard_per_day_id → skicard_per_day.id)
+      → skicard_per_day_id? → skicard_per_day.id
+      → route_id → route.id
+  ← mail_box (owner → user.id)
+    → owner → user.id
+    ← mail_box_item (mailbox → mail_box.id)
+  ← user_2_welcome_email (user_id → user.id)
+    → user_id → user.id
+  ← fitness_profile (user_id → user.id)
+  ← media_visit (user_id → user.id)
+    → media_id → media.id
+      → album_id? → album.id
+      → photopoint_name → photo_point.name
+      → photo_id → photo.id
+        → camera? → photo_point.name
+        ← media (photo_id → photo.id)
+      ← rating (media_id → media.id)
+      ← media_visit (media_id → media.id)
+      ← badge (photo_id → media.id)
+      ← location (media_id → media.id)
+      ← album (cover_media_id → media.id)
+    → user_id → user.id
+  ← competition_invitation (user_id → user.id)
+    → competition_id? → competition.id
+    → inviter_id? → user.id
+    → user_id? → user.id
+  ← user_2_role (user_id → user.id)
+    → user_id → user.id
+  ← lead (user_id → user.id)
+    → user_id → user.id
+  ← forum (user_id → user.id)
+    → ski_resort_id? → resort.id
+    → user_id? → user.id
+    → group_id? → group.id
+      → ski_resort_id? → resort.id
+      ← user_2_group (group_id → group.id)
+      ← group_2_competition (group_id → group.id)
+      ← album (group_id → group.id)
+      ← group_invitation (group_id → group.id)
+      ← forum (group_id → group.id)
+    → competition_id? → competition.id
+    ← thread (forum_id → forum.id)
+      → forum_id → forum.id
+      → last_post_id? → post.id
+        → thread_id → thread.id
+        ← thread (last_post_id → post.id)
+      ← thread_visit (thread_id → thread.id)
+      ← post (thread_id → thread.id)
+    ← forum_visit (forum_id → forum.id)
+  ← user_feature (user_id → user.id)
+    → user_id? → user.id
+  ← user_2_group (user_id → user.id)
+    → group_id? → group.id
+    → user_id? → user.id
+  ← user_2_route (user_id → user.id)
+    → route_id → route.id
+      ← rel_skicardpd_route (route_id → route.id)
+      ← user_2_route (route_id → route.id)
+      ← competition_instance (safari_route_id → route.id)
+      ← badge_rule (route_id → route.id)
+      ← route_sections (route_id → route.id)
+        → route_id → route.id
+        → section_id → section.s_id
+    → user_id → user.id
+  ← thread_visit (user_id → user.id)
+    → thread_id → thread.id
+    → user_id → user.id
+  ← track (user_id → user.id)
+    → user_id → user.id
+    ← location (track_id → track.id)
+      → track_id → track.id
+      → media_id → media.id
+  ← user_2_ski_resort (user_id → user.id)
+    → ski_resort_id? → resort.id
+    → user_id? → user.id
+  ← rating (user → user.id)
+    → user? → user.id
+    → skimovie_id? → video.id
+    → media_id? → media.id
+  ← login_history (user → user.id)
+    → user? → user.id
+  ← user_2_user (user_id → user.id)
+    → friend_id? → user.id
+    → user_id? → user.id
+  ← user_alarm (target → user.id)
+    → target? → user.id
+    → owner? → user.id
+  ← skiline_access_log (user_id → user.id)
+    → resort_id? → resort.id
+    → card_id? → skicard.id
+    → user_id? → user.id
+  ← contact_info (user → user.id)
+  ← group_invitation (user_id → user.id)
+    → group_id? → group.id
+    → inviter_id? → user.id
+    → user_id? → user.id
+  ← user_competition_reminder_email (user_id → user.id)
+    → competition → competition.id
+    → user_id → user.id
+    → ski_ticket → skicard.id
+  ← mail_box_item (sender → user.id)
+    → first_receiver → user.id
+    → mailbox → mail_box.id
+    → sender → user.id
+    ← mail_box_item_2_receiver (mail_box_item_id → mail_box_item.id)
+  ← mail_box_item_2_receiver (receiver_id → user.id)
+    → mail_box_item_id → mail_box_item.id
+    → receiver_id → user.id
+  ← mail_box_item (first_receiver → user.id)
+  ← deleted_skicard (user_id → user.id)
+    → user_id? → user.id
+    → delete_user_agent_id? → user_agent.id
+      ← deleted_skicard (delete_user_agent_id → user_agent.id)
+    ← deleted_skicard_per_day (skicard_id → deleted_skicard.id)
+      → skicard_id? → deleted_skicard.id
+  ← group_invitation (inviter_id → user.id)
+  ← skicard (user_id → user.id)
+    → original_user_id? → user.id
+    → resort → resort.id
+    → user_id? → user.id
+    ← donation (ski_ticket_id → skicard.id)
+    ← skicard_per_day (skicard_id → skicard.id)
+    ← user_competition_reminder_email (ski_ticket → skicard.id)
+    ← skiline_access_log (card_id → skicard.id)
+    ← anon_mail (skicard_id → skicard.id)
+      → resort? → resort.id
+      → skicard_id? → skicard.id
+  ← user_2_user (friend_id → user.id)
+  ← spot_2_user (user_id → user.id)
+    → spot_id → spot.id
+      → resort_id → resort.id
+      ← video (spot_id → spot.id)
+      ← badge_rule (spot_id → spot.id)
+      ← competition_instance (skimovie_spot_id → spot.id)
+      ← spot_2_user (spot_id → spot.id)
+      ← skimovie_statistics (spot_id → spot.id)
+      ← competition_backup (ski_movie_spot_id → spot.id)
+        → ski_movie_spot_id? → spot.id
+        → parent → competition_backup.id
+        → registration_client → competition_backup.id
+        → clone_of → competition_backup.id
+        → registration_client → competition_backup.id
+        → clone_of → competition_backup.id
+        → parent → competition_backup.id
+        → parent → competition_backup.id
+        → clone_of → competition_backup.id
+        → registration_client → competition_backup.id
+      ← swisscom_skimovie_status (spot_id → spot.id)
+        → spot_id → spot.id
+    → user_id → user.id
+  ← friend_invitation (invited_user → user.id)
+    → invited_user? → user.id
+    → invitor → user.id
+  ← skicard (original_user_id → user.id)
+  ← album (user_id → user.id)
+    → cover_media_id? → media.id
+    → user_id? → user.id
+    → group_id? → group.id
+    → resort_id? → resort.id
+    ← media (album_id → album.id)
+  ← user_2_competition (user_id → user.id)
+    → competition_id? → competition.id
+    → user_id? → user.id
+    → competition_terms → competition_terms.id
+      → competition → competition.id
+      ← user_2_competition (competition_terms → competition_terms.id)
+    → registration_key_id? → competition_registration_key.id
+      → competition → competition.id
+      ← user_2_competition (registration_key_id → competition_registration_key.id)
+  ← challenge (owner → user.id)
+    → owner → user.id
+    ← challenge_log (challenge_id → challenge.id)
+      → challenge_id → challenge.id
+    ← challenge_penalty (challenge_id → challenge.id)
+      → challenge_id → challenge.id
+    ← challenge_purchase (template_challenge_id → challenge.id)
+    ← challenge_invitation (challenge_id → challenge.id)
+    ← challenge_ranking_filter (challenge_id → challenge.id)
+      → challenge_id → challenge.id
+  ← competition_invitation (inviter_id → user.id)
+  ← user_visit (visitor_id → user.id)
+  ← user_2_language (user_id → user.id)
+    → user_id → user.id
+  ← user_alarm (owner → user.id)
+  ← friend_invitation (invitor → user.id)
+  ← competition_result_item (user_id → user.id)
+    → result_id → competition_result.id
+      → competition_instance → competition_instance.id
+      ← competition_result_item (result_id → competition_result.id)
+      ← competition_instance (current_result → competition_result.id)
+    → user_id → user.id
+    → user_skimovie_id → user_2_skimovie.id
+    → donee_id? → donee.id
+    → photo_book_id? → photobook.id
+    → skimovie_id → video.id
+  ← user_2_checkpoint (user_id → user.id)
+    → checkpoint_id? → checkpoint.id
+      ← user_2_checkpoint (checkpoint_id → checkpoint.id)
+      ← competition_instance_2_checkpoint (checkpoint_id → checkpoint.id)
+        → competition_instance_id → competition_instance.id
+        → checkpoint_id → checkpoint.id
+    → user_id? → user.id
+  ← challenge_purchase (user_id → user.id)
+    → resort_id → resort.id
+    → user_id → user.id
+    → template_challenge_id → challenge.id
+  ← skimovie_visit (user_id → user.id)
+    → skimovie_id → video.id
+    → user_id → user.id
+  ← badge (user_id → user.id)
+    → badge_rule_id → badge_rule.id
+      → badge_definition → badge_definition.id
+      → competition → competition.id
+      → competition_instance → competition_instance.id
+      → route_id → route.id
+      → spot_id → spot.id
+      → name → localized_text.id
+      → description → localized_text.id
+      → certificate_template → localized_text.id
+      → certificate_mail_subject → localized_text.id
+      → photopoint_name → photo_point.name
+      → short_description → localized_text.id
+      → input_resort_id? → resort.id
+      ← competition_instance_2_badge_rule (badge_rule_id → badge_rule.id)
+      ← competition_instance_2_ski_resort (resort_id → badge_rule.id)
+      ← badge_rule_2_ski_resort (badge_rule_id → badge_rule.id)
+      ← badge (badge_rule_id → badge_rule.id)
+    → competition_instance_id → competition_instance.id
+      → safari_route_id? → route.id
+      → skimovie_spot_id? → spot.id
+      → current_result → competition_result.id
+      → definition → competition_definition.id
+      → name → localized_text.id
+      → short_name → localized_text.id
+      → period_name → localized_text.id
+      → description_properties → localized_text.id
+      → prices_properties → localized_text.id
+      → teaser_properties → localized_text.id
+      → unit_name → localized_text.id
+      → email_template → localized_text.id
+      → email_subject → localized_text.id
+      ← competition_instance_aggregation (aggregated_instance → competition_instance.id)
+        → aggregated_instance? → competition_instance.id
+        → parent_instance? → competition_instance.id
+      ← badge (competition_instance_id → competition_instance.id)
+      ← competition_result (competition_instance → competition_instance.id)
+      ← photobook (competition_instance_id → competition_instance.id)
+      ← badge_rule (competition_instance → competition_instance.id)
+      ← competition_instance_2_checkpoint (competition_instance_id → competition_instance.id)
+      ← competition_instance_aggregation (parent_instance → competition_instance.id)
+      ← competition_instance_2_ski_resort (competition_instance_id → competition_instance.id)
+      ← competition_instance_2_badge_rule (competition_instance_id → competition_instance.id)
+    → skicard_per_day_id → skicard_per_day.id
+    → user_id → user.id
+    → user_2_skimovie_id → user_2_skimovie.id
+    → photo_id → media.id
+  ← challenge_invitation (user_id → user.id)
+    → challenge_id → challenge.id
+    → user_id? → user.id
+  ← photobook (user_id → user.id)
+    → user_id → user.id
+    → competition_instance_id → competition_instance.id
+    ← competition_result_item (photo_book_id → photobook.id)
+← api_key_2_competition (api_key_id → api_key.id)
+  → api_key_id → api_key.id
+  → competition_id → competition.id
+    → name → localized_text.id
+      ← badge_rule (certificate_mail_subject → localized_text.id)
+      ← competition (reminder_email → localized_text.id)
+      ← competition_definition (description → localized_text.id)
+      ← badge_rule (description → localized_text.id)
+      ← badge_rule (certificate_template → localized_text.id)
+      ← competition_definition (name → localized_text.id)
+      ← competition (short_name → localized_text.id)
+      ← poi (description → localized_text.id)
+        → name → localized_text.id
+        → description? → localized_text.id
+      ← badge_definition (description → localized_text.id)
+      ← resort (custom_message → localized_text.id)
+      ← competition_instance (prices_properties → localized_text.id)
+      ← competition_instance (short_name → localized_text.id)
+      ← competition (teaser_popup → localized_text.id)
+      ← competition_instance (unit_name → localized_text.id)
+      ← ski_resort_info (notes → localized_text.id)
+      ← competition_instance (email_subject → localized_text.id)
+      ← competition_instance (teaser_properties → localized_text.id)
+      ← poi (name → localized_text.id)
+      ← competition (name → localized_text.id)
+      ← badge_rule (name → localized_text.id)
+      ← competition (teaser → localized_text.id)
+      ← svg_template (text4 → localized_text.id)
+        → text1 → localized_text.id
+        → text2 → localized_text.id
+        → text3 → localized_text.id
+        → text4 → localized_text.id
+        → logo_1 → svg_logo.id
+        → logo_2 → svg_logo.id
+        → logo_3 → svg_logo.id
+        ← svg_template_2_ski_resort (svg_template_id → svg_template.id)
+      ← competition (reminder_email_subject → localized_text.id)
+      ← svg_template (text1 → localized_text.id)
+      ← competition (winner_tab → localized_text.id)
+      ← svg_template (text3 → localized_text.id)
+      ← competition_instance (period_name → localized_text.id)
+      ← badge_definition (name → localized_text.id)
+      ← competition_instance (name → localized_text.id)
+      ← svg_template_2_ski_resort (text4 → localized_text.id)
+        → svg_template_id? → svg_template.id
+        → text1 → localized_text.id
+        → text2 → localized_text.id
+        → text3 → localized_text.id
+        → text4 → localized_text.id
+        → logo_1 → svg_logo.id
+        → logo_2 → svg_logo.id
+        → logo_3 → svg_logo.id
+      ← svg_template_2_ski_resort (text1 → localized_text.id)
+      ← svg_template_2_ski_resort (text2 → localized_text.id)
+      ← svg_template_2_ski_resort (text3 → localized_text.id)
+      ← competition_instance (description_properties → localized_text.id)
+      ← competition (description → localized_text.id)
+      ← svg_template (text2 → localized_text.id)
+      ← competition_definition (teaser → localized_text.id)
+      ← webcams (panorama_branding → localized_text.id)
+      ← badge_rule (short_description → localized_text.id)
+      ← resort (description → localized_text.id)
+      ← competition_instance (email_template → localized_text.id)
+      ← competition_definition (prices → localized_text.id)
+    → short_name → localized_text.id
+    → description → localized_text.id
+    → teaser → localized_text.id
+    → teaser_popup → localized_text.id
+    → winner_tab → localized_text.id
+    → reminder_email → localized_text.id
+    → reminder_email_subject → localized_text.id
+    → enter_ticket_resort → resort.id
+    ← competition_definition (competition → competition.id)
+      → competition → competition.id
+      → name → localized_text.id
+      → description → localized_text.id
+      → prices → localized_text.id
+      → teaser → localized_text.id
+      → type → competition_type.key
+        → competition_result_format_id → competition_result_format.id
+          ← competition_type (competition_result_format_id → competition_result_format.id)
+        ← competition_definition (type → competition_type.key)
+      ← competition_instance (definition → competition_definition.id)
+    ← competition_invitation (competition_id → competition.id)
+    ← group_2_competition (competition_id → competition.id)
+      → competition_id? → competition.id
+      → group_id? → group.id
+    ← user_competition_reminder_email (competition → competition.id)
+    ← competition_registration_key (competition → competition.id)
+    ← api_key_2_competition (competition_id → competition.id)
+    ← forum (competition_id → competition.id)
+    ← user_2_competition (competition_id → competition.id)
+    ← badge_rule (competition → competition.id)
+    ← donee (competition_id → competition.id)
+    ← competition_terms (competition → competition.id)
+← api_permission (api_key_id → api_key.id)
+  → api_key_id → api_key.id
+  → api_service_method_id → api_service_method.id
+    ← api_permission (api_service_method_id → api_service_method.id)
+← api_key_2_badge_definition (api_key_id → api_key.id)
+  → api_key_id → api_key.id
+  → badge_definition_id? → badge_definition.id
+    → description → localized_text.id
+    → name → localized_text.id
+    ← badge_rule (badge_definition → badge_definition.id)
+    ← api_key_2_badge_definition (badge_definition_id → badge_definition.id)

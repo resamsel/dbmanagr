@@ -50,6 +50,7 @@ competition_type	skiline@localhost/skiline/competition_type/
 constants	skiline@localhost/skiline/constants/
 contact_collect	skiline@localhost/skiline/contact_collect/
 contact_info	skiline@localhost/skiline/contact_info/
+content_element	skiline@localhost/skiline/content_element/
 countries	skiline@localhost/skiline/countries/
 cp_transit	skiline@localhost/skiline/cp_transit/
 cpoint	skiline@localhost/skiline/cpoint/
