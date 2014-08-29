@@ -4,7 +4,11 @@
 import logging
 import codecs
 import sys
-from .item import Item
+
+from collections import OrderedDict
+from dbnav.item import Item
+from dbnav.node import ColumnNode
+from dbnav.formatter import Formatter, XmlFormatter, SimplifiedFormatter, TestFormatter, GraphvizFormatter, DefaultFormatter
 
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
@@ -14,80 +18,117 @@ def html_escape(s):
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s
 
+def escape(s):
+    if type(s) == unicode:
+        return s.replace('"', '&quot;')
+    return s
+
 class DefaultWriter:
     def write(self, items):
-        if not items:
-            items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
-        s = self.str(items)
-        print s
-        return s
+        return self.str(items)
     def str(self, items):
         return map(lambda item: self.itemtostring(item), items)
     def itemtostring(self, item):
-        return str(item)
-
-class XmlWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""<items>
-{0}</items>"""
-    ITEM_FORMAT = u"""   <item uid="{uid}" arg="{value}" autocomplete="{autocomplete}" valid="{valid}">
-        <title>{title}</title>
-        <subtitle>{subtitle}</subtitle>
-        <icon>{icon}</icon>
-    </item>
-"""
-    def str(self, items):
-        s = ''.join([self.itemtostring(i) for i in items])
-        return XmlWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return XmlWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
-
-
-class JsonWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""{{
-{0}}}"""
-    ITEM_FORMAT = u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}
-"""
-    def str(self, items):
-        s = ''.join([self.itemtostring(i) for i in items])
-        return JsonWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return JsonWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
-
-class SimpleWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""Id\tTitle\tSubtitle\tAutocomplete
-{0}"""
-    ITEM_FORMAT = u"""{uid}\t{title}\t{subtitle}\t{autocomplete}
-"""
-    def str(self, items):
-        s = u''.join([self.itemtostring(i) for i in items])
-        return SimpleWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return SimpleWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
+        return unicode(item)
 
 class StdoutWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""Title\tSubtitle\tAutocomplete
-{0}"""
-    ITEM_FORMAT = u"""{title}\t{subtitle}\t{autocomplete}
-"""
+    def __init__(self,
+            items_format=u"""Title\tSubtitle\tAutocomplete
+{0}""",
+            item_format=u"""{title}\t{subtitle}\t{autocomplete}""",
+            item_separator=u"""
+""",
+            format_error_format=u'{0}'):
+        self.items_format = items_format
+        self.item_format = item_format
+        self.item_separator = item_separator
+        self.format_error_format = format_error_format
+        
+        Formatter.set(DefaultFormatter())
+    def filter(self, items):
+        return items
     def str(self, items):
-        s = u''.join([self.itemtostring(i) for i in items])
-        return StdoutWriter.ITEMS_FORMAT.format(s)
+        s = self.item_separator.join(
+            map(lambda i: self.itemtostring(i),
+                self.filter(items)))
+        return self.items_format.format(s)
     def itemtostring(self, item):
-        return StdoutWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
+        if hasattr(item, '__dict__'):
+            try:
+                return self.item_format.format(item=unicode(item), **item.__dict__)
+            except:
+                raise
+                return self.format_error_format.format(item=item, **item.__dict__)
+        return self.item_format.format(item=item)
 
-class AutocompleteWriter(DefaultWriter):
-    ITEMS_FORMAT = u"""{0}"""
-    ITEM_FORMAT = u"""{autocomplete}
-"""
-    def str(self, items):
-        s = u''.join([self.itemtostring(i) for i in items])
-        return AutocompleteWriter.ITEMS_FORMAT.format(s)
-    def itemtostring(self, item):
-        return AutocompleteWriter.ITEM_FORMAT.format(**item.escaped(html_escape))
+class AutocompleteWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self, u'{0}', u'{autocomplete}')
+
+class SimpleWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self,
+            u"""Id\tTitle\tSubtitle\tAutocomplete
+{0}""",
+            u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""")
+
+class JsonWriter(StdoutWriter):
+    def __init__(self):
+        StdoutWriter.__init__(self,
+            u"""{{
+{0}}}""",
+            u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{valid}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""")
 
 class StringWriter(SimpleWriter):
     def write(self, items):
         return self.str(items)
+
+class FormatWriter(StdoutWriter):
+    def __init__(self,
+            items_format=u"""Title\tSubtitle\tAutocomplete
+{0}""",
+            item_format=u"""{title}\t{subtitle}\t{autocomplete}""",
+            item_separator=u"""
+""",
+            format_error_format=u'{0}'):
+        StdoutWriter.__init__(self, items_format, item_format, item_separator, format_error_format)
+    def itemtostring(self, item):
+        return item.format()
+
+class SimplifiedWriter(FormatWriter):
+    def __init__(self):
+        FormatWriter.__init__(self, u'{0}')
+        Formatter.set(SimplifiedFormatter())
+
+class XmlWriter(FormatWriter):
+    def __init__(self):
+        FormatWriter.__init__(self,
+            u"""<items>
+{0}
+</items>""")
+        Formatter.set(XmlFormatter())
+    def write(self, items):
+        if not items:
+            items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
+        return self.str(items)
+
+class GraphvizWriter(FormatWriter):
+    def __init__(self):
+        FormatWriter.__init__(self, u"""digraph dbgraph {{
+{0}
+}}""")
+        Formatter.set(GraphvizFormatter())
+    def filter(self, items):
+        # Removes duplicate items and keeps order
+        return list(OrderedDict.fromkeys(
+            filter(lambda i: not isinstance(i, ColumnNode), items)))
+
+class TestWriter(FormatWriter):
+    def __init__(self, items_format=u"""Title\tAutocomplete
+{0}""",
+            item_format=u"""{title}\t{autocomplete}"""):
+        FormatWriter.__init__(self, items_format, item_format)
+        Formatter.set(TestFormatter())
 
 class Writer:
     writer = StdoutWriter()
@@ -95,6 +136,15 @@ class Writer:
     @staticmethod
     def set(arg):
         Writer.writer = arg
+    
+    @staticmethod
+    def from_options(options):
+        if options.default: Writer.set(DefaultWriter())
+        if options.simple: Writer.set(SimpleWriter())
+        if options.json: Writer.set(JsonWriter())
+        if options.xml: Writer.set(XmlWriter())
+        if options.autocomplete: Writer.set(AutocompleteWriter())
+        if options.test: Writer.set(TestWriter())
 
     @staticmethod
     def write(items):

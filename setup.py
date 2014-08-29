@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
+from os.path import expanduser
 
 setup(
     name = "dbnav",
@@ -13,7 +14,7 @@ setup(
         'src/images': ['*.png']
     },
 
-    test_suite = "dbnav.tests.load_suite",
+    test_suite = 'dbnav.tests.load_suite',
 
     # dependencies
     install_requires = [
@@ -23,9 +24,16 @@ setup(
 
     entry_points = {
         'console_scripts': [
-            'dbnav = dbnav.navigator:main'
+            'dbnav = dbnav.navigator:main',
+            'dbexport = dbnav.exporter:main',
+            'dbgraph = dbnav.grapher:main',
+            'dbexec = dbnav.executer:main'
         ]
     },
+    
+    data_files = [
+        (expanduser('~/.bash_completion.d'), ['src/bash_completion/dbnav'])
+    ],
     
     author = "René Samselnig",
     author_email = "me@resamsel.com",

@@ -34,12 +34,15 @@ FOREIGN_KEY_QUERY = """
 select
         tc.table_name,
         kcu.column_name,
+        case c.is_nullable when 'YES' then true else false end column_nullable,
         ccu.table_name foreign_table_name,
-        ccu.column_name foreign_column_name
+        ccu.column_name foreign_column_name,
+        false foreign_column_nullable
     from
         information_schema.table_constraints tc
         join information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name
         join information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name
+        join information_schema.columns c on (c.table_name = tc.table_name and c.column_name = kcu.column_name)
     where
         constraint_type = 'FOREIGN KEY'
 """
@@ -171,20 +174,41 @@ class PostgreSQLConnection(DatabaseConnection):
         result = self.execute(FOREIGN_KEY_QUERY, 'Foreign Keys')
 
         for row in result:
-            a = Column(self.tbls[row['table_name'].encode('ascii')], row['column_name'])
-            b = Column(self.tbls[row['foreign_table_name'].encode('ascii')], row['foreign_column_name'])
+            a = Column(
+                self.tbls[row['table_name'].encode('ascii')],
+                row['column_name'],
+                nullable=row['column_nullable'])
+            b = Column(
+                self.tbls[row['foreign_table_name'].encode('ascii')],
+                row['foreign_column_name'],
+                nullable=row['foreign_column_nullable'])
             fk = ForeignKey(a, b)
             self.tbls[a.table.name].fks[a.name] = fk
             self.tbls[b.table.name].fks[str(a)] = fk
 
     def restriction(self, alias, column, operator, value):
-        logger.debug('restriction(alias=%s, column=%s, operator=%s, value=%s)', alias, column, operator, value)
+        logger.debug('restriction(alias=%s, column=%s, operator=%s, value=%s)',
+            alias, column, operator, value)
 
         lhs = column.name
         if column.table:
             lhs = '{0}.{1}'.format(alias, column.name)
-        if isinstance(column.type, Integer):
-            lhs = 'cast({0}.{1} as text)'.format(alias, column.name)
-        rhs = "'{0}'".format(value)
+        if isinstance(column.type, Integer) and type(value) is not list:
+            try:
+                int(value)
+            except ValueError:
+                lhs = 'cast({0}.{1} as text)'.format(alias, column.name)
+        if operator in ['=', '!='] and (value == 'null' or value is None):
+            operator = {
+                '=': 'is',
+                '!=': 'is not'
+            }.get(operator)
+            value = None
+        rhs = self.format_value(column, value)
 
         return ' '.join([lhs, operator, rhs])
+
+    def escape_keyword(self, keyword):
+        if keyword in ['user', 'select']:
+            return '"%s"' % keyword
+        return keyword

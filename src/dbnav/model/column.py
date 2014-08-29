@@ -2,25 +2,30 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from .baseitem import BaseItem
+from dbnav.model.baseitem import BaseItem
+from dbnav.formatter import Formatter
 
 logger = logging.getLogger(__name__)
 
 class Column(BaseItem):
     """A table column"""
 
-    def __init__(self, table, name, primary_key=False, type=None):
+    def __init__(self, table, name, primary_key=False, type=None, nullable=None):
         self.table = table
         self.name = name
         self.primary_key = primary_key
         self.type = type
-
+        self.nullable = nullable
+        
         #logger.debug('Column: %s', self.__dict__)
 
     def __repr__(self):
         if self.table:
             return '%s.%s' % (self.table.name, self.name)
         return self.name
+
+    def __str__(self):
+        return self.__repr__();
 
     def title(self):
         return self.name
@@ -33,3 +38,6 @@ class Column(BaseItem):
 
     def icon(self):
         return 'images/table.png'
+
+    def format(self):
+        return Formatter.format_column(self)

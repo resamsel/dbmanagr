@@ -6,7 +6,7 @@ from collections import Counter
 from sqlalchemy.types import Integer
 from .model.column import Column
 
-QUERY_FORMAT = """
+QUERY_FORMAT = u"""
 select
         {1}
     from
@@ -15,21 +15,39 @@ select
         {4}
     order by
         {5}
-    limit
-        {6}
+    {6}
 """
-JOIN_FORMAT = """
+LIMIT_FORMAT = u"limit {0}"
+JOIN_FORMAT = u"""
         left outer join \"{0}\" {1} on {1}.{2} = {3}.{4}"""
-ALIAS_FORMAT = "{0}_title"
-PROJECTION_FORMAT = """{0} {1}"""
-SEARCH_FORMAT = "cast(%s as text) %s '%s'"
-LIST_SEPARATOR = """,
+ALIAS_FORMAT = u"{0}_title"
+PROJECTION_FORMAT = u"""{0} {1}"""
+SEARCH_FORMAT = u"cast(%s as text) %s '%s'"
+LIST_SEPARATOR = u""",
         """
-OR_SEPARATOR = """
+AND_SEPARATOR = u"""
+        and """
+OR_SEPARATOR = u"""
         or """
+OPERATORS = {
+    '=': '=',
+    '!=': '!=',
+    '~': 'like',
+    '*': 'like',
+    '>': '>',
+    '>=': '>=',
+    '<=': '<=',
+    '<': '<',
+    'in': 'in'
+}
 
 logger = logging.getLogger(__name__)
 
+class QueryFilter:
+    def __init__(self, lhs, operator=None, rhs=None):
+        self.lhs = lhs
+        self.operator = operator
+        self.rhs = rhs
 class Join:
     def __init__(self, table, alias, column, fk_alias, fk_column):
         self.table = table
@@ -73,7 +91,6 @@ class Comment:
             if c.primary_key:
                 table.primary_key = c.name
                 break
-        logger.debug("Primary key of table %s: %s", table.name, table.primary_key)
 
         if not comment.id and table.primary_key:
             comment.id = '{0}.%s' % table.primary_key
@@ -135,7 +152,6 @@ class Comment:
 
         # find specially named columns (but is not an integer - integers are no good names)
         for c in columns:
-            logger.debug('Column %s', c.name)
             for name in ['name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment']:
                 if c.name == name:
                     if not isinstance(c.type, Integer):
@@ -175,7 +191,7 @@ class Comment:
 #                    self.qb.joins[fktable.name] = Join(fktable.name, alias, fk.b.name, self.alias, fk.a.name)
         
 class QueryBuilder:
-    def __init__(self, connection, table, id=None, filter=None, order=[], limit=None):
+    def __init__(self, connection, table, id=None, filter=[], order=[], limit=None, simplify=True):
         self.connection = connection
         self.table = table
         self.id = id
@@ -185,16 +201,15 @@ class QueryBuilder:
         self.aliases = {}
         self.joins = {}
         self.counter = Counter()
+        self.simplify = simplify
 
         self.alias = '_%s' % self.table.name
-        logger.debug("QueryBuilder: order=%s, self=%s", order, self.__dict__)
 
     def build(self):
-        logger.debug("QueryBuilder: %s", self.__dict__)
         foreign_keys = self.table.foreign_keys()
         where = '1=1'
         order = self.order
-        limit = self.limit if self.limit else 20
+        limit = LIMIT_FORMAT.format(self.limit) if self.limit > 0 else ''
         comment = Comment(self, self.table)
         
         for key in foreign_keys.keys():
@@ -222,48 +237,48 @@ class QueryBuilder:
             else:
                 where = "%s = '%s'" % (comment.id, self.id)
         elif self.filter:
-            logger.debug("Filter: column=%s, operator=%s, filter=%s",
-                 self.filter.column, self.filter.operator, self.filter.filter)
-            operator = {
-                '=': '=',
-                '~': 'like',
-                '*': 'like'
-            }.get(self.filter.operator, '=')
-            if self.filter.column != '' and self.filter.column in comment.columns:
-                if self.filter.operator:
-                    name = self.filter.column
-                    value = self.filter.filter.replace('%', '%%')
-                    logger.debug('name=%s, comment.columns=%s', name, comment.columns)
-                    where = self.connection.restriction(self.alias, self.table.column(name), operator, value)
-            elif comment.search:
-                f = self.filter.filter.replace('%', '%%')
-                if f == '' and self.filter.operator == '*':
-                    f = '%%'
-                conjunctions = []
-                for search_field in comment.search:
-                    def col(alias, field):
-                        prefix = '%s.' % alias
-                        if field.startswith(prefix):
-                            field = field[len(prefix):]
-                        c = self.table.column(field)
-                        if c:
-                            return c
-                        return Column(None, field, False, 'String')
-                    logger.debug('Search field: %s', search_field)
-                    conjunctions.append(self.connection.restriction(
-                        self.alias,
-                        col(self.alias, search_field),
-                        operator,
-                        f))
-                if 'id' in comment.columns:
-                    conjunctions.append(self.connection.restriction(
-                        self.alias,
-                        self.table.column('id'),
-                        operator,
-                        f))
-                where = OR_SEPARATOR.join(conjunctions)
-
-        logger.debug('Order before: %s', order)
+            wheres = []
+            for f in self.filter:
+                logger.debug("Filter: column=%s, operator=%s, filter=%s",
+                     f.lhs, f.operator, f.rhs)
+                operator = OPERATORS.get(f.operator, '=')
+                if f.lhs != '':
+                    if f.operator:
+                        logger.debug('lhs=%s, operator=%s, rhs=%s', f.lhs, f.operator, f.rhs)
+                        wheres.append(self.connection.restriction(
+                            self.alias,
+                            self.table.column(f.lhs),
+                            operator,
+                            f.rhs))
+                elif comment.search:
+                    rhs = f.rhs
+                    if rhs == '' and f.operator == '*':
+                        rhs = '%'
+                    conjunctions = []
+                    for search_field in comment.search:
+                        def col(alias, field):
+                            prefix = '%s.' % alias
+                            if field.startswith(prefix):
+                                field = field[len(prefix):]
+                            c = self.table.column(field)
+                            if c:
+                                return c
+                            return Column(None, field, False, 'String')
+                        logger.debug('Search field=%s, col(alias, search_field)=%s', search_field, col(self.alias, search_field).__dict__)
+                        conjunctions.append(self.connection.restriction(
+                            self.alias,
+                            col(self.alias, search_field),
+                            operator,
+                            rhs))
+                    if 'id' in comment.columns:
+                        conjunctions.append(self.connection.restriction(
+                            self.alias,
+                            self.table.column('id'),
+                            operator,
+                            rhs))
+                    wheres.append(OR_SEPARATOR.join(conjunctions))
+            if wheres:
+                where = AND_SEPARATOR.join(wheres)
 
         if not order:
             if 'id' in comment.columns:
@@ -271,12 +286,19 @@ class QueryBuilder:
             else:
                 order.append('1')
         
-        logger.debug('Order after: %s', order)
+        logger.debug('Order: %s', order)
+        
+        if self.simplify:
+            projection = comment.columns.values()
+        else:
+            projection = map(
+                lambda col: Projection('%s.%s' % (self.alias, col.name), col.name),
+                self.table.cols)
 
         return QUERY_FORMAT.format(self.table.name,
-            LIST_SEPARATOR.join(map(str, comment.columns.values())),
+            LIST_SEPARATOR.join(map(str, projection)),
             self.alias,
             ''.join(map(str, self.joins.values())),
             where,
             LIST_SEPARATOR.join(order),
-            self.limit)
+            limit)

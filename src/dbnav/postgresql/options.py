@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from dbnav.options import *
 from urlparse import urlparse
+
+from dbnav.options import *
 
 OPTION_URI_FORMAT = '%s@%s/%s'
 
@@ -13,6 +14,8 @@ class PostgreSQLOptions:
         self.gen = None
     def get(self, driver):
         return self
+    def __repr__(self):
+        return str(self.__dict__)
 
 class PostgreSQLOptionsParser:
     def parse(self, source):
@@ -30,16 +33,7 @@ class PostgreSQLOptionsParser:
             if '@' in opts.uri: opts.host = locs[1]
             if len(paths) > 1: opts.database = paths[1]
             if len(paths) > 2: opts.table = paths[2]
-            if len(paths) > 3:
-                opts.column = paths[3]
-                for operator in '=~*':
-                    if operator in opts.column:
-                        opts.operator = operator
-                        f = opts.column.split(operator, 1)
-                        opts.column = f[0]
-                        if len(f) > 1:
-                            opts.filter = f[1]
-                        break
+            if len(paths) > 3: opts.filter = parse_filter(paths[3])
             opts.show = {
                 1: 'connections',
                 2: 'databases',

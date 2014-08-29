@@ -37,11 +37,14 @@ class Table(BaseItem):
         """Retrieves the autocomplete string for the given column and value"""
 
         if column == None:
-            return '%s%s/' % (self.uri, self.name)
+            return u'%s%s/' % (self.uri, self.name)
 
         tablename = self.name
         fks = self.fks
-        value = '%s=%s' % (column, value)
+        if type(value) is buffer:
+            value = '[BLOB]'
+        else:
+            value = u'%s=%s' % (column, value)
 
         return format % (self.uri, tablename, value)
 
@@ -66,42 +69,51 @@ class Table(BaseItem):
 
         return None
 
-    def rows(self, connection, filter):
+    def rows(self, filter=[], limit=DEFAULT_LIMIT, simplify=False):
         """Retrieves rows from the table with the given filter applied"""
-
-        query = QueryBuilder(connection,
+        
+        query = QueryBuilder(self.connection,
             self,
             filter=filter,
             order=self.comment.order,
-            limit=DEFAULT_LIMIT).build()
+            limit=limit,
+            simplify=simplify).build()
 
         try:
-            result = connection.execute(query, 'Rows')
+            result = self.connection.execute(query, 'Rows')
         except BaseException, e:
             logger.error(
                 '%s: check comment on table %s\n%s' % (
                     e.__class__.__name__,
                     self.name,
                     str(e)))
+            logger.error(e, exc_info=1)
             from ..model import databaseconnection
-            return [Row(connection,
+            return [Row(self.connection,
                 self,
-                databaseconnection.Row({'title': str(e), 'subtitle': 'Check comment on table %s' % self.name}))]
+                databaseconnection.DatabaseRow({'title': str(e), 'subtitle': 'Check comment on table %s' % self.name}))]
 
-        def t(row): return Row(connection, self, row)
+        return map(lambda row: Row(self.connection, self, row), result)
 
-        return map(t, result)
-    
     def foreign_keys(self):
         return self.fks
+
+    def foreign_key(self, name):
+        if name in self.fks:
+            return self.fks[name]
+        return None
 
     def title(self):
         return self.name
 
     def subtitle(self):
         if self.owner and self.size:
-            return 'Owner: %s (%s)' % (self.owner, self.size)
-        return 'Table'
+            return u'Owner: %s (%s)' % (self.owner, self.size)
+        return u'Table'
 
     def icon(self):
         return 'images/table.png'
+    
+    def escaped(self, f):
+        return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
+    

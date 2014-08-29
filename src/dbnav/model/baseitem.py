@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from ..item import Item
+from dbnav.item import Item
+from dbnav.formatter import Formatter
 
 logger = logging.getLogger(__name__)
 
@@ -26,3 +27,7 @@ class BaseItem:
             self.autocomplete(),
             self.validity(),
             self.icon())
+    def uid(self):
+        return hash(self.autocomplete())
+    def format(self):
+        return Formatter.format(self)

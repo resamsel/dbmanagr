@@ -1,0 +1,14 @@
+Title	Autocomplete
+b2b_visible	skiline@localhost/skiline/api_key/b2b_visible
+client_id	skiline@localhost/skiline/api_key/client_id
+comment	skiline@localhost/skiline/api_key/comment
+forgot_password_email_template_id	skiline@localhost/skiline/api_key/forgot_password_email_template_id
+id	skiline@localhost/skiline/api_key/id
+key	skiline@localhost/skiline/api_key/key
+key_hash	skiline@localhost/skiline/api_key/key_hash
+ordinal	skiline@localhost/skiline/api_key/ordinal
+registration_doi_email_template_id	skiline@localhost/skiline/api_key/registration_doi_email_template_id
+registration_doi_reminder_template_id	skiline@localhost/skiline/api_key/registration_doi_reminder_template_id
+sender_email_address	skiline@localhost/skiline/api_key/sender_email_address
+sender_name	skiline@localhost/skiline/api_key/sender_name
+version	skiline@localhost/skiline/api_key/version

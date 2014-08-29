@@ -6,6 +6,8 @@ from dbnav.options import *
 class SQLiteOptions:
     def get(self, driver):
         return self
+    def __repr__(self):
+        return str(self.__dict__)
 
 class SQLiteOptionsParser:
     def parse(self, source):
@@ -14,16 +16,7 @@ class SQLiteOptionsParser:
         if opts.uri:
             paths = opts.uri.split('/')
             if len(paths) > 1: opts.table = paths[1]
-            if len(paths) > 2:
-                opts.column = paths[2]
-                for operator in '=~*':
-                    if operator in opts.column:
-                        opts.operator = operator
-                        f = opts.column.split(operator, 1)
-                        opts.column = f[0]
-                        if len(f) > 1:
-                            opts.filter = f[1]
-                        break
+            if len(paths) > 2: opts.filter = parse_filter(paths[2])
             opts.show = {
                 1: 'connections',
                 2: 'tables',

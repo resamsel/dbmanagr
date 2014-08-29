@@ -3,29 +3,18 @@
 
 import logging
 import time
+import sys
+import argparse
 
-from .options import *
-from .model.column import *
-from .model.row import *
-from .model.value import *
-from .querybuilder import QueryBuilder
-from .item import Item
-from .writer import *
-from .sources import *
-from .logger import logduration
-
-from .postgresql import *
-from .sqlite import *
-
-VALID = "yes"
-INVALID = "no"
+from .config import Config
+from .item import Item, create_items, create_connections, INVALID
+from dbnav.writer import Writer, StdoutWriter, FormatWriter, XmlWriter, TestWriter, SimplifiedWriter
+from .sources import Source
+from .logger import logger, logduration
 
 IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
 IMAGE_TABLE = 'images/table.png'
-
-OPTION_URI_TABLES_FORMAT = '%s%s/'
-OPTION_URI_ROW_FORMAT = '%s%s/%s'
 
 logger = logging.getLogger(__name__)
 
@@ -34,97 +23,26 @@ def strip(s):
         return s.strip()
     return s
 
-def tostring(key):
-    if isinstance(key, unicode):
-        return key.encode('ascii', errors='ignore')
-    return key
-
-def create_connections(cons):
-    """Creates connection items"""
-
-    return [c.item() for c in cons]
-
-def create_databases(dbs):
-    """Creates database items"""
-
-    return [database.item() for database in dbs]
-
-def create_tables(tables):
-    """Creates table items"""
-
-    return [t.item() for t in tables]
-
-def create_columns(columns):
-    """Creates column items"""
-
-    return [c.item() for c in columns]
-
-def create_rows(rows):
-    """Creates row items"""
-
-    logger.debug('create_rows(rows=%s)', rows)
-
-    return [row.item() for row in rows]
-
-def create_values(connection, table, filter):
-    """Creates row values according to the given filter"""
-    
-    logger.debug('create_values(connection=%s, table=%s, filter=%s)', connection, table, filter)
-
-    foreign_keys = table.fks
-    query = QueryBuilder(connection, table, filter=filter, order=[], limit=1).build()
-    result = connection.execute(query, 'Values')
-        
-    row = Row(connection, table, result.fetchone())
-
-    logger.debug('Comment.display: %s', table.comment.display)
-    if table.comment.display:
-        keys = table.comment.display
-    else:
-        keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
-
-    def fkey(column): return foreign_keys[column.name] if column.name in foreign_keys else column
-
-    def val(row, column):
-        colname = '%s_title' % column
-        if colname in row.row:
-            return '%s (%s)' % (row.row[colname], row.row[column])
-        return row.row[tostring(column)]
-
-    values = []
-    for key in keys:
-        value = val(row, key)
-        if key in table.fks:
-            # if key is a foreign key column
-            fk = table.fks[key]
-            autocomplete = fk.b.table.autocomplete(fk.b.name, row.row[tostring(key)])
-        else:
-            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_ROW_FORMAT)
-        f = fkey(Column(table, key))
-        kind = KIND_VALUE
-        if f.__class__.__name__ == 'ForeignKey':
-            kind = KIND_FOREIGN_KEY
-        values.append(Value(value, f, autocomplete, VALID, kind))
-
-    for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
-        fk = foreign_keys[key]
-        if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(fk.a.name, row.row[fk.b.name], OPTION_URI_ROW_FORMAT)
-            logger.debug('table.name=%s, fk=%s, autocomplete=%s', table.name, fk, autocomplete)
-            values.append(
-                Value(fk.a,
-                    fkey(Column(fk.a.table, fk.a.name)),
-                    autocomplete,
-                    INVALID,
-                    KIND_FOREIGN_VALUE))
-
-    return [v.item() for v in values]
+parser = argparse.ArgumentParser(prog='dbnav')
+parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table/filter/; for SQLite: databasefile.db/table/filter/""", nargs='?')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('-d', '--default', help='use default writer', action='store_true')
+group.add_argument('-s', '--simple', help='use simple writer', action='store_true')
+group.add_argument('-j', '--json', help='use JSON writer', action='store_true')
+group.add_argument('-x', '--xml', help='use XML writer', action='store_true')
+group.add_argument('-a', '--autocomplete', help='use autocomplete writer', action='store_true')
+group.add_argument('-t', '--test', help='use test writer', action='store_true')
+parser.add_argument('-S', '--simplify', dest='simplify', default=True, help='simplify the output', action='store_true')
+parser.add_argument('-N', '--no-simplify', dest='simplify', help='simplify the output', action='store_false')
+parser.add_argument('-m', '--limit', type=int, default=50, help='Limit the results of the main query to this amount of rows')
+parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
+parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
 class DatabaseNavigator:
     """The main class"""
 
     @staticmethod
-    def main(options):
+    def navigate(options):
         """The main method that splits the arguments and starts the magic"""
 
         cons = Source.connections()
@@ -139,24 +57,23 @@ class DatabaseNavigator:
         return create_connections(sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
 
 def main():
-    Writer.write(run(sys.argv))
+    try:
+        print Writer.write(run(sys.argv))
+    except BaseException, e:
+        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
+        raise
 
 def run(argv):
-    options = Options(argv)
-
-    logging.basicConfig(filename=options.logfile,
-        level=options.loglevel,
-        format="%(asctime)s %(levelname)s %(filename)s:%(lineno)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S")
-    
-    logger.info("""
-###
-### Called with args: %s
-###""", options.argv)
-    logger.debug("Options: %s", options)
+    options = Config.init(argv, parser)
+    if options.simplify:
+        Writer.set(SimplifiedWriter())
+    if options.xml:
+        Writer.set(XmlWriter())
+    if options.test:
+        Writer.set(TestWriter())
 
     try:
-        return DatabaseNavigator.main(options)
+        return DatabaseNavigator.navigate(options)
     except BaseException, e:
         logger.exception(e)
         return [Item('', str(e), type(e), '', INVALID, '')]
