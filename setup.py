@@ -6,7 +6,7 @@ from os.path import expanduser
 
 setup(
     name = "dbnav",
-    version = "0.5",
+    version = "0.6",
 
     packages = find_packages('src', exclude=['tests']),
     package_dir = {'':'src'},
@@ -38,5 +38,5 @@ setup(
     author = "René Samselnig",
     author_email = "me@resamsel.com",
     description = "The database navigator for the command line",
-    keywords = "database navigator postgres sqlite"
+    keywords = "database navigator exporter grapher postgres sqlite graphviz"
 )
