@@ -69,6 +69,10 @@ class Options:
         self.test = False
         self.infile = None
         self.separator = None
+        self.include_driver = False
+        self.include_connection = False
+        self.include_database = False
+        self.include_columns = False
 
         args = parser.parse_args(argv[1:])
 

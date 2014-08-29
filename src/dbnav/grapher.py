@@ -29,7 +29,10 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument('-d', '--default', default=True, help='Output format: human readable hierarchical text', action='store_true')
 group.add_argument('-g', '--graphviz', help='Output format: a Graphviz graph', action='store_true')
 group.add_argument('-t', '--test', help='use test writer', action='store_true')
-parser.add_argument('-c', '--include-columns', default=False, help='Include columns in output (does not work with graphviz as output)', action='store_true')
+parser.add_argument('-c', '--include-columns', default=False, help='Include columns in output', action='store_true')
+parser.add_argument('-D', '--include-driver', default=False, help='Include database driver in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-C', '--include-connection', default=False, help='Include connection in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-B', '--include-database', default=False, help='Include database in output (does not work well with graphviz as output)', action='store_true')
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-r', '--recursive', help='Include any forward/back reference to the starting table, recursing through all tables eventually', action='store_true')
 group.add_argument('-i', '--include', help='Include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
@@ -163,11 +166,25 @@ class DatabaseGrapher:
                     if opts.table not in tables:
                         raise Exception("Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
-                    return [NameNode(table.name)] + bfs(
+                    nodes = []
+                    indent = 0
+                    if opts.include_driver:
+                        nodes.append(NameNode(connection.driver, indent=indent))
+                        indent += 1
+                    if opts.include_connection:
+                        nodes.append(NameNode(str(connection), indent=indent))
+                        indent += 1
+                    if opts.include_database and opts.database:
+                        nodes.append(NameNode(opts.database, indent=indent))
+                        indent += 1
+                    nodes.append(NameNode(table.name, indent=indent))
+                    nodes += bfs(
                         table,
                         include=opts.include,
                         exclude=opts.exclude,
+                        indent=indent,
                         opts=opts)
+                    return nodes
                 finally:
                     connection.close()
 
