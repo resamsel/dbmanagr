@@ -190,14 +190,18 @@ class PostgreSQLConnection(DatabaseConnection):
         logger.debug('restriction(alias=%s, column=%s, operator=%s, value=%s)',
             alias, column, operator, value)
 
+        if alias:
+            alias = '{0}.'.format(alias)
+        else:
+            alias = ''
         lhs = column.name
         if column.table:
-            lhs = '{0}.{1}'.format(alias, column.name)
+            lhs = '{0}{1}'.format(alias, column.name)
         if isinstance(column.type, Integer) and type(value) is not list:
             try:
                 int(value)
             except ValueError:
-                lhs = 'cast({0}.{1} as text)'.format(alias, column.name)
+                lhs = 'cast({0}{1} as text)'.format(alias, column.name)
         if operator in ['=', '!='] and (value == 'null' or value is None):
             operator = {
                 '=': 'is',

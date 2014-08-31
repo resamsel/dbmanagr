@@ -15,29 +15,24 @@ from dbnav.utils import remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
 from dbnav.formatter import Formatter, DefaultFormatter, TestFormatter
-from dbnav.writer import Writer, StdoutWriter, FormatWriter, TestWriter
+from dbnav.writer import Writer, StdoutWriter, FormatWriter, TestWriter, SqlInsertWriter, SqlUpdateWriter
 
 parser = argparse.ArgumentParser(prog='dbexport')
-parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value""")
+parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value)""")
 group = parser.add_mutually_exclusive_group()
-group.add_argument('-d', '--default', default=True, help='Output format: SQL insert into statements', action='store_true')
+group.add_argument('-I', '--insert', default=True, help='output format: SQL insert statements', action='store_true')
+group.add_argument('-U', '--update', help='output format: SQL update statements', action='store_true')
 group.add_argument('-t', '--test', help='use test writer', action='store_true')
-parser.add_argument('-i', '--include', help='Include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
+parser.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any (multiple columns can be specified by separating them with a comma)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
-parser.add_argument('-m', '--limit', type=int, default=50, help='Limit the results of the main query to this amount of rows')
+parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
 parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
 parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
-def create_columns(row, exclude):
-    return u','.join([col.name for col in row.table.cols if col.name not in exclude])
-
-def create_values(row, exclude):
-    table = row.table
-    return u','.join([table.connection.format_value(col, row[col.name]) for col in table.cols if col.name not in exclude])
-
-def create_item(row, exclude):
-    table = row.table
-    return Item('', u'insert into {table} ({columns}) values ({values});'.format(table=table.connection.escape_keyword(table.name), columns=create_columns(row, exclude), values=create_values(row, exclude)), '', '', '', '')
+class RowItem():
+    def __init__(self, row, exclude):
+        self.row = row
+        self.exclude = exclude
 
 def create_items(items, include, exclude):
     logger.debug('create_items(items=%s, include=%s, exclude=%s)', items, include, exclude)
@@ -94,7 +89,7 @@ def create_items(items, include, exclude):
                 remove_prefix(fk.a.table.name, include),
                 remove_prefix(fk.a.table.name, exclude))
             
-    return results_pre + [create_item(item, exclude) for item in items] + results_post
+    return results_pre + map(lambda i: RowItem(i, exclude), items) + results_post
 
 def prefix(s):
     return re.sub('([^\\.]*)\\..*', '\\1', s)
@@ -132,14 +127,19 @@ class DatabaseExporter:
 def main():
     try:
         print Writer.write(run(sys.argv))
+    except SystemExit, e:
+        sys.exit(-1)
     except BaseException, e:
         sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
+        raise
 
 def run(argv):
     options = Config.init(argv, parser)
     Writer.set(StdoutWriter(u'{0}', u'{title}'))
-    if options.default:
-        Formatter.set(DefaultFormatter())
+    if options.insert:
+        Writer.set(SqlInsertWriter())
+    if options.update:
+        Writer.set(SqlUpdateWriter())
     if options.test:
         Writer.set(TestWriter(u'{0}'))
 

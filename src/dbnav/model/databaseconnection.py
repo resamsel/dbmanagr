@@ -251,7 +251,7 @@ class DatabaseConnection(BaseItem):
             cols)
 
     def restriction(self, alias, column, operator, value):
-        if column.table:
+        if column.table and alias != None:
             return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
         return u'{0} {1} {2}'.format(column.name, operator, self.format_value(column, value))
 

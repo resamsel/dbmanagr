@@ -24,21 +24,21 @@ DEFAULT_ITEMS_FORMAT = u'{0}'
 DEFAULT_ITEM_FORMAT = u'{item}'
 
 parser = argparse.ArgumentParser(prog='dbgraph')
-parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table""")
+parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table)""")
 group = parser.add_mutually_exclusive_group()
-group.add_argument('-d', '--default', default=True, help='Output format: human readable hierarchical text', action='store_true')
-group.add_argument('-g', '--graphviz', help='Output format: a Graphviz graph', action='store_true')
+group.add_argument('-d', '--default', default=True, help='output format: human readable hierarchical text', action='store_true')
+group.add_argument('-g', '--graphviz', help='output format: a Graphviz graph', action='store_true')
 group.add_argument('-t', '--test', help='use test writer', action='store_true')
-parser.add_argument('-c', '--include-columns', default=False, help='Include columns in output', action='store_true')
-parser.add_argument('-D', '--include-driver', default=False, help='Include database driver in output (does not work well with graphviz as output)', action='store_true')
-parser.add_argument('-C', '--include-connection', default=False, help='Include connection in output (does not work well with graphviz as output)', action='store_true')
-parser.add_argument('-B', '--include-database', default=False, help='Include database in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-c', '--include-columns', default=False, help='include columns in output', action='store_true')
+parser.add_argument('-D', '--include-driver', default=False, help='include database driver in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-C', '--include-connection', default=False, help='include connection in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-B', '--include-database', default=False, help='include database in output (does not work well with graphviz as output)', action='store_true')
 group = parser.add_mutually_exclusive_group()
-group.add_argument('-r', '--recursive', help='Include any forward/back reference to the starting table, recursing through all tables eventually', action='store_true')
-group.add_argument('-i', '--include', help='Include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
-parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
-parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='The file to log to')
-parser.add_argument('-l', '--loglevel', default='warning', help='The minimum level to log')
+group.add_argument('-r', '--recursive', help='include any forward/back reference to the starting table, recursing through all tables eventually', action='store_true')
+group.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
+parser.add_argument('-x', '--exclude', help='exclude the specified columns')
+parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
+parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
 def dfs(table, consumed=[], include=[], exclude=[], indent=0, opts=None):
     logger.debug('dfs(table=%s, consumed=%s, include=%s, exclude=%s, indent=%d)',
@@ -193,6 +193,8 @@ class DatabaseGrapher:
 def main():
     try:
         print Writer.write(run(sys.argv))
+    except SystemExit, e:
+        sys.exit(-1)
     except BaseException, e:
         sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
         raise

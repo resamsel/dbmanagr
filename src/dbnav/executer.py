@@ -16,14 +16,14 @@ from dbnav.utils import prefixes, remove_prefix
 from dbnav.querybuilder import QueryFilter
 
 parser = argparse.ArgumentParser(prog='dbgraph')
-parser.add_argument('uri', help="""The URI to parse. Format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table""")
-parser.add_argument('infile', default='-', help='The path to the file containing the SQL query to execute', type=argparse.FileType('r'), nargs='?')
-parser.add_argument('-s', '--separator', default=';\n', help='The separator between individual statements')
+parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database; for SQLite: databasefile.db)""")
+parser.add_argument('infile', default='-', help='the path to the file containing the SQL query to execute', type=argparse.FileType('r'), nargs='?')
+parser.add_argument('-s', '--separator', default=';\n', help='the separator between individual statements')
 group = parser.add_mutually_exclusive_group()
-group.add_argument('-d', '--default', default=True, help='Output format: tuples', action='store_true')
+group.add_argument('-d', '--default', default=True, help='output format: tuples', action='store_true')
 group.add_argument('-t', '--test', help='use test writer', action='store_true')
-parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='The file to log to')
-parser.add_argument('-l', '--loglevel', default='warning', help='The minimum level to log')
+parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
+parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
 class Item:
     def __init__(self, connection, row):
@@ -67,6 +67,8 @@ class DatabaseExecuter:
 def main():
     try:
         print Writer.write(run(sys.argv))
+    except SystemExit, e:
+        sys.exit(-1)
     except BaseException, e:
         sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
 

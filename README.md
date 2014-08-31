@@ -63,8 +63,6 @@ Allows you to explore, visualise and export your database. Additionally allows t
 * Configuration of what is shown based on table comments (currently PostgreSQL only)
 
 ### Usage
-Open the Alfred query window. The keyword is *dbnav*.
-
 ```
 usage: dbnav [-h] [-d | -s | -j | -x | -a] [-m LIMIT] [-f LOGFILE]
              [-l LOGLEVEL]
@@ -90,6 +88,8 @@ optional arguments:
   -l LOGLEVEL, --loglevel LOGLEVEL
                         the minimum level to log
 ```
+
+In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your data. No options may be given.
 
 ### Examples
 
