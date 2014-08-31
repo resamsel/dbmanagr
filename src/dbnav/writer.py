@@ -156,17 +156,20 @@ class SqlUpdateWriter(FormatWriter):
         return self.item_format.format(
             table=table.connection.escape_keyword(table.name),
             values=self.create_values(row, exclude),
-            restriction=self.create_restriction(row, exclude))
+            restriction=self.create_restriction(row,
+                filter(lambda col: col.primary_key, table.cols)))
     def create_values(self, row, exclude):
         table = row.table
         return u', '.join(
-            map(lambda col: table.connection.restriction(None, col, '=', row[col.name]),
-                filter(lambda col: col.name not in exclude, row.table.cols)))
-    def create_restriction(self, row, exclude):
+            map(lambda col: table.connection.restriction(
+                        None, col, '=', row[col.name], map_null_operator=False),
+                filter(lambda col: not col.primary_key and col.name not in exclude,
+                    row.table.cols)))
+    def create_restriction(self, row, pks):
         table = row.table
         return u' and '.join(
             map(lambda col: table.connection.restriction(None, col, '=', row[col.name]),
-                 filter(lambda col: col.primary_key, table.cols)))
+                 pks))
 
 class TestWriter(FormatWriter):
     def __init__(self, items_format=u"""Title\tAutocomplete
