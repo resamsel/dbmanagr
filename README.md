@@ -64,14 +64,14 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ### Usage
 ```
-usage: dbnav [-h] [-d | -s | -j | -x | -a] [-m LIMIT] [-f LOGFILE]
-             [-l LOGLEVEL]
+usage: dbnav [-h] [-d | -s | -j | -x | -a | -t] [-S] [-N] [-m LIMIT]
+             [-f LOGFILE] [-l LOGLEVEL]
              [uri]
 
 positional arguments:
-  uri                   The URI to parse. Format for PostgreSQL:
-                        user@host/database/table/filter/; for SQLite:
-                        databasefile.db/table/filter/
+  uri                   the URI to parse (format for PostgreSQL:
+                        user@host/database/table/filter; for SQLite:
+                        databasefile.db/table/filter)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -80,8 +80,11 @@ optional arguments:
   -j, --json            use JSON writer
   -x, --xml             use XML writer
   -a, --autocomplete    use autocomplete writer
+  -t, --test            use test writer
+  -S, --simplify        simplify the output
+  -N, --no-simplify     simplify the output
   -m LIMIT, --limit LIMIT
-                        Limit the results of the main query to this amount of
+                        limit the results of the main query to this amount of
                         rows
   -f LOGFILE, --logfile LOGFILE
                         the file to log to
@@ -134,34 +137,42 @@ Visualises the dependencies of a table using its foreign key references (forward
 
 ### Usage
 ```
-usage: dbgraph [-h] [-d | -g] [-c] [-r | -i INCLUDE] [-x EXCLUDE] [-f LOGFILE]
-               [-l LOGLEVEL]
+usage: dbgraph [-h] [-d | -g | -t] [-c] [-D] [-C] [-B] [-r | -i INCLUDE]
+               [-x EXCLUDE] [-f LOGFILE] [-l LOGLEVEL]
                uri
 
 positional arguments:
-  uri                   The URI to parse. Format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL:
                         user@host/database/table; for SQLite:
-                        databasefile.db/table
+                        databasefile.db/table)
 
 optional arguments:
   -h, --help            show this help message and exit
-  -d, --default         Output format: human readable hierarchical text
-  -g, --graphviz        Output format: a Graphviz graph
+  -d, --default         output format: human readable hierarchical text
+  -g, --graphviz        output format: a Graphviz graph
+  -t, --test            use test writer
   -c, --include-columns
-                        Include columns in output (does not work with graphviz
-                        as output)
-  -r, --recursive       Include any forward/back reference to the starting
+                        include columns in output
+  -D, --include-driver  include database driver in output (does not work well
+                        with graphviz as output)
+  -C, --include-connection
+                        include connection in output (does not work well with
+                        graphviz as output)
+  -B, --include-database
+                        include database in output (does not work well with
+                        graphviz as output)
+  -r, --recursive       include any forward/back reference to the starting
                         table, recursing through all tables eventually
   -i INCLUDE, --include INCLUDE
-                        Include the specified columns and their foreign rows,
+                        include the specified columns and their foreign rows,
                         if any. Multiple columns can be specified by
                         separating them with a comma (,)
   -x EXCLUDE, --exclude EXCLUDE
-                        Exclude the specified columns
+                        exclude the specified columns
   -f LOGFILE, --logfile LOGFILE
-                        The file to log to
+                        the file to log to
   -l LOGLEVEL, --loglevel LOGLEVEL
-                        The minimum level to log
+                        the minimum level to log
 ```
 
 ### Examples
@@ -271,25 +282,28 @@ Exports specific rows from the database along with their references rows from ot
 
 ### Usage
 ```
-usage: dbexport [-h] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT] [-f LOGFILE]
-                [-l LOGLEVEL]
+usage: dbexport [-h] [-I | -U | -t] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT]
+                [-f LOGFILE] [-l LOGLEVEL]
                 uri
 
 positional arguments:
-  uri                   The URI to parse. Format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL:
                         user@host/database/table/column=value; for SQLite:
-                        databasefile.db/table/column=value
+                        databasefile.db/table/column=value)
 
 optional arguments:
   -h, --help            show this help message and exit
+  -I, --insert          output format: SQL insert statements
+  -U, --update          output format: SQL update statements
+  -t, --test            use test writer
   -i INCLUDE, --include INCLUDE
-                        Include the specified columns and their foreign rows,
-                        if any. Multiple columns can be specified by
-                        separating them with a comma (,)
+                        include the specified columns and their foreign rows,
+                        if any (multiple columns can be specified by
+                        separating them with a comma)
   -x EXCLUDE, --exclude EXCLUDE
                         Exclude the specified columns
   -m LIMIT, --limit LIMIT
-                        Limit the results of the main query to this amount of
+                        limit the results of the main query to this amount of
                         rows
   -f LOGFILE, --logfile LOGFILE
                         the file to log to
@@ -297,6 +311,30 @@ optional arguments:
                         the minimum level to log
 ```
 
+## Database Executer
+
+### Usage
+```
+usage: dbgraph [-h] [-s SEPARATOR] [-d | -t] [-f LOGFILE] [-l LOGLEVEL]
+               uri [infile]
+
+positional arguments:
+  uri                   the URI to parse (format for PostgreSQL:
+                        user@host/database; for SQLite: databasefile.db)
+  infile                the path to the file containing the SQL query to
+                        execute
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SEPARATOR, --separator SEPARATOR
+                        the separator between individual statements
+  -d, --default         output format: tuples
+  -t, --test            use test writer
+  -f LOGFILE, --logfile LOGFILE
+                        the file to log to
+  -l LOGLEVEL, --loglevel LOGLEVEL
+                        the minimum level to log
+```
 ## Installation
 ```
 make install

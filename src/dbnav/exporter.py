@@ -16,23 +16,24 @@ from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
 from dbnav.formatter import Formatter, DefaultFormatter, TestFormatter
 from dbnav.writer import Writer, StdoutWriter, FormatWriter, TestWriter, SqlInsertWriter, SqlUpdateWriter
+from dbnav.args import parent_parser, format_group
 
-parser = argparse.ArgumentParser(prog='dbexport')
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value)""")
-group = parser.add_mutually_exclusive_group()
+parent = parent_parser()
+group = format_group(parent)
 group.add_argument('-I', '--insert', default=True, help='output format: SQL insert statements', action='store_true')
 group.add_argument('-U', '--update', help='output format: SQL update statements', action='store_true')
-group.add_argument('-t', '--test', help='use test writer', action='store_true')
+parser = argparse.ArgumentParser(prog='dbexport', parents=[parent])
+parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value)""")
 parser.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any (multiple columns can be specified by separating them with a comma)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
-parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
-parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
 class RowItem():
     def __init__(self, row, exclude):
         self.row = row
         self.exclude = exclude
+    def format(self):
+        Formatter.formatter.format_row(self.row)
 
 def create_items(items, include, exclude):
     logger.debug('create_items(items=%s, include=%s, exclude=%s)', items, include, exclude)
@@ -135,13 +136,12 @@ def main():
 
 def run(argv):
     options = Config.init(argv, parser)
-    Writer.set(StdoutWriter(u'{0}', u'{title}'))
     if options.insert:
         Writer.set(SqlInsertWriter())
     if options.update:
         Writer.set(SqlUpdateWriter())
     if options.test:
-        Writer.set(TestWriter(u'{0}'))
+        Writer.set(SqlInsertWriter())
 
     try:
         return DatabaseExporter.export(options)

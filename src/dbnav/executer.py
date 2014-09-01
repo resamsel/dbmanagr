@@ -14,16 +14,15 @@ from .logger import logger, logduration
 from .model.table import Table
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.querybuilder import QueryFilter
+from dbnav.args import parent_parser, format_group
 
-parser = argparse.ArgumentParser(prog='dbgraph')
+parent = parent_parser()
+group = format_group(parent)
+group.add_argument('-d', '--default', default=True, help='output format: tuples', action='store_true')
+parser = argparse.ArgumentParser(prog='dbexec', parents=[parent])
 parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database; for SQLite: databasefile.db)""")
 parser.add_argument('infile', default='-', help='the path to the file containing the SQL query to execute', type=argparse.FileType('r'), nargs='?')
 parser.add_argument('-s', '--separator', default=';\n', help='the separator between individual statements')
-group = parser.add_mutually_exclusive_group()
-group.add_argument('-d', '--default', default=True, help='output format: tuples', action='store_true')
-group.add_argument('-t', '--test', help='use test writer', action='store_true')
-parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
-parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
 class Item:
     def __init__(self, connection, row):

@@ -11,6 +11,7 @@ from .item import Item, create_items, create_connections, INVALID
 from dbnav.writer import Writer, StdoutWriter, FormatWriter, XmlWriter, TestWriter, SimplifiedWriter
 from .sources import Source
 from .logger import logger, logduration
+from dbnav.args import parent_parser, format_group
 
 IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
@@ -18,25 +19,18 @@ IMAGE_TABLE = 'images/table.png'
 
 logger = logging.getLogger(__name__)
 
-def strip(s):
-    if type(s) == str:
-        return s.strip()
-    return s
-
-parser = argparse.ArgumentParser(prog='dbnav')
+parent = parent_parser()
+group = format_group(parent)
+group.add_argument('-d', '--default', help='output format: default', action='store_true')
+group.add_argument('-s', '--simple', help='output format: simple', action='store_true')
+group.add_argument('-j', '--json', help='output format: JSON', action='store_true')
+group.add_argument('-x', '--xml', help='output format: XML', action='store_true')
+group.add_argument('-a', '--autocomplete', help='output format: autocomplete', action='store_true')
+parser = argparse.ArgumentParser(prog='dbnav', parents=[parent])
 parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/filter; for SQLite: databasefile.db/table/filter)""", nargs='?')
-group = parser.add_mutually_exclusive_group()
-group.add_argument('-d', '--default', help='use default writer', action='store_true')
-group.add_argument('-s', '--simple', help='use simple writer', action='store_true')
-group.add_argument('-j', '--json', help='use JSON writer', action='store_true')
-group.add_argument('-x', '--xml', help='use XML writer', action='store_true')
-group.add_argument('-a', '--autocomplete', help='use autocomplete writer', action='store_true')
-group.add_argument('-t', '--test', help='use test writer', action='store_true')
 parser.add_argument('-S', '--simplify', dest='simplify', default=True, help='simplify the output', action='store_true')
-parser.add_argument('-N', '--no-simplify', dest='simplify', help='simplify the output', action='store_false')
+parser.add_argument('-N', '--no-simplify', dest='simplify', help='don\'t simplify the output', action='store_false')
 parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
-parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
-parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
 class DatabaseNavigator:
     """The main class"""

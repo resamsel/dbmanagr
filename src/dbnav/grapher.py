@@ -19,16 +19,17 @@ from dbnav.model.databaseconnection import values
 from dbnav.node import BaseNode, ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.formatter import Formatter, DefaultFormatter, TestFormatter
 from dbnav.writer import Writer, StdoutWriter, GraphvizWriter, FormatWriter
+from dbnav.args import parent_parser, format_group
 
 DEFAULT_ITEMS_FORMAT = u'{0}'
 DEFAULT_ITEM_FORMAT = u'{item}'
 
-parser = argparse.ArgumentParser(prog='dbgraph')
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table)""")
-group = parser.add_mutually_exclusive_group()
+parent = parent_parser()
+group = format_group(parent)
 group.add_argument('-d', '--default', default=True, help='output format: human readable hierarchical text', action='store_true')
 group.add_argument('-g', '--graphviz', help='output format: a Graphviz graph', action='store_true')
-group.add_argument('-t', '--test', help='use test writer', action='store_true')
+parser = argparse.ArgumentParser(prog='dbgraph', parents=[parent])
+parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table)""")
 parser.add_argument('-c', '--include-columns', default=False, help='include columns in output', action='store_true')
 parser.add_argument('-D', '--include-driver', default=False, help='include database driver in output (does not work well with graphviz as output)', action='store_true')
 parser.add_argument('-C', '--include-connection', default=False, help='include connection in output (does not work well with graphviz as output)', action='store_true')
@@ -37,8 +38,6 @@ group = parser.add_mutually_exclusive_group()
 group.add_argument('-r', '--recursive', help='include any forward/back reference to the starting table, recursing through all tables eventually', action='store_true')
 group.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
 parser.add_argument('-x', '--exclude', help='exclude the specified columns')
-parser.add_argument('-f', '--logfile', default='/tmp/dbnavigator.log', help='the file to log to')
-parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
 
 def dfs(table, consumed=[], include=[], exclude=[], indent=0, opts=None):
     logger.debug('dfs(table=%s, consumed=%s, include=%s, exclude=%s, indent=%d)',
@@ -196,8 +195,8 @@ def main():
     except SystemExit, e:
         sys.exit(-1)
     except BaseException, e:
-        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
-        raise
+        sys.stderr.write('{0}: {1}{2}\n'.format(sys.argv[0].split('/')[-1], e, type(e)))
+#        raise
 
 def run(argv):
     options = Config.init(argv, parser)

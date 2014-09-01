@@ -23,36 +23,32 @@ def item(v):
 def create_connections(cons):
     """Creates connection items"""
 
-    return [c.item() for c in cons]
+    return map(lambda c: c.item(), cons)
 
 def create_databases(dbs):
     """Creates database items"""
 
-    return [database.item() for database in dbs]
+    return map(lambda db: db.item(), dbs)
 
 def create_tables(tables):
     """Creates table items"""
 
-    return [t.item() for t in tables]
+    return map(lambda t: t.item(), tables)
 
 def create_columns(columns):
     """Creates column items"""
 
-    return [c.item() for c in columns]
+    return map(lambda c: c.item(), columns)
 
 def create_rows(rows):
     """Creates row items"""
-
-    logger.debug('create_rows(rows=%s)', rows)
 
     return map(Formatter.format_row, rows)
 
 def create_values(values):
     """Creates value items"""
 
-    logger.debug('create_values(values=%s)', values)
-
-    return [item(v) for v in values]
+    return map(item, cons)
 
 def create_items(items, options):
     """Creates any items"""
