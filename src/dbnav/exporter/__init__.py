@@ -7,10 +7,10 @@ import sys
 import argparse
 import re
 
-from .config import Config
-from .item import Item, INVALID
-from .sources import Source
-from .logger import logger, logduration
+from dbnav.config import Config
+from dbnav.item import Item, INVALID
+from dbnav.sources import Source
+from dbnav.logger import logger, logduration
 from dbnav.utils import remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values

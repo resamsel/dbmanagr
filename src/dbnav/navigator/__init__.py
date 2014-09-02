@@ -6,11 +6,11 @@ import time
 import sys
 import argparse
 
-from .config import Config
-from .item import Item, create_items, create_connections, INVALID
+from dbnav.config import Config
+from dbnav.item import Item, create_items, create_connections, INVALID
 from dbnav.writer import Writer, StdoutWriter, FormatWriter, XmlWriter, TestWriter, SimplifiedWriter
-from .sources import Source
-from .logger import logger, logduration
+from dbnav.sources import Source
+from dbnav.logger import logger, logduration
 from dbnav.args import parent_parser, format_group
 
 IMAGE_CONNECTION = 'images/connection.png'

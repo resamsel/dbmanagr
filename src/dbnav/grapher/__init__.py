@@ -7,12 +7,12 @@ import sys
 import argparse
 
 from collections import deque
-from .config import Config
-from .item import Item, INVALID
-from .sources import Source
-from .logger import logger, logduration
-from .model.column import Column
-from .model.table import Table
+from dbnav.config import Config
+from dbnav.item import Item, INVALID
+from dbnav.sources import Source
+from dbnav.logger import logger, logduration
+from dbnav.model.column import Column
+from dbnav.model.table import Table
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values

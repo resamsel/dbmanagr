@@ -7,11 +7,11 @@ import sys
 import argparse
 
 from collections import deque, OrderedDict
-from .config import Config
-from .writer import Writer, StdoutWriter
-from .sources import Source
-from .logger import logger, logduration
-from .model.table import Table
+from dbnav.config import Config
+from dbnav.writer import Writer, StdoutWriter
+from dbnav.sources import Source
+from dbnav.logger import logger, logduration
+from dbnav.model.table import Table
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.args import parent_parser, format_group
