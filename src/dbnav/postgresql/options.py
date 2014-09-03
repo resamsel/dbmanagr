@@ -33,7 +33,10 @@ class PostgreSQLOptionsParser:
             if '@' in opts.uri: opts.host = locs[1]
             if len(paths) > 1: opts.database = paths[1]
             if len(paths) > 2: opts.table = paths[2]
-            if len(paths) > 3: opts.filter = parse_filter(paths[3])
+            if '?' in uri:
+                opts.filter = parse_filter(url.query)
+                paths.append(url.query)
+
             opts.show = {
                 1: 'connections',
                 2: 'databases',

@@ -19,7 +19,8 @@ setup(
     # dependencies
     install_requires = [
         'sqlalchemy>=0.8.2',
-        'psycopg2>=2.5.1'
+        'psycopg2>=2.5.1',
+        'sqlparse>=0.1.11'
     ],
 
     entry_points = {

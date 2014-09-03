@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from urlparse import urlparse
+
 from dbnav.options import *
 
 class SQLiteOptions:
@@ -14,9 +16,15 @@ class SQLiteOptionsParser:
         opts = SQLiteOptions()
         opts.__dict__.update(source.__dict__)
         if opts.uri:
-            paths = opts.uri.split('/')
+            uri = opts.uri
+            url = urlparse('sqlite://%s' % uri)
+            paths = url.path.split('/')
+ 
             if len(paths) > 1: opts.table = paths[1]
-            if len(paths) > 2: opts.filter = parse_filter(paths[2])
+            if '?' in uri:
+                opts.filter = parse_filter(url.query)
+                paths.append(url.query)
+
             opts.show = {
                 1: 'connections',
                 2: 'tables',

@@ -6,12 +6,15 @@ import time
 import sys
 import argparse
 
+from dbnav import wrapper
 from dbnav.config import Config
-from dbnav.item import Item, create_items, create_connections, INVALID
-from dbnav.writer import Writer, StdoutWriter, FormatWriter, XmlWriter, TestWriter, SimplifiedWriter
+from dbnav.item import Item, create_connections, INVALID
+from dbnav.writer import Writer, TestWriter
 from dbnav.sources import Source
-from dbnav.logger import logger, logduration
+from dbnav.logger import logger
 from dbnav.args import parent_parser, format_group
+
+from .writer import SimplifiedWriter, XmlWriter, JsonWriter, SimpleWriter, AutocompleteWriter
 
 IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
@@ -51,13 +54,7 @@ class DatabaseNavigator:
         return create_connections(sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
 
 def main():
-    try:
-        print Writer.write(run(sys.argv))
-    except SystemExit, e:
-        sys.exit(-1)
-    except BaseException, e:
-        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
-        raise
+    wrapper(run)
 
 def run(argv):
     options = Config.init(argv, parser)
@@ -65,6 +62,12 @@ def run(argv):
         Writer.set(SimplifiedWriter())
     if options.xml:
         Writer.set(XmlWriter())
+    if options.json:
+        Writer.set(JsonWriter())
+    if options.simple:
+        Writer.set(SimpleWriter())
+    if options.autocomplete:
+        Writer.set(AutocompleteWriter())
     if options.test:
         Writer.set(TestWriter())
 

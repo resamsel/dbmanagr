@@ -18,8 +18,10 @@ from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
 from dbnav.node import BaseNode, ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.formatter import Formatter, DefaultFormatter, TestFormatter
-from dbnav.writer import Writer, StdoutWriter, GraphvizWriter, FormatWriter
+from dbnav.writer import Writer, StdoutWriter
 from dbnav.args import parent_parser, format_group
+
+from .writer import GraphvizWriter
 
 DEFAULT_ITEMS_FORMAT = u'{0}'
 DEFAULT_ITEM_FORMAT = u'{item}'

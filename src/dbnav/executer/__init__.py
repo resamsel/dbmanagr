@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
 import time
 import sys
 import argparse
+import sqlparse
 
-from collections import deque, OrderedDict
+from dbnav import wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer, StdoutWriter
 from dbnav.sources import Source
@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser(prog='dbexec', parents=[parent])
 parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database; for SQLite: databasefile.db)""")
 parser.add_argument('infile', default='-', help='the path to the file containing the SQL query to execute', type=argparse.FileType('r'), nargs='?')
 parser.add_argument('-s', '--separator', default=';\n', help='the separator between individual statements')
+parser.add_argument('-p', '--progress', default=-1, type=int, help='show progress after this amount of executions when inserting/updating large data sets')
 
 class Item:
     def __init__(self, connection, row):
@@ -30,6 +31,35 @@ class Item:
         self.row = row
     def __str__(self):
         return '\t'.join(map(lambda c: unicode(c), self.row))
+
+def read_sql(file):
+    start = time.time()
+
+    try:
+        sql = file.read()
+    except KeyboardInterrupt:
+        sql = None
+    finally:
+        file.close()
+
+    logduration('Reading input statements', start)
+    
+    return sql
+
+def read_statements(file):
+    sql = read_sql(file)
+
+    if not sql:
+        return None
+
+    start = time.time()
+
+    stmts = filter(lambda s: len(s.strip()) > 0, sqlparse.split(sql))
+
+    logduration('Splitting SQL statements', start)
+    logger.info('Number of SQL statements: %d', len(stmts))
+    
+    return stmts
 
 class DatabaseExecuter:
     """The main class"""
@@ -40,36 +70,59 @@ class DatabaseExecuter:
 
         cons = Source.connections()
 
-        # search exact match of connection
+        # Search exact match of connection
         for connection in cons:
             opts = options.get(connection.driver)
             if connection.matches(opts) and opts.show in ['databases', 'tables', 'columns', 'values']:
+                # Reads the statements
+                stmts = read_statements(opts.infile)
+
+                # Exit gracefully when no statements have been found (or the input got cancelled)
+                if not stmts:
+                    return []
+
+                # Collects results
+                results = []
+                # Counts the changes (inserts, updates)
+                changes = 0
+                # Counts the statements
+                counter = 0
+                    
                 try:
+                    # Connects to the database and starts a transaction
                     connection.connect(opts.database)
-                    try:
-                        sql = opts.infile.readlines()
-                    except KeyboardInterrupt:
-                        sql = []
-                    finally:
-                        opts.infile.close()
-                    results = []
-                    for stmt in filter(lambda s: len(s.strip()) > 0, ''.join(sql).split(opts.separator)):
-                        result = connection.execute(stmt)
+                    trans = connection.begin()
+
+                    start = time.time()
+                    for stmt in stmts:
+                        result = connection.execute(stmt, '%d' % counter)
                         if result.cursor:
                             results.extend(map(lambda row: Item(connection, row), result))
-                    return results
+                        else:
+                            # increase changes based on the returned result info
+                            changes += result.rowcount
+                        if opts.progress > 0 and counter % opts.progress == 0:
+                            sys.stdout.write('.')
+                            sys.stdout.flush()
+                        counter += 1
+                    if opts.progress > 0 and counter >= opts.progress:
+                        sys.stdout.write('\n')
+                    trans.commit()
+                except:
+                    trans.rollback()
+                    raise
                 finally:
                     connection.close()
+                    logduration('Executing SQL statements', start)
+
+                if not results:
+                    print 'Changed rows: {0}'.format(changes)
+                return results
 
         raise Exception('Specify the complete URI to a table')
 
 def main():
-    try:
-        print Writer.write(run(sys.argv))
-    except SystemExit, e:
-        sys.exit(-1)
-    except BaseException, e:
-        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
+    wrapper(run)
 
 def run(argv):
     options = Config.init(argv, parser)

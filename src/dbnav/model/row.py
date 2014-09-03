@@ -42,7 +42,7 @@ class Row(BaseItem):
         return val(self, 'subtitle')
 
     def autocomplete(self):
-        return '%s%s=%s/' % (
+        return '%s?%s=%s' % (
             self.table.autocomplete(),
             self.table.primary_key,
             self[self.table.primary_key])

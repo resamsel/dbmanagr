@@ -14,9 +14,11 @@ from dbnav.logger import logger, logduration
 from dbnav.utils import remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
-from dbnav.formatter import Formatter, DefaultFormatter, TestFormatter
-from dbnav.writer import Writer, StdoutWriter, FormatWriter, TestWriter, SqlInsertWriter, SqlUpdateWriter
+from dbnav.formatter import Formatter
+from dbnav.writer import Writer
 from dbnav.args import parent_parser, format_group
+
+from .writer import SqlInsertWriter, SqlUpdateWriter
 
 parent = parent_parser()
 group = format_group(parent)
