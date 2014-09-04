@@ -15,15 +15,18 @@ from dbnav.utils import remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
 from dbnav.formatter import Formatter
-from dbnav.writer import Writer
+from dbnav.writer import Writer, TestWriter
 from dbnav.args import parent_parser, format_group
 
-from .writer import SqlInsertWriter, SqlUpdateWriter
+from .writer import SqlInsertWriter, SqlUpdateWriter, SqlDeleteWriter
 
 parent = parent_parser()
-group = format_group(parent)
-group.add_argument('-I', '--insert', default=True, help='output format: SQL insert statements', action='store_true')
-group.add_argument('-U', '--update', help='output format: SQL update statements', action='store_true')
+
+group = format_group(parent, SqlInsertWriter)
+group.add_argument('-I', '--insert', default=True, help='output format: SQL insert statements', dest='formatter', action='store_const', const=SqlInsertWriter)
+group.add_argument('-U', '--update', help='output format: SQL update statements', dest='formatter', action='store_const', const=SqlInsertWriter)
+group.add_argument('-D', '--delete', help='output format: SQL delete statements', dest='formatter', action='store_const', const=SqlDeleteWriter)
+
 parser = argparse.ArgumentParser(prog='dbexport', parents=[parent])
 parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value)""")
 parser.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any (multiple columns can be specified by separating them with a comma)')
@@ -138,11 +141,10 @@ def main():
 
 def run(argv):
     options = Config.init(argv, parser)
-    if options.insert:
-        Writer.set(SqlInsertWriter())
-    if options.update:
-        Writer.set(SqlUpdateWriter())
-    if options.test:
+
+    if options.formatter:
+        Writer.set(options.formatter())
+    else:
         Writer.set(SqlInsertWriter())
 
     try:

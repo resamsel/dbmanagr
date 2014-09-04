@@ -17,70 +17,33 @@ from dbnav.utils import prefixes, remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
 from dbnav.node import BaseNode, ColumnNode, ForeignKeyNode, NameNode, TableNode
-from dbnav.formatter import Formatter, DefaultFormatter, TestFormatter
-from dbnav.writer import Writer, StdoutWriter
+from dbnav.writer import Writer, TestWriter
 from dbnav.args import parent_parser, format_group
 
-from .writer import GraphvizWriter
-
-DEFAULT_ITEMS_FORMAT = u'{0}'
-DEFAULT_ITEM_FORMAT = u'{item}'
+from .writer import GraphWriter, GraphvizWriter, GraphTestWriter
 
 parent = parent_parser()
-group = format_group(parent)
-group.add_argument('-d', '--default', default=True, help='output format: human readable hierarchical text', action='store_true')
-group.add_argument('-g', '--graphviz', help='output format: a Graphviz graph', action='store_true')
+
+group = format_group(parent, GraphTestWriter)
+group.add_argument('-d', '--default', default=True, help='output format: human readable hierarchical text', dest='formatter', action='store_const', const=GraphWriter)
+group.add_argument('-g', '--graphviz', help='output format: a Graphviz graph', dest='formatter', action='store_const', const=GraphvizWriter)
+
 parser = argparse.ArgumentParser(prog='dbgraph', parents=[parent])
 parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table)""")
-parser.add_argument('-c', '--include-columns', default=False, help='include columns in output', action='store_true')
-parser.add_argument('-D', '--include-driver', default=False, help='include database driver in output (does not work well with graphviz as output)', action='store_true')
-parser.add_argument('-C', '--include-connection', default=False, help='include connection in output (does not work well with graphviz as output)', action='store_true')
-parser.add_argument('-B', '--include-database', default=False, help='include database in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-c', '--columns', dest='include_columns', default=False, help='include columns in output', action='store_true')
+parser.add_argument('-C', '--no-columns', dest='include_columns', default=True, help='don\'t include columns in output', action='store_false')
+parser.add_argument('-k', '--back-references', dest='include_back_references', default=True, help='include back references in output', action='store_true')
+parser.add_argument('-K', '--no-back-references', dest='include_back_references', default=False, help='don\'t include back references in output', action='store_false')
+parser.add_argument('-v', '--driver', dest='include_driver', default=False, help='include database driver in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-V', '--no-driver', dest='include_driver', default=True, help='don\'t include database driver in output', action='store_false')
+parser.add_argument('-n', '--connection', dest='include_connection', default=False, help='include connection in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-N', '--no-connection', dest='include_connection', default=True, help='don\'t include connection in output', action='store_false')
+parser.add_argument('-b', '--database', dest='include_database', default=False, help='include database in output (does not work well with graphviz as output)', action='store_true')
+parser.add_argument('-B', '--no-database', dest='include_database', default=True, help='don\'t include database in output', action='store_true')
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-r', '--recursive', help='include any forward/back reference to the starting table, recursing through all tables eventually', action='store_true')
 group.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
 parser.add_argument('-x', '--exclude', help='exclude the specified columns')
-
-def dfs(table, consumed=[], include=[], exclude=[], indent=0, opts=None):
-    logger.debug('dfs(table=%s, consumed=%s, include=%s, exclude=%s, indent=%d)',
-        table, consumed, include, exclude, indent)
-
-    result=[]
-    consumed.append(table.name)
-    table.init_columns(table.connection)
-
-    for col in filter(lambda col: col.name not in exclude, table.cols):
-        fk = table.foreign_key(col.name)
-        if not fk:
-            if opts.include_columns:
-                # Add column
-                result.append(ColumnNode(col, indent))
-        elif fk.a.table.name == table.name and fk.b.table.name not in consumed:
-            # Collects the forward references
-            result.append(ForeignKeyNode(fk, table, indent))
-            if opts.recursive or fk.a.name in prefixes(include):
-                result += dfs(fk.b.table,
-                    consumed,
-                    remove_prefix(fk.a.name, include),
-                    remove_prefix(fk.a.name, exclude),
-                    indent + 1,
-                    opts)
-
-    for key, fk in filter(
-            lambda (key, fk): fk.b.table.name == table.name and fk.a.table.name not in exclude,
-            table.fks.iteritems()):
-        if fk.a.table.name not in consumed:
-            # Collects the back references
-            result.append(ForeignKeyNode(fk, table, indent))
-            if opts.recursive or fk.a.table.name in prefixes(include):
-                result += dfs(fk.a.table,
-                    consumed,
-                    remove_prefix(fk.a.table.name, include),
-                    remove_prefix(fk.a.table.name, exclude),
-                    indent + 1,
-                    opts)
-
-    return result
 
 def bfs(start, include=[], exclude=[], indent=0, opts=None):
     logger.debug('bfs(start=%s, include=%s, exclude=%s, indent=%d)',
@@ -129,19 +92,20 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                                 exclude=remove_prefix(fk.a.name, exclude)))
                             found = True
 
-                for key, fk in filter(
-                        lambda (key, fk): fk.b.table.name == table.name and fk.a.table.name not in exclude,
-                        table.fks.iteritems()):
-                    logger.debug('adds back reference: fk=%s, include=%s', fk, include)
-                    head.append(ForeignKeyNode(fk, table, indent))
-                    if (fk.a.table.name in prefixes(include)
-                            or (opts.recursive and fk.a.table.name not in consumed)):
-                        # Collects the back references
-#                        logger.debug('adds table=%s', fk.a.table)
-                        head.append(TableNode(fk.a.table,
-                            include=remove_prefix(fk.a.table.name, include),
-                            exclude=remove_prefix(fk.a.table.name, exclude)))
-                        found = True
+                if opts.include_back_references:
+                    for key, fk in filter(
+                            lambda (key, fk): fk.b.table.name == table.name and fk.a.table.name not in exclude,
+                            table.fks.iteritems()):
+                        logger.debug('adds back reference: fk=%s, include=%s', fk, include)
+                        head.append(ForeignKeyNode(fk, table, indent))
+                        if (fk.a.table.name in prefixes(include)
+                                or (opts.recursive and fk.a.table.name not in consumed)):
+                            # Collects the back references
+    #                        logger.debug('adds table=%s', fk.a.table)
+                            head.append(TableNode(fk.a.table,
+                                include=remove_prefix(fk.a.table.name, include),
+                                exclude=remove_prefix(fk.a.table.name, exclude)))
+                            found = True
             else:
                 head.append(node)
         indent += 1
@@ -202,14 +166,11 @@ def main():
 
 def run(argv):
     options = Config.init(argv, parser)
-    if options.default:
-        Formatter.set(DefaultFormatter())
-        Writer.set(StdoutWriter(DEFAULT_ITEMS_FORMAT, DEFAULT_ITEM_FORMAT))
-    if options.graphviz:
-        Writer.set(GraphvizWriter())
-    if options.test:
-        Formatter.set(DefaultFormatter())
-        Writer.set(StdoutWriter(DEFAULT_ITEMS_FORMAT, DEFAULT_ITEM_FORMAT))
+
+    if options.formatter:
+        Writer.set(options.formatter())
+    else:
+        Writer.set(GraphWriter())
 
     try:
         return DatabaseGrapher.graph(options)

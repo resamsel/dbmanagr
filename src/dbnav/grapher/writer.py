@@ -4,8 +4,13 @@
 from collections import OrderedDict
 
 from dbnav.writer import FormatWriter
-from dbnav.formatter import Formatter, GraphvizFormatter
+from dbnav.formatter import Formatter, DefaultFormatter, GraphvizFormatter
 from dbnav.node import ColumnNode
+
+class GraphWriter(FormatWriter):
+    def __init__(self):
+        FormatWriter.__init__(self, u'{0}')
+        Formatter.set(DefaultFormatter())
 
 class GraphvizWriter(FormatWriter):
     def __init__(self):
@@ -17,3 +22,6 @@ class GraphvizWriter(FormatWriter):
         # Removes duplicate items and keeps order
         return list(OrderedDict.fromkeys(
             filter(lambda i: not isinstance(i, ColumnNode), items)))
+
+class GraphTestWriter(GraphWriter):
+    pass

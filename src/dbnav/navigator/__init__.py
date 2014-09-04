@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 
 parent = parent_parser()
 group = format_group(parent)
-group.add_argument('-d', '--default', help='output format: default', action='store_true')
-group.add_argument('-s', '--simple', help='output format: simple', action='store_true')
-group.add_argument('-j', '--json', help='output format: JSON', action='store_true')
-group.add_argument('-x', '--xml', help='output format: XML', action='store_true')
-group.add_argument('-a', '--autocomplete', help='output format: autocomplete', action='store_true')
+group.add_argument('-d', '--default', help='output format: default', dest='formatter', action='store_const', const=SimplifiedWriter)
+group.add_argument('-s', '--simple', help='output format: simple', dest='formatter', action='store_const', const=SimpleWriter)
+group.add_argument('-j', '--json', help='output format: JSON', dest='formatter', action='store_const', const=JsonWriter)
+group.add_argument('-x', '--xml', help='output format: XML', dest='formatter', action='store_const', const=XmlWriter)
+group.add_argument('-a', '--autocomplete', help='output format: autocomplete', dest='formatter', action='store_const', const=AutocompleteWriter)
 parser = argparse.ArgumentParser(prog='dbnav', parents=[parent])
 parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/filter; for SQLite: databasefile.db/table/filter)""", nargs='?')
 parser.add_argument('-S', '--simplify', dest='simplify', default=True, help='simplify the output', action='store_true')
@@ -58,18 +58,11 @@ def main():
 
 def run(argv):
     options = Config.init(argv, parser)
-    if options.simplify:
+
+    if options.formatter:
+        Writer.set(options.formatter())
+    else:
         Writer.set(SimplifiedWriter())
-    if options.xml:
-        Writer.set(XmlWriter())
-    if options.json:
-        Writer.set(JsonWriter())
-    if options.simple:
-        Writer.set(SimpleWriter())
-    if options.autocomplete:
-        Writer.set(AutocompleteWriter())
-    if options.test:
-        Writer.set(TestWriter())
 
     try:
         return DatabaseNavigator.navigate(options)

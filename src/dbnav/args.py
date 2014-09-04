@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+from dbnav.writer import TestWriter
 
 def parent_parser():
     parser = argparse.ArgumentParser(add_help=False)
@@ -9,7 +10,7 @@ def parent_parser():
     parser.add_argument('-l', '--loglevel', default='warning', help='the minimum level to log')
     return parser
 
-def format_group(parser):
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-t', '--test', help='output format: test specific', action='store_true')
+def format_group(parser, test_writer=TestWriter):
+    group = parser.add_argument_group('formatters')
+    group.add_argument('-t', '--test', help='output format: test specific', dest='formatter', action='store_const', const=test_writer)
     return group

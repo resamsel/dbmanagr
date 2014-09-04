@@ -5,11 +5,11 @@ class DefaultFormatter:
     def __init__(self):
         pass
     def format(self, item):
-        return str(item)
+        return unicode(item)
     def format_item(self, item):
         return self.format(item)
     def format_row(self, item):
-        return u', '.join(map(str, item))
+        return u', '.join(map(unicode, item))
     def format_column(self, item):
         return self.format(item)
     def format_node(self, item):
@@ -62,7 +62,7 @@ class TestFormatter(SimplifiedFormatter):
 
 class GraphvizFormatter(DefaultFormatter):
     def format(self, item):
-        return str(item)
+        return unicode(item)
     def format_name_node(self, item):
         return u'  root={0};'.format(item)
     def format_foreign_key_node(self, item):

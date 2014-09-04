@@ -3,6 +3,7 @@
 
 import time
 import logging
+import math
 
 from sqlalchemy import *
 from sqlalchemy.engine import reflection
@@ -266,8 +267,8 @@ class DatabaseConnection(BaseItem):
         return u'{0} {1} {2}'.format(column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):
-        #print column.type, value, value == None
-        if value == None:
+        #print column.type, value, type(value), value == None
+        if value == None or (type(value) is float and math.isnan(value)):
             return 'null'
         if type(value) is list:
             return '({0})'.format(','.join([self.format_value(column, v) for v in value]))

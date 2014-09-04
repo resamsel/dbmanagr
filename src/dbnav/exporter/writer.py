@@ -52,3 +52,21 @@ class SqlUpdateWriter(FormatWriter):
             map(lambda col: table.connection.restriction(None, col, '=', row[col.name]),
                  pks))
 
+class SqlDeleteWriter(FormatWriter):
+    def __init__(self):
+        FormatWriter.__init__(self, u'{0}', u'delete from {table} where {restriction};')
+        Formatter.set(DefaultFormatter())
+    def itemtostring(self, item):
+        row = item.row
+        exclude = item.exclude
+        table = row.table
+        return self.item_format.format(
+            table=table.connection.escape_keyword(table.name),
+            restriction=self.create_restriction(row,
+                filter(lambda col: col.primary_key, table.cols)))
+    def create_restriction(self, row, pks):
+        table = row.table
+        return u' and '.join(
+            map(lambda col: table.connection.restriction(None, col, '=', row[col.name]),
+                 pks))
+
