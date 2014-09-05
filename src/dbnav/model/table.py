@@ -13,7 +13,7 @@ from .baseitem import BaseItem
 
 DEFAULT_LIMIT = 50
 
-OPTION_URI_VALUE_FORMAT = '%s%s/%s/'
+OPTION_URI_VALUE_FORMAT = '%s%s/?%s'
 
 logger = logging.getLogger(__name__)
 

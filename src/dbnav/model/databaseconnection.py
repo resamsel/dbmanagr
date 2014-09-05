@@ -3,6 +3,7 @@
 
 import time
 import logging
+import math
 
 from sqlalchemy import *
 from sqlalchemy.engine import reflection
@@ -20,7 +21,8 @@ from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_
 logger = logging.getLogger(__name__)
 
 OPTION_URI_TABLES_FORMAT = u'%s%s/'
-OPTION_URI_ROW_FORMAT = u'%s%s/%s'
+OPTION_URI_SINGLE_ROW_FORMAT = u'%s%s/?%s'
+OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
 def tostring(key):
     if isinstance(key, unicode):
@@ -61,11 +63,15 @@ def values(connection, table, filter):
     for key in keys:
         value = val(row, key)
         if key in table.fks:
-            # if key is a foreign key column
+            # Key is a foreign key column
             fk = table.fks[key]
             autocomplete = fk.b.table.autocomplete(fk.b.name, row.row[tostring(key)])
+        elif table.column(key).primary_key:
+            # Key is a simple column, but primary key
+            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
         else:
-            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_ROW_FORMAT)
+            # Key is a simple column
+            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
         f = fkey(Column(table, key))
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
@@ -75,7 +81,7 @@ def values(connection, table, filter):
     for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
         fk = foreign_keys[key]
         if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(fk.a.name, row.row[fk.b.name], OPTION_URI_ROW_FORMAT)
+            autocomplete = fk.a.table.autocomplete(fk.a.name, row.row[fk.b.name], OPTION_URI_MULTIPLE_ROWS_FORMAT)
             logger.debug('table.name=%s, fk=%s, autocomplete=%s', table.name, fk, autocomplete)
             values.append(
                 Value(fk.a,
@@ -203,6 +209,9 @@ class DatabaseConnection(BaseItem):
     def cursor(self):
         return self.con
 
+    def begin(self):
+        return self.con.begin()
+
     def execute(self, query, name='Unnamed'):
         logger.info('Query %s: %s', name, query)
         
@@ -251,13 +260,15 @@ class DatabaseConnection(BaseItem):
             cols)
 
     def restriction(self, alias, column, operator, value):
-        if column.table:
+        if not column:
+            raise Exception('Column is None!')
+        if column.table and alias != None:
             return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
         return u'{0} {1} {2}'.format(column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):
-        #print column.type, value, value == None
-        if value == None:
+        #print column.type, value, type(value), value == None
+        if value == None or (type(value) is float and math.isnan(value)):
             return 'null'
         if type(value) is list:
             return '({0})'.format(','.join([self.format_value(column, v) for v in value]))

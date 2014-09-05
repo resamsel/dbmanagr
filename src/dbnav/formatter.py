@@ -5,11 +5,11 @@ class DefaultFormatter:
     def __init__(self):
         pass
     def format(self, item):
-        return str(item)
+        return unicode(item)
     def format_item(self, item):
         return self.format(item)
     def format_row(self, item):
-        return u', '.join(map(str, item))
+        return u', '.join(map(unicode, item))
     def format_column(self, item):
         return self.format(item)
     def format_node(self, item):
@@ -62,7 +62,7 @@ class TestFormatter(SimplifiedFormatter):
 
 class GraphvizFormatter(DefaultFormatter):
     def format(self, item):
-        return str(item)
+        return unicode(item)
     def format_name_node(self, item):
         return u'  root={0};'.format(item)
     def format_foreign_key_node(self, item):
@@ -79,6 +79,18 @@ class XmlFormatter(SimplifiedFormatter):
         <subtitle>{subtitle}</subtitle>
         <icon>{icon}</icon>
     </item>""")
+
+class JsonFormatter(SimplifiedFormatter):
+    def __init__(self):
+        SimplifiedFormatter.__init__(self, default_format=u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{validity}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""", item_format=u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{validity}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""")
+
+class SimpleFormatter(SimplifiedFormatter):
+    def __init__(self):
+        SimplifiedFormatter.__init__(self, default_format=u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""", item_format=u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""")
+
+class AutocompleteFormatter(SimplifiedFormatter):
+    def __init__(self):
+        SimplifiedFormatter.__init__(self, default_format=u"""{autocomplete}""", item_format=u"""{autocomplete}""")
 
 class Formatter:
     formatter = DefaultFormatter()

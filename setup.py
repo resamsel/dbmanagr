@@ -6,7 +6,7 @@ from os.path import expanduser
 
 setup(
     name = "dbnav",
-    version = "0.6",
+    version = "0.7",
 
     packages = find_packages('src', exclude=['tests']),
     package_dir = {'':'src'},
@@ -19,7 +19,8 @@ setup(
     # dependencies
     install_requires = [
         'sqlalchemy>=0.8.2',
-        'psycopg2>=2.5.1'
+        'psycopg2>=2.5.1',
+        'sqlparse>=0.1.11'
     ],
 
     entry_points = {

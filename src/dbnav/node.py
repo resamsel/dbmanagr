@@ -61,7 +61,7 @@ class ForeignKeyNode(BaseNode):
                 self.fk.a.name,
                 self.fk.b,
                 NULLABLE_OPTIONS.get(self.fk.a.nullable))
-        return u'{0}← {1} ({2} → {3}.{4})'.format(indent,
+        return u'{0}↑ {1} ({2} → {3}.{4})'.format(indent,
             self.fk.a.table.name, self.fk.a.name, self.fk.b.table.name, self.fk.b.name)
     def format(self):
         return Formatter.format_foreign_key_node(self)

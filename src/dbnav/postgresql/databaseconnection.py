@@ -186,23 +186,28 @@ class PostgreSQLConnection(DatabaseConnection):
             self.tbls[a.table.name].fks[a.name] = fk
             self.tbls[b.table.name].fks[str(a)] = fk
 
-    def restriction(self, alias, column, operator, value):
+    def restriction(self, alias, column, operator, value, map_null_operator=True):
         logger.debug('restriction(alias=%s, column=%s, operator=%s, value=%s)',
             alias, column, operator, value)
 
+        if alias:
+            alias = '{0}.'.format(alias)
+        else:
+            alias = ''
         lhs = column.name
         if column.table:
-            lhs = '{0}.{1}'.format(alias, column.name)
-        if isinstance(column.type, Integer) and type(value) is not list:
+            lhs = '{0}{1}'.format(alias, column.name)
+        if value and isinstance(column.type, Integer) and type(value) is not list:
             try:
                 int(value)
             except ValueError:
-                lhs = 'cast({0}.{1} as text)'.format(alias, column.name)
+                lhs = 'cast({0}{1} as text)'.format(alias, column.name)
         if operator in ['=', '!='] and (value == 'null' or value is None):
-            operator = {
-                '=': 'is',
-                '!=': 'is not'
-            }.get(operator)
+            if map_null_operator:
+                operator = {
+                    '=': 'is',
+                    '!=': 'is not'
+                }.get(operator)
             value = None
         rhs = self.format_value(column, value)
 
