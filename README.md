@@ -385,10 +385,10 @@ formatters:
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.7-py2.7.egg?raw=true) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.8-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.7-py2.7.egg
+pip install dbnav-0.8-py2.7.egg
 ```
 
 Then open the [Database Navigator.alfredworkflow](dist/Database Navigator.alfredworkflow?raw=true) file from the dist directory.
