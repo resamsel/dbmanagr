@@ -388,11 +388,15 @@ Install the [latest egg-file](dist/dbnav-0.7-py2.7.egg?raw=true) from the dist d
 pip install dbnav-0.7-py2.7.egg
 ```
 
+Then open the [Database Navigator.alfredworkflow](dist/Database Navigator.alfredworkflow?raw=true) file from the dist directory.
+
 ## Building
+If you want to change anything in the source you can build and install the project by using the make command. You’ll probably need to fiddle around with the ALFRED_WORKFLOW Makefile variable, though.
+
 ```
+export ALFRED_WORKFLOW=~/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD
 make install
 ```
-Then open the *.alfredworkflow* file in the target directory using the finder.
 
 ## Configuration
 It's possible to configure the content of the result items for the Database Navigation. The configuration is placed as a table comment (currently PostgreSQL only). This is mostly helpful for displaying results in Alfred, but may come in handy for the command line tools as well.
