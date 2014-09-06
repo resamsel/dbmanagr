@@ -51,12 +51,17 @@ class Table(BaseItem):
     def init_columns(self, connection):
         self.cols = connection.columns(self)
 
-    def columns(self, connection, column):
+    def columns(self, connection=None, column=None):
         """Retrieves columns of table with given filter applied"""
-        
+
         if not self.cols:
+            if connection == None:
+                connection = self.connection
             self.init_columns(connection)
-        
+
+        if column == None:
+            return self.cols
+
         return [c for c in self.cols if column in c.name]
 
     def column(self, name):

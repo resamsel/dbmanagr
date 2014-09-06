@@ -14,12 +14,7 @@ OPERATORS = ['>=','<=','!=','=','~','*','>','<']
 logger = logging.getLogger(__name__)
 
 def parse_loglevel(level):
-    numeric_level = getattr(logging, level.upper(), None)
-    if not isinstance(numeric_level, int):
-        e = ValueError('Invalid log level: %s' % level)
-        Writer.write([Item(str(e), type(e), '', 'no', '')])
-        sys.exit()
-    return numeric_level
+    return getattr(logging, level.upper(), None)
 
 def parse_filter(s):
     filter = []

@@ -4,9 +4,9 @@
 import logging
 import time
 import sys
-import argparse
 
 from collections import deque
+from dbnav import wrapper
 from dbnav.config import Config
 from dbnav.item import Item, INVALID
 from dbnav.sources import Source
@@ -17,53 +17,37 @@ from dbnav.utils import prefixes, remove_prefix
 from dbnav.querybuilder import QueryFilter
 from dbnav.model.databaseconnection import values
 from dbnav.node import BaseNode, ColumnNode, ForeignKeyNode, NameNode, TableNode
-from dbnav.writer import Writer, TestWriter
-from dbnav.args import parent_parser, format_group
+from dbnav.writer import Writer
 
-from .writer import GraphWriter, GraphvizWriter, GraphTestWriter
-
-parent = parent_parser()
-
-group = format_group(parent, GraphTestWriter)
-group.add_argument('-d', '--default', default=True, help='output format: human readable hierarchical text', dest='formatter', action='store_const', const=GraphWriter)
-group.add_argument('-g', '--graphviz', help='output format: a Graphviz graph', dest='formatter', action='store_const', const=GraphvizWriter)
-
-parser = argparse.ArgumentParser(prog='dbgraph', parents=[parent])
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table)""")
-parser.add_argument('-c', '--columns', dest='include_columns', default=False, help='include columns in output', action='store_true')
-parser.add_argument('-C', '--no-columns', dest='include_columns', default=True, help='don\'t include columns in output', action='store_false')
-parser.add_argument('-k', '--back-references', dest='include_back_references', default=True, help='include back references in output', action='store_true')
-parser.add_argument('-K', '--no-back-references', dest='include_back_references', default=False, help='don\'t include back references in output', action='store_false')
-parser.add_argument('-v', '--driver', dest='include_driver', default=False, help='include database driver in output (does not work well with graphviz as output)', action='store_true')
-parser.add_argument('-V', '--no-driver', dest='include_driver', default=True, help='don\'t include database driver in output', action='store_false')
-parser.add_argument('-n', '--connection', dest='include_connection', default=False, help='include connection in output (does not work well with graphviz as output)', action='store_true')
-parser.add_argument('-N', '--no-connection', dest='include_connection', default=True, help='don\'t include connection in output', action='store_false')
-parser.add_argument('-b', '--database', dest='include_database', default=False, help='include database in output (does not work well with graphviz as output)', action='store_true')
-parser.add_argument('-B', '--no-database', dest='include_database', default=True, help='don\'t include database in output', action='store_true')
-group = parser.add_mutually_exclusive_group()
-group.add_argument('-r', '--recursive', help='include any forward/back reference to the starting table, recursing through all tables eventually', action='store_true')
-group.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
-parser.add_argument('-x', '--exclude', help='exclude the specified columns')
+from .args import parser
+from .writer import GraphWriter, GraphvizWriter
 
 def bfs(start, include=[], exclude=[], indent=0, opts=None):
     logger.debug('bfs(start=%s, include=%s, exclude=%s, indent=%d)',
         start, include, exclude, indent)
 
-    head = [TableNode(start, include, exclude)]
+    head = [TableNode(start, include, exclude, indent)]
     consumed=[]
     found = True
     while found:
+        if opts.max_depth > 0 and indent > opts.max_depth:
+            break
+
         found = False
         tail = deque(head)
         head = []
-
+        
         while tail:
             node = tail.popleft()
 
-            if isinstance(node, TableNode):
+            if isinstance(node, TableNode) and node.indent >= indent:
+                # consume node
                 table = node.table
                 if opts.recursive and table.name in consumed:
                     continue
+                if opts.formatter is GraphvizWriter:
+                    # Keep node as we need to display its columns in the graph
+                    head.append(node)
 
                 include = node.include
                 exclude = node.exclude
@@ -89,7 +73,8 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
 #                            logger.debug('adds table=%s', fk.b.table)
                             head.append(TableNode(fk.b.table,
                                 include=remove_prefix(fk.a.name, include),
-                                exclude=remove_prefix(fk.a.name, exclude)))
+                                exclude=remove_prefix(fk.a.name, exclude),
+                                indent=indent+1))
                             found = True
 
                 if opts.include_back_references:
@@ -104,7 +89,8 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
     #                        logger.debug('adds table=%s', fk.a.table)
                             head.append(TableNode(fk.a.table,
                                 include=remove_prefix(fk.a.table.name, include),
-                                exclude=remove_prefix(fk.a.table.name, exclude)))
+                                exclude=remove_prefix(fk.a.table.name, exclude),
+                                indent=indent+1))
                             found = True
             else:
                 head.append(node)
@@ -149,20 +135,25 @@ class DatabaseGrapher:
                         exclude=opts.exclude,
                         indent=indent,
                         opts=opts)
-                    return nodes
+
+                    def include_node(item):
+                        if opts.formatter is GraphvizWriter:
+                            if isinstance(item, TableNode):
+                                return True
+                            if isinstance(item, ColumnNode):
+                                return False
+                        elif opts.include_columns and isinstance(item, ColumnNode):
+                            return True
+                        return not isinstance(item, TableNode)
+
+                    return filter(include_node, nodes)
                 finally:
                     connection.close()
 
         raise Exception('Specify the complete URI to a table')
 
 def main():
-    try:
-        print Writer.write(run(sys.argv))
-    except SystemExit, e:
-        sys.exit(-1)
-    except BaseException, e:
-        sys.stderr.write('{0}: {1}{2}\n'.format(sys.argv[0].split('/')[-1], e, type(e)))
-#        raise
+    wrapper(run)
 
 def run(argv):
     options = Config.init(argv, parser)

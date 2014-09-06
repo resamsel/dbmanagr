@@ -61,12 +61,13 @@ class TestFormatter(SimplifiedFormatter):
             autocomplete=item.autocomplete)
 
 class GraphvizFormatter(DefaultFormatter):
-    def format(self, item):
-        return unicode(item)
     def format_name_node(self, item):
         return u'  root={0};'.format(item)
+    def format_table_node(self, item):
+        columns = map(lambda (i,it): u'<{1}> {1}'.format(i, it.name), enumerate(item.table.columns()))
+        return u'  {0} [shape="record" label="{0}| {1}"];'.format(item.table.name, '| '.join(columns))
     def format_foreign_key_node(self, item):
-        return u'  {fk.a.table.name} -> {fk.b.table.name} [xlabel="{fk.a.name} -> {fk.b.name}"];'.format(fk=item)
+        return u'  {fk.a.table.name}:{fk.a.name} -> {fk.b.table.name}:{fk.b.name} [];'.format(fk=item)
 
 class XmlFormatter(SimplifiedFormatter):
     def __init__(self):
