@@ -14,12 +14,7 @@ OPERATORS = ['>=','<=','!=','=','~','*','>','<']
 logger = logging.getLogger(__name__)
 
 def parse_loglevel(level):
-    numeric_level = getattr(logging, level.upper(), None)
-    if not isinstance(numeric_level, int):
-        e = ValueError('Invalid log level: %s' % level)
-        Writer.write([Item(str(e), type(e), '', 'no', '')])
-        sys.exit()
-    return numeric_level
+    return getattr(logging, level.upper(), None)
 
 def parse_filter(s):
     filter = []
@@ -61,18 +56,6 @@ class Options:
         self.filter = None
         self.show = 'connections'
         self.simplify = False
-        self.default = False
-        self.simple = False
-        self.json = False
-        self.xml = False
-        self.autocomplete = False
-        self.test = False
-        self.infile = None
-        self.separator = None
-        self.include_driver = False
-        self.include_connection = False
-        self.include_database = False
-        self.include_columns = False
 
         args = parser.parse_args(argv[1:])
 
@@ -85,8 +68,6 @@ class Options:
 
         self.__dict__.update(args.__dict__)
         
-        Writer.from_options(self)
-
         for k in Options.parser:
             self.opts[k] = Options.parser[k].parse(self)
 

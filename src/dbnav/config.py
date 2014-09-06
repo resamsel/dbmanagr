@@ -15,7 +15,7 @@ class Config:
     def init(argv, parser):
         options = Options(map(lambda arg: arg.decode("utf-8"), argv), parser)
 
-        logging.basicConfig(filename=options.logfile,
+        logging.basicConfig(stream=options.logfile,
             level=options.loglevel,
             format="%(asctime)s %(levelname)s %(filename)s:%(lineno)s: %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from os import path
+from os import path, makedirs
 import glob
 import codecs
 import unittest
@@ -15,6 +15,15 @@ def params(dir, testcase):
 def expected(dir, testcase):
     with codecs.open(path.join(dir, 'resources/expected/%s' % testcase), encoding='utf-8', mode='r') as f:
         return f.read()
+
+def write_actual(command, testcase, content):
+    try:
+        makedirs(path.join('target/actual/%s' % command))
+    except:
+        pass
+    with codecs.open(path.join('target/actual/%s/%s' % (command, testcase)), encoding='utf-8', mode='w') as f:
+        f.write(content)
+    return content
 
 def update_expected(dir, testcase, content):
     with codecs.open(path.join(dir, 'resources/expected/%s' % testcase), encoding='utf-8', mode='w') as f:
@@ -30,6 +39,7 @@ def test_generator(f, command, dir, tc, parameters=None):
             '-l', 'debug',
             '-f', 'target/dbnavigator.log'] + parameters + p)
         actual = Writer.write(items)
+        write_actual(command, tc, actual)
 
         # WARNING: this is code that creates the expected output - only uncomment when in need!
         #e = update_expected(dir, tc, actual)

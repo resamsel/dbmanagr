@@ -67,14 +67,15 @@ class ForeignKeyNode(BaseNode):
         return Formatter.format_foreign_key_node(self)
 
 class TableNode(BaseNode):
-    def __init__(self, table, include=[], exclude=[]):
+    def __init__(self, table, include=[], exclude=[], indent=0):
         self.table = table
         self.include = include
         self.exclude = exclude
+        self.indent = indent
     def __hash__(self):
-        return hash(self.table.name)
+        return hash(self.table.autocomplete())
     def __str__(self):
-        return table.name
+        return self.table.name
     def format(self):
         return Formatter.format_table_node(self)
 

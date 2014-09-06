@@ -3,32 +3,19 @@
 
 import time
 import sys
-import argparse
 import sqlparse
 
 from dbnav import wrapper
 from dbnav.config import Config
-from dbnav.writer import Writer, TestWriter
+from dbnav.writer import Writer
 from dbnav.sources import Source
 from dbnav.logger import logger, logduration
 from dbnav.model.table import Table
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.querybuilder import QueryFilter
-from dbnav.args import parent_parser, format_group
 
-from .writer import ExecuteWriter, SqlInsertWriter, ExecuteTestWriter
-
-parent = parent_parser()
-
-group = format_group(parent, ExecuteTestWriter)
-group.add_argument('-d', '--default', help='output format: tuples', dest='formatter', action='store_const', const=ExecuteWriter)
-group.add_argument('-I', '--insert', help='output format: SQL insert statements', dest='formatter', action='store_const', const=SqlInsertWriter)
-
-parser = argparse.ArgumentParser(prog='dbexec', parents=[parent])
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database; for SQLite: databasefile.db)""")
-parser.add_argument('infile', default='-', help='the path to the file containing the SQL query to execute', type=argparse.FileType('r'), nargs='?')
-parser.add_argument('-s', '--separator', default=';\n', help='the separator between individual statements')
-parser.add_argument('-p', '--progress', default=-1, type=int, help='show progress after this amount of executions when inserting/updating large data sets')
+from .args import parser
+from .writer import ExecuteWriter
 
 class Item:
     def __init__(self, connection, row):
@@ -51,8 +38,11 @@ def read_sql(file):
     
     return sql
 
-def read_statements(file):
-    sql = read_sql(file)
+def read_statements(opts):
+    if opts.statements:
+        sql = opts.statements
+    else:
+        sql = read_sql(opts.infile)
 
     if not sql:
         return None
@@ -80,7 +70,7 @@ class DatabaseExecuter:
             opts = options.get(connection.driver)
             if connection.matches(opts) and opts.show in ['databases', 'tables', 'columns', 'values']:
                 # Reads the statements
-                stmts = read_statements(opts.infile)
+                stmts = read_statements(opts)
 
                 # Exit gracefully when no statements have been found (or the input got cancelled)
                 if not stmts:
