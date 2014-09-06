@@ -382,7 +382,7 @@ formatters:
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.7-py2.7.egg) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.7-py2.7.egg?raw=true) from the dist directory.
 
 ```
 pip install dbnav-0.7-py2.7.egg
