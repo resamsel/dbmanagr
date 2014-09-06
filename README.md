@@ -2,7 +2,7 @@
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
-![Alfred Database Navigator Sample](https://github.com/resamsel/alfred-dbnavigator/raw/master/docs/images/select.png "Alfred Database Navigator Sample")
+![Alfred Database Navigator Sample](docs/images/select.png "Alfred Database Navigator Sample")
 
 ## Main Features
 * Database Navigation
@@ -64,8 +64,8 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ### Usage
 ```
-usage: dbnav [-h] [-d | -s | -j | -x | -a | -t] [-S] [-N] [-m LIMIT]
-             [-f LOGFILE] [-l LOGLEVEL]
+usage: dbnav [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}] [-t]
+             [-d] [-s] [-j] [-x] [-a] [-S] [-N] [-m LIMIT]
              [uri]
 
 positional arguments:
@@ -75,21 +75,25 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -d, --default         use default writer
-  -s, --simple          use simple writer
-  -j, --json            use JSON writer
-  -x, --xml             use XML writer
-  -a, --autocomplete    use autocomplete writer
-  -t, --test            use test writer
   -S, --simplify        simplify the output
-  -N, --no-simplify     simplify the output
+  -N, --no-simplify     don't simplify the output
   -m LIMIT, --limit LIMIT
                         limit the results of the main query to this amount of
                         rows
+
+logging:
   -f LOGFILE, --logfile LOGFILE
                         the file to log to
-  -l LOGLEVEL, --loglevel LOGLEVEL
+  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
                         the minimum level to log
+
+formatters:
+  -t, --test            output format: test specific
+  -d, --default         output format: default
+  -s, --simple          output format: simple
+  -j, --json            output format: JSON
+  -x, --xml             output format: XML
+  -a, --autocomplete    output format: autocomplete
 ```
 
 In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your data. No options may be given.
@@ -137,9 +141,12 @@ Visualises the dependencies of a table using its foreign key references (forward
 
 ### Usage
 ```
-usage: dbgraph [-h] [-d | -g | -t] [-c] [-D] [-C] [-B] [-r | -i INCLUDE]
-               [-x EXCLUDE] [-f LOGFILE] [-l LOGLEVEL]
+usage: dbgraph [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}] [-t]
+               [-d] [-g] [-c] [-C] [-k] [-K] [-v] [-V] [-n] [-N] [-b] [-B]
+               [-M MAX_DEPTH] [-r | -i INCLUDE] [-x EXCLUDE]
                uri
+
+A database visualisation tool that creates graphs from the database structure
 
 positional arguments:
   uri                   the URI to parse (format for PostgreSQL:
@@ -148,31 +155,48 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -d, --default         output format: human readable hierarchical text
-  -g, --graphviz        output format: a Graphviz graph
-  -t, --test            use test writer
-  -c, --include-columns
-                        include columns in output
-  -D, --include-driver  include database driver in output (does not work well
-                        with graphviz as output)
-  -C, --include-connection
-                        include connection in output (does not work well with
-                        graphviz as output)
-  -B, --include-database
-                        include database in output (does not work well with
-                        graphviz as output)
+  -c, --columns         include columns in output (default: False)
+  -C, --no-columns      don't include columns in output (default: True)
+  -k, --back-references
+                        include back references in output (default: True)
+  -K, --no-back-references
+                        don't include back references in output (default:
+                        False)
+  -v, --driver          include database driver in output (does not work well
+                        with graphviz as output) (default: False)
+  -V, --no-driver       don't include database driver in output (default:
+                        True)
+  -n, --connection      include connection in output (does not work well with
+                        graphviz as output) (default: False)
+  -N, --no-connection   don't include connection in output (default: True)
+  -b, --database        include database in output (does not work well with
+                        graphviz as output) (default: False)
+  -B, --no-database     don't include database in output (default: True)
+  -M MAX_DEPTH, --max-depth MAX_DEPTH
+                        the maximum depth to use in recursion/inclusion
+                        (default: -1)
   -r, --recursive       include any forward/back reference to the starting
                         table, recursing through all tables eventually
+                        (default: False)
   -i INCLUDE, --include INCLUDE
                         include the specified columns and their foreign rows,
                         if any. Multiple columns can be specified by
-                        separating them with a comma (,)
+                        separating them with a comma (,) (default: None)
   -x EXCLUDE, --exclude EXCLUDE
-                        exclude the specified columns
+                        exclude the specified columns (default: None)
+
+logging:
   -f LOGFILE, --logfile LOGFILE
-                        the file to log to
-  -l LOGLEVEL, --loglevel LOGLEVEL
-                        the minimum level to log
+                        the file to log to (default:
+                        /usr/local/var/log/dbnav.log)
+  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
+                        the minimum level to log (default: warning)
+
+formatters:
+  -t, --test            output format: test specific (default: None)
+  -d, --default         output format: human readable hierarchical text
+                        (default: True)
+  -g, --graphviz        output format: a Graphviz graph (default: None)
 ```
 
 ### Examples
@@ -262,11 +286,12 @@ owner
 ```
 digraph dbgraph {
   root=owner;
-  owner -> permission [xlabel="permission_id -> id"];
-  permission -> api_key [xlabel="api_key_id -> id"];
-  permission -> sales_channel [xlabel="sales_channel_id -> id"];
-  access_transaction -> permission [xlabel="permission_id -> id"];
-  owner -> permission [xlabel="permission_id -> id"];
+  owner [shape="record" label="owner| <id> id| <version> version| <created> created| <permission_id> permission_id| <gender> gender| <first_name> first_name| <last_name> last_name| <email> email| <street> street| <zip_code> zip_code| <city> city| <country_code> country_code"];
+  owner:permission_id -> permission:id [];
+  permission [shape="record" label="permission| <id> id| <created> created| <api_key_id> api_key_id| <sales_channel_id> sales_channel_id| <external_sale_id> external_sale_id| <external_sale_date> external_sale_date| <external_permission_id> external_permission_id| <identification> identification| <validity_start> validity_start| <validity_end> validity_end| <value_total> value_total| <value_consumed> value_consumed| <last_consumed> last_consumed| <version> version"];
+  permission:api_key_id -> api_key:id [];
+  permission:sales_channel_id -> sales_channel:id [];
+  access_transaction:permission_id -> permission:id [];
 }
 ```
 
@@ -282,8 +307,8 @@ Exports specific rows from the database along with their references rows from ot
 
 ### Usage
 ```
-usage: dbexport [-h] [-I | -U | -t] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT]
-                [-f LOGFILE] [-l LOGLEVEL]
+usage: dbexport [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}]
+                [-t] [-I] [-U] [-D] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT]
                 uri
 
 positional arguments:
@@ -293,9 +318,6 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -I, --insert          output format: SQL insert statements
-  -U, --update          output format: SQL update statements
-  -t, --test            use test writer
   -i INCLUDE, --include INCLUDE
                         include the specified columns and their foreign rows,
                         if any (multiple columns can be specified by
@@ -305,37 +327,68 @@ optional arguments:
   -m LIMIT, --limit LIMIT
                         limit the results of the main query to this amount of
                         rows
+
+logging:
   -f LOGFILE, --logfile LOGFILE
                         the file to log to
-  -l LOGLEVEL, --loglevel LOGLEVEL
+  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
                         the minimum level to log
+
+formatters:
+  -t, --test            output format: test specific
+  -I, --insert          output format: SQL insert statements
+  -U, --update          output format: SQL update statements
+  -D, --delete          output format: SQL delete statements
 ```
 
 ## Database Executer
+Executes the SQL statements from the given file on the database specified by the given URI.
 
 ### Usage
 ```
-usage: dbgraph [-h] [-s SEPARATOR] [-d | -t] [-f LOGFILE] [-l LOGLEVEL]
-               uri [infile]
+usage: dbexec [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}] [-t]
+              [-d] [-I] [-s STATEMENTS] [-p PROGRESS]
+              uri [infile]
+
+Executes the SQL statements from the given file on the database specified by
+the given URI
 
 positional arguments:
   uri                   the URI to parse (format for PostgreSQL:
                         user@host/database; for SQLite: databasefile.db)
   infile                the path to the file containing the SQL query to
-                        execute
+                        execute (default: -)
 
 optional arguments:
   -h, --help            show this help message and exit
-  -s SEPARATOR, --separator SEPARATOR
-                        the separator between individual statements
-  -d, --default         output format: tuples
-  -t, --test            use test writer
+  -s STATEMENTS, --statements STATEMENTS
+                        the statements to execute (infile will be ignored when
+                        this parameter is given) (default: None)
+  -p PROGRESS, --progress PROGRESS
+                        show progress after this amount of executions when
+                        inserting/updating large data sets (default: -1)
+
+logging:
   -f LOGFILE, --logfile LOGFILE
-                        the file to log to
-  -l LOGLEVEL, --loglevel LOGLEVEL
-                        the minimum level to log
+                        the file to log to (default:
+                        /usr/local/var/log/dbnav.log)
+  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
+                        the minimum level to log (default: warning)
+
+formatters:
+  -t, --test            output format: test specific (default: None)
+  -d, --default         output format: tuples (default: None)
+  -I, --insert          output format: SQL insert statements (default: None)
 ```
+
 ## Installation
+Install the [latest egg-file](dist/dbnav-0.7-py2.7.egg) from the dist directory.
+
+```
+pip install dbnav-0.7-py2.7.egg
+```
+
+## Building
 ```
 make install
 ```

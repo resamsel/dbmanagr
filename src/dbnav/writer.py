@@ -87,10 +87,5 @@ class Writer:
         Writer.writer = arg
     
     @staticmethod
-    def from_options(options):
-        if options.default: Writer.set(DefaultWriter())
-        if options.test: Writer.set(TestWriter())
-
-    @staticmethod
     def write(items):
         return Writer.writer.write(items)
