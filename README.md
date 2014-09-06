@@ -41,6 +41,8 @@ Allows you to explore, visualise and export your database. Additionally allows t
 - [Database Exporter](#user-content-database-exporter)
 	- [Features](#user-content-features-1)
 	- [Usage](#user-content-usage-2)
+- [Database Executer](#user-content-database-executer)
+	- [Usage](#user-content-usage-3)
 - [Installation](#user-content-installation)
 - [Configuration](#user-content-configuration)
 	- [Title](#user-content-title)
@@ -48,6 +50,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Search](#user-content-search)
 	- [Display](#user-content-display)
 	- [Order](#user-content-order)
+- [Development](#user-content-development)
 
 ## Database Navigation
 
@@ -390,14 +393,6 @@ pip install dbnav-0.7-py2.7.egg
 
 Then open the [Database Navigator.alfredworkflow](dist/Database Navigator.alfredworkflow?raw=true) file from the dist directory.
 
-## Building
-If you want to change anything in the source you can build and install the project by using the make command. You’ll probably need to fiddle around with the ALFRED_WORKFLOW Makefile variable, though.
-
-```
-export ALFRED_WORKFLOW=~/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD
-make install
-```
-
 ## Configuration
 It's possible to configure the content of the result items for the Database Navigation. The configuration is placed as a table comment (currently PostgreSQL only). This is mostly helpful for displaying results in Alfred, but may come in handy for the command line tools as well.
 
@@ -445,3 +440,15 @@ select
 The *display* array contains the columns that will be added to the projection list of the SQL query. All items present in the projection list will be shown in the *values* view (see example **Show Values of selected Row**). It will be added as is (no replacements will take place).
 ### Order
 The *order* array will be added to the *order by* part of the SQL query. It will be added as is (no replacements will take place).
+
+## Development
+If you want to change anything in the source you can build and install the project by using the make command. You’ll probably need to fiddle around with the ALFRED_WORKFLOW Makefile variable, though.
+
+```
+export ALFRED_WORKFLOW=~/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD
+make install
+```
+
+To simplify development you’d better use `make develop` once and have code changes reflected as soon as you save your file. Super easy development powered by [distutils](https://docs.python.org/2/distutils/index.html).
+
+Using distutils you could easily create a Windows binary (`./setup.py bdist_msi`) or a Red Hat *rpm* package (`./setup.py bdist_rpm`).
