@@ -391,9 +391,21 @@ Install the [latest egg-file](dist/dbnav-0.8-py2.7.egg?raw=true) from the dist d
 pip install dbnav-0.8-py2.7.egg
 ```
 
-Then open the [Database Navigator.alfredworkflow](dist/Database Navigator.alfredworkflow?raw=true) file from the dist directory.
+### Alfred Workflow
+To install the Alfred workflow open the [Database Navigator.alfredworkflow](dist/Database Navigator.alfredworkflow?raw=true) file from the dist directory.
 
-## Configuration
+## Connection Configuration
+To be able to connect to a certain database you’ll need the credentials for that database. Such a connection may be added with PGAdmin (which puts it into the ~/.pgpass file) or added directly into the ~/.pgpass file.
+
+### Sample ~/.pgpass
+The ~/.pgpass file contains a connection description per line. The content of that file might look like this:
+
+```
+dbhost1:dbport:*:dbuser1:dbpass1
+dbhost2:dbport:*:dbuser2:dbpass2
+```
+
+## Content Configuration
 It's possible to configure the content of the result items for the Database Navigation. The configuration is placed as a table comment (currently PostgreSQL only). This is mostly helpful for displaying results in Alfred, but may come in handy for the command line tools as well.
 
 ### Usage
@@ -408,8 +420,10 @@ It's possible to configure the content of the result items for the Database Navi
 ```
 ### Title
 The *title* is the main entry within the Alfred result item. The string *{0}* will be replaced with the table alias (useful when joining with other tables that also have the given attribute present). The replaced content will then be added to the projection list as is (SQL functions may be added as well as string concatenation as in the example above).
+
 ### Subtitle
 The *subtitle* is the second line within the Alfred result item. The same replacements as with the title will be applied.
+
 ### Search
 The *search* array contains the columns that will be looked into when no column is present in the Alfred query. The same replacements as with the title will be applied.
 
@@ -436,8 +450,10 @@ select
 		cast(col1 as text) like '%erber%'
 		or cast(col7 as text) like '%erber%'
 ```
+
 ### Display
 The *display* array contains the columns that will be added to the projection list of the SQL query. All items present in the projection list will be shown in the *values* view (see example **Show Values of selected Row**). It will be added as is (no replacements will take place).
+
 ### Order
 The *order* array will be added to the *order by* part of the SQL query. It will be added as is (no replacements will take place).
 
