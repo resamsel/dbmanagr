@@ -18,7 +18,7 @@ from dbnav.formatter import Formatter
 from dbnav.writer import Writer, TestWriter
 from dbnav.args import parent_parser, format_group
 
-from .writer import SqlInsertWriter, SqlUpdateWriter, SqlDeleteWriter
+from .writer import SqlInsertWriter, SqlUpdateWriter, SqlDeleteWriter, YamlWriter
 
 parent = parent_parser()
 
@@ -26,6 +26,7 @@ group = format_group(parent, SqlInsertWriter)
 group.add_argument('-I', '--insert', default=True, help='output format: SQL insert statements', dest='formatter', action='store_const', const=SqlInsertWriter)
 group.add_argument('-U', '--update', help='output format: SQL update statements', dest='formatter', action='store_const', const=SqlInsertWriter)
 group.add_argument('-D', '--delete', help='output format: SQL delete statements', dest='formatter', action='store_const', const=SqlDeleteWriter)
+group.add_argument('-Y', '--yaml', help='output format: YAML data', dest='formatter', action='store_const', const=YamlWriter)
 
 parser = argparse.ArgumentParser(prog='dbexport', parents=[parent])
 parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value)""")
