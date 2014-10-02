@@ -311,7 +311,8 @@ Exports specific rows from the database along with their references rows from ot
 ### Usage
 ```
 usage: dbexport [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}]
-                [-t] [-I] [-U] [-D] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT]
+                [-t] [-I] [-U] [-D] [-Y] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT]
+                [-p PACKAGE]
                 uri
 
 positional arguments:
@@ -330,6 +331,8 @@ optional arguments:
   -m LIMIT, --limit LIMIT
                         limit the results of the main query to this amount of
                         rows
+  -p PACKAGE, --package PACKAGE
+                        the package for YAML entities
 
 logging:
   -f LOGFILE, --logfile LOGFILE
@@ -342,6 +345,7 @@ formatters:
   -I, --insert          output format: SQL insert statements
   -U, --update          output format: SQL update statements
   -D, --delete          output format: SQL delete statements
+  -Y, --yaml            output format: YAML data
 ```
 
 ## Database Executer
