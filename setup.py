@@ -6,7 +6,7 @@ from os.path import expanduser
 
 setup(
     name = "dbnav",
-    version = "0.8",
+    version = "0.9",
 
     packages = find_packages('src', exclude=['tests']),
     package_dir = {'':'src'},
