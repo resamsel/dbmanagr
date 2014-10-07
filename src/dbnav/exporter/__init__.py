@@ -7,6 +7,8 @@ import sys
 import argparse
 import re
 
+from collections import OrderedDict
+
 from dbnav.config import Config
 from dbnav.item import Item, INVALID
 from dbnav.sources import Source
@@ -39,6 +41,10 @@ class RowItem():
     def __init__(self, row, exclude):
         self.row = row
         self.exclude = exclude
+    def __hash__(self):
+        return hash(self.row.autocomplete())
+    def __eq__(self, o):
+        return hash(self.row.autocomplete()) == hash(o.row.autocomplete())
     def format(self):
         Formatter.formatter.format_row(self.row)
 
@@ -123,10 +129,12 @@ class DatabaseExporter:
                     if opts.table not in tables:
                         raise Exception("Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
-                    return create_items(
+                    items = create_items(
                         table.rows(opts.filter, opts.limit),
                         opts.include,
                         opts.exclude)
+                    # remove duplicates
+                    return list(OrderedDict.fromkeys(items))
                 finally:
                     connection.close()
 
