@@ -123,18 +123,11 @@ class DatabaseExecuter:
 def main():
     wrapper(run)
 
-def default_formatter():
-    Writer.set()
-def insert_formatter():
-    Writer.set(SqlInsertWriter())
-def test_formatter():
-    Writer.set(StdoutWriter(u'{0}', u'{item}'))
-
 def run(argv):
     options = Config.init(argv, parser)
 
     if options.formatter:
-        Writer.set(options.formatter())
+        Writer.set(options.formatter(options))
     else:
         Writer.set(ExecuteWriter())
 

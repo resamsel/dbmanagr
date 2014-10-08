@@ -38,7 +38,8 @@ OPERATORS = {
     '>=': '>=',
     '<=': '<=',
     '<': '<',
-    'in': 'in'
+    'in': 'in',
+    ':': 'in'
 }
 
 logger = logging.getLogger(__name__)

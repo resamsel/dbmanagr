@@ -9,7 +9,7 @@ from dbnav.item import *
 from dbnav.querybuilder import QueryFilter
 
 AND_OPERATOR = '&'
-OPERATORS = ['>=','<=','!=','=','~','*','>','<']
+OPERATORS = ['>=','<=','!=','=','~','*','>','<',':']
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +25,8 @@ def parse_filter(s):
                 f = term.split(operator, 1)
                 lhs = f[0]
                 rhs = f[1] if len(f) > 1 else None
+                if operator == ':':
+                    rhs = rhs.split(',')
                 filter.append(QueryFilter(lhs, operator, rhs))
                 found = True
                 break
