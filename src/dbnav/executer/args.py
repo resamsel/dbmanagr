@@ -43,4 +43,5 @@ parser.add_argument('-p',
 	default=-1,
 	type=int,
 	help='show progress after this amount of executions when inserting/updating large data sets')
+parser.add_argument('-n', '--table-name', default='__TABLE__', help='the table name for generic select statements')
 
