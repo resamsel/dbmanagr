@@ -70,7 +70,7 @@ def create_items(items, include, exclude):
                 if fk not in includes:
                     includes[fk] = []
                 includes[fk].append(item[fk.b.name])
-            if col:
+            if col and col.name in item.table.fks:
                 fk = item.table.fks[col.name]
                 fk.b.table.connection = item.table.connection
                 if fk not in includes:

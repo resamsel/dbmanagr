@@ -157,7 +157,7 @@ class Comment:
                 if c.name == name:
                     if not isinstance(c.type, Integer):
                         return (name, '{0}.%s' % c.name)
-                    elif self.fk_titles['%s_title' % name]:
+                    elif '%s_title' % name in self.fk_titles:
                         return ('%s_title' % name, self.fk_titles['%s_title' % name])
 
         # find columns that end with special names
