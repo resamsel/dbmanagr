@@ -57,3 +57,9 @@ test: assemble-test
 develop:
 	$(SETUPTOOLS) develop
 
+release-%:
+	gsed 's/dbnav-[^-]*-py2.7.egg/dbnav-$(@:release-%=%)-py2.7.egg/g' -i README.md
+	gsed 's/version = "[^"]*"/version = "$(@:release-%=%)"/g' -i setup.py
+	git rm dist/dbnav*-py2.7.egg
+	$(SETUPTOOLS) bdist_egg
+	git add dist/dbnav-$(@:release-%=%)-py2.7.egg
