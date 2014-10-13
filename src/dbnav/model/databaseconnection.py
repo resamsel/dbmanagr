@@ -173,6 +173,8 @@ class DatabaseConnection(BaseItem):
             table = tables[options.table]
             if options.show == 'columns':
                 logger.debug('columns, check filter=%s', options.filter)
+                if not options.filter:
+                    raise Exception("No filter given")
                 if len(options.filter) > 0 and options.filter[-1].rhs == None:
                     return sorted(
                         table.columns(self, options.filter[-1].lhs),

@@ -187,8 +187,16 @@ class PostgreSQLConnection(DatabaseConnection):
             self.tbls[b.table.name].fks[str(a)] = fk
 
     def restriction(self, alias, column, operator, value, map_null_operator=True):
-        logger.debug('restriction(alias=%s, column=%s, operator=%s, value=%s)',
-            alias, column, operator, value)
+        logger.debug('restriction(alias=%s, column=%s (%s), operator=%s, value=%s)',
+            alias, column, column.type if column else '', operator, value)
+
+        if operator in ['~', 'like'] and isinstance(column.type, Integer):
+            try:
+                int(value)
+                # LIKE not allowed on integer columns, change operator to equals
+                operator = '='
+            except ValueError:
+                pass
 
         if alias:
             alias = '{0}.'.format(alias)
@@ -201,6 +209,7 @@ class PostgreSQLConnection(DatabaseConnection):
             try:
                 int(value)
             except ValueError:
+                # column type is integer, but value is not
                 lhs = 'cast({0}{1} as text)'.format(alias, column.name)
         if operator in ['=', '!='] and (value == 'null' or value is None):
             if map_null_operator:
