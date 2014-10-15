@@ -4,7 +4,10 @@
 import logging
 from collections import Counter
 from sqlalchemy.types import Integer
+from difflib import get_close_matches
+
 from .model.column import Column
+from dbnav.model.exception import UnknownColumnException
 
 QUERY_FORMAT = u"""
 select
@@ -246,9 +249,12 @@ class QueryBuilder:
                 if f.lhs != '':
                     if f.operator:
                         logger.debug('lhs=%s, operator=%s, rhs=%s', f.lhs, f.operator, f.rhs)
+                        col = self.table.column(f.lhs)
+                        if not col:
+                            raise UnknownColumnException(self.table, f.lhs)
                         wheres.append(self.connection.restriction(
                             self.alias,
-                            self.table.column(f.lhs),
+                            col,
                             operator,
                             f.rhs))
                 elif comment.search:
@@ -272,9 +278,12 @@ class QueryBuilder:
                             operator,
                             rhs))
                     if 'id' in comment.columns:
+                        col = self.table.column('id')
+                        if not col:
+                            raise UnknownColumnException(self.table, 'id')
                         conjunctions.append(self.connection.restriction(
                             self.alias,
-                            self.table.column('id'),
+                            col,
                             operator,
                             rhs))
                     wheres.append(OR_SEPARATOR.join(conjunctions))

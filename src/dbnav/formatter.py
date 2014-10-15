@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from xml.sax import saxutils
+
 class DefaultFormatter:
     def __init__(self):
         pass
@@ -31,24 +33,26 @@ class SimplifiedFormatter(DefaultFormatter):
         self.item_format = item_format
     def format(self, item):
         return self.default_format.format(
-            title=item.title(),
-            subtitle=item.subtitle(),
-            autocomplete=item.autocomplete(),
-            uid=item.uid(),
-            validity=item.validity(),
-            icon=item.icon(),
-            value=item.value())
+            title=self.escape(item.title()),
+            subtitle=self.escape(item.subtitle()),
+            autocomplete=self.escape(item.autocomplete()),
+            uid=self.escape(item.uid()),
+            validity=self.escape(item.validity()),
+            icon=self.escape(item.icon()),
+            value=self.escape(item.value()))
     def format_item(self, item):
         return self.item_format.format(
-            title=item.title,
-            subtitle=item.subtitle,
-            autocomplete=item.autocomplete,
-            uid=item.uid,
-            validity=item.valid,
-            icon=item.icon,
-            value=item.value)
+            title=self.escape(item.title),
+            subtitle=self.escape(item.subtitle),
+            autocomplete=self.escape(item.autocomplete),
+            uid=self.escape(item.uid),
+            validity=self.escape(item.valid),
+            icon=self.escape(item.icon),
+            value=self.escape(item.value))
     def format_row(self, item):
         return self.format(item)
+    def escape(self, value):
+        return value
 
 class TestFormatter(SimplifiedFormatter):
     def format(self, item):
@@ -80,6 +84,10 @@ class XmlFormatter(SimplifiedFormatter):
         <subtitle>{subtitle}</subtitle>
         <icon>{icon}</icon>
     </item>""")
+    def escape(self, value):
+        if type(value) == str or type(value) == unicode:
+            return saxutils.escape(value)
+        return saxutils.escape(unicode(value))
 
 class JsonFormatter(SimplifiedFormatter):
     def __init__(self):

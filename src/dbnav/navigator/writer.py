@@ -3,6 +3,7 @@
 
 from dbnav.writer import FormatWriter, StdoutWriter
 from dbnav.formatter import Formatter, SimplifiedFormatter, XmlFormatter, JsonFormatter, SimpleFormatter, AutocompleteFormatter
+from dbnav.item import Item
 
 class SimplifiedWriter(FormatWriter):
     def __init__(self):

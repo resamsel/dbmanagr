@@ -19,6 +19,7 @@ from dbnav.model.databaseconnection import values
 from dbnav.formatter import Formatter
 from dbnav.writer import Writer, TestWriter
 from dbnav.args import parent_parser, format_group
+from dbnav.model.exception import UnknownColumnException
 
 from .writer import SqlInsertWriter, SqlUpdateWriter, SqlDeleteWriter, YamlWriter
 
@@ -31,7 +32,7 @@ group.add_argument('-D', '--delete', help='output format: SQL delete statements'
 group.add_argument('-Y', '--yaml', help='output format: YAML data', dest='formatter', action='store_const', const=YamlWriter)
 
 parser = argparse.ArgumentParser(prog='dbexport', parents=[parent])
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/column=value; for SQLite: databasefile.db/table/column=value)""")
+parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table?column=value; for SQLite: databasefile.db/table?column=value)""")
 parser.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any (multiple columns can be specified by separating them with a comma)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
@@ -47,6 +48,9 @@ class RowItem():
         return hash(self.row.autocomplete()) == hash(o.row.autocomplete())
     def format(self):
         Formatter.formatter.format_row(self.row)
+
+def fk_by_a_table_name(fks):
+    return dict(map(lambda (k, v): (v.a.table.name, v), fks.iteritems()))
 
 def create_items(items, include, exclude):
     logger.debug('create_items(items=%s, include=%s, exclude=%s)', items, include, exclude)
@@ -64,7 +68,7 @@ def create_items(items, include, exclude):
                     break
             col = item.table.column(c)
             if not col and not fk:
-                raise Exception("Include column '{0}' or foreign key '{0}' does not exist in table '{1}'".format(i, item.table.name))
+                raise UnknownColumnException(item.table, i)
             if fk:
                 fk.a.table.connection = item.table.connection
                 if fk not in includes:
@@ -80,13 +84,12 @@ def create_items(items, include, exclude):
         for item in items:
             for x in exclude:
                 c = re.sub('([^\\.]*)\\..*', '\\1', x)
-                for key, val in item.table.fks.iteritems():
-                    if val.a.table.name == c:
-                        fk = val
-                        break
+                fks = fk_by_a_table_name(item.table.fks)
+                if c in fks:
+                    fk = fks[c]
                 col = item.table.column(c)
                 if not col and not fk:
-                    raise Exception("Exclude column '{0}' or foreign key '{0}' does not exist in table '{1}'".format(i, item.table.name))
+                    raise UnknownColumnException(item.table, x, fks.keys() + map(lambda c: c.name, item.table.cols))
             # only check first item, as we expect all items are from the same table
             break
     for fk in includes.keys():

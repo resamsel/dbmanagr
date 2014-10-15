@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import logging
+import time
+import sys
+
+from dbnav.writer import Writer
+
+from dbnav import wrapper
+from dbnav.logger import logger, logduration
+from dbnav.config import Config
+from dbnav.sources import Source
+from .args import parser
+from .writer import DiffWriter
+
+class DiffColumn:
+    def __init__(self, column, left):
+        self.column = column
+        self.left = left
+
+class DatabaseDiffer:
+    """The main class"""
+
+    @staticmethod
+    def diff(left, right):
+        """The main method that splits the arguments and starts the magic"""
+
+        lcon = Source.connection(left)
+        if not lcon:
+            raise Exception('Could not find connection {0}'.format(left.uri))
+        lopts = left.get(lcon.driver)
+        rcon = Source.connection(right)
+        if not rcon:
+            raise Exception('Could not find connection {0}'.format(right.uri))
+        ropts = right.get(rcon.driver)
+
+        try:
+            lcon.connect(lopts.database)
+            rcon.connect(ropts.database)
+            ltables = lcon.tables()
+            if lopts.table not in ltables:
+                raise Exception("Could not find table '{0}' in left connection".format(lopts.table))
+            ltable = ltables[lopts.table]
+            rtables = rcon.tables()
+            if ropts.table not in rtables:
+                raise Exception("Could not find table '{0}' in right connection".format(ropts.table))
+            rtable = rtables[ropts.table]
+            
+            lcols = map(lambda c: c.name, ltable.columns())
+            rcols = map(lambda c: c.name, rtable.columns())
+            
+            lplus = map(lambda c: DiffColumn(ltable.column(c), True), list(set(lcols) - set(rcols)))
+            rplus = map(lambda c: DiffColumn(rtable.column(c), False), list(set(rcols) - set(lcols)))
+            
+#            return map(lambda c: c.name, ltable.columns())
+            return lplus + rplus
+        finally:
+            lcon.close()
+            rcon.close()
+
+def main():
+    wrapper(run)
+
+def run(argv):
+    left = Config.init(argv, parser)
+    left.uri = left.left
+    left.update_parsers()
+    right = Config.init(argv, parser)
+    right.uri = right.right
+    right.update_parsers()
+
+    if left.formatter:
+        Writer.set(options.formatter(left, right))
+    else:
+        Writer.set(DiffWriter(left, right))
+
+    try:
+        return DatabaseDiffer.diff(left, right)
+    except BaseException, e:
+        logger.exception(e)
+        raise
+
+if __name__ == "__main__":
+    main()
