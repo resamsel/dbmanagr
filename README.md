@@ -43,6 +43,8 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Usage](#user-content-usage-2)
 - [Database Executer](#user-content-database-executer)
 	- [Usage](#user-content-usage-3)
+- [Database Differ](#user-content-database-differ)
+	- [Usage](#user-content-usage-4)
 - [Installation](#user-content-installation)
 - [Configuration](#user-content-configuration)
 	- [Title](#user-content-title)
@@ -58,7 +60,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 * Shows databases of configured connections
 * Shows tables of databases
 * Shows columns of tables for restricting rows
-* Shows rows of tables with multiple restrictions (operators: =, !=, >, <, >=, <=, like)
+* Shows rows of tables with multiple restrictions (operators: =, !=, >, <, >=, <=, like, in)
 * Shows detailed row information
 * Shows info of foreign table row (based on the foreign key)
 * Switch to the foreign table row (forward references)
@@ -73,8 +75,8 @@ usage: dbnav [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}] [-t]
 
 positional arguments:
   uri                   the URI to parse (format for PostgreSQL:
-                        user@host/database/table/filter; for SQLite:
-                        databasefile.db/table/filter)
+                        user@host/database/table?filter; for SQLite:
+                        databasefile.db/table?filter)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -113,23 +115,33 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 `dbnav myuser@myhost/mydatabase/`
 
 #### Show Columns of Table
-`dbnav myuser@myhost/mydatabase/mytable/`
+`dbnav myuser@myhost/mydatabase/mytable?`
 
 #### Show Rows where Column equals Value
-`dbnav myuser@myhost/mydatabase/mytable/first_name=Herbert`
+`dbnav myuser@myhost/mydatabase/mytable?first_name=Herbert`
+
+#### Show Rows where multiple Columns equals Value
+`dbnav myuser@myhost/mydatabase/mytable?first_name=Herbert&last_name=Spencer`
+
+When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
 
 #### Show Rows where Column matches Pattern
-`dbnav myuser@myhost/mydatabase/mytable/first_name~%erber%`
+`dbnav myuser@myhost/mydatabase/mytable?first_name~%erber%`
 
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
+#### Show Rows where Column is in List
+`dbnav myuser@myhost/mydatabase/mytable?first_name:Herbert,Josh,Martin`
+
+The colon (:) will be translated to the *in* operator in SQL.
+
 #### Show Rows where any (Search) Column matches Pattern
-`dbnav myuser@myhost/mydatabase/mytable/~%erber%`
+`dbnav myuser@myhost/mydatabase/mytable?~%erber%`
 
 **Warning: this is a potentially slow query! See configuration for options to resolve this problem.**
 
 #### Show Values of selected Row
-`dbnav myuser@myhost/mydatabase/mytable/id=23/`
+`dbnav myuser@myhost/mydatabase/mytable/?id=2
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).
@@ -144,9 +156,10 @@ Visualises the dependencies of a table using its foreign key references (forward
 
 ### Usage
 ```
-usage: dbgraph [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}] [-t]
-               [-d] [-g] [-c] [-C] [-k] [-K] [-v] [-V] [-n] [-N] [-b] [-B]
-               [-M MAX_DEPTH] [-r | -i INCLUDE] [-x EXCLUDE]
+usage: dbgraph [-h] [--version] [-f LOGFILE]
+               [-l {critical,error,warning,info,debug}] [-t] [-d] [-g] [-c]
+               [-C] [-k] [-K] [-v] [-V] [-n] [-N] [-b] [-B] [-M MAX_DEPTH]
+               [-r | -i INCLUDE] [-x EXCLUDE]
                uri
 
 A database visualisation tool that creates graphs from the database structure
@@ -158,6 +171,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  --version             show program's version number and exit
   -c, --columns         include columns in output (default: False)
   -C, --no-columns      don't include columns in output (default: True)
   -k, --back-references
@@ -310,18 +324,19 @@ Exports specific rows from the database along with their references rows from ot
 
 ### Usage
 ```
-usage: dbexport [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}]
-                [-t] [-I] [-U] [-D] [-Y] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT]
-                [-p PACKAGE]
+usage: dbexport [-h] [--version] [-f LOGFILE]
+                [-l {critical,error,warning,info,debug}] [-t] [-I] [-U] [-D]
+                [-Y] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT] [-p PACKAGE]
                 uri
 
 positional arguments:
   uri                   the URI to parse (format for PostgreSQL:
-                        user@host/database/table/column=value; for SQLite:
-                        databasefile.db/table/column=value)
+                        user@host/database/table?column=value; for SQLite:
+                        databasefile.db/table?column=value)
 
 optional arguments:
   -h, --help            show this help message and exit
+  --version             show program's version number and exit
   -i INCLUDE, --include INCLUDE
                         include the specified columns and their foreign rows,
                         if any (multiple columns can be specified by
@@ -353,8 +368,9 @@ Executes the SQL statements from the given file on the database specified by the
 
 ### Usage
 ```
-usage: dbexec [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}] [-t]
-              [-d] [-I] [-s STATEMENTS] [-p PROGRESS]
+usage: dbexec [-h] [--version] [-f LOGFILE]
+              [-l {critical,error,warning,info,debug}] [-t] [-d] [-I]
+              [-s STATEMENTS] [-p PROGRESS] [-n TABLE_NAME]
               uri [infile]
 
 Executes the SQL statements from the given file on the database specified by
@@ -368,12 +384,16 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  --version             show program's version number and exit
   -s STATEMENTS, --statements STATEMENTS
                         the statements to execute (infile will be ignored when
                         this parameter is given) (default: None)
   -p PROGRESS, --progress PROGRESS
                         show progress after this amount of executions when
                         inserting/updating large data sets (default: -1)
+  -n TABLE_NAME, --table-name TABLE_NAME
+                        the table name for generic select statements (default:
+                        __TABLE__)
 
 logging:
   -f LOGFILE, --logfile LOGFILE
@@ -386,6 +406,46 @@ formatters:
   -t, --test            output format: test specific (default: None)
   -d, --default         output format: tuples (default: None)
   -I, --insert          output format: SQL insert statements (default: None)
+```
+
+## Database Differ
+A diff tool that compares the structure of two database tables with each other.
+
+### Usage
+```
+usage: dbdiff [-h] [--version] [-f LOGFILE]
+              [-l {critical,error,warning,info,debug}] [-t] [-D] [--verbose]
+              left right
+
+A diff tool that compares the structure of two database tables with each
+other.
+
+positional arguments:
+  left                  the left URI to parse (format for PostgreSQL:
+                        user@host/database/table; for SQLite:
+                        databasefile.db/table)
+  right                 the right URI to parse (format for PostgreSQL:
+                        user@host/database/table; for SQLite:
+                        databasefile.db/table)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --verbose, -v         specify the verbosity of the output, increase the
+                        number of occurences of this option to increase
+                        verbosity (default: None)
+
+logging:
+  -f LOGFILE, --logfile LOGFILE
+                        the file to log to (default:
+                        /usr/local/var/log/dbnav.log)
+  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
+                        the minimum level to log (default: warning)
+
+formatters:
+  -t, --test            output format: test specific (default: None)
+  -D, --default         output format: human readable hierarchical text
+                        (default: True)
 ```
 
 ## Installation

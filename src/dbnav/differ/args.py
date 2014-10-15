@@ -20,7 +20,7 @@ group.add_argument('-D',
 
 parser = argparse.ArgumentParser(
     prog='dbdiff',
-    description='A diff tool that compares the structure of two database tables with each other',
+    description='A diff tool that compares the structure of two database tables with each other.',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument('left',

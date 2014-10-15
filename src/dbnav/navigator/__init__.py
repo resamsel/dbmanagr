@@ -29,8 +29,12 @@ group.add_argument('-s', '--simple', help='output format: simple', dest='formatt
 group.add_argument('-j', '--json', help='output format: JSON', dest='formatter', action='store_const', const=JsonWriter)
 group.add_argument('-x', '--xml', help='output format: XML', dest='formatter', action='store_const', const=XmlWriter)
 group.add_argument('-a', '--autocomplete', help='output format: autocomplete', dest='formatter', action='store_const', const=AutocompleteWriter)
-parser = argparse.ArgumentParser(prog='dbnav', parents=[parent])
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table/filter; for SQLite: databasefile.db/table/filter)""", nargs='?')
+parser = argparse.ArgumentParser(
+    prog='dbnav',
+    description='A database navigation tool that shows database structure and content',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    parents=[parent])
+parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table?filter; for SQLite: databasefile.db/table?filter)""", nargs='?')
 parser.add_argument('-S', '--simplify', dest='simplify', default=True, help='simplify the output', action='store_true')
 parser.add_argument('-N', '--no-simplify', dest='simplify', help='don\'t simplify the output', action='store_false')
 parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
