@@ -70,6 +70,9 @@ class Options:
 
         self.__dict__.update(args.__dict__)
         
+        self.update_parsers()
+
+    def update_parsers(self):
         for k in Options.parser:
             self.opts[k] = Options.parser[k].parse(self)
 

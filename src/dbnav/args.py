@@ -4,6 +4,7 @@
 import os
 import argparse
 from dbnav.writer import TestWriter
+from dbnav.version import __version__
 
 def default_log_file():
     for d in ['/var/log', '/usr/local/var/log', '/tmp']:
@@ -13,6 +14,7 @@ def default_log_file():
 
 def parent_parser():
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--version', action='version', version='%(prog)s {0}'.format(__version__))
     group = parser.add_argument_group('logging')
     group.add_argument('-f',
 		'--logfile',

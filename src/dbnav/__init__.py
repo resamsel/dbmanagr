@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from dbnav.writer import Writer
+import logging
 
-__all__ = ["navigator", "item", "writer", "sources", "querybuilder", "logger", "options", "tests"]
+from dbnav.writer import Writer
+from dbnav.logger import logger
+
+__all__ = ('navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger', 'options', 'tests')
 
 def wrapper(f):
     try:
@@ -12,6 +15,9 @@ def wrapper(f):
     except (SystemExit, KeyboardInterrupt) as e:
         sys.exit(-1)
     except BaseException as e:
-        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
-        raise
-
+        if logger.getEffectiveLevel() <= logging.DEBUG:
+            # Only raise the exception when debugging is enabled!
+            raise
+        else:
+            # Show the error message if log level is INFO or higher
+            sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
