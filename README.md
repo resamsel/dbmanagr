@@ -414,7 +414,7 @@ A diff tool that compares the structure of two database tables with each other.
 ### Usage
 ```
 usage: dbdiff [-h] [--version] [-f LOGFILE]
-              [-l {critical,error,warning,info,debug}] [-t] [-D] [--verbose]
+              [-l {critical,error,warning,info,debug}] [-t] [-D] [-v] [-c]
               left right
 
 A diff tool that compares the structure of two database tables with each
@@ -431,9 +431,10 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
-  --verbose, -v         specify the verbosity of the output, increase the
+  -v, --verbose         specify the verbosity of the output, increase the
                         number of occurences of this option to increase
                         verbosity (default: None)
+  -c, --compare-ddl     compares the DDLs for each column (default: False)
 
 logging:
   -f LOGFILE, --logfile LOGFILE

@@ -251,14 +251,12 @@ class DatabaseConnection(BaseItem):
 
         cols = self.inspector.get_columns(table.name)
         pks = self.inspector.get_pk_constraint(table.name)['constrained_columns']
-        
+
         return map(
             lambda col: Column(
                 table,
-                col['name'],
-                [col['name']] == pks,
-                col['type'],
-                col['nullable']),
+                primary_key=[col['name']] == pks,
+                **col),
             cols)
 
     def restriction(self, alias, column, operator, value):

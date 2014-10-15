@@ -5,13 +5,15 @@ from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, DefaultFormatter
 
 def value_from_column(column, config):
+    if config.verbose > 3:
+        return '{0}?{1}'.format(column.autocomplete().split('?')[0], column.ddl())
     if config.verbose > 2:
         return column.autocomplete()
     if config.verbose > 1:
         return '/'.join(column.autocomplete().split('/')[1:])
     elif config.verbose > 0:
         return unicode(column)
-    return column.name
+    return column.ddl()
 
 class DiffWriter(FormatWriter):
     def __init__(self, left=None, right=None):

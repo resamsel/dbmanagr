@@ -14,6 +14,11 @@ from dbnav.sources import Source
 from .args import parser
 from .writer import DiffWriter
 
+def column_ddl(c):
+    return c.ddl()
+def column_name(c):
+    return c.name
+
 class DiffColumn:
     def __init__(self, column, left):
         self.column = column
@@ -47,11 +52,11 @@ class DatabaseDiffer:
                 raise Exception("Could not find table '{0}' in right connection".format(ropts.table))
             rtable = rtables[ropts.table]
             
-            lcols = map(lambda c: c.name, ltable.columns())
-            rcols = map(lambda c: c.name, rtable.columns())
+            lcols = map(column_ddl if left.compare_ddl else column_name, ltable.columns())
+            rcols = map(column_ddl if right.compare_ddl else column_name, rtable.columns())
             
-            lplus = map(lambda c: DiffColumn(ltable.column(c), True), list(set(lcols) - set(rcols)))
-            rplus = map(lambda c: DiffColumn(rtable.column(c), False), list(set(rcols) - set(lcols)))
+            lplus = map(lambda c: DiffColumn(ltable.column(c.split()[0]), True), list(set(lcols) - set(rcols)))
+            rplus = map(lambda c: DiffColumn(rtable.column(c.split()[0]), False), list(set(rcols) - set(lcols)))
             
 #            return map(lambda c: c.name, ltable.columns())
             return lplus + rplus
