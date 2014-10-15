@@ -12,14 +12,14 @@ parent = parent_parser()
 
 group = format_group(parent,
 	GraphTestWriter)
-group.add_argument('-d',
+group.add_argument('-D',
 	'--default',
 	default=True,
 	help='output format: human readable hierarchical text',
 	dest='formatter',
 	action='store_const',
 	const=GraphWriter)
-group.add_argument('-g',
+group.add_argument('-G',
 	'--graphviz',
 	help='output format: a Graphviz graph',
 	dest='formatter',

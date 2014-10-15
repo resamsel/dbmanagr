@@ -30,7 +30,7 @@ def parent_parser():
 
 def format_group(parser, test_writer=TestWriter):
     group = parser.add_argument_group('formatters')
-    group.add_argument('-t',
+    group.add_argument('-T',
 		'--test',
 		help='output format: test specific',
 		dest='formatter',

@@ -10,7 +10,7 @@ from .writer import ExecuteWriter, SqlInsertWriter, ExecuteTestWriter
 parent = parent_parser()
 
 group = format_group(parent, ExecuteTestWriter)
-group.add_argument('-d',
+group.add_argument('-D',
 	'--default',
 	help='output format: tuples',
 	dest='formatter',
