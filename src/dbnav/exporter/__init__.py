@@ -85,6 +85,7 @@ def create_items(items, include, exclude):
             for x in exclude:
                 c = re.sub('([^\\.]*)\\..*', '\\1', x)
                 fks = fk_by_a_table_name(item.table.fks)
+                fk = None
                 if c in fks:
                     fk = fks[c]
                 col = item.table.column(c)
