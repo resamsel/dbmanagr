@@ -11,9 +11,14 @@ def value_from_column(column, config):
         return column.autocomplete()
     if config.verbose > 1:
         return '/'.join(column.autocomplete().split('/')[1:])
-    elif config.verbose > 0:
+    if config.verbose >0:
         return unicode(column)
-    return column.ddl()
+    return column_name(column, config)
+
+def column_name(column, config):
+    if config.compare_ddl:
+        return column.ddl()
+    return column.name
 
 class DiffWriter(FormatWriter):
     def __init__(self, left=None, right=None):
@@ -29,10 +34,37 @@ class DiffWriter(FormatWriter):
                 self.filter(items)))
         return self.items_format.format(s)
     def itemtostring(self, item):
-        if item.left:
-            return u'< {0}'.format(value_from_column(item.column, self.left))
+        """We receive a tuple (left, right), for which any part may be empty"""
+        left, right = item
+        a = []
+        if left:
+            a.append(u'< {0}'.format(value_from_column(left, self.left)))
+        if right:
+            a.append(u'> {0}'.format(value_from_column(right, self.right)))
+        return u'\n'.join(a)
+
+class DiffColumnWriter(DiffWriter):
+    def __init__(self, left=None, right=None):
+        DiffWriter.__init__(self, left, right)
+        self.left = left
+        self.right = right
+    def itemtostring(self, item):
+        """We receive a tuple (left, right), for which any part may be empty"""
+        left, right = item
+        s = ''
+        if left:
+            val = value_from_column(left, self.left)
+            s += u'{1}{0}'.format(u' '*(42-len(val)), val)
+            if right:
+                s += ' | '
         else:
-            return u'> {0}'.format(value_from_column(item.column, self.right))
+            s += u'{0} > '.format(u' '*42)
+        if right:
+            val = value_from_column(right, self.right)
+            s += val
+        else:
+            s += ' <'
+        return s
 
 class DiffTestWriter(DiffWriter):
     pass

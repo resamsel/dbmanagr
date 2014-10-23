@@ -5,7 +5,7 @@ import argparse
 
 from dbnav.args import parent_parser, format_group
 
-from .writer import DiffWriter, DiffTestWriter
+from .writer import DiffWriter, DiffColumnWriter, DiffTestWriter
 
 parent = parent_parser()
 
@@ -17,6 +17,12 @@ group.add_argument('-D',
 	dest='formatter',
 	action='store_const',
 	const=DiffWriter)
+group.add_argument('-S',
+	'--side-by-side',
+	help='output format: compare side-by-side in two columns',
+	dest='formatter',
+	action='store_const',
+	const=DiffColumnWriter)
 
 parser = argparse.ArgumentParser(
     prog='dbdiff',

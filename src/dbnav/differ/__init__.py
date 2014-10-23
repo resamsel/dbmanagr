@@ -19,11 +19,6 @@ def column_ddl(c):
 def column_name(c):
     return c.name
 
-class DiffColumn:
-    def __init__(self, column, left):
-        self.column = column
-        self.left = left
-
 class DatabaseDiffer:
     """The main class"""
 
@@ -55,11 +50,24 @@ class DatabaseDiffer:
             lcols = map(column_ddl if left.compare_ddl else column_name, ltable.columns())
             rcols = map(column_ddl if right.compare_ddl else column_name, rtable.columns())
             
-            lplus = map(lambda c: DiffColumn(ltable.column(c.split()[0]), True), list(set(lcols) - set(rcols)))
-            rplus = map(lambda c: DiffColumn(rtable.column(c.split()[0]), False), list(set(rcols) - set(lcols)))
-            
-#            return map(lambda c: c.name, ltable.columns())
-            return lplus + rplus
+            lplus = dict(map(
+                lambda c: (c.split()[0], ltable.column(c.split()[0])),
+                list(set(lcols) - set(rcols))))
+            rplus = dict(map(
+                lambda c: (c.split()[0], rtable.column(c.split()[0])),
+                list(set(rcols) - set(lcols))))
+
+            r = {}
+            for k, v in lplus.iteritems():
+                if k in rplus:
+                    r[k] = (v, rplus[k])
+                else:
+                    r[k] = (v, None)
+            for k, v in rplus.iteritems():
+                if k not in lplus:
+                    r[k] = (None, v)
+
+            return map(lambda (k, v): v, r.iteritems())
         finally:
             lcon.close()
             rcon.close()
@@ -76,7 +84,7 @@ def run(argv):
     right.update_parsers()
 
     if left.formatter:
-        Writer.set(options.formatter(left, right))
+        Writer.set(left.formatter(left, right))
     else:
         Writer.set(DiffWriter(left, right))
 
