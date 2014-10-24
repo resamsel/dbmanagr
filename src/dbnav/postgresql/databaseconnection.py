@@ -85,16 +85,16 @@ class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
 
     def __init__(self, host, port, database, user, password):
-        DatabaseConnection.__init__(self)
+        DatabaseConnection.__init__(
+            self,
+            database = database,
+            driver='postgresql')
         self.host = host
         self.port = port
-        self.database = database
         self.user = user
         self.password = password
         self.con = None
         self.dbs = None
-        self.tbls = {}
-        self.driver = 'postgresql'
 
     def __repr__(self):
         return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
@@ -170,7 +170,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
     def put_foreign_keys(self):
         """Retrieves the foreign keys of the table"""
-        
+
         result = self.execute(FOREIGN_KEY_QUERY, 'Foreign Keys')
 
         for row in result:
