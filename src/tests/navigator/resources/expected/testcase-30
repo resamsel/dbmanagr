@@ -1,0 +1,13 @@
+Title	Autocomplete
+554	dbnav.sqlite/user/?id=554
+Jessica	dbnav.sqlite/user?first_name=Jessica
+Ray	dbnav.sqlite/user?last_name=Ray
+Riffpath	dbnav.sqlite/user?company=Riffpath
+jrayfd	dbnav.sqlite/user?username=jrayfd
+	dbnav.sqlite/user?email=
+6-(165)122-3533	dbnav.sqlite/user?phone=6-(165)122-3533
+Female	dbnav.sqlite/user?gender=Female
+	dbnav.sqlite/user?url=
+← article.user_id	dbnav.sqlite/article?user_id=554
+← blog_user.user_id	dbnav.sqlite/blog_user?user_id=554
+← user_address.user_id	dbnav.sqlite/user_address?user_id=554

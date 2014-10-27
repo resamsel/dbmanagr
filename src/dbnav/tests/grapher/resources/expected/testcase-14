@@ -1,5 +1,0 @@
-sqlite
-  user
-  ↑ article (user_id → user.id)
-  ↑ user_address (user_id → user.id)
-  ↑ blog_user (user_id → user.id)

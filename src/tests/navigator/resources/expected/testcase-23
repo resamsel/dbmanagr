@@ -1,0 +1,7 @@
+Title	Autocomplete
+created	dbnav.sqlite/article?created
+id	dbnav.sqlite/article?id
+tags	dbnav.sqlite/article?tags
+text	dbnav.sqlite/article?text
+title	dbnav.sqlite/article?title
+user_id	dbnav.sqlite/article?user_id
