@@ -1,4 +1,4 @@
--t
+-T
 -x
-user
-skiline@localhost/skiline/api_key
+user_id
+dbnav.sqlite/article

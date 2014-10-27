@@ -22,7 +22,7 @@ def load_suite():
     command = 'dbnav'
     for tc in TEST_CASES:
         test_name = 'test_%s_%s' % (command, tc.replace('-', '_'))
-        test = test_generator(navigator, command, DIR, tc, ['-t'])
+        test = test_generator(navigator, command, DIR, tc, ['-T'])
         test.__doc__ = 'Params: "%s"' % params(DIR, tc)
         setattr(OutputTestCase, test_name, test)
     loader = unittest.TestLoader()

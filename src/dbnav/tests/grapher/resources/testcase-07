@@ -1,4 +1,4 @@
--t
+-T
 -i
-client_id
-skiline@localhost/skiline/api_key
+user_id
+dbnav.sqlite/article

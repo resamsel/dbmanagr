@@ -1,4 +1,3 @@
 Title	Autocomplete
-api_key	skiline@localhost/skiline/api_key/
-api_key_2_badge_definition	skiline@localhost/skiline/api_key_2_badge_definition/
-api_key_2_competition	skiline@localhost/skiline/api_key_2_competition/
+user	dbnav.sqlite/user/
+user_address	dbnav.sqlite/user_address/

@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from urlparse import urlparse
 from plistlib import readPlist
 from os.path import isfile
+from os import path
 
 from ..sources import *
 from .databaseconnection import *

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__all__ = ["databaseconnection", "sources"]
+__all__ = ["sources"]
 
-from ..sources import Source
-from .sources import *
+from dbnav.sources import Source
+from .sources import MockSource
 
-#Source.sources.append(MockSource())
+def init_mock():
+    Source.sources.append(MockSource())

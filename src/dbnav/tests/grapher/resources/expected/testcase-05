@@ -1,15 +1,13 @@
-ZUSER
-- Z_ENT?
-- Z_OPT?
-- ZID_USER?
-- ZISDELETING?
-- ZSORTBY?
-- ZAVATAR?
-- ZDEFAULTWORKSPACE?
-- ZTIME_LASTCHANGE?
-- ZTIME_SIGNUP?
-- ZCOMPANY?
-- ZEMAIL?
-- ZFIRSTNAME?
-- ZLANG?
-- ZTIMEZONESTRING?
+user
+- id*
+- first_name
+- last_name
+- company?
+- username?
+- email?
+- phone?
+- gender?
+- url?
+↑ article (user_id → user.id)
+↑ user_address (user_id → user.id)
+↑ blog_user (user_id → user.id)
