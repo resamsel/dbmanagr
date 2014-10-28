@@ -1,3 +1,4 @@
+VERSION = src/dbnav/version.py
 TARGET = target
 SETUPTOOLS = python setup.py
 DIST = dist
@@ -52,7 +53,7 @@ develop:
 
 release-%:
 	gsed 's/dbnav-[^-]*-py2.7.egg/dbnav-$(@:release-%=%)-py2.7.egg/g' -i README.md
-	gsed 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i src/dbnav/version.py
+	gsed 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION)
 	git rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg
 	git add dist/dbnav-$(@:release-%=%)-py2.7.egg
