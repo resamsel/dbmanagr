@@ -1,0 +1,7 @@
+digraph dbgraph {
+  root=user;
+  user [shape="record" label="user| <id> id| <first_name> first_name| <last_name> last_name| <company> company| <username> username| <email> email| <phone> phone| <gender> gender| <url> url"];
+  article:user_id -> user:id [];
+  user_address:user_id -> user:id [];
+  blog_user:user_id -> user:id [];
+}

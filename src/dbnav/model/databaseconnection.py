@@ -15,6 +15,7 @@ from ..querybuilder import QueryBuilder
 from .column import *
 from dbnav.item import VALID, INVALID
 from .baseitem import BaseItem
+from dbnav.model.foreignkey import ForeignKey
 from dbnav.model.row import Row
 from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
 
@@ -28,6 +29,20 @@ def tostring(key):
     if isinstance(key, unicode):
         return key.encode('ascii', errors='ignore')
     return key
+
+def dictsplus(dicts, key, value):
+    for d in dicts:
+        dictplus(d, key, value)
+    return dicts
+
+def dictplus(d, key, value):
+    d[key] = value
+    
+def dictminus(d, key):
+    r = dict(d)
+    if key in d:
+        del r[key]
+    return r
 
 def values(connection, table, filter):
     """Creates row values according to the given filter"""
@@ -117,10 +132,10 @@ class Cursor:
         return [DatabaseRow()]
 
 class DatabaseConnection(BaseItem):
-    def __init__(self, *args):
-        self.database = None
-        self.tbls = None
-        self.driver = None
+    def __init__(self, **kwargs):
+        self.database = kwargs.get('database', None)
+        self.tbls = kwargs.get('tbls', None)
+        self.driver = kwargs.get('driver', None)
 
     def title(self):
         return 'Title'
@@ -244,21 +259,32 @@ class DatabaseConnection(BaseItem):
         return {}
 
     def put_foreign_keys(self):
-        pass
+        fks = reduce(lambda x, y: x + y,
+            map(lambda (k, v): dictsplus(self.inspector.get_foreign_keys(k), 'name', k),
+                self.tbls.iteritems()))
+
+        for _fk in fks:
+            a = Column(
+                self.tbls[_fk['name']],
+                _fk['constrained_columns'][0])
+            b = Column(
+                self.tbls[_fk['referred_table']],
+                _fk['referred_columns'][0])
+            fk = ForeignKey(a, b)
+            self.tbls[a.table.name].fks[a.name] = fk
+            self.tbls[b.table.name].fks[str(a)] = fk
 
     def columns(self, table):
         """Returns a list of Column objects"""
 
         cols = self.inspector.get_columns(table.name)
         pks = self.inspector.get_pk_constraint(table.name)['constrained_columns']
-        
+
         return map(
             lambda col: Column(
                 table,
-                col['name'],
-                [col['name']] == pks,
-                col['type'],
-                col['nullable']),
+                primary_key=[col['name']] == pks,
+                **dictminus(col, 'primary_key')),
             cols)
 
     def restriction(self, alias, column, operator, value):

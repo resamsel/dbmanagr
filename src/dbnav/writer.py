@@ -26,7 +26,7 @@ class DefaultWriter:
     def write(self, items):
         return self.str(items)
     def str(self, items):
-        return map(lambda item: self.itemtostring(item), items)
+        return map(self.itemtostring, items)
     def itemtostring(self, item):
         return unicode(item)
 

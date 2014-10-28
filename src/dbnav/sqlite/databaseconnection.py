@@ -12,7 +12,6 @@ from ..model.databaseconnection import *
 from ..model.database import *
 from ..model.table import *
 from ..model.column import *
-from ..model.foreignkey import *
 from ..options import *
 
 CACHE_TIME = 2*60
@@ -34,14 +33,14 @@ class SQLiteConnection(DatabaseConnection):
 
     def __init__(self, path):
         logger.debug("SQLiteConnection.__init__(%s)", path)
-        DatabaseConnection.__init__(self)
         self.path = path
         self.filename = basename(self.path)
         self.con = None
         self.dbs = None
-        self.database = self.databases()[0]
-        self.tbls = None
-        self.driver = 'sqlite'
+        DatabaseConnection.__init__(
+            self,
+            database=self.databases()[0],
+            driver='sqlite')
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % self.filename

@@ -42,10 +42,11 @@ class Row(BaseItem):
         return val(self, 'subtitle')
 
     def autocomplete(self):
-        return '%s?%s=%s' % (
-            self.table.autocomplete(),
-            self.table.primary_key,
-            self[self.table.primary_key])
+        column = self.table.primary_key
+        if not column:
+            column = self.table.cols[0].name
+        value = self[column]
+        return self.table.autocomplete(column, value)
 
     def icon(self):
         return 'images/row.png'

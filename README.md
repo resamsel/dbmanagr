@@ -69,36 +69,41 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ### Usage
 ```
-usage: dbnav [-h] [-f LOGFILE] [-l {critical,error,warning,info,debug}] [-t]
-             [-d] [-s] [-j] [-x] [-a] [-S] [-N] [-m LIMIT]
+usage: dbnav [-h] [--version] [-f LOGFILE]
+             [-l {critical,error,warning,info,debug}] [-T] [-D] [-S] [-J] [-X]
+             [-A] [-s] [-N] [-m LIMIT]
              [uri]
+
+A database navigation tool that shows database structure and content
 
 positional arguments:
   uri                   the URI to parse (format for PostgreSQL:
                         user@host/database/table?filter; for SQLite:
-                        databasefile.db/table?filter)
+                        databasefile.db/table?filter) (default: None)
 
 optional arguments:
   -h, --help            show this help message and exit
-  -S, --simplify        simplify the output
-  -N, --no-simplify     don't simplify the output
+  --version             show program's version number and exit
+  -s, --simplify        simplify the output (default: True)
+  -N, --no-simplify     don't simplify the output (default: True)
   -m LIMIT, --limit LIMIT
                         limit the results of the main query to this amount of
-                        rows
+                        rows (default: 50)
 
 logging:
   -f LOGFILE, --logfile LOGFILE
-                        the file to log to
+                        the file to log to (default:
+                        /usr/local/var/log/dbnav.log)
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
-                        the minimum level to log
+                        the minimum level to log (default: warning)
 
 formatters:
-  -t, --test            output format: test specific
-  -d, --default         output format: default
-  -s, --simple          output format: simple
-  -j, --json            output format: JSON
-  -x, --xml             output format: XML
-  -a, --autocomplete    output format: autocomplete
+  -T, --test            output format: test specific (default: None)
+  -D, --default         output format: default (default: None)
+  -S, --simple          output format: simple (default: None)
+  -J, --json            output format: JSON (default: None)
+  -X, --xml             output format: XML (default: None)
+  -A, --autocomplete    output format: autocomplete (default: None)
 ```
 
 In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your data. No options may be given.
@@ -141,7 +146,7 @@ The colon (:) will be translated to the *in* operator in SQL.
 **Warning: this is a potentially slow query! See configuration for options to resolve this problem.**
 
 #### Show Values of selected Row
-`dbnav myuser@myhost/mydatabase/mytable/?id=2
+`dbnav myuser@myhost/mydatabase/mytable/?id=2`
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).
@@ -157,7 +162,7 @@ Visualises the dependencies of a table using its foreign key references (forward
 ### Usage
 ```
 usage: dbgraph [-h] [--version] [-f LOGFILE]
-               [-l {critical,error,warning,info,debug}] [-t] [-d] [-g] [-c]
+               [-l {critical,error,warning,info,debug}] [-T] [-D] [-G] [-c]
                [-C] [-k] [-K] [-v] [-V] [-n] [-N] [-b] [-B] [-M MAX_DEPTH]
                [-r | -i INCLUDE] [-x EXCLUDE]
                uri
@@ -210,10 +215,10 @@ logging:
                         the minimum level to log (default: warning)
 
 formatters:
-  -t, --test            output format: test specific (default: None)
-  -d, --default         output format: human readable hierarchical text
+  -T, --test            output format: test specific (default: None)
+  -D, --default         output format: human readable hierarchical text
                         (default: True)
-  -g, --graphviz        output format: a Graphviz graph (default: None)
+  -G, --graphviz        output format: a Graphviz graph (default: None)
 ```
 
 ### Examples
@@ -325,7 +330,7 @@ Exports specific rows from the database along with their references rows from ot
 ### Usage
 ```
 usage: dbexport [-h] [--version] [-f LOGFILE]
-                [-l {critical,error,warning,info,debug}] [-t] [-I] [-U] [-D]
+                [-l {critical,error,warning,info,debug}] [-T] [-I] [-U] [-D]
                 [-Y] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT] [-p PACKAGE]
                 uri
 
@@ -356,7 +361,7 @@ logging:
                         the minimum level to log
 
 formatters:
-  -t, --test            output format: test specific
+  -T, --test            output format: test specific
   -I, --insert          output format: SQL insert statements
   -U, --update          output format: SQL update statements
   -D, --delete          output format: SQL delete statements
@@ -369,7 +374,7 @@ Executes the SQL statements from the given file on the database specified by the
 ### Usage
 ```
 usage: dbexec [-h] [--version] [-f LOGFILE]
-              [-l {critical,error,warning,info,debug}] [-t] [-d] [-I]
+              [-l {critical,error,warning,info,debug}] [-T] [-D] [-I]
               [-s STATEMENTS] [-p PROGRESS] [-n TABLE_NAME]
               uri [infile]
 
@@ -403,8 +408,8 @@ logging:
                         the minimum level to log (default: warning)
 
 formatters:
-  -t, --test            output format: test specific (default: None)
-  -d, --default         output format: tuples (default: None)
+  -T, --test            output format: test specific (default: None)
+  -D, --default         output format: tuples (default: None)
   -I, --insert          output format: SQL insert statements (default: None)
 ```
 
@@ -414,7 +419,8 @@ A diff tool that compares the structure of two database tables with each other.
 ### Usage
 ```
 usage: dbdiff [-h] [--version] [-f LOGFILE]
-              [-l {critical,error,warning,info,debug}] [-t] [-D] [--verbose]
+              [-l {critical,error,warning,info,debug}] [-T] [-D] [-S] [-v]
+              [-c]
               left right
 
 A diff tool that compares the structure of two database tables with each
@@ -431,9 +437,10 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
-  --verbose, -v         specify the verbosity of the output, increase the
+  -v, --verbose         specify the verbosity of the output, increase the
                         number of occurences of this option to increase
                         verbosity (default: None)
+  -c, --compare-ddl     compares the DDLs for each column (default: False)
 
 logging:
   -f LOGFILE, --logfile LOGFILE
@@ -443,16 +450,18 @@ logging:
                         the minimum level to log (default: warning)
 
 formatters:
-  -t, --test            output format: test specific (default: None)
+  -T, --test            output format: test specific (default: None)
   -D, --default         output format: human readable hierarchical text
                         (default: True)
+  -S, --side-by-side    output format: compare side-by-side in two columns
+                        (default: None)
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.10-py2.7.egg?raw=true) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.11-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.10-py2.7.egg
+pip install dbnav-0.11-py2.7.egg
 ```
 
 ### Alfred Workflow

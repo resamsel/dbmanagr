@@ -27,8 +27,8 @@ class DefaultFormatter:
 
 class SimplifiedFormatter(DefaultFormatter):
     def __init__(self,
-            default_format=u'{title}\t{subtitle}\t{autocomplete}',
-            item_format=u'{title}\t{subtitle}\t{autocomplete}'):
+            default_format=u'{title}\t{subtitle}',
+            item_format=u'{title}\t{subtitle}'):
         self.default_format = default_format
         self.item_format = item_format
     def format(self, item):

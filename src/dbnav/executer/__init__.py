@@ -4,6 +4,7 @@
 import time
 import sys
 import sqlparse
+import re
 
 from dbnav import wrapper
 from dbnav.config import Config
@@ -48,6 +49,9 @@ def read_statements(opts):
         return None
 
     start = time.time()
+
+    # Removes the shebang, if any
+    sql = re.sub(r'^#!.*\n', '', sql)
 
     stmts = filter(lambda s: len(s.strip()) > 0, sqlparse.split(sql))
 

@@ -37,7 +37,7 @@ class Table(BaseItem):
         """Retrieves the autocomplete string for the given column and value"""
 
         if column == None:
-            return u'%s%s/' % (self.uri, self.name)
+            return u'%s%s?' % (self.uri, self.name)
 
         tablename = self.name
         fks = self.fks

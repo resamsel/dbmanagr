@@ -13,7 +13,7 @@ _dbnav_completer()
 	prev="${COMP_WORDS[COMP_CWORD-1]}"
 
 	_dbnav_log "cur:${cur}, prev:${prev}"
-	words="$(dbnav -a ${cur})"
+	words="$(dbnav -A ${cur})"
 
 	COMPREPLY=($(compgen -W "${words}" -- ${cur}))
 	return 0

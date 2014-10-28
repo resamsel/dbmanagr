@@ -15,14 +15,18 @@ def get_version():
 setup(
     name = "dbnav",
     version = get_version(),
+    author = "René Samselnig",
+    author_email = "me@resamsel.com",
+    description = "The database navigator for the command line",
+    keywords = "database navigator exporter grapher postgres sqlite graphviz diff",
 
-    packages = find_packages('src', exclude=['tests']),
-    package_dir = {'':'src'},
+    packages = find_packages('src'),
+    package_dir = { '':'src' },
     package_data = {
         'src/images': ['*.png']
     },
 
-    test_suite = 'dbnav.tests.load_suite',
+    test_suite = 'tests.load_suite',
 
     # dependencies
     install_requires = [
@@ -42,11 +46,6 @@ setup(
     },
     
     data_files = [
-        (expanduser('~/.bash_completion.d'), ['src/bash_completion/dbnav'])
-    ],
-    
-    author = "René Samselnig",
-    author_email = "me@resamsel.com",
-    description = "The database navigator for the command line",
-    keywords = "database navigator exporter grapher postgres sqlite graphviz"
+        ('/usr/local/etc/bash_completion.d', ['src/bash_completion/dbnav'])
+    ]
 )

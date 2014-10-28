@@ -1,0 +1,5 @@
+-T
+-r
+-x
+article.user_id
+dbnav.sqlite/user
