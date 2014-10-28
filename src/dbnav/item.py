@@ -32,7 +32,7 @@ def create_databases(dbs):
 
 def create_tables(tables):
     """Creates table items"""
-
+    
     return map(lambda t: t.item(), tables)
 
 def create_columns(columns):

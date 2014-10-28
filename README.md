@@ -141,7 +141,7 @@ The colon (:) will be translated to the *in* operator in SQL.
 **Warning: this is a potentially slow query! See configuration for options to resolve this problem.**
 
 #### Show Values of selected Row
-`dbnav myuser@myhost/mydatabase/mytable/?id=2
+`dbnav myuser@myhost/mydatabase/mytable/?id=2`
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).
