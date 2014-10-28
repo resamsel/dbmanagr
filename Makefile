@@ -52,7 +52,7 @@ develop:
 	$(SETUPTOOLS) develop
 
 usage-%:
-	sh generate-help.sh $(@:usage-%=%)
+	sh generate-usage.sh $(@:usage-%=%)
 
 release-%: usage-dbnav usage-dbgraph usage-dbdiff usage-dbexport usage-dbexec
 	gsed 's/dbnav-[^-]*-py2.7.egg/dbnav-$(@:release-%=%)-py2.7.egg/g' -i README.md
