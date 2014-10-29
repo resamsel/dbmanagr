@@ -150,11 +150,9 @@ class PostgreSQLConnection(DatabaseConnection):
     def databases(self):
         # does not yet work with sqlalchemy...
         if not self.dbs:
-            result = self.execute(DATABASES_QUERY % self.user, 'Databases')
-    
-            def d(row): return PostgreSQLDatabase(self, row[0])
-    
-            self.dbs = map(d, result)
+            self.dbs = map(
+                lambda row: PostgreSQLDatabase(self, row[0]),
+                self.execute(DATABASES_QUERY % self.user, 'Databases'))
         
         return self.dbs
 

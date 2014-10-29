@@ -16,6 +16,7 @@ from .column import *
 from dbnav.item import VALID, INVALID
 from .baseitem import BaseItem
 from dbnav.model.foreignkey import ForeignKey
+from dbnav.model.database import Database
 from dbnav.model.row import Row
 from dbnav.model.table import Table
 from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
@@ -247,7 +248,7 @@ class DatabaseConnection(BaseItem):
         return True
 
     def databases(self):
-        return []
+        return map(lambda name: Database(self, name), self.inspector.get_schema_names())
 
     def tables(self):
         if not self.tbls:
