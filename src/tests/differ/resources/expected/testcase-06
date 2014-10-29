@@ -1,25 +1,4 @@
-dbnav.sqlite/user?last_name TEXT(255) not null <
-                                           > me@xyz.com.sqlite/ZUSER?ZFIRSTNAME VARCHAR
-                                           > me@xyz.com.sqlite/ZUSER?ZISDELETING INTEGER
-dbnav.sqlite/user?id INTEGER not null      <
-dbnav.sqlite/user?first_name TEXT(255) not null <
-                                           > me@xyz.com.sqlite/ZUSER?Z_PK INTEGER
-                                           > me@xyz.com.sqlite/ZUSER?ZTIMEZONESTRING VARCHAR
-dbnav.sqlite/user?email TEXT(255)          <
-dbnav.sqlite/user?username TEXT(31)        <
-                                           > me@xyz.com.sqlite/ZUSER?ZTIME_SIGNUP TIMESTAMP
-dbnav.sqlite/user?company TEXT(255)        <
-                                           > me@xyz.com.sqlite/ZUSER?ZCOMPANY VARCHAR
-                                           > me@xyz.com.sqlite/ZUSER?ZTIME_LASTCHANGE TIMESTAMP
-dbnav.sqlite/user?phone TEXT(63)           <
-                                           > me@xyz.com.sqlite/ZUSER?ZLANG VARCHAR
-                                           > me@xyz.com.sqlite/ZUSER?Z_ENT INTEGER
-                                           > me@xyz.com.sqlite/ZUSER?ZEMAIL VARCHAR
-                                           > me@xyz.com.sqlite/ZUSER?ZLASTNAME VARCHAR
 dbnav.sqlite/user?url TEXT(255)            <
-dbnav.sqlite/user?gender TEXT(6)           <
-                                           > me@xyz.com.sqlite/ZUSER?Z_OPT INTEGER
-                                           > me@xyz.com.sqlite/ZUSER?ZAVATAR INTEGER
-                                           > me@xyz.com.sqlite/ZUSER?ZID_USER INTEGER
-                                           > me@xyz.com.sqlite/ZUSER?ZDEFAULTWORKSPACE INTEGER
-                                           > me@xyz.com.sqlite/ZUSER?ZSORTBY INTEGER
+dbnav.sqlite/user?company TEXT(255)        <
+                                           > dbnav.sqlite/user2?company_name TEXT(255)
+                                           > dbnav.sqlite/user2?title TEXT(127)

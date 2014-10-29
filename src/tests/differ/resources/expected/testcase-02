@@ -1,25 +1,4 @@
-last_name                                  <
-                                           > ZFIRSTNAME
-                                           > ZISDELETING
-id                                         <
-first_name                                 <
-                                           > Z_PK
-                                           > ZTIMEZONESTRING
-email                                      <
-username                                   <
-                                           > ZTIME_SIGNUP
-company                                    <
-                                           > ZCOMPANY
-                                           > ZTIME_LASTCHANGE
-phone                                      <
-                                           > ZLANG
-                                           > Z_ENT
-                                           > ZEMAIL
-                                           > ZLASTNAME
 url                                        <
-gender                                     <
-                                           > Z_OPT
-                                           > ZAVATAR
-                                           > ZID_USER
-                                           > ZDEFAULTWORKSPACE
-                                           > ZSORTBY
+company                                    <
+                                           > company_name
+                                           > title

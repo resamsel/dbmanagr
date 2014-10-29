@@ -23,31 +23,19 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Features](#user-content-features)
 	- [Usage](#user-content-usage)
 	- [Examples](#user-content-examples)
-		- [Show Available Connections](#user-content-show-available-connections)
-		- [Show Databases of Connection](#user-content-show-databases-of-connection)
-		- [Show Tables of Database](#user-content-show-tables-of-database)
-		- [Show Columns of Table](#user-content-show-columns-of-table)
-		- [Show Rows where Column equals Value](#user-content-show-rows-where-column-equals-value)
-		- [Show Rows where Column matches Pattern](#user-content-show-rows-where-column-matches-pattern)
-		- [Show Rows where any (Search) Column matches Pattern](#user-content-show-rows-where-any-search-column-matches-pattern)
-		- [Show Values of selected Row](#user-content-show-values-of-selected-row)
 - [Database Visualisation](#user-content-database-visualisation)
 	- [Features](#user-content-features-1)
 	- [Usage](#user-content-usage-1)
 	- [Examples](#user-content-examples-1)
-		- [Show references of table](#user-content-show-references-of-table)
-		- [Show References and Columns](#user-content-show-references-and-columns)
-		- [Show all References recursively](#user-content-show-all-references-recursively)
-		- [Show specific References](#user-content-show-specific-references)
-		- [Show specific References and exclude others](#user-content-show-specific-references-and-exclude-others)
-		- [Show specific References as Graphviz Graph](#user-content-show-specific-references-as-graphviz-graph)
 - [Database Exporter](#user-content-database-exporter)
 	- [Features](#user-content-features-1)
 	- [Usage](#user-content-usage-2)
+	- [Examples](#user-content-examples-2)
 - [Database Executer](#user-content-database-executer)
 	- [Usage](#user-content-usage-3)
 - [Database Differ](#user-content-database-differ)
 	- [Usage](#user-content-usage-4)
+	- [Examples](#user-content-examples-3)
 - [Installation](#user-content-installation)
 - [Configuration](#user-content-configuration)
 	- [Title](#user-content-title)
@@ -125,12 +113,14 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 Title | Subtitle
 ----- | --------
 _comment | Table
+_user2_old_20141029 | Table
 address | Table
 article | Table
 blog | Table
 blog_user | Table
 sqlite_sequence | Table
 user | Table
+user2 | Table
 user_address | Table
 
 #### Show Columns of Table
@@ -562,6 +552,40 @@ formatters:
                         (default: True)
   -S, --side-by-side    output format: compare side-by-side in two columns
                         (default: None)
+```
+
+### Examples
+
+#### Diff two Tables
+`dbdiff dbnav.sqlite/user dbnav.sqlite/user2`
+
+```
+< url
+< company
+> company_name
+> title
+```
+
+#### Diff two Tables Side-by-Side
+`dbdiff -S dbnav.sqlite/user dbnav.sqlite/user2`
+
+```
+url                                        <
+company                                    <
+                                           > company_name
+                                           > title
+```
+
+#### Diff two Tables Side-by-Side using Column Definitions
+`dbdiff -Sc dbnav.sqlite/user dbnav.sqlite/user2`
+
+```
+username TEXT(31)                          | username TEXT(31) not null
+first_name TEXT(255) not null              | first_name TEXT(127) not null
+                                           > title TEXT(127)
+url TEXT(255)                              <
+company TEXT(255)                          <
+                                           > company_name TEXT(255)
 ```
 
 ## Installation

@@ -1,25 +1,4 @@
-user?last_name                             <
-                                           > ZUSER?ZFIRSTNAME
-                                           > ZUSER?ZISDELETING
-user?id                                    <
-user?first_name                            <
-                                           > ZUSER?Z_PK
-                                           > ZUSER?ZTIMEZONESTRING
-user?email                                 <
-user?username                              <
-                                           > ZUSER?ZTIME_SIGNUP
-user?company                               <
-                                           > ZUSER?ZCOMPANY
-                                           > ZUSER?ZTIME_LASTCHANGE
-user?phone                                 <
-                                           > ZUSER?ZLANG
-                                           > ZUSER?Z_ENT
-                                           > ZUSER?ZEMAIL
-                                           > ZUSER?ZLASTNAME
 user?url                                   <
-user?gender                                <
-                                           > ZUSER?Z_OPT
-                                           > ZUSER?ZAVATAR
-                                           > ZUSER?ZID_USER
-                                           > ZUSER?ZDEFAULTWORKSPACE
-                                           > ZUSER?ZSORTBY
+user?company                               <
+                                           > user2?company_name
+                                           > user2?title
