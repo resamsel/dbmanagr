@@ -75,8 +75,3 @@ class SQLiteConnection(DatabaseConnection):
     def databases(self):
         logger.debug('Retrieve databases')
         return [SQLiteDatabase(self)]
-
-    def tablesof(self, database):
-        def t(name): return Table(self, database, name, '')
-
-        return map(t, [t for t in self.inspector.get_table_names()])

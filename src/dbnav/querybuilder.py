@@ -13,7 +13,7 @@ QUERY_FORMAT = u"""
 select
         {1}
     from
-        "{0}" {2}{3}
+        {0} {2}{3}
     where
         {4}
     order by
@@ -22,10 +22,10 @@ select
 """
 LIMIT_FORMAT = u"limit {0}"
 JOIN_FORMAT = u"""
-        left outer join \"{0}\" {1} on {1}.{2} = {3}.{4}"""
+        left outer join {0} {1} on {1}.{2} = {3}.{4}"""
 ALIAS_FORMAT = u"{0}_title"
 PROJECTION_FORMAT = u"""{0} {1}"""
-SEARCH_FORMAT = u"cast(%s as text) %s '%s'"
+SEARCH_FORMAT = u"cast(%s as char) %s '%s'"
 LIST_SEPARATOR = u""",
         """
 AND_SEPARATOR = u"""
@@ -228,7 +228,7 @@ class QueryBuilder:
                             if title != '*':
                                 a = ALIAS_FORMAT.format(fk.a.name)
                                 comment.columns[a] = Projection(title, a)
-                        self.joins[alias] = Join(fk.b.table.name, alias, fk.b.name, self.alias, fk.a.name)
+                        self.joins[alias] = Join(self.connection.escape_keyword(fk.b.table.name), alias, fk.b.name, self.alias, fk.a.name)
                     except KeyError, e:
                         logger.error("KeyError: %s, table=%s, comment.title=%s" % (e, fktable, fktable.comment.title))
 
@@ -305,7 +305,7 @@ class QueryBuilder:
                 lambda col: Projection('%s.%s' % (self.alias, col.name), col.name),
                 self.table.cols)
 
-        return QUERY_FORMAT.format(self.table.name,
+        return QUERY_FORMAT.format(self.connection.escape_keyword(self.table.name),
             LIST_SEPARATOR.join(map(str, projection)),
             self.alias,
             ''.join(map(str, self.joins.values())),

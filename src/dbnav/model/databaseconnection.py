@@ -17,6 +17,7 @@ from dbnav.item import VALID, INVALID
 from .baseitem import BaseItem
 from dbnav.model.foreignkey import ForeignKey
 from dbnav.model.row import Row
+from dbnav.model.table import Table
 from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
 
 logger = logging.getLogger(__name__)
@@ -211,6 +212,7 @@ class DatabaseConnection(BaseItem):
         pass
 
     def connect_to(self, source):
+        logger.debug('Connecting to %s', source)
         self.engine = create_engine(source)
         self.con = self.engine.connect()
         self.inspector = reflection.Inspector.from_engine(self.engine)
@@ -256,12 +258,15 @@ class DatabaseConnection(BaseItem):
         return self.tbls
 
     def tablesof(self, database):
-        return {}
+        return map(
+            lambda name: Table(self, database, name, ''),
+            self.inspector.get_table_names())
 
     def put_foreign_keys(self):
         fks = reduce(lambda x, y: x + y,
             map(lambda (k, v): dictsplus(self.inspector.get_foreign_keys(k), 'name', k),
-                self.tbls.iteritems()))
+                self.tbls.iteritems()),
+                [])
 
         for _fk in fks:
             a = Column(
