@@ -287,11 +287,18 @@ class DatabaseConnection(BaseItem):
                 **dictminus(col, 'primary_key')),
             cols)
 
-    def restriction(self, alias, column, operator, value):
+    def restriction(self, alias, column, operator, value, map_null_operator=True):
         if not column:
             raise Exception('Column is None!')
         if column.table and alias != None:
             return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
+        if operator in ['=', '!='] and (value == 'null' or value is None):
+            if map_null_operator:
+                operator = {
+                    '=': 'is',
+                    '!=': 'is not'
+                }.get(operator)
+            value = None
         return u'{0} {1} {2}'.format(column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):
