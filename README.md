@@ -119,14 +119,14 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 #### Show Tables of Database
 `dbnav dbnav.sqlite/`
 
-_comment | Table
-address | Table
-article | Table
-blog | Table
-blog_user | Table
-sqlite_sequence | Table
-user | Table
-user_address | Table
+| _comment | Table |
+| address | Table |
+| article | Table |
+| blog | Table |
+| blog_user | Table |
+| sqlite_sequence | Table |
+| user | Table |
+| user_address | Table |
 
 #### Show Columns of Table
 `dbnav dbnav.sqlite/user?`
