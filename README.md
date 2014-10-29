@@ -113,7 +113,6 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 Title | Subtitle
 ----- | --------
 _comment | Table
-_user2_old_20141029 | Table
 address | Table
 article | Table
 blog | Table
