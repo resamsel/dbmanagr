@@ -88,48 +88,36 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 #### Show Tables of Database
 \`dbnav dbnav.sqlite/\`
 
-\`\`\`
-`dbnav dbnav.sqlite/`
-\`\`\`
+`dbnav dbnav.sqlite/ | sed 's/	/ | /g'`
 
 #### Show Columns of Table
 \`dbnav dbnav.sqlite/user?\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user?`
-\`\`\`
+`dbnav dbnav.sqlite/user? | sed 's/	/ | /g'`
 
 #### Show Rows where Column equals Value
 \`dbnav dbnav.sqlite/user?first_name=Joshua\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user?first_name=Joshua`
-\`\`\`
+`dbnav dbnav.sqlite/user?first_name=Joshua | sed 's/	/ | /g'`
 
 #### Show Rows where multiple Columns equals Value
 \`dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user?first_name=Joshua\&last_name=Alexander`
-\`\`\`
+`dbnav dbnav.sqlite/user?first_name=Joshua\&last_name=Alexander | sed 's/	/ | /g'`
 
 When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
 
 #### Show Rows where Column matches Pattern
 \`dbnav dbnav.sqlite/user?first_name~%osh%\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user?first_name~%osh%`
-\`\`\`
+`dbnav dbnav.sqlite/user?first_name~%osh% | sed 's/	/ | /g'`
 
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
 #### Show Rows where Column is in List
 \`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin`
-\`\`\`
+`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin | sed 's/	/ | /g'`
 
 The colon (:) will be translated to the *in* operator in SQL.
 
@@ -141,9 +129,7 @@ The colon (:) will be translated to the *in* operator in SQL.
 #### Show Values of selected Row
 \`dbnav dbnav.sqlite/user/?id=2\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user/?id=2`
-\`\`\`
+`dbnav dbnav.sqlite/user/?id=2 | sed 's/	/ | /g'`
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).

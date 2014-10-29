@@ -119,70 +119,58 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 #### Show Tables of Database
 `dbnav dbnav.sqlite/`
 
-```
-_comment	Table
-address	Table
-article	Table
-blog	Table
-blog_user	Table
-sqlite_sequence	Table
-user	Table
-user_address	Table
-```
+_comment | Table
+address | Table
+article | Table
+blog | Table
+blog_user | Table
+sqlite_sequence | Table
+user | Table
+user_address | Table
 
 #### Show Columns of Table
 `dbnav dbnav.sqlite/user?`
 
-```
-company	user
-email	user
-first_name	user
-gender	user
-id	user
-last_name	user
-phone	user
-url	user
-username	user
-```
+company | user
+email | user
+first_name | user
+gender | user
+id | user
+last_name | user
+phone | user
+url | user
+username | user
 
 #### Show Rows where Column equals Value
 `dbnav dbnav.sqlite/user?first_name=Joshua`
 
-```
-jalexander80	username (id=289)
-jburtonv	username (id=32)
-jfernandezc8	username (id=441)
-jpalmer8u	username (id=319)
-```
+jalexander80 | username (id=289)
+jburtonv | username (id=32)
+jfernandezc8 | username (id=441)
+jpalmer8u | username (id=319)
 
 #### Show Rows where multiple Columns equals Value
 `dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander`
 
-```
-jalexander80	username (id=289)
-```
+jalexander80 | username (id=289)
 
 When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
 
 #### Show Rows where Column matches Pattern
 `dbnav dbnav.sqlite/user?first_name~%osh%`
 
-```
-jalexander80	username (id=289)
-jburtonv	username (id=32)
-jfernandezc8	username (id=441)
-jpalmer8u	username (id=319)
-```
+jalexander80 | username (id=289)
+jburtonv | username (id=32)
+jfernandezc8 | username (id=441)
+jpalmer8u | username (id=319)
 
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
 #### Show Rows where Column is in List
 `dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin`
 
-```
-mdiaze1	username (id=506)
-mrichardsonp	username (id=26)
-```
+mdiaze1 | username (id=506)
+mrichardsonp | username (id=26)
 
 The colon (:) will be translated to the *in* operator in SQL.
 
@@ -194,20 +182,18 @@ The colon (:) will be translated to the *in* operator in SQL.
 #### Show Values of selected Row
 `dbnav dbnav.sqlite/user/?id=2`
 
-```
-2	user.id
-Evelyn	user.first_name
-Gardner	user.last_name
-	user.company
-egardner1	user.username
-	user.email
-8-(549)755-1011	user.phone
-Female	user.gender
-	user.url
-← article.user_id	article.user_id
-← blog_user.user_id	blog_user.user_id
-← user_address.user_id	user_address.user_id
-```
+2 | user.id
+Evelyn | user.first_name
+Gardner | user.last_name
+ | user.company
+egardner1 | user.username
+ | user.email
+8-(549)755-1011 | user.phone
+Female | user.gender
+ | user.url
+← article.user_id | article.user_id
+← blog_user.user_id | blog_user.user_id
+← user_address.user_id | user_address.user_id
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).
@@ -410,6 +396,67 @@ formatters:
   -U, --update          output format: SQL update statements
   -D, --delete          output format: SQL delete statements
   -Y, --yaml            output format: YAML data
+```
+
+### Examples
+
+#### Export Contents of Table
+`dbexport dbnav.sqlite/article?id=2`
+
+```
+insert into article (id,user_id,created,title,text,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at','vestibulum aliquet ultrices erat tortor sollicitudin');
+```
+
+#### Export limited Contents of Table
+`dbexport -m 1 dbnav.sqlite/article?*`
+
+```
+insert into article (id,user_id,created,title,text,tags) values (1,558,'2013-10-29 06:54:06','quam pharetra magna ac','montes nascetur ridiculus mus vivamus vestibulum sagittis sapien cum sociis natoque penatibus et magnis dis parturient montes nascetur ridiculus mus etiam vel augue vestibulum rutrum rutrum neque aenean auctor gravida sem praesent id massa id nisl venenatis lacinia aenean sit amet justo morbi ut odio cras mi pede malesuada in imperdiet et commodo vulputate justo in blandit ultrices enim lorem ipsum dolor sit amet consectetuer adipiscing elit proin interdum mauris non ligula pellentesque ultrices phasellus id sapien in sapien iaculis congue vivamus','');
+```
+
+#### Export Contents of Table with Specific References
+`dbexport -i user_id dbnav.sqlite/article?id=2`
+
+```
+insert into user (id,first_name,last_name,company,username,email,phone,gender,url) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male','http://epa.gov/in/hac.html?nisi=lobortis&at=convallis&nibh=tortor&in=risus&hac=dapibus&habitasse=augue&platea=vel&dictumst=accumsan&aliquam=tellus&augue=nisi&quam=eu&sollicitudin=orci&vitae=mauris&consectetuer=lacinia&eget=sapien&rutrum=quis&at=libero&lorem=nullam&integer=sit&tincidunt=amet&ante=turpis&vel=elementum&ipsum=ligula&praesent=vehicula&blandit=consequat&lacinia=morbi&erat=a&vestibulum=ipsum&sed=integer&magna=a&at=nibh&nunc=in&commodo=quis&placerat=justo&praesent=maecenas&blandit=rhoncus&nam=aliquam&nulla=lacus&integer=morbi&pede=quis&justo=tortor&lacinia=id&eget=nulla&tincidunt=ultrices&eget=aliquet&tempus=maecenas&vel=leo&pede=odio&morbi=condimentum&porttitor=id&lorem=luctus&id=nec&ligula=molestie&suspendisse=sed&ornare=justo&consequat=pellentesque&lectus=viverra&in=pede&est=ac&risus=diam&auctor=cras&sed=pellentesque&tristique=volutpat&in=dui&tempus=maecenas&sit=tristique&amet=est&sem=et&fusce=tempus&consequat=semper');
+insert into article (id,user_id,created,title,text,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at','vestibulum aliquet ultrices erat tortor sollicitudin');
+```
+
+#### Export Contents of Table with Specific References and exclude columns
+`dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2`
+
+```
+insert into user (id,first_name,last_name,company,username,email,phone,gender) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male');
+insert into article (id,user_id,created,title,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','vestibulum aliquet ultrices erat tortor sollicitudin');
+```
+
+#### Export Contents of Table as Update Statements
+`dbexport -U dbnav.sqlite/article?id=2`
+
+```
+update article set user_id = 960, created = '2014-03-01 21:51:18', title = 'duis bibendum morbi', text = 'urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at', tags = 'vestibulum aliquet ultrices erat tortor sollicitudin' where id = 2;
+```
+
+#### Export Contents of Table as Delete Statements
+`dbexport -D dbnav.sqlite/article?id=2`
+
+```
+delete from article where id = 2;
+```
+
+#### Export Contents of Table as YAML
+`dbexport -Y dbnav.sqlite/article?id=2 -p my.models`
+
+```
+
+articles:
+    - &article_2 !!my.models.Article
+        id: !!int 2
+        user: *user_!!int 960
+        created: 2014-03-01 21:51:18
+        title: duis bibendum morbi
+        text: urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at
+        tags: vestibulum aliquet ultrices erat tortor sollicitudin
 ```
 
 ## Database Executer
