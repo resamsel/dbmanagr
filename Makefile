@@ -54,8 +54,9 @@ develop:
 README.md: develop README.sh
 	sh $(word 2, $^)
 
-release-%: README.md
+release-%:
 	gsed 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION)
+	make README.md
 	git rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg
 	git add dist/dbnav-$(@:release-%=%)-py2.7.egg
