@@ -1,0 +1,25 @@
+last_name TEXT(255) not null               <
+                                           > ZTIMEZONESTRING VARCHAR
+                                           > ZISDELETING INTEGER
+id INTEGER not null                        <
+first_name TEXT(255) not null              <
+                                           > Z_PK INTEGER
+                                           > ZFIRSTNAME VARCHAR
+                                           > Z_OPT INTEGER
+username TEXT(31)                          <
+                                           > ZTIME_SIGNUP TIMESTAMP
+company TEXT(255)                          <
+                                           > ZCOMPANY VARCHAR
+                                           > ZTIME_LASTCHANGE TIMESTAMP
+phone TEXT(63)                             <
+                                           > ZLANG VARCHAR
+                                           > Z_ENT INTEGER
+                                           > ZEMAIL VARCHAR
+                                           > ZLASTNAME VARCHAR
+url TEXT(255)                              <
+gender TEXT(6)                             <
+email TEXT(255)                            <
+                                           > ZAVATAR INTEGER
+                                           > ZID_USER INTEGER
+                                           > ZDEFAULTWORKSPACE INTEGER
+                                           > ZSORTBY INTEGER

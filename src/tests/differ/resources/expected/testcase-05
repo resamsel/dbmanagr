@@ -1,0 +1,25 @@
+dbnav.sqlite/user?last_name                <
+                                           > me@xyz.com.sqlite/ZUSER?ZFIRSTNAME
+                                           > me@xyz.com.sqlite/ZUSER?ZISDELETING
+dbnav.sqlite/user?id                       <
+dbnav.sqlite/user?first_name               <
+                                           > me@xyz.com.sqlite/ZUSER?Z_PK
+                                           > me@xyz.com.sqlite/ZUSER?ZTIMEZONESTRING
+dbnav.sqlite/user?email                    <
+dbnav.sqlite/user?username                 <
+                                           > me@xyz.com.sqlite/ZUSER?ZTIME_SIGNUP
+dbnav.sqlite/user?company                  <
+                                           > me@xyz.com.sqlite/ZUSER?ZCOMPANY
+                                           > me@xyz.com.sqlite/ZUSER?ZTIME_LASTCHANGE
+dbnav.sqlite/user?phone                    <
+                                           > me@xyz.com.sqlite/ZUSER?ZLANG
+                                           > me@xyz.com.sqlite/ZUSER?Z_ENT
+                                           > me@xyz.com.sqlite/ZUSER?ZEMAIL
+                                           > me@xyz.com.sqlite/ZUSER?ZLASTNAME
+dbnav.sqlite/user?url                      <
+dbnav.sqlite/user?gender                   <
+                                           > me@xyz.com.sqlite/ZUSER?Z_OPT
+                                           > me@xyz.com.sqlite/ZUSER?ZAVATAR
+                                           > me@xyz.com.sqlite/ZUSER?ZID_USER
+                                           > me@xyz.com.sqlite/ZUSER?ZDEFAULTWORKSPACE
+                                           > me@xyz.com.sqlite/ZUSER?ZSORTBY
