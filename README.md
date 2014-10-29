@@ -133,6 +133,8 @@ user_address | Table
 #### Show Columns of Table
 `dbnav dbnav.sqlite/user?`
 
+Title | Subtitle
+----- | --------
 company | user
 email | user
 first_name | user
@@ -146,6 +148,8 @@ username | user
 #### Show Rows where Column equals Value
 `dbnav dbnav.sqlite/user?first_name=Joshua`
 
+Title | Subtitle
+----- | --------
 jalexander80 | username (id=289)
 jburtonv | username (id=32)
 jfernandezc8 | username (id=441)
@@ -154,6 +158,8 @@ jpalmer8u | username (id=319)
 #### Show Rows where multiple Columns equals Value
 `dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander`
 
+Title | Subtitle
+----- | --------
 jalexander80 | username (id=289)
 
 When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
@@ -161,6 +167,8 @@ When using the ampersand (&) in a shell make sure to escape it (prepend it with 
 #### Show Rows where Column matches Pattern
 `dbnav dbnav.sqlite/user?first_name~%osh%`
 
+Title | Subtitle
+----- | --------
 jalexander80 | username (id=289)
 jburtonv | username (id=32)
 jfernandezc8 | username (id=441)
@@ -171,6 +179,8 @@ The tilde (~) will be translated to the *like* operator in SQL. Use the percent 
 #### Show Rows where Column is in List
 `dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin`
 
+Title | Subtitle
+----- | --------
 mdiaze1 | username (id=506)
 mrichardsonp | username (id=26)
 
@@ -184,6 +194,8 @@ The colon (:) will be translated to the *in* operator in SQL.
 #### Show Values of selected Row
 `dbnav dbnav.sqlite/user/?id=2`
 
+Title | Subtitle
+----- | --------
 2 | user.id
 Evelyn | user.first_name
 Gardner | user.last_name
