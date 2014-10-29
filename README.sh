@@ -220,6 +220,57 @@ Exports specific rows from the database along with their references rows from ot
 `dbexport -h`
 \`\`\`
 
+### Examples
+
+#### Export Contents of Table
+\`dbexport dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export limited Contents of Table
+\`dbexport -m 1 dbnav.sqlite/article?*\`
+
+\`\`\`
+`dbexport -m 1 dbnav.sqlite/article?*`
+\`\`\`
+
+#### Export Contents of Table with Specific References
+\`dbexport -i user_id dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport -i user_id dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export Contents of Table with Specific References and exclude columns
+\`dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export Contents of Table as Update Statements
+\`dbexport -U dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport -U dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export Contents of Table as Delete Statements
+\`dbexport -D dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport -D dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export Contents of Table as YAML
+\`dbexport -Y dbnav.sqlite/article?id=2 -p my.models\`
+
+\`\`\`
+`dbexport -Y dbnav.sqlite/article?id=2 -p my.models`
+\`\`\`
+
 ## Database Executer
 Executes the SQL statements from the given file on the database specified by the given URI.
 
