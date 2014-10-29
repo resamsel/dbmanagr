@@ -8,9 +8,12 @@ Allows you to explore, visualise and export your database. Additionally allows t
 * Database Navigation
 * Database Visualisation
 * Database Export
-* Supported databases: PostgreSQL, SQLite
+* Database Execution
+* Database Diff
+* Supported databases: PostgreSQL, MySQL, SQLite
 * Use database connection definitions from
   * the `~/.pgpass` configuration file (PGAdmin)
+  * the `~/.mypass` configuration file (like `~/.pgpass`)
   * the `~/.dbexplorer/dbexplorer.cfg` configuration file (DBExplorer)
   * the Navicat configuration file (SQLite)
 
@@ -462,7 +465,6 @@ delete from article where id = 2;
 `dbexport -Y dbnav.sqlite/article?id=2 -p my.models`
 
 ```
-
 articles:
     - &article_2 !!my.models.Article
         id: !!int 2

@@ -1,0 +1,2 @@
+insert into user (id,first_name,last_name,company,username,email,phone,gender) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male');
+insert into article (id,user_id,created,title,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','vestibulum aliquet ultrices erat tortor sollicitudin');
