@@ -51,12 +51,12 @@ test:
 develop:
 	$(SETUPTOOLS) develop
 
-usage-%:
-	sh generate-usage.sh $(@:usage-%=%)
+README.md: develop README.sh
+	sh $(word 2, $^)
 
-release-%: usage-dbnav usage-dbgraph usage-dbdiff usage-dbexport usage-dbexec
-	gsed 's/dbnav-[^-]*-py2.7.egg/dbnav-$(@:release-%=%)-py2.7.egg/g' -i README.md
+release-%:
 	gsed 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION)
+	make README.md
 	git rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg
 	git add dist/dbnav-$(@:release-%=%)-py2.7.egg

@@ -117,26 +117,72 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 `dbnav myuser@myhost/`
 
 #### Show Tables of Database
-`dbnav myuser@myhost/mydatabase/`
+`dbnav dbnav.sqlite/`
+
+```
+_comment	Table
+address	Table
+article	Table
+blog	Table
+blog_user	Table
+sqlite_sequence	Table
+user	Table
+user_address	Table
+```
 
 #### Show Columns of Table
-`dbnav myuser@myhost/mydatabase/mytable?`
+`dbnav dbnav.sqlite/user?`
+
+```
+company	user
+email	user
+first_name	user
+gender	user
+id	user
+last_name	user
+phone	user
+url	user
+username	user
+```
 
 #### Show Rows where Column equals Value
-`dbnav myuser@myhost/mydatabase/mytable?first_name=Herbert`
+`dbnav dbnav.sqlite/user?first_name=Joshua`
+
+```
+jalexander80	username (id=289)
+jburtonv	username (id=32)
+jfernandezc8	username (id=441)
+jpalmer8u	username (id=319)
+```
 
 #### Show Rows where multiple Columns equals Value
-`dbnav myuser@myhost/mydatabase/mytable?first_name=Herbert&last_name=Spencer`
+`dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander`
+
+```
+jalexander80	username (id=289)
+```
 
 When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
 
 #### Show Rows where Column matches Pattern
-`dbnav myuser@myhost/mydatabase/mytable?first_name~%erber%`
+`dbnav dbnav.sqlite/user?first_name~%osh%`
+
+```
+jalexander80	username (id=289)
+jburtonv	username (id=32)
+jfernandezc8	username (id=441)
+jpalmer8u	username (id=319)
+```
 
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
 #### Show Rows where Column is in List
-`dbnav myuser@myhost/mydatabase/mytable?first_name:Herbert,Josh,Martin`
+`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin`
+
+```
+mdiaze1	username (id=506)
+mrichardsonp	username (id=26)
+```
 
 The colon (:) will be translated to the *in* operator in SQL.
 
@@ -146,7 +192,22 @@ The colon (:) will be translated to the *in* operator in SQL.
 **Warning: this is a potentially slow query! See configuration for options to resolve this problem.**
 
 #### Show Values of selected Row
-`dbnav myuser@myhost/mydatabase/mytable/?id=2`
+`dbnav dbnav.sqlite/user/?id=2`
+
+```
+2	user.id
+Evelyn	user.first_name
+Gardner	user.last_name
+	user.company
+egardner1	user.username
+	user.email
+8-(549)755-1011	user.phone
+Female	user.gender
+	user.url
+← article.user_id	article.user_id
+← blog_user.user_id	blog_user.user_id
+← user_address.user_id	user_address.user_id
+```
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).
@@ -224,96 +285,79 @@ formatters:
 ### Examples
 
 #### Show references of table
-`dbgraph access@localhost/access/owner`
+`dbgraph dbnav.sqlite/article`
 
 ```
-owner
-+ permission_id -> permission.id
+article
+→ user_id → user.id
 ```
 
 #### Show References and Columns
-`dbgraph -c access@localhost/access/owner`
+`dbgraph -c dbnav.sqlite/article`
 
 ```
-owner
+article
 - id*
-- version
+→ user_id → user.id
 - created
-+ permission_id -> permission.id
-- gender?
-- first_name?
-- last_name?
-- email?
-- street?
-- zip_code?
-- city?
-- country_code?
+- title
+- text
+- tags?
 ```
+
 #### Show all References recursively
-`dbgraph -r access@localhost/access/owner`
+`dbgraph -r dbnav.sqlite/article`
 
 ```
-owner
-+ permission_id -> permission.id
-  + api_key_id -> api_key.id
-    + permission (api_key_id -> id)
-    + access_transaction (api_key_id -> id)
-    + sales_channel (api_key_id -> id)
-  + sales_channel_id -> sales_channel.id
-    + api_key_id -> api_key.id
-    + teaser_template_id? -> email_template.id
-      + sales_channel (teaser_template_id -> id)
-    + permission (sales_channel_id -> id)
-  + access_transaction (permission_id -> id)
-    + api_key_id -> api_key.id
-    + device_id -> device.id
-      + access_transaction (device_id -> id)
-    + permission_id? -> permission.id
-    + permission_consumption (access_transaction_id -> id)
-      + access_transaction_id? -> access_transaction.id
-  + owner (permission_id -> id)
+article
+→ user_id → user.id
+  ↑ article (user_id → user.id)
+  ↑ user_address (user_id → user.id)
+    → user_id → user.id
+    → address_id → address.id
+      ↑ user_address (address_id → address.id)
+  ↑ blog_user (user_id → user.id)
+    → blog_id → blog.id
+      ↑ blog_user (blog_id → blog.id)
+    → user_id → user.id
 ```
+
 #### Show specific References
-`dbgraph -i permission_id.api_key_id access@localhost/access/owner`
+`dbgraph -i user_id.blog_user dbnav.sqlite/article`
 
 ```
-owner
-+ permission_id -> permission.id
-  + api_key_id -> api_key.id
-    + permission (api_key_id -> id)
-    + access_transaction (api_key_id -> id)
-    + sales_channel (api_key_id -> id)
-  + sales_channel_id -> sales_channel.id
-  + access_transaction (permission_id -> id)
-  + owner (permission_id -> id)
+article
+→ user_id → user.id
+  ↑ article (user_id → user.id)
+  ↑ user_address (user_id → user.id)
+  ↑ blog_user (user_id → user.id)
+    → blog_id → blog.id
+    → user_id → user.id
 ```
 
 #### Show specific References and exclude others
-`dbgraph -i permission_id.api_key_id -x permission_id.sales_channel_id access@localhost/access/owner`
+`dbgraph -i user_id.blog_user -x user_id.blog_user.user_id dbnav.sqlite/article`
 
 ```
-owner
-+ permission_id -> permission.id
-  + api_key_id -> api_key.id
-    + permission (api_key_id -> id)
-    + access_transaction (api_key_id -> id)
-    + sales_channel (api_key_id -> id)
-  + access_transaction (permission_id -> id)
-  + owner (permission_id -> id)
+article
+→ user_id → user.id
+  ↑ article (user_id → user.id)
+  ↑ user_address (user_id → user.id)
+  ↑ blog_user (user_id → user.id)
+    → blog_id → blog.id
 ```
 
 #### Show specific References as Graphviz Graph
-`dbgraph -g -i permission_id access@localhost/access/owner`
+`dbgraph -G -i user_id dbnav.sqlite/article`
 
 ```
 digraph dbgraph {
-  root=owner;
-  owner [shape="record" label="owner| <id> id| <version> version| <created> created| <permission_id> permission_id| <gender> gender| <first_name> first_name| <last_name> last_name| <email> email| <street> street| <zip_code> zip_code| <city> city| <country_code> country_code"];
-  owner:permission_id -> permission:id [];
-  permission [shape="record" label="permission| <id> id| <created> created| <api_key_id> api_key_id| <sales_channel_id> sales_channel_id| <external_sale_id> external_sale_id| <external_sale_date> external_sale_date| <external_permission_id> external_permission_id| <identification> identification| <validity_start> validity_start| <validity_end> validity_end| <value_total> value_total| <value_consumed> value_consumed| <last_consumed> last_consumed| <version> version"];
-  permission:api_key_id -> api_key:id [];
-  permission:sales_channel_id -> sales_channel:id [];
-  access_transaction:permission_id -> permission:id [];
+  root=article;
+  article [shape="record" label="article| <id> id| <user_id> user_id| <created> created| <title> title| <text> text| <tags> tags"];
+  article:user_id -> user:id [];
+  user [shape="record" label="user| <id> id| <first_name> first_name| <last_name> last_name| <company> company| <username> username| <email> email| <phone> phone| <gender> gender| <url> url"];
+  user_address:user_id -> user:id [];
+  blog_user:user_id -> user:id [];
 }
 ```
 
@@ -458,10 +502,10 @@ formatters:
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.11-py2.7.egg?raw=true) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.11.1-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.11-py2.7.egg
+pip install dbnav-0.11.1-py2.7.egg
 ```
 
 ### Alfred Workflow
@@ -541,3 +585,4 @@ make install
 To simplify development you’d better use `make develop` once and have code changes reflected as soon as you save your file. Super easy development powered by [distutils](https://docs.python.org/2/distutils/index.html).
 
 Using distutils you could easily create a Windows binary (`./setup.py bdist_msi`) or a Red Hat *rpm* package (`./setup.py bdist_rpm`).
+
