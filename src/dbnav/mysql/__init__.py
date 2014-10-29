@@ -6,17 +6,20 @@ __all__ = ["databaseconnection", "sources"]
 from os.path import expanduser
 from os import getenv
 
-from ..sources import Source
-from .sources import DBExplorerMySQLSource
-from ..options import Options
-from .options import MySQLOptionsParser
+from dbnav.sources import Source
+from dbnav.mysql.sources import DBExplorerMySQLSource, MypassSource
+from dbnav.options import Options
+from dbnav.mysql.options import MySQLOptionsParser
 
-def init_mysql(dbexplorer_config):
+def init_mysql(dbexplorer_config, mypass_config):
     Source.sources.append(DBExplorerMySQLSource(dbexplorer_config))
+    Source.sources.append(MypassSource(mypass_config))
 
 init_mysql(
     getenv('DBEXPLORER_CFG',
-        expanduser('~/.dbexplorer/dbexplorer.cfg'))
+        expanduser('~/.dbexplorer/dbexplorer.cfg')),
+    getenv('PGPASS_CFG',
+        expanduser('~/.mypass'))
 )
 
 Options.parser['mysql'] = MySQLOptionsParser()

@@ -9,6 +9,23 @@ from os.path import isfile
 from ..sources import *
 from .databaseconnection import *
 
+class MypassSource(Source):
+    def __init__(self, file):
+        Source.__init__(self)
+        self.file = file
+    def list(self):
+        if not isfile(self.file):
+            return self.connections
+        if not self.connections:
+            with open(self.file) as f:
+                mypass = f.readlines()
+
+            for line in mypass:
+                connection = MySQLConnection(*line.strip().split(':'))
+                self.connections.append(connection)
+
+        return self.connections
+
 class DBExplorerMySQLSource(Source):
     def __init__(self, file):
         Source.__init__(self)
