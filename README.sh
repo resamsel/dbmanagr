@@ -11,7 +11,7 @@ cat <<EOF > README.md
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
-![Alfred Database Navigator Sample](docs/images/select.png "Alfred Database Navigator Sample")
+![Alfred Database Navigator Sample](docs/images/dbnav-example.png "Alfred Database Navigator Sample")
 
 ## Main Features
 * Database Navigation
@@ -101,28 +101,28 @@ $THEAD
 `dbnav dbnav.sqlite/user?first_name=Joshua | sed 's/	/ | /g'`
 
 #### Show Rows where multiple Columns equals Value
+When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
+
 \`dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander\`
 
 $THEAD
 `dbnav dbnav.sqlite/user?first_name=Joshua\&last_name=Alexander | sed 's/	/ | /g'`
 
-When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
-
 #### Show Rows where Column matches Pattern
+The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
+
 \`dbnav dbnav.sqlite/user?first_name~%osh%\`
 
 $THEAD
 `dbnav dbnav.sqlite/user?first_name~%osh% | sed 's/	/ | /g'`
 
-The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
-
 #### Show Rows where Column is in List
+The colon (:) will be translated to the *in* operator in SQL.
+
 \`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin\`
 
 $THEAD
 `dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin | sed 's/	/ | /g'`
-
-The colon (:) will be translated to the *in* operator in SQL.
 
 #### Show Rows where any (Search) Column matches Pattern
 \`dbnav myuser@myhost/mydatabase/mytable?~%erber%\`
