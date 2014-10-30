@@ -56,7 +56,6 @@ def values(connection, table, filter):
     query = QueryBuilder(connection,
                 table,
                 filter=filter.filter,
-                order=[],
                 limit=1,
                 simplify=filter.simplify).build()
     result = connection.execute(query, 'Values')
@@ -192,7 +191,10 @@ class DatabaseConnection(BaseItem):
 
             tables = self.tables()
             if options.table not in tables:
-                raise Exception("Could not find table '{0}'".format(options.table))
+                raise Exception("Could not find table '{0}' on {1} ({2})".format(
+                    options.table,
+                    self,
+                    self.driver))
 
             table = tables[options.table]
             if options.show == 'columns':

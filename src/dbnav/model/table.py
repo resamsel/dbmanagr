@@ -4,6 +4,8 @@
 import time
 import logging
 
+from sqlalchemy.exc import ProgrammingError
+
 from ..logger import logduration
 from .tablecomment import TableComment
 from .column import *
@@ -86,17 +88,21 @@ class Table(BaseItem):
 
         try:
             result = self.connection.execute(query, 'Rows')
+        except ProgrammingError, e:
+            raise Exception(
+                'Configuration error: check comment on table {}\n{}'.format(
+                    self.name, e.orig))
         except BaseException, e:
             logger.error(
-                '%s: check comment on table %s\n%s' % (
+                '%s: check comment on table %s\n%s',
                     e.__class__.__name__,
                     self.name,
-                    str(e)))
+                    e.__dict__)
             logger.error(e, exc_info=1)
-            from ..model import databaseconnection
-            return [Row(self.connection,
-                self,
-                databaseconnection.DatabaseRow({'title': str(e), 'subtitle': 'Check comment on table %s' % self.name}))]
+            raise Exception('{}: check comment on table {}\n{}'.format(
+                    e.__class__,
+                    self.name,
+                    unicode(e)))
 
         return map(lambda row: Row(self.connection, self, row), result)
 

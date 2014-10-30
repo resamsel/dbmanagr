@@ -72,7 +72,10 @@ def run(argv):
         return DatabaseNavigator.navigate(options)
     except BaseException, e:
         logger.exception(e)
-        return [Item('', str(e), type(e), '', INVALID, '')]
+        if Writer.writer.__class__.__name__ in ['XmlWriter', 'TestWriter']:
+            return [Item('', unicode(e), e.__class__, '', INVALID, '')]
+        else:
+            raise
 
 if __name__ == "__main__":
     main()

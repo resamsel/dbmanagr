@@ -1,2 +1,5 @@
 Title	Autocomplete
-Could not find table 'blog'	
+2	dbnav.sqlite/blog/?id=2
+Bubblebox	dbnav.sqlite/blog?name=Bubblebox
+http://ehow.com/pede/libero.jpg	dbnav.sqlite/blog?url=http://ehow.com/pede/libero.jpg
+← blog_user.blog_id	dbnav.sqlite/blog_user?blog_id=2
