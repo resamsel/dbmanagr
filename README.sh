@@ -13,6 +13,8 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ![Alfred Database Navigator Sample](docs/images/dbnav-example.png "Alfred Database Navigator Sample")
 
+[TOC]
+
 ## Main Features
 * Database Navigation
 * Database Visualisation
@@ -25,34 +27,6 @@ Allows you to explore, visualise and export your database. Additionally allows t
   * the \`~/.mypass\` configuration file (like \`~/.pgpass\`)
   * the \`~/.dbexplorer/dbexplorer.cfg\` configuration file (DBExplorer)
   * the Navicat configuration file (SQLite)
-
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
-
-- [Database Navigation](#user-content-database-navigation)
-	- [Features](#user-content-features)
-	- [Usage](#user-content-usage)
-	- [Examples](#user-content-examples)
-- [Database Visualisation](#user-content-database-visualisation)
-	- [Features](#user-content-features-1)
-	- [Usage](#user-content-usage-1)
-	- [Examples](#user-content-examples-1)
-- [Database Exporter](#user-content-database-exporter)
-	- [Features](#user-content-features-1)
-	- [Usage](#user-content-usage-2)
-	- [Examples](#user-content-examples-2)
-- [Database Executer](#user-content-database-executer)
-	- [Usage](#user-content-usage-3)
-- [Database Differ](#user-content-database-differ)
-	- [Usage](#user-content-usage-4)
-	- [Examples](#user-content-examples-3)
-- [Installation](#user-content-installation)
-- [Configuration](#user-content-configuration)
-	- [Title](#user-content-title)
-	- [Subtitle](#user-content-subtitle)
-	- [Search](#user-content-search)
-	- [Display](#user-content-display)
-	- [Order](#user-content-order)
-- [Development](#user-content-development)
 
 ## Database Navigation
 

@@ -4,6 +4,37 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ![Alfred Database Navigator Sample](docs/images/dbnav-example.png "Alfred Database Navigator Sample")
 
+- [Main Features](#main-features)
+- [Database Navigation](#database-navigation)
+	- [Features](#features)
+	- [Usage](#usage)
+	- [Examples](#examples)
+- [Database Visualisation](#database-visualisation)
+	- [Features](#features-1)
+	- [Usage](#usage-1)
+	- [Examples](#examples-1)
+- [Database Exporter](#database-exporter)
+	- [Features](#features-2)
+	- [Usage](#usage-2)
+	- [Examples](#examples-2)
+- [Database Executer](#database-executer)
+	- [Usage](#usage-3)
+- [Database Differ](#database-differ)
+	- [Usage](#usage-4)
+	- [Examples](#examples-3)
+- [Installation](#installation)
+	- [Alfred Workflow](#alfred-workflow)
+- [Connection Configuration](#connection-configuration)
+	- [Sample ~/.pgpass](#sample-pgpass)
+- [Content Configuration](#content-configuration)
+	- [Usage](#usage-5)
+	- [Title](#title)
+	- [Subtitle](#subtitle)
+	- [Search](#search)
+	- [Display](#display)
+	- [Order](#order)
+- [Development](#development)
+
 ## Main Features
 * Database Navigation
 * Database Visualisation
@@ -16,34 +47,6 @@ Allows you to explore, visualise and export your database. Additionally allows t
   * the `~/.mypass` configuration file (like `~/.pgpass`)
   * the `~/.dbexplorer/dbexplorer.cfg` configuration file (DBExplorer)
   * the Navicat configuration file (SQLite)
-
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
-
-- [Database Navigation](#user-content-database-navigation)
-	- [Features](#user-content-features)
-	- [Usage](#user-content-usage)
-	- [Examples](#user-content-examples)
-- [Database Visualisation](#user-content-database-visualisation)
-	- [Features](#user-content-features-1)
-	- [Usage](#user-content-usage-1)
-	- [Examples](#user-content-examples-1)
-- [Database Exporter](#user-content-database-exporter)
-	- [Features](#user-content-features-1)
-	- [Usage](#user-content-usage-2)
-	- [Examples](#user-content-examples-2)
-- [Database Executer](#user-content-database-executer)
-	- [Usage](#user-content-usage-3)
-- [Database Differ](#user-content-database-differ)
-	- [Usage](#user-content-usage-4)
-	- [Examples](#user-content-examples-3)
-- [Installation](#user-content-installation)
-- [Configuration](#user-content-configuration)
-	- [Title](#user-content-title)
-	- [Subtitle](#user-content-subtitle)
-	- [Search](#user-content-search)
-	- [Display](#user-content-display)
-	- [Order](#user-content-order)
-- [Development](#user-content-development)
 
 ## Database Navigation
 
@@ -68,7 +71,7 @@ usage: dbnav [-h] [--version] [-f LOGFILE]
 A database navigation tool that shows database structure and content
 
 positional arguments:
-  uri                   the URI to parse (format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table?filter; for SQLite:
                         databasefile.db/table?filter) (default: None)
 
@@ -223,7 +226,7 @@ usage: dbgraph [-h] [--version] [-f LOGFILE]
 A database visualisation tool that creates graphs from the database structure
 
 positional arguments:
-  uri                   the URI to parse (format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table; for SQLite:
                         databasefile.db/table)
 
@@ -371,7 +374,7 @@ usage: dbexport [-h] [--version] [-f LOGFILE]
                 uri
 
 positional arguments:
-  uri                   the URI to parse (format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table?column=value; for SQLite:
                         databasefile.db/table?column=value)
 
@@ -478,7 +481,7 @@ Executes the SQL statements from the given file on the database specified by
 the given URI
 
 positional arguments:
-  uri                   the URI to parse (format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database; for SQLite: databasefile.db)
   infile                the path to the file containing the SQL query to
                         execute (default: -)
@@ -523,10 +526,10 @@ A diff tool that compares the structure of two database tables with each
 other.
 
 positional arguments:
-  left                  the left URI to parse (format for PostgreSQL:
+  left                  the left URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table; for SQLite:
                         databasefile.db/table)
-  right                 the right URI to parse (format for PostgreSQL:
+  right                 the right URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table; for SQLite:
                         databasefile.db/table)
 

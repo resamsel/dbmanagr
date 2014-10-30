@@ -53,6 +53,7 @@ develop:
 
 README.md: develop README.sh
 	sh $(word 2, $^)
+	python toc.py $@
 
 release-%:
 	gsed 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION)
