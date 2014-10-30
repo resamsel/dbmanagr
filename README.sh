@@ -1,19 +1,28 @@
 #!/bin/bash
 
+THEAD=$(cat <<EOF
+Title | Subtitle
+----- | --------
+EOF
+)
+
 cat <<EOF > README.md
 # Database Navigator
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
-![Alfred Database Navigator Sample](docs/images/select.png "Alfred Database Navigator Sample")
+![Alfred Database Navigator Sample](docs/images/dbnav-example.png "Alfred Database Navigator Sample")
 
 ## Main Features
 * Database Navigation
 * Database Visualisation
 * Database Export
-* Supported databases: PostgreSQL, SQLite
+* Database Execution
+* Database Diff
+* Supported databases: PostgreSQL, MySQL, SQLite
 * Use database connection definitions from
   * the \`~/.pgpass\` configuration file (PGAdmin)
+  * the \`~/.mypass\` configuration file (like \`~/.pgpass\`)
   * the \`~/.dbexplorer/dbexplorer.cfg\` configuration file (DBExplorer)
   * the Navicat configuration file (SQLite)
 
@@ -23,31 +32,19 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Features](#user-content-features)
 	- [Usage](#user-content-usage)
 	- [Examples](#user-content-examples)
-		- [Show Available Connections](#user-content-show-available-connections)
-		- [Show Databases of Connection](#user-content-show-databases-of-connection)
-		- [Show Tables of Database](#user-content-show-tables-of-database)
-		- [Show Columns of Table](#user-content-show-columns-of-table)
-		- [Show Rows where Column equals Value](#user-content-show-rows-where-column-equals-value)
-		- [Show Rows where Column matches Pattern](#user-content-show-rows-where-column-matches-pattern)
-		- [Show Rows where any (Search) Column matches Pattern](#user-content-show-rows-where-any-search-column-matches-pattern)
-		- [Show Values of selected Row](#user-content-show-values-of-selected-row)
 - [Database Visualisation](#user-content-database-visualisation)
 	- [Features](#user-content-features-1)
 	- [Usage](#user-content-usage-1)
 	- [Examples](#user-content-examples-1)
-		- [Show references of table](#user-content-show-references-of-table)
-		- [Show References and Columns](#user-content-show-references-and-columns)
-		- [Show all References recursively](#user-content-show-all-references-recursively)
-		- [Show specific References](#user-content-show-specific-references)
-		- [Show specific References and exclude others](#user-content-show-specific-references-and-exclude-others)
-		- [Show specific References as Graphviz Graph](#user-content-show-specific-references-as-graphviz-graph)
 - [Database Exporter](#user-content-database-exporter)
 	- [Features](#user-content-features-1)
 	- [Usage](#user-content-usage-2)
+	- [Examples](#user-content-examples-2)
 - [Database Executer](#user-content-database-executer)
 	- [Usage](#user-content-usage-3)
 - [Database Differ](#user-content-database-differ)
 	- [Usage](#user-content-usage-4)
+	- [Examples](#user-content-examples-3)
 - [Installation](#user-content-installation)
 - [Configuration](#user-content-configuration)
 	- [Title](#user-content-title)
@@ -88,50 +85,44 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 #### Show Tables of Database
 \`dbnav dbnav.sqlite/\`
 
-\`\`\`
-`dbnav dbnav.sqlite/`
-\`\`\`
+$THEAD
+`dbnav dbnav.sqlite/ | sed 's/	/ | /g'`
 
 #### Show Columns of Table
 \`dbnav dbnav.sqlite/user?\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user?`
-\`\`\`
+$THEAD
+`dbnav dbnav.sqlite/user? | sed 's/	/ | /g'`
 
 #### Show Rows where Column equals Value
 \`dbnav dbnav.sqlite/user?first_name=Joshua\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user?first_name=Joshua`
-\`\`\`
+$THEAD
+`dbnav dbnav.sqlite/user?first_name=Joshua | sed 's/	/ | /g'`
 
 #### Show Rows where multiple Columns equals Value
-\`dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander\`
-
-\`\`\`
-`dbnav dbnav.sqlite/user?first_name=Joshua\&last_name=Alexander`
-\`\`\`
-
 When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
 
+\`dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander\`
+
+$THEAD
+`dbnav dbnav.sqlite/user?first_name=Joshua\&last_name=Alexander | sed 's/	/ | /g'`
+
 #### Show Rows where Column matches Pattern
-\`dbnav dbnav.sqlite/user?first_name~%osh%\`
-
-\`\`\`
-`dbnav dbnav.sqlite/user?first_name~%osh%`
-\`\`\`
-
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
+\`dbnav dbnav.sqlite/user?first_name~%osh%\`
+
+$THEAD
+`dbnav dbnav.sqlite/user?first_name~%osh% | sed 's/	/ | /g'`
+
 #### Show Rows where Column is in List
+The colon (:) will be translated to the *in* operator in SQL.
+
 \`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin`
-\`\`\`
-
-The colon (:) will be translated to the *in* operator in SQL.
+$THEAD
+`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin | sed 's/	/ | /g'`
 
 #### Show Rows where any (Search) Column matches Pattern
 \`dbnav myuser@myhost/mydatabase/mytable?~%erber%\`
@@ -141,9 +132,8 @@ The colon (:) will be translated to the *in* operator in SQL.
 #### Show Values of selected Row
 \`dbnav dbnav.sqlite/user/?id=2\`
 
-\`\`\`
-`dbnav dbnav.sqlite/user/?id=2`
-\`\`\`
+$THEAD
+`dbnav dbnav.sqlite/user/?id=2 | sed 's/	/ | /g'`
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).
@@ -220,6 +210,57 @@ Exports specific rows from the database along with their references rows from ot
 `dbexport -h`
 \`\`\`
 
+### Examples
+
+#### Export Contents of Table
+\`dbexport dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export limited Contents of Table
+\`dbexport -m 1 dbnav.sqlite/article?*\`
+
+\`\`\`
+`dbexport -m 1 dbnav.sqlite/article?*`
+\`\`\`
+
+#### Export Contents of Table with Specific References
+\`dbexport -i user_id dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport -i user_id dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export Contents of Table with Specific References and exclude columns
+\`dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export Contents of Table as Update Statements
+\`dbexport -U dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport -U dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export Contents of Table as Delete Statements
+\`dbexport -D dbnav.sqlite/article?id=2\`
+
+\`\`\`
+`dbexport -D dbnav.sqlite/article?id=2`
+\`\`\`
+
+#### Export Contents of Table as YAML
+\`dbexport -Y dbnav.sqlite/article?id=2 -p my.models\`
+
+\`\`\`
+`dbexport -Y dbnav.sqlite/article?id=2 -p my.models`
+\`\`\`
+
 ## Database Executer
 Executes the SQL statements from the given file on the database specified by the given URI.
 
@@ -234,6 +275,29 @@ A diff tool that compares the structure of two database tables with each other.
 ### Usage
 \`\`\`
 `dbdiff -h`
+\`\`\`
+
+### Examples
+
+#### Diff two Tables
+\`dbdiff dbnav.sqlite/user dbnav.sqlite/user2\`
+
+\`\`\`
+`dbdiff dbnav.sqlite/user dbnav.sqlite/user2`
+\`\`\`
+
+#### Diff two Tables Side-by-Side
+\`dbdiff -S dbnav.sqlite/user dbnav.sqlite/user2\`
+
+\`\`\`
+`dbdiff -S dbnav.sqlite/user dbnav.sqlite/user2`
+\`\`\`
+
+#### Diff two Tables Side-by-Side using Column Definitions
+\`dbdiff -Sc dbnav.sqlite/user dbnav.sqlite/user2\`
+
+\`\`\`
+`dbdiff -Sc dbnav.sqlite/user dbnav.sqlite/user2`
 \`\`\`
 
 ## Installation

@@ -30,9 +30,9 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument('left',
-	help='the left URI to parse (format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table)')
+	help='the left URI to parse (format for PostgreSQL/MySQL: user@host/database/table; for SQLite: databasefile.db/table)')
 parser.add_argument('right',
-	help='the right URI to parse (format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table)')
+	help='the right URI to parse (format for PostgreSQL/MySQL: user@host/database/table; for SQLite: databasefile.db/table)')
 parser.add_argument('-v', '--verbose', action='count', help='specify the verbosity of the output, increase the number of occurences of this option to increase verbosity')
 parser.add_argument('-c', '--compare-ddl', default=False, action='store_true', help='compares the DDLs for each column')
 #parser.add_argument('-I', '--ignore-case', help='ignore case differences in table columns')

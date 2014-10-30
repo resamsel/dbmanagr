@@ -2,15 +2,18 @@
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
-![Alfred Database Navigator Sample](docs/images/select.png "Alfred Database Navigator Sample")
+![Alfred Database Navigator Sample](docs/images/dbnav-example.png "Alfred Database Navigator Sample")
 
 ## Main Features
 * Database Navigation
 * Database Visualisation
 * Database Export
-* Supported databases: PostgreSQL, SQLite
+* Database Execution
+* Database Diff
+* Supported databases: PostgreSQL, MySQL, SQLite
 * Use database connection definitions from
   * the `~/.pgpass` configuration file (PGAdmin)
+  * the `~/.mypass` configuration file (like `~/.pgpass`)
   * the `~/.dbexplorer/dbexplorer.cfg` configuration file (DBExplorer)
   * the Navicat configuration file (SQLite)
 
@@ -20,31 +23,19 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Features](#user-content-features)
 	- [Usage](#user-content-usage)
 	- [Examples](#user-content-examples)
-		- [Show Available Connections](#user-content-show-available-connections)
-		- [Show Databases of Connection](#user-content-show-databases-of-connection)
-		- [Show Tables of Database](#user-content-show-tables-of-database)
-		- [Show Columns of Table](#user-content-show-columns-of-table)
-		- [Show Rows where Column equals Value](#user-content-show-rows-where-column-equals-value)
-		- [Show Rows where Column matches Pattern](#user-content-show-rows-where-column-matches-pattern)
-		- [Show Rows where any (Search) Column matches Pattern](#user-content-show-rows-where-any-search-column-matches-pattern)
-		- [Show Values of selected Row](#user-content-show-values-of-selected-row)
 - [Database Visualisation](#user-content-database-visualisation)
 	- [Features](#user-content-features-1)
 	- [Usage](#user-content-usage-1)
 	- [Examples](#user-content-examples-1)
-		- [Show references of table](#user-content-show-references-of-table)
-		- [Show References and Columns](#user-content-show-references-and-columns)
-		- [Show all References recursively](#user-content-show-all-references-recursively)
-		- [Show specific References](#user-content-show-specific-references)
-		- [Show specific References and exclude others](#user-content-show-specific-references-and-exclude-others)
-		- [Show specific References as Graphviz Graph](#user-content-show-specific-references-as-graphviz-graph)
 - [Database Exporter](#user-content-database-exporter)
 	- [Features](#user-content-features-1)
 	- [Usage](#user-content-usage-2)
+	- [Examples](#user-content-examples-2)
 - [Database Executer](#user-content-database-executer)
 	- [Usage](#user-content-usage-3)
 - [Database Differ](#user-content-database-differ)
 	- [Usage](#user-content-usage-4)
+	- [Examples](#user-content-examples-3)
 - [Installation](#user-content-installation)
 - [Configuration](#user-content-configuration)
 	- [Title](#user-content-title)
@@ -119,72 +110,73 @@ In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your
 #### Show Tables of Database
 `dbnav dbnav.sqlite/`
 
-```
-_comment	Table
-address	Table
-article	Table
-blog	Table
-blog_user	Table
-sqlite_sequence	Table
-user	Table
-user_address	Table
-```
+Title | Subtitle
+----- | --------
+_comment | Table
+address | Table
+article | Table
+blog | Table
+blog_user | Table
+sqlite_sequence | Table
+user | Table
+user2 | Table
+user_address | Table
 
 #### Show Columns of Table
 `dbnav dbnav.sqlite/user?`
 
-```
-company	user
-email	user
-first_name	user
-gender	user
-id	user
-last_name	user
-phone	user
-url	user
-username	user
-```
+Title | Subtitle
+----- | --------
+company | user
+email | user
+first_name | user
+gender | user
+id | user
+last_name | user
+phone | user
+url | user
+username | user
 
 #### Show Rows where Column equals Value
 `dbnav dbnav.sqlite/user?first_name=Joshua`
 
-```
-jalexander80	username (id=289)
-jburtonv	username (id=32)
-jfernandezc8	username (id=441)
-jpalmer8u	username (id=319)
-```
+Title | Subtitle
+----- | --------
+jalexander80 | username (id=289)
+jburtonv | username (id=32)
+jfernandezc8 | username (id=441)
+jpalmer8u | username (id=319)
 
 #### Show Rows where multiple Columns equals Value
-`dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander`
-
-```
-jalexander80	username (id=289)
-```
-
 When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
 
+`dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander`
+
+Title | Subtitle
+----- | --------
+jalexander80 | username (id=289)
+
 #### Show Rows where Column matches Pattern
-`dbnav dbnav.sqlite/user?first_name~%osh%`
-
-```
-jalexander80	username (id=289)
-jburtonv	username (id=32)
-jfernandezc8	username (id=441)
-jpalmer8u	username (id=319)
-```
-
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
 
+`dbnav dbnav.sqlite/user?first_name~%osh%`
+
+Title | Subtitle
+----- | --------
+jalexander80 | username (id=289)
+jburtonv | username (id=32)
+jfernandezc8 | username (id=441)
+jpalmer8u | username (id=319)
+
 #### Show Rows where Column is in List
+The colon (:) will be translated to the *in* operator in SQL.
+
 `dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin`
 
-```
-mdiaze1	username (id=506)
-mrichardsonp	username (id=26)
-```
-
-The colon (:) will be translated to the *in* operator in SQL.
+Title | Subtitle
+----- | --------
+mdiaze1 | username (id=506)
+mrichardsonp | username (id=26)
 
 #### Show Rows where any (Search) Column matches Pattern
 `dbnav myuser@myhost/mydatabase/mytable?~%erber%`
@@ -194,20 +186,20 @@ The colon (:) will be translated to the *in* operator in SQL.
 #### Show Values of selected Row
 `dbnav dbnav.sqlite/user/?id=2`
 
-```
-2	user.id
-Evelyn	user.first_name
-Gardner	user.last_name
-	user.company
-egardner1	user.username
-	user.email
-8-(549)755-1011	user.phone
-Female	user.gender
-	user.url
-← article.user_id	article.user_id
-← blog_user.user_id	blog_user.user_id
-← user_address.user_id	user_address.user_id
-```
+Title | Subtitle
+----- | --------
+2 | user.id
+Evelyn | user.first_name
+Gardner | user.last_name
+ | user.company
+egardner1 | user.username
+ | user.email
+8-(549)755-1011 | user.phone
+Female | user.gender
+ | user.url
+← article.user_id | article.user_id
+← blog_user.user_id | blog_user.user_id
+← user_address.user_id | user_address.user_id
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).
@@ -412,6 +404,66 @@ formatters:
   -Y, --yaml            output format: YAML data
 ```
 
+### Examples
+
+#### Export Contents of Table
+`dbexport dbnav.sqlite/article?id=2`
+
+```
+insert into article (id,user_id,created,title,text,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at','vestibulum aliquet ultrices erat tortor sollicitudin');
+```
+
+#### Export limited Contents of Table
+`dbexport -m 1 dbnav.sqlite/article?*`
+
+```
+insert into article (id,user_id,created,title,text,tags) values (1,558,'2013-10-29 06:54:06','quam pharetra magna ac','montes nascetur ridiculus mus vivamus vestibulum sagittis sapien cum sociis natoque penatibus et magnis dis parturient montes nascetur ridiculus mus etiam vel augue vestibulum rutrum rutrum neque aenean auctor gravida sem praesent id massa id nisl venenatis lacinia aenean sit amet justo morbi ut odio cras mi pede malesuada in imperdiet et commodo vulputate justo in blandit ultrices enim lorem ipsum dolor sit amet consectetuer adipiscing elit proin interdum mauris non ligula pellentesque ultrices phasellus id sapien in sapien iaculis congue vivamus','');
+```
+
+#### Export Contents of Table with Specific References
+`dbexport -i user_id dbnav.sqlite/article?id=2`
+
+```
+insert into user (id,first_name,last_name,company,username,email,phone,gender,url) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male','http://epa.gov/in/hac.html?nisi=lobortis&at=convallis&nibh=tortor&in=risus&hac=dapibus&habitasse=augue&platea=vel&dictumst=accumsan&aliquam=tellus&augue=nisi&quam=eu&sollicitudin=orci&vitae=mauris&consectetuer=lacinia&eget=sapien&rutrum=quis&at=libero&lorem=nullam&integer=sit&tincidunt=amet&ante=turpis&vel=elementum&ipsum=ligula&praesent=vehicula&blandit=consequat&lacinia=morbi&erat=a&vestibulum=ipsum&sed=integer&magna=a&at=nibh&nunc=in&commodo=quis&placerat=justo&praesent=maecenas&blandit=rhoncus&nam=aliquam&nulla=lacus&integer=morbi&pede=quis&justo=tortor&lacinia=id&eget=nulla&tincidunt=ultrices&eget=aliquet&tempus=maecenas&vel=leo&pede=odio&morbi=condimentum&porttitor=id&lorem=luctus&id=nec&ligula=molestie&suspendisse=sed&ornare=justo&consequat=pellentesque&lectus=viverra&in=pede&est=ac&risus=diam&auctor=cras&sed=pellentesque&tristique=volutpat&in=dui&tempus=maecenas&sit=tristique&amet=est&sem=et&fusce=tempus&consequat=semper');
+insert into article (id,user_id,created,title,text,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at','vestibulum aliquet ultrices erat tortor sollicitudin');
+```
+
+#### Export Contents of Table with Specific References and exclude columns
+`dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2`
+
+```
+insert into user (id,first_name,last_name,company,username,email,phone,gender) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male');
+insert into article (id,user_id,created,title,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','vestibulum aliquet ultrices erat tortor sollicitudin');
+```
+
+#### Export Contents of Table as Update Statements
+`dbexport -U dbnav.sqlite/article?id=2`
+
+```
+update article set user_id = 960, created = '2014-03-01 21:51:18', title = 'duis bibendum morbi', text = 'urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at', tags = 'vestibulum aliquet ultrices erat tortor sollicitudin' where id = 2;
+```
+
+#### Export Contents of Table as Delete Statements
+`dbexport -D dbnav.sqlite/article?id=2`
+
+```
+delete from article where id = 2;
+```
+
+#### Export Contents of Table as YAML
+`dbexport -Y dbnav.sqlite/article?id=2 -p my.models`
+
+```
+articles:
+    - &article_2 !!my.models.Article
+        id: !!int 2
+        user: *user_!!int 960
+        created: 2014-03-01 21:51:18
+        title: duis bibendum morbi
+        text: urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at
+        tags: vestibulum aliquet ultrices erat tortor sollicitudin
+```
+
 ## Database Executer
 Executes the SQL statements from the given file on the database specified by the given URI.
 
@@ -501,11 +553,45 @@ formatters:
                         (default: None)
 ```
 
-## Installation
-Install the [latest egg-file](dist/dbnav-0.11.1-py2.7.egg?raw=true) from the dist directory.
+### Examples
+
+#### Diff two Tables
+`dbdiff dbnav.sqlite/user dbnav.sqlite/user2`
 
 ```
-pip install dbnav-0.11.1-py2.7.egg
+< url
+< company
+> company_name
+> title
+```
+
+#### Diff two Tables Side-by-Side
+`dbdiff -S dbnav.sqlite/user dbnav.sqlite/user2`
+
+```
+url                                        <
+company                                    <
+                                           > company_name
+                                           > title
+```
+
+#### Diff two Tables Side-by-Side using Column Definitions
+`dbdiff -Sc dbnav.sqlite/user dbnav.sqlite/user2`
+
+```
+username TEXT(31)                          | username TEXT(31) not null
+first_name TEXT(255) not null              | first_name TEXT(127) not null
+                                           > title TEXT(127)
+url TEXT(255)                              <
+company TEXT(255)                          <
+                                           > company_name TEXT(255)
+```
+
+## Installation
+Install the [latest egg-file](dist/dbnav-0.12-py2.7.egg?raw=true) from the dist directory.
+
+```
+pip install dbnav-0.12-py2.7.egg
 ```
 
 ### Alfred Workflow

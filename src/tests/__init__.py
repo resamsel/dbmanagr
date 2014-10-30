@@ -6,6 +6,7 @@ import unittest
 import tests.navigator
 import tests.grapher
 import tests.exporter
+import tests.differ
 
 def load_suite():
     suite = unittest.TestSuite()
@@ -13,5 +14,6 @@ def load_suite():
     suite.addTest(navigator.load_suite())
     suite.addTest(grapher.load_suite())
     suite.addTest(exporter.load_suite())
+    suite.addTest(differ.load_suite())
 
     return suite

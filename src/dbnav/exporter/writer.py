@@ -113,8 +113,12 @@ class YamlWriter(FormatWriter):
         tablename = table.connection.escape_keyword(table.name).replace('_','')
         prefix = ''
         if self.last_table != table:
-            prefix = u"""
+            if self.last_table:
+                prefix = u"""
 {0}s:
+""".format(tablename)
+            else:
+                prefix = u"""{0}s:
 """.format(tablename)
             self.last_table = table
         return self.item_format.format(

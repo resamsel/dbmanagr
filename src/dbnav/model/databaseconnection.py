@@ -16,8 +16,11 @@ from .column import *
 from dbnav.item import VALID, INVALID
 from .baseitem import BaseItem
 from dbnav.model.foreignkey import ForeignKey
+from dbnav.model.database import Database
 from dbnav.model.row import Row
+from dbnav.model.table import Table
 from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
+from dbnav.model.exception import UnknownColumnException
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +56,6 @@ def values(connection, table, filter):
     query = QueryBuilder(connection,
                 table,
                 filter=filter.filter,
-                order=[],
                 limit=1,
                 simplify=filter.simplify).build()
     result = connection.execute(query, 'Values')
@@ -119,6 +121,12 @@ class DatabaseRow:
         logger.debug('DatabaseRow.__getitem__(%s: %s), columns=%s', str(i), type(i), self.columns)
         if i == None:
             return None
+        if type(i) is str and i not in self.columns:
+            raise UnknownColumnException(None, i, map(
+                lambda (k, v): k,
+                filter(
+                    lambda (k, v): type(k) is str,
+                    self.columns.iteritems())))
         return self.columns[i]
     def __contains__(self, item):
         return item in self.columns
@@ -183,7 +191,10 @@ class DatabaseConnection(BaseItem):
 
             tables = self.tables()
             if options.table not in tables:
-                raise Exception("Could not find table '{0}'".format(options.table))
+                raise Exception("Could not find table '{0}' on {1} ({2})".format(
+                    options.table,
+                    self,
+                    self.driver))
 
             table = tables[options.table]
             if options.show == 'columns':
@@ -211,6 +222,7 @@ class DatabaseConnection(BaseItem):
         pass
 
     def connect_to(self, source):
+        logger.debug('Connecting to %s', source)
         self.engine = create_engine(source)
         self.con = self.engine.connect()
         self.inspector = reflection.Inspector.from_engine(self.engine)
@@ -245,7 +257,7 @@ class DatabaseConnection(BaseItem):
         return True
 
     def databases(self):
-        return []
+        return map(lambda name: Database(self, name), self.inspector.get_schema_names())
 
     def tables(self):
         if not self.tbls:
@@ -256,12 +268,15 @@ class DatabaseConnection(BaseItem):
         return self.tbls
 
     def tablesof(self, database):
-        return {}
+        return map(
+            lambda name: Table(self, database, name, ''),
+            self.inspector.get_table_names())
 
     def put_foreign_keys(self):
         fks = reduce(lambda x, y: x + y,
             map(lambda (k, v): dictsplus(self.inspector.get_foreign_keys(k), 'name', k),
-                self.tbls.iteritems()))
+                self.tbls.iteritems()),
+                [])
 
         for _fk in fks:
             a = Column(
@@ -287,11 +302,18 @@ class DatabaseConnection(BaseItem):
                 **dictminus(col, 'primary_key')),
             cols)
 
-    def restriction(self, alias, column, operator, value):
+    def restriction(self, alias, column, operator, value, map_null_operator=True):
         if not column:
             raise Exception('Column is None!')
         if column.table and alias != None:
             return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
+        if operator in ['=', '!='] and (value == 'null' or value is None):
+            if map_null_operator:
+                operator = {
+                    '=': 'is',
+                    '!=': 'is not'
+                }.get(operator)
+            value = None
         return u'{0} {1} {2}'.format(column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):

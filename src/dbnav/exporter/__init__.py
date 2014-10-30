@@ -32,7 +32,8 @@ group.add_argument('-D', '--delete', help='output format: SQL delete statements'
 group.add_argument('-Y', '--yaml', help='output format: YAML data', dest='formatter', action='store_const', const=YamlWriter)
 
 parser = argparse.ArgumentParser(prog='dbexport', parents=[parent])
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table?column=value; for SQLite: databasefile.db/table?column=value)""")
+parser.add_argument('uri',
+    help="""the URI to parse (format for PostgreSQL/MySQL: user@host/database/table?column=value; for SQLite: databasefile.db/table?column=value)""")
 parser.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any (multiple columns can be specified by separating them with a comma)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
@@ -90,20 +91,28 @@ def create_items(items, include, exclude):
                     fk = fks[c]
                 col = item.table.column(c)
                 if not col and not fk:
-                    raise UnknownColumnException(item.table, x, fks.keys() + map(lambda c: c.name, item.table.cols))
+                    raise UnknownColumnException(item.table,
+                        x,
+                        fks.keys() + map(lambda c: c.name, item.table.cols))
             # only check first item, as we expect all items are from the same table
             break
     for fk in includes.keys():
         if fk.a.table.name == item.table.name:
             # forward references, must be in pre
             results_pre += create_items(
-                fk.b.table.rows([QueryFilter(fk.b.name, 'in', includes[fk])], limit=-1),
+                fk.b.table.rows(
+                    [QueryFilter(fk.b.name, 'in', includes[fk])],
+                    limit=-1,
+                    simplify=False),
                 remove_prefix(fk.a.name, include),
                 remove_prefix(fk.a.name, exclude))
         else:
             # backward reference, must be in post
             results_post += create_items(
-                fk.a.table.rows([QueryFilter(fk.a.name, 'in', includes[fk])], limit=-1),
+                fk.a.table.rows(
+                    [QueryFilter(fk.a.name, 'in', includes[fk])],
+                    limit=-1,
+                    simplify=False),
                 remove_prefix(fk.a.table.name, include),
                 remove_prefix(fk.a.table.name, exclude))
             
@@ -134,7 +143,10 @@ class DatabaseExporter:
                         raise Exception("Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
                     items = create_items(
-                        table.rows(opts.filter, opts.limit),
+                        table.rows(
+                            opts.filter,
+                            opts.limit,
+                            simplify=False),
                         opts.include,
                         opts.exclude)
                     # remove duplicates

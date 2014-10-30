@@ -34,7 +34,7 @@ parser = argparse.ArgumentParser(
     description='A database navigation tool that shows database structure and content',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table?filter; for SQLite: databasefile.db/table?filter)""", nargs='?')
+parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL/MySQL: user@host/database/table?filter; for SQLite: databasefile.db/table?filter)""", nargs='?')
 parser.add_argument('-s', '--simplify', dest='simplify', default=True, help='simplify the output', action='store_true')
 parser.add_argument('-N', '--no-simplify', dest='simplify', help='don\'t simplify the output', action='store_false')
 parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
@@ -72,7 +72,10 @@ def run(argv):
         return DatabaseNavigator.navigate(options)
     except BaseException, e:
         logger.exception(e)
-        return [Item('', str(e), type(e), '', INVALID, '')]
+        if Writer.writer.__class__.__name__ in ['XmlWriter', 'TestWriter']:
+            return [Item('', unicode(e), e.__class__, '', INVALID, '')]
+        else:
+            raise
 
 if __name__ == "__main__":
     main()

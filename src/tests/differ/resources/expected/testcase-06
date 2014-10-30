@@ -1,0 +1,4 @@
+dbnav.sqlite/user?url TEXT(255)            <
+dbnav.sqlite/user?company TEXT(255)        <
+                                           > dbnav.sqlite/user2?company_name TEXT(255)
+                                           > dbnav.sqlite/user2?title TEXT(127)

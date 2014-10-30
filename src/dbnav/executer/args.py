@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(prog='dbexec',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument('uri',
-	help="""the URI to parse (format for PostgreSQL: user@host/database; for SQLite: databasefile.db)""")
+	help="""the URI to parse (format for PostgreSQL/MySQL: user@host/database; for SQLite: databasefile.db)""")
 parser.add_argument('infile',
 	default='-',
 	help='the path to the file containing the SQL query to execute',

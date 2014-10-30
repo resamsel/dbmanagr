@@ -9,6 +9,7 @@ from .options import *
 # load sources
 from .postgresql import *
 from .sqlite import *
+from .mysql import *
 
 class Config:
     @staticmethod
