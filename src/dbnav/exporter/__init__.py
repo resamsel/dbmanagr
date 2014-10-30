@@ -32,7 +32,8 @@ group.add_argument('-D', '--delete', help='output format: SQL delete statements'
 group.add_argument('-Y', '--yaml', help='output format: YAML data', dest='formatter', action='store_const', const=YamlWriter)
 
 parser = argparse.ArgumentParser(prog='dbexport', parents=[parent])
-parser.add_argument('uri', help="""the URI to parse (format for PostgreSQL: user@host/database/table?column=value; for SQLite: databasefile.db/table?column=value)""")
+parser.add_argument('uri',
+    help="""the URI to parse (format for PostgreSQL/MySQL: user@host/database/table?column=value; for SQLite: databasefile.db/table?column=value)""")
 parser.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any (multiple columns can be specified by separating them with a comma)')
 parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
 parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')

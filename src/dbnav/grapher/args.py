@@ -32,7 +32,7 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument('uri',
-	help='the URI to parse (format for PostgreSQL: user@host/database/table; for SQLite: databasefile.db/table)')
+	help='the URI to parse (format for PostgreSQL/MySQL: user@host/database/table; for SQLite: databasefile.db/table)')
 parser.add_argument('-c',
 	'--columns',
 	dest='include_columns',
