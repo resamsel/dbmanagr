@@ -195,12 +195,12 @@ class Comment:
 #                    self.qb.joins[fktable.name] = Join(fktable.name, alias, fk.b.name, self.alias, fk.a.name)
         
 class QueryBuilder:
-    def __init__(self, connection, table, id=None, filter=[], order=[], limit=None, simplify=True):
+    def __init__(self, connection, table, id=None, filter=None, order=None, limit=None, simplify=True):
         self.connection = connection
         self.table = table
         self.id = id
-        self.filter = filter
-        self.order = order
+        self.filter = filter if filter else []
+        self.order = order if order else []
         self.limit = limit
         self.aliases = {}
         self.joins = {}
@@ -216,21 +216,29 @@ class QueryBuilder:
         limit = LIMIT_FORMAT.format(self.limit) if self.limit > 0 else ''
         comment = Comment(self, self.table)
         
-        for key in foreign_keys.keys():
-            if key in comment.display:
-                fk = foreign_keys[key]
-                fktable = fk.b.table
-                if key in self.aliases:
-                    alias = self.aliases[key]
-                    try:
-                        if fktable.comment.title:
-                            title = fktable.comment.title.format(alias)
-                            if title != '*':
-                                a = ALIAS_FORMAT.format(fk.a.name)
-                                comment.columns[a] = Projection(title, a)
-                        self.joins[alias] = Join(self.connection.escape_keyword(fk.b.table.name), alias, fk.b.name, self.alias, fk.a.name)
-                    except KeyError, e:
-                        logger.error("KeyError: %s, table=%s, comment.title=%s" % (e, fktable, fktable.comment.title))
+        if self.simplify:
+            for key in foreign_keys.keys():
+                if key in comment.display:
+                    fk = foreign_keys[key]
+                    fktable = fk.b.table
+                    if key in self.aliases:
+                        alias = self.aliases[key]
+                        try:
+                            if fktable.comment.title:
+                                title = fktable.comment.title.format(alias)
+                                if title != '*':
+                                    a = ALIAS_FORMAT.format(fk.a.name)
+                                    comment.columns[a] = Projection(title, a)
+                            self.joins[alias] = Join(
+                                self.connection.escape_keyword(fk.b.table.name),
+                                alias,
+                                fk.b.name,
+                                self.alias,
+                                fk.a.name)
+                        except KeyError, e:
+                            logger.error(
+                                "KeyError: %s, table=%s, comment.title=%s",
+                                e, fktable, fktable.comment.title)
 
         logger.debug('Comment for %s: %s', self.table, comment)
 
@@ -290,6 +298,8 @@ class QueryBuilder:
             if wheres:
                 where = AND_SEPARATOR.join(wheres)
 
+        logger.debug('Order: %s', order)
+        
         if not order:
             if 'id' in comment.columns:
                 order.append(comment.columns['id'].value)

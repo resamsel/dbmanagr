@@ -20,6 +20,7 @@ from dbnav.model.database import Database
 from dbnav.model.row import Row
 from dbnav.model.table import Table
 from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
+from dbnav.model.exception import UnknownColumnException
 
 logger = logging.getLogger(__name__)
 
@@ -121,6 +122,12 @@ class DatabaseRow:
         logger.debug('DatabaseRow.__getitem__(%s: %s), columns=%s', str(i), type(i), self.columns)
         if i == None:
             return None
+        if type(i) is str and i not in self.columns:
+            raise UnknownColumnException(None, i, map(
+                lambda (k, v): k,
+                filter(
+                    lambda (k, v): type(k) is str,
+                    self.columns.iteritems())))
         return self.columns[i]
     def __contains__(self, item):
         return item in self.columns

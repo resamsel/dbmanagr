@@ -11,10 +11,13 @@ def unknown_column_message(table, column, haystack=None):
     logger.debug('haystack: %s', haystack)
     matches = get_close_matches(column, haystack)
     if not matches:
-        return 'Column "{0}" was not found on table "{1}" (no close matches)'.format(column, table.name)
+        return 'Column "{0}" was not found on table "{1}" (no close matches in {2})'.format(
+            column,
+            table.name if table else '?',
+            haystack)
     return 'Column "{0}" was not found on table "{1}" (close matches: {2})'.format(
             column,
-            table.name,
+            table.name if table else '?',
             u', '.join(matches))
 
 class UnknownColumnException(Exception):

@@ -74,13 +74,13 @@ class Table(BaseItem):
 
         return None
 
-    def rows(self, filter=[], limit=DEFAULT_LIMIT, simplify=False):
+    def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=False):
         """Retrieves rows from the table with the given filter applied"""
         
         query = QueryBuilder(self.connection,
             self,
-            filter=filter,
-            order=self.comment.order,
+            filter=filter if filter else [],
+            order=self.comment.order if simplify else [],
             limit=limit,
             simplify=simplify).build()
 
