@@ -88,11 +88,7 @@ def run(argv):
     else:
         Writer.set(DiffWriter(left, right))
 
-    try:
-        return DatabaseDiffer.diff(left, right)
-    except BaseException, e:
-        logger.exception(e)
-        raise
+    return DatabaseDiffer.diff(left, right)
 
 if __name__ == "__main__":
     main()

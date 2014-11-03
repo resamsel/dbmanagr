@@ -9,6 +9,7 @@ import re
 
 from collections import OrderedDict
 
+from dbnav import wrapper
 from dbnav.config import Config
 from dbnav.item import Item, INVALID
 from dbnav.sources import Source
@@ -141,13 +142,7 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 def main():
-    try:
-        print Writer.write(run(sys.argv))
-    except SystemExit, e:
-        sys.exit(-1)
-    except BaseException, e:
-        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
-        raise
+    wrapper(run)
 
 def run(argv):
     options = Config.init(argv, parser)
@@ -157,11 +152,7 @@ def run(argv):
     else:
         Writer.set(SqlInsertWriter())
 
-    try:
-        return DatabaseExporter.export(options)
-    except BaseException, e:
-        logger.exception(e)
-        raise
+    return DatabaseExporter.export(options)
 
 if __name__ == "__main__":
     main()
