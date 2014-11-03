@@ -193,7 +193,7 @@ class Comment:
 #                    k_ = k.replace('%s_' % fk.a.name, '')
                     fk_titles[k] = "'columns[k_]'"
 #                    self.qb.joins[fktable.name] = Join(fktable.name, alias, fk.b.name, self.alias, fk.a.name)
-        
+
 class QueryBuilder:
     def __init__(self, connection, table, id=None, filter=None, order=None, limit=None, simplify=True):
         self.connection = connection

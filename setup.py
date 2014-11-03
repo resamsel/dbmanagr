@@ -30,7 +30,7 @@ setup(
 
     # dependencies
     install_requires = [
-        'sqlalchemy>=0.8.2',
+        'sqlalchemy>=0.9.8',
         'psycopg2>=2.5.1',
         'sqlparse>=0.1.13',
         'mysql-python>=1.2.5'

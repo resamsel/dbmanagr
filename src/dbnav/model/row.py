@@ -11,7 +11,7 @@ def val(row, column):
     colname = '%s_title' % column
     if colname in row.row:
         return '%s (%s)' % (row.row[colname], row.row[column])
-    return row.row[column]
+    return row[column]
 
 class Row(BaseItem):
     """A table row from the database"""
@@ -27,6 +27,8 @@ class Row(BaseItem):
             return None
         if type(i) == unicode:
             i = i.encode('ascii')
+        if type(i) is str:
+            return self.row.__dict__[i]
         return self.row[i]
 
     def values(self):

@@ -10,7 +10,7 @@ from sqlalchemy.engine import reflection
 from sqlalchemy.types import TIMESTAMP
 import datetime
 
-from ..logger import *
+from dbnav.logger import logger, logduration
 from ..querybuilder import QueryBuilder
 from .column import *
 from dbnav.item import VALID, INVALID
@@ -226,6 +226,8 @@ class DatabaseConnection(BaseItem):
         self.engine = create_engine(source)
         self.con = self.engine.connect()
         self.inspector = reflection.Inspector.from_engine(self.engine)
+        self.meta = MetaData()
+        self.meta.reflect(bind=self.engine)
 
     def connected(self):
         return self.con
@@ -250,6 +252,19 @@ class DatabaseConnection(BaseItem):
         start = time.time()
         result = cur.execute(query)
         logduration('Query %s' % name, start)
+        
+        return result
+
+    def query(self, query, name='Unnamed', mapper=None):
+        logger.info('Query %s: %s', name, query)
+        
+        start = time.time()
+        result = query.all()
+        logduration('Query %s' % name, start)
+        
+        if mapper:
+            for row in result:
+                mapper.map(row)
         
         return result
 

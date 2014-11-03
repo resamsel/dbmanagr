@@ -21,12 +21,12 @@ class SqlInsertWriter(FormatWriter):
     def create_columns(self, row, exclude):
         return u','.join(
             map(lambda col: col.name,
-                filter(lambda col: col.name not in exclude, row.table.cols)))
+                filter(lambda col: col.name not in exclude, row.table.columns())))
     def create_values(self, row, exclude):
         table = row.table
         return u','.join(
             map(lambda col: table.connection.format_value(col, row[col.name]),
-                 filter(lambda col: col.name not in exclude, table.cols)))
+                 filter(lambda col: col.name not in exclude, table.columns())))
 
 class SqlUpdateWriter(FormatWriter):
     def __init__(self, options=None):
@@ -40,14 +40,14 @@ class SqlUpdateWriter(FormatWriter):
             table=table.connection.escape_keyword(table.name),
             values=self.create_values(row, exclude),
             restriction=self.create_restriction(row,
-                filter(lambda col: col.primary_key, table.cols)))
+                filter(lambda col: col.primary_key, table.columns())))
     def create_values(self, row, exclude):
         table = row.table
         return u', '.join(
             map(lambda col: table.connection.restriction(
                         None, col, '=', row[col.name], map_null_operator=False),
                 filter(lambda col: not col.primary_key and col.name not in exclude,
-                    row.table.cols)))
+                    row.table.columns())))
     def create_restriction(self, row, pks):
         table = row.table
         return u' and '.join(
@@ -65,7 +65,7 @@ class SqlDeleteWriter(FormatWriter):
         return self.item_format.format(
             table=table.connection.escape_keyword(table.name),
             restriction=self.create_restriction(row,
-                filter(lambda col: col.primary_key, table.cols)))
+                filter(lambda col: col.primary_key, table.columns())))
     def create_restriction(self, row, pks):
         table = row.table
         return u' and '.join(
@@ -133,5 +133,5 @@ class YamlWriter(FormatWriter):
         return u"""
         """.join(
             map(lambda col: '{0}: {1}'.format(yaml_field(col), yaml_value(col, row[col.name])),
-                filter(lambda col: col.name not in exclude, row.table.cols)))
+                filter(lambda col: col.name not in exclude, row.table.columns())))
 

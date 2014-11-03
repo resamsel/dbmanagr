@@ -10,8 +10,9 @@ from ..logger import logduration
 from .tablecomment import TableComment
 from .column import *
 from .row import *
-from ..querybuilder import QueryBuilder
+from ..querybuilder2 import QueryBuilder, SimplifyMapper
 from .baseitem import BaseItem
+from dbnav.comment import Comment
 
 DEFAULT_LIMIT = 50
 
@@ -24,6 +25,7 @@ class Table(BaseItem):
         self.connection = connection
         self.database = database
         self.name = name
+        self.table = connection.meta.tables[name]
         self.comment = TableComment(self, comment)
         self.owner = owner
         self.size = size
@@ -78,16 +80,22 @@ class Table(BaseItem):
 
     def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=False):
         """Retrieves rows from the table with the given filter applied"""
-        
-        query = QueryBuilder(self.connection,
+
+        builder = QueryBuilder(self.connection,
             self,
-            filter=filter if filter else [],
+            filter=filter,
             order=self.comment.order if simplify else [],
             limit=limit,
-            simplify=simplify).build()
+            simplify=simplify)
 
         try:
-            result = self.connection.execute(query, 'Rows')
+            result = self.connection.query(builder.build(),
+                name='Rows',
+                mapper=SimplifyMapper(self,
+                    comment=Comment(self,
+                        builder.counter,
+                        builder.aliases,
+                        None)))
         except ProgrammingError, e:
             raise Exception(
                 'Configuration error: check comment on table {}\n{}'.format(
