@@ -163,11 +163,7 @@ def run(argv):
     else:
         Writer.set(GraphWriter())
 
-    try:
-        return DatabaseGrapher.graph(options)
-    except BaseException, e:
-        logger.exception(e)
-        raise
+    return DatabaseGrapher.graph(options)
 
 if __name__ == "__main__":
     main()

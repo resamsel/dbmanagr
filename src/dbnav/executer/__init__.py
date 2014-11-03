@@ -135,11 +135,7 @@ def run(argv):
     else:
         Writer.set(ExecuteWriter())
 
-    try:
-        return DatabaseExecuter.execute(options)
-    except BaseException, e:
-        logger.exception(e)
-        raise
+    return DatabaseExecuter.execute(options)
 
 if __name__ == "__main__":
     main()

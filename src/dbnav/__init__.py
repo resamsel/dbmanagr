@@ -15,6 +15,7 @@ def wrapper(f):
     except (SystemExit, KeyboardInterrupt) as e:
         sys.exit(-1)
     except BaseException as e:
+        logger.exception(e)
         if logger.getEffectiveLevel() <= logging.DEBUG:
             # Only raise the exception when debugging is enabled!
             raise

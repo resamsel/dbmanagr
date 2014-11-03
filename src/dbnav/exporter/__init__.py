@@ -9,6 +9,7 @@ import re
 
 from collections import OrderedDict
 
+from dbnav import wrapper
 from dbnav.config import Config
 from dbnav.item import Item, INVALID
 from dbnav.sources import Source
@@ -21,23 +22,7 @@ from dbnav.writer import Writer, TestWriter
 from dbnav.args import parent_parser, format_group
 from dbnav.model.exception import UnknownColumnException
 
-from .writer import SqlInsertWriter, SqlUpdateWriter, SqlDeleteWriter, YamlWriter
-
-parent = parent_parser()
-
-group = format_group(parent, SqlInsertWriter)
-group.add_argument('-I', '--insert', default=True, help='output format: SQL insert statements', dest='formatter', action='store_const', const=SqlInsertWriter)
-group.add_argument('-U', '--update', help='output format: SQL update statements', dest='formatter', action='store_const', const=SqlUpdateWriter)
-group.add_argument('-D', '--delete', help='output format: SQL delete statements', dest='formatter', action='store_const', const=SqlDeleteWriter)
-group.add_argument('-Y', '--yaml', help='output format: YAML data', dest='formatter', action='store_const', const=YamlWriter)
-
-parser = argparse.ArgumentParser(prog='dbexport', parents=[parent])
-parser.add_argument('uri',
-    help="""the URI to parse (format for PostgreSQL/MySQL: user@host/database/table?column=value; for SQLite: databasefile.db/table?column=value)""")
-parser.add_argument('-i', '--include', help='include the specified columns and their foreign rows, if any (multiple columns can be specified by separating them with a comma)')
-parser.add_argument('-x', '--exclude', help='Exclude the specified columns')
-parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
-parser.add_argument('-p', '--package', default='models', help='the package for YAML entities')
+from .args import parser, SqlInsertWriter
 
 class RowItem():
     def __init__(self, row, exclude):
@@ -157,13 +142,7 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 def main():
-    try:
-        print Writer.write(run(sys.argv))
-    except SystemExit, e:
-        sys.exit(-1)
-    except BaseException, e:
-        sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
-        raise
+    wrapper(run)
 
 def run(argv):
     options = Config.init(argv, parser)
@@ -173,11 +152,7 @@ def run(argv):
     else:
         Writer.set(SqlInsertWriter())
 
-    try:
-        return DatabaseExporter.export(options)
-    except BaseException, e:
-        logger.exception(e)
-        raise
+    return DatabaseExporter.export(options)
 
 if __name__ == "__main__":
     main()
