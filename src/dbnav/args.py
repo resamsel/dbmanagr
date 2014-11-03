@@ -16,7 +16,7 @@ def parent_parser():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--version', action='version', version='%(prog)s {0}'.format(__version__))
     group = parser.add_argument_group('logging')
-    group.add_argument('-f',
+    group.add_argument('-L',
 		'--logfile',
         type=argparse.FileType('w'),
 		default=default_log_file(),

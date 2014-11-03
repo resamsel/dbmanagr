@@ -133,5 +133,12 @@ class YamlWriter(FormatWriter):
         return u"""
         """.join(
             map(lambda col: '{0}: {1}'.format(yaml_field(col), yaml_value(col, row[col.name])),
-                filter(lambda col: col.name not in exclude, row.table.cols)))
+                filter(lambda col: col.name not in exclude, row.table.columns())))
 
+class FormattedWriter(FormatWriter):
+    def __init__(self, options=None):
+        FormatWriter.__init__(self, u'{0}', options.format)
+        Formatter.set(DefaultFormatter())
+    def itemtostring(self, item):
+        d = dict(map(lambda col: (col.name, item.row[col.name]), item.row.table.columns()))
+        return self.item_format.format(**d)
