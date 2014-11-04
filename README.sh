@@ -301,9 +301,9 @@ It's possible to configure the content of the result items for the Database Navi
 ### Usage
 \`\`\`
 {
-  "title": "{0}.fname || ' ' || {0}.lname",
-  "subtitle": "{0}.email || ' (' || {0}.user_name || ')'",
-  "search": ["{0}.email", "{0}.user_name"],
+  "title": "{fname} {lname}",
+  "subtitle": "{email} ({user_name})",
+  "search": ["email", "user_name"],
   "display": ["fname", "lname", "email", "user_name", "security_info_id", "staff", "disqualified", "time_zone_id", "address", "id"],
   "order": ["fname", "lname"]
 }
