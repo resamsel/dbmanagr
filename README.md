@@ -601,10 +601,10 @@ company TEXT(255)                          <
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.13-py2.7.egg?raw=true) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.13.1-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.13-py2.7.egg
+pip install dbnav-0.13.1-py2.7.egg
 ```
 
 ### Alfred Workflow
@@ -627,7 +627,7 @@ It's possible to configure the content of the result items for the Database Navi
 ### Usage
 ```
 {
-  "title": "{fname} {lname}”,
+  "title": "{fname} {lname}",
   "subtitle": "{email} ({user_name})",
   "search": ["email", "user_name"],
   "display": ["fname", "lname", "email", "user_name", "security_info_id", "staff", "disqualified", "time_zone_id", "address", "id"],
