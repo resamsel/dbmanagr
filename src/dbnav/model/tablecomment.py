@@ -40,9 +40,8 @@ class TableComment:
         self.search = self.d[COMMENT_SEARCH]
         self.display = self.d[COMMENT_DISPLAY]
         self.order = self.d[COMMENT_ORDER_BY]
-        
+
         logger.debug('Table comment for %s: %s', table, self)
 
     def __repr__(self):
         return self.d.__repr__()
-

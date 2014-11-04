@@ -28,7 +28,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
         found = False
         tail = deque(head)
         head = []
-        
+
         while tail:
             node = tail.popleft()
 

@@ -68,7 +68,7 @@ class Table(BaseItem):
     def column(self, name):
         if not self.cols:
             self.init_columns(self.connection)
-        
+
         for col in self.cols:
             if col.name == name:
                 return col
@@ -129,7 +129,6 @@ class Table(BaseItem):
 
     def icon(self):
         return 'images/table.png'
-    
+
     def escaped(self, f):
         return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
-    

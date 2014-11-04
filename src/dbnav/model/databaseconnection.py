@@ -32,7 +32,7 @@ OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
 def values(connection, table, filter):
     """Creates row values according to the given filter"""
-    
+
     logger.debug('values(connection=%s, table=%s, filter=%s)', connection, table, filter)
 
     foreign_keys = table.fks
@@ -224,7 +224,7 @@ class DatabaseConnection(BaseItem):
                             limit=options.limit,
                             simplify=options.simplify),
                         key=lambda r: r[0])
-            
+
             if options.show == 'values':
                 return values(self, table, options)
         finally:
@@ -257,14 +257,14 @@ class DatabaseConnection(BaseItem):
 
     def execute(self, query, name='Unnamed'):
         logger.info('Query %s: %s', name, query)
-        
+
         cur = self.cursor()
         if not cur:
             raise Exception('Database is not connected')
         start = time.time()
         result = cur.execute(query)
         logduration('Query %s' % name, start)
-        
+
         return result
 
     def queryall(self, query, name='Unnamed', mapper=None):

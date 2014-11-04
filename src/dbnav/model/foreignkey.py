@@ -11,4 +11,3 @@ class ForeignKey:
 
     def __repr__(self):
         return '%s -> %s' % (self.a, self.b)
-

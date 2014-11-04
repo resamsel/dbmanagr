@@ -56,7 +56,7 @@ class PostgreSQLOptionsParser:
 
         if opts.user and opts.host:
             opts.gen = OPTION_URI_FORMAT % (opts.user, opts.host, opts.table if opts.table else '')
-        
+
         logger.debug('Parsed options: %s', opts.__dict__)
-        
+
         return opts

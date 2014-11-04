@@ -70,7 +70,7 @@ class Options:
             args.exclude = args.exclude.split(',') if args.exclude else []
 
         self.__dict__.update(args.__dict__)
-        
+
         self.update_parsers()
 
     def update_parsers(self):

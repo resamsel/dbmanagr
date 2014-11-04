@@ -35,7 +35,7 @@ class DBExplorerSQLiteSource(Source):
                     logger.debug("Found connection: %s", url)
                     connection = SQLiteConnection(url.path)
                     self.connections.append(connection)
-        
+
         return self.connections
 
 

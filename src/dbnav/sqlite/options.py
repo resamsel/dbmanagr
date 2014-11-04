@@ -22,7 +22,7 @@ class SQLiteOptionsParser:
             uri = opts.uri
             url = urlparse('sqlite://%s' % uri)
             paths = url.path.split('/')
- 
+
             if len(paths) > 1:
                 opts.table = paths[1]
             if '?' in uri:

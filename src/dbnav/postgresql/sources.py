@@ -53,7 +53,7 @@ class DBExplorerPostgreSQLSource(Source):
                     password = c.find('password').text
                     connection = PostgreSQLConnection(host, port, database, user, password)
                     self.connections.append(connection)
-        
+
         return self.connections
 
 

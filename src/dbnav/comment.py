@@ -21,7 +21,7 @@ class Comment:
         table.primary_key = None
 
         columns = table.columns()
-        
+
         # finds the primary key
         for c in columns:
             if c.primary_key:
@@ -59,13 +59,13 @@ class Comment:
                 logger.debug("Foreign key titles: %s" % self.fk_titles)
                 logger.error("Error: %s" % e)
                 return s
-        
+
         self.id = comment.id
         self.title = comment.title
         self.subtitle = comment.subtitle
         self.order = comment.order
         self.search = comment.search
-        
+
         if table.primary_key in [c.name for c in columns]:
             self.columns[table.primary_key] = self.id
         else:
@@ -121,4 +121,3 @@ class Comment:
                         fk_titles[k] = fktable.comment.title.format(alias)
                 except KeyError:
                     fk_titles[k] = "'columns[k_]'"
-

@@ -99,7 +99,7 @@ def create_items(items, include, exclude):
                     simplify=False),
                 remove_prefix(fk.a.table.name, include),
                 remove_prefix(fk.a.table.name, exclude))
-            
+
     return results_pre + map(lambda i: RowItem(i, exclude), items) + results_post
 
 

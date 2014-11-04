@@ -65,7 +65,7 @@ class SQLiteConnection(DatabaseConnection):
 
     def connect(self, database=None):
         logger.debug('Connecting to database %s' % database)
-        
+
         self.connect_to('sqlite+pysqlite:///%s' % self.path)
 
     def databases(self):

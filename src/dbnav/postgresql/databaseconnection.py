@@ -136,7 +136,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
     def connect(self, database):
         logger.debug('Connecting to database %s' % database)
-        
+
         if database:
             try:
                 self.connect_to('postgresql://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
@@ -153,7 +153,7 @@ class PostgreSQLConnection(DatabaseConnection):
             self.dbs = map(
                 lambda row: PostgreSQLDatabase(self, row[0]),
                 self.execute(DATABASES_QUERY % self.user, 'Databases'))
-        
+
         return self.dbs
 
     def tablesof(self, database):

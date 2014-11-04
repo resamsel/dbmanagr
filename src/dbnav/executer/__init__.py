@@ -36,7 +36,7 @@ def read_sql(file):
         file.close()
 
     logduration('Reading input statements', start)
-    
+
     return sql
 
 
@@ -58,7 +58,7 @@ def read_statements(opts):
 
     logduration('Splitting SQL statements', start)
     logger.info('Number of SQL statements: %d', len(stmts))
-    
+
     return stmts
 
 
@@ -88,7 +88,7 @@ class DatabaseExecuter:
                 changes = 0
                 # Counts the statements
                 counter = 0
-                    
+
                 start = None
                 trans = None
                 try:

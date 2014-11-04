@@ -45,10 +45,10 @@ class DatabaseDiffer:
             if ropts.table not in rtables:
                 raise Exception("Could not find table '{0}' in right connection".format(ropts.table))
             rtable = rtables[ropts.table]
-            
+
             lcols = map(column_ddl if left.compare_ddl else column_name, ltable.columns())
             rcols = map(column_ddl if right.compare_ddl else column_name, rtable.columns())
-            
+
             lplus = dict(map(
                 lambda c: (c.split()[0], ltable.column(c.split()[0])),
                 list(set(lcols) - set(rcols))))

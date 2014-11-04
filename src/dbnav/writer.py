@@ -45,7 +45,7 @@ class StdoutWriter(DefaultWriter):
         self.item_format = item_format
         self.item_separator = item_separator
         self.format_error_format = format_error_format
-        
+
         Formatter.set(DefaultFormatter())
 
     def filter(self, items):
@@ -95,7 +95,7 @@ class Writer:
     @staticmethod
     def set(arg):
         Writer.writer = arg
-    
+
     @staticmethod
     def write(items):
         return Writer.writer.write(items)

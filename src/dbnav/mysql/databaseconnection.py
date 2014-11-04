@@ -78,7 +78,7 @@ class MySQLConnection(DatabaseConnection):
 
     def connect(self, database):
         logger.debug('Connecting to database %s', database)
-        
+
         if database:
             try:
                 self.connect_to('mysql+mysqldb://%s:%s@%s/%s' % (self.user, self.password, self.host, database))

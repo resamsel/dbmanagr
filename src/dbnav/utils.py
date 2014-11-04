@@ -28,7 +28,7 @@ def dictsplus(dicts, key, value):
 def dictplus(d, key, value):
     d[key] = value
 
-    
+
 def dictminus(d, key):
     r = dict(d)
     if key in d:

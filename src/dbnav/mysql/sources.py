@@ -52,5 +52,5 @@ class DBExplorerMySQLSource(Source):
                     password = c.find('password').text
                     connection = MySQLConnection(host, port, database, user, password)
                     self.connections.append(connection)
-        
+
         return self.connections
