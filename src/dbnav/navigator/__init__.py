@@ -64,9 +64,9 @@ parser = argparse.ArgumentParser(
     parents=[parent])
 parser.add_argument(
     'uri',
-    help="""the URI to parse (format for PostgreSQL/MySQL: '
+    help='the URI to parse (format for PostgreSQL/MySQL: '
         'user@host/database/table?filter; for SQLite: '
-        'databasefile.db/table?filter)""",
+        'databasefile.db/table?filter)',
     nargs='?')
 parser.add_argument(
     '-s',
