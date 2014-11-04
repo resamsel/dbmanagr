@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 import logging
 
 from sqlalchemy.exc import ProgrammingError
 
-from ..logger import logduration
-from .tablecomment import TableComment
-from .column import *
-from .row import *
-from ..querybuilder import QueryBuilder
-from .baseitem import BaseItem
+from dbnav.model.tablecomment import TableComment
+from dbnav.model.row import Row
+from dbnav.querybuilder import QueryBuilder, SimplifyMapper
+from dbnav.model.baseitem import BaseItem
+from dbnav.comment import Comment
 
 DEFAULT_LIMIT = 50
 
@@ -19,11 +17,13 @@ OPTION_URI_VALUE_FORMAT = '%s%s/?%s'
 
 logger = logging.getLogger(__name__)
 
+
 class Table(BaseItem):
     def __init__(self, connection, database, name, comment, owner=None, size=None):
         self.connection = connection
         self.database = database
         self.name = name
+        self.entity = connection.meta.tables[name]
         self.comment = TableComment(self, comment)
         self.owner = owner
         self.size = size
@@ -38,11 +38,10 @@ class Table(BaseItem):
     def autocomplete(self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 
-        if column == None:
+        if column is None:
             return u'%s%s?' % (self.uri, self.name)
 
         tablename = self.name
-        fks = self.fks
         if type(value) is buffer:
             value = '[BLOB]'
         else:
@@ -57,11 +56,11 @@ class Table(BaseItem):
         """Retrieves columns of table with given filter applied"""
 
         if not self.cols:
-            if connection == None:
+            if connection is None:
                 connection = self.connection
             self.init_columns(connection)
 
-        if column == None:
+        if column is None:
             return self.cols
 
         return [c for c in self.cols if column in c.name]
@@ -69,7 +68,7 @@ class Table(BaseItem):
     def column(self, name):
         if not self.cols:
             self.init_columns(self.connection)
-        
+
         for col in self.cols:
             if col.name == name:
                 return col
@@ -78,16 +77,22 @@ class Table(BaseItem):
 
     def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=False):
         """Retrieves rows from the table with the given filter applied"""
-        
-        query = QueryBuilder(self.connection,
+
+        builder = QueryBuilder(self.connection,
             self,
-            filter=filter if filter else [],
+            filter=filter,
             order=self.comment.order if simplify else [],
             limit=limit,
-            simplify=simplify).build()
+            simplify=simplify)
 
         try:
-            result = self.connection.execute(query, 'Rows')
+            result = self.connection.queryall(builder.build(),
+                name='Rows',
+                mapper=SimplifyMapper(self,
+                    comment=Comment(self,
+                        builder.counter,
+                        builder.aliases,
+                        None)))
         except ProgrammingError, e:
             raise Exception(
                 'Configuration error: check comment on table {}\n{}'.format(
@@ -95,14 +100,14 @@ class Table(BaseItem):
         except BaseException, e:
             logger.error(
                 '%s: check comment on table %s\n%s',
-                    e.__class__.__name__,
-                    self.name,
-                    e.__dict__)
+                e.__class__.__name__,
+                self.name,
+                e.__dict__)
             logger.error(e, exc_info=1)
             raise Exception('{}: check comment on table {}\n{}'.format(
-                    e.__class__,
-                    self.name,
-                    unicode(e)))
+                e.__class__,
+                self.name,
+                unicode(e)))
 
         return map(lambda row: Row(self.connection, self, row), result)
 
@@ -124,7 +129,6 @@ class Table(BaseItem):
 
     def icon(self):
         return 'images/table.png'
-    
+
     def escaped(self, f):
         return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
-    

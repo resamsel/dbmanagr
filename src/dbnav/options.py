@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import logging
 
-from dbnav.writer import *
-from dbnav.item import *
-from dbnav.querybuilder import QueryFilter
+from dbnav.queryfilter import QueryFilter
 
 AND_OPERATOR = '&'
-OPERATORS = ['>=','<=','!=','=','~','*','>','<',':']
+OPERATORS = ['>=', '<=', '!=', '=', '~', '*', '>', '<', ':']
 
 logger = logging.getLogger(__name__)
 
+
 def parse_loglevel(level):
     return getattr(logging, level.upper(), None)
+
 
 def parse_filter(s):
     filter = []
@@ -34,11 +33,13 @@ def parse_filter(s):
             filter.append(QueryFilter(term))
     return filter
 
+
 class Filter:
     def __init__(self, lhs, operator, rhs=None):
         self.lhs = lhs
         self.operator = operator
         self.rhs = rhs
+
 
 class Options:
     parser = {}
@@ -69,7 +70,7 @@ class Options:
             args.exclude = args.exclude.split(',') if args.exclude else []
 
         self.__dict__.update(args.__dict__)
-        
+
         self.update_parsers()
 
     def update_parsers(self):

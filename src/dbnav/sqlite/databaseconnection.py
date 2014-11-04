@@ -1,20 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import shelve
 import logging
-import time
 
-from os.path import expanduser, basename
+from os.path import basename
 
-from ..logger import logduration
-from ..model.databaseconnection import *
-from ..model.database import *
-from ..model.table import *
-from ..model.column import *
-from ..options import *
+from dbnav.model.databaseconnection import DatabaseConnection
+from dbnav.model.database import Database
 
-CACHE_TIME = 2*60
 COLUMNS_QUERY = """
 pragma table_info({0})
 """
@@ -22,11 +15,14 @@ AUTOCOMPLETE_FORMAT = "%s/"
 
 logger = logging.getLogger(__name__)
 
+
 class SQLiteDatabase(Database):
     def __init__(self, filename):
         self.filename = filename
+
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % self.filename
+
 
 class SQLiteConnection(DatabaseConnection):
     """A database connection"""
@@ -69,7 +65,7 @@ class SQLiteConnection(DatabaseConnection):
 
     def connect(self, database=None):
         logger.debug('Connecting to database %s' % database)
-        
+
         self.connect_to('sqlite+pysqlite:///%s' % self.path)
 
     def databases(self):

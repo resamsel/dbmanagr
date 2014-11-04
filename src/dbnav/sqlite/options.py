@@ -3,13 +3,16 @@
 
 from urlparse import urlparse
 
-from dbnav.options import *
+from dbnav.options import parse_filter
+
 
 class SQLiteOptions:
     def get(self, driver):
         return self
+
     def __repr__(self):
         return str(self.__dict__)
+
 
 class SQLiteOptionsParser:
     def parse(self, source):
@@ -19,8 +22,9 @@ class SQLiteOptionsParser:
             uri = opts.uri
             url = urlparse('sqlite://%s' % uri)
             paths = url.path.split('/')
- 
-            if len(paths) > 1: opts.table = paths[1]
+
+            if len(paths) > 1:
+                opts.table = paths[1]
             if '?' in uri:
                 opts.filter = parse_filter(url.query)
                 paths.append(url.query)

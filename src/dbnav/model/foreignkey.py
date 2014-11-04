@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class ForeignKey:
     """A foreign key connection between the originating column a and the foreign column b"""
 
@@ -10,4 +11,3 @@ class ForeignKey:
 
     def __repr__(self):
         return '%s -> %s' % (self.a, self.b)
-

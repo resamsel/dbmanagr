@@ -7,11 +7,13 @@ from dbnav.formatter import Formatter
 
 logger = logging.getLogger(__name__)
 
+
 def val(row, column):
     colname = '%s_title' % column
     if colname in row.row:
         return '%s (%s)' % (row.row[colname], row.row[column])
-    return row.row[column]
+    return row[column]
+
 
 class Row(BaseItem):
     """A table row from the database"""
@@ -22,11 +24,13 @@ class Row(BaseItem):
         self.row = row
 
     def __getitem__(self, i):
-        #logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
-        if i == None:
+        # logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
+        if i is None:
             return None
         if type(i) == unicode:
             i = i.encode('ascii')
+        if type(i) is str:
+            return self.row.__dict__[i]
         return self.row[i]
 
     def values(self):

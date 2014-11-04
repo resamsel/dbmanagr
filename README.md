@@ -4,6 +4,37 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ![Alfred Database Navigator Sample](docs/images/dbnav-example.png "Alfred Database Navigator Sample")
 
+- [Main Features](#main-features)
+- [Database Navigation](#database-navigation)
+	- [Features](#features)
+	- [Usage](#usage)
+	- [Examples](#examples)
+- [Database Visualisation](#database-visualisation)
+	- [Features](#features-1)
+	- [Usage](#usage-1)
+	- [Examples](#examples-1)
+- [Database Exporter](#database-exporter)
+	- [Features](#features-2)
+	- [Usage](#usage-2)
+	- [Examples](#examples-2)
+- [Database Executer](#database-executer)
+	- [Usage](#usage-3)
+- [Database Differ](#database-differ)
+	- [Usage](#usage-4)
+	- [Examples](#examples-3)
+- [Installation](#installation)
+	- [Alfred Workflow](#alfred-workflow)
+- [Connection Configuration](#connection-configuration)
+	- [Sample ~/.pgpass](#sample-pgpass)
+- [Content Configuration](#content-configuration)
+	- [Usage](#usage-5)
+	- [Title](#title)
+	- [Subtitle](#subtitle)
+	- [Search](#search)
+	- [Display](#display)
+	- [Order](#order)
+- [Development](#development)
+
 ## Main Features
 * Database Navigation
 * Database Visualisation
@@ -16,34 +47,6 @@ Allows you to explore, visualise and export your database. Additionally allows t
   * the `~/.mypass` configuration file (like `~/.pgpass`)
   * the `~/.dbexplorer/dbexplorer.cfg` configuration file (DBExplorer)
   * the Navicat configuration file (SQLite)
-
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
-
-- [Database Navigation](#user-content-database-navigation)
-	- [Features](#user-content-features)
-	- [Usage](#user-content-usage)
-	- [Examples](#user-content-examples)
-- [Database Visualisation](#user-content-database-visualisation)
-	- [Features](#user-content-features-1)
-	- [Usage](#user-content-usage-1)
-	- [Examples](#user-content-examples-1)
-- [Database Exporter](#user-content-database-exporter)
-	- [Features](#user-content-features-1)
-	- [Usage](#user-content-usage-2)
-	- [Examples](#user-content-examples-2)
-- [Database Executer](#user-content-database-executer)
-	- [Usage](#user-content-usage-3)
-- [Database Differ](#user-content-database-differ)
-	- [Usage](#user-content-usage-4)
-	- [Examples](#user-content-examples-3)
-- [Installation](#user-content-installation)
-- [Configuration](#user-content-configuration)
-	- [Title](#user-content-title)
-	- [Subtitle](#user-content-subtitle)
-	- [Search](#user-content-search)
-	- [Display](#user-content-display)
-	- [Order](#user-content-order)
-- [Development](#user-content-development)
 
 ## Database Navigation
 
@@ -60,7 +63,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ### Usage
 ```
-usage: dbnav [-h] [--version] [-f LOGFILE]
+usage: dbnav [-h] [--version] [-L LOGFILE]
              [-l {critical,error,warning,info,debug}] [-T] [-D] [-S] [-J] [-X]
              [-A] [-s] [-N] [-m LIMIT]
              [uri]
@@ -68,7 +71,7 @@ usage: dbnav [-h] [--version] [-f LOGFILE]
 A database navigation tool that shows database structure and content
 
 positional arguments:
-  uri                   the URI to parse (format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table?filter; for SQLite:
                         databasefile.db/table?filter) (default: None)
 
@@ -82,7 +85,7 @@ optional arguments:
                         rows (default: 50)
 
 logging:
-  -f LOGFILE, --logfile LOGFILE
+  -L LOGFILE, --logfile LOGFILE
                         the file to log to (default:
                         /usr/local/var/log/dbnav.log)
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
@@ -142,10 +145,10 @@ username | user
 
 Title | Subtitle
 ----- | --------
-jalexander80 | username (id=289)
-jburtonv | username (id=32)
-jfernandezc8 | username (id=441)
-jpalmer8u | username (id=319)
+jburtonv | jburtonv (id=32)
+jalexander80 | jalexander80 (id=289)
+jpalmer8u | jpalmer8u (id=319)
+jfernandezc8 | jfernandezc8 (id=441)
 
 #### Show Rows where multiple Columns equals Value
 When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
@@ -154,7 +157,7 @@ When using the ampersand (&) in a shell make sure to escape it (prepend it with 
 
 Title | Subtitle
 ----- | --------
-jalexander80 | username (id=289)
+jalexander80 | jalexander80 (id=289)
 
 #### Show Rows where Column matches Pattern
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
@@ -163,10 +166,10 @@ The tilde (~) will be translated to the *like* operator in SQL. Use the percent 
 
 Title | Subtitle
 ----- | --------
-jalexander80 | username (id=289)
-jburtonv | username (id=32)
-jfernandezc8 | username (id=441)
-jpalmer8u | username (id=319)
+jburtonv | jburtonv (id=32)
+jalexander80 | jalexander80 (id=289)
+jpalmer8u | jpalmer8u (id=319)
+jfernandezc8 | jfernandezc8 (id=441)
 
 #### Show Rows where Column is in List
 The colon (:) will be translated to the *in* operator in SQL.
@@ -175,8 +178,8 @@ The colon (:) will be translated to the *in* operator in SQL.
 
 Title | Subtitle
 ----- | --------
-mdiaze1 | username (id=506)
-mrichardsonp | username (id=26)
+mrichardsonp | mrichardsonp (id=26)
+mdiaze1 | mdiaze1 (id=506)
 
 #### Show Rows where any (Search) Column matches Pattern
 `dbnav myuser@myhost/mydatabase/mytable?~%erber%`
@@ -214,7 +217,7 @@ Visualises the dependencies of a table using its foreign key references (forward
 
 ### Usage
 ```
-usage: dbgraph [-h] [--version] [-f LOGFILE]
+usage: dbgraph [-h] [--version] [-L LOGFILE]
                [-l {critical,error,warning,info,debug}] [-T] [-D] [-G] [-c]
                [-C] [-k] [-K] [-v] [-V] [-n] [-N] [-b] [-B] [-M MAX_DEPTH]
                [-r | -i INCLUDE] [-x EXCLUDE]
@@ -223,7 +226,7 @@ usage: dbgraph [-h] [--version] [-f LOGFILE]
 A database visualisation tool that creates graphs from the database structure
 
 positional arguments:
-  uri                   the URI to parse (format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table; for SQLite:
                         databasefile.db/table)
 
@@ -261,7 +264,7 @@ optional arguments:
                         exclude the specified columns (default: None)
 
 logging:
-  -f LOGFILE, --logfile LOGFILE
+  -L LOGFILE, --logfile LOGFILE
                         the file to log to (default:
                         /usr/local/var/log/dbnav.log)
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
@@ -365,13 +368,16 @@ Exports specific rows from the database along with their references rows from ot
 
 ### Usage
 ```
-usage: dbexport [-h] [--version] [-f LOGFILE]
+usage: dbexport [-h] [--version] [-L LOGFILE]
                 [-l {critical,error,warning,info,debug}] [-T] [-I] [-U] [-D]
-                [-Y] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT] [-p PACKAGE]
+                [-Y] [-F] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT] [-p PACKAGE]
+                [-f FORMAT]
                 uri
 
+An export tool that exports database rows in different formats.
+
 positional arguments:
-  uri                   the URI to parse (format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table?column=value; for SQLite:
                         databasefile.db/table?column=value)
 
@@ -381,27 +387,34 @@ optional arguments:
   -i INCLUDE, --include INCLUDE
                         include the specified columns and their foreign rows,
                         if any (multiple columns can be specified by
-                        separating them with a comma)
+                        separating them with a comma) (default: None)
   -x EXCLUDE, --exclude EXCLUDE
-                        Exclude the specified columns
+                        Exclude the specified columns (default: None)
   -m LIMIT, --limit LIMIT
                         limit the results of the main query to this amount of
-                        rows
+                        rows (default: 50)
   -p PACKAGE, --package PACKAGE
-                        the package for YAML entities
+                        the package for YAML entities (default: models)
+  -f FORMAT, --format FORMAT
+                        the format for the -F/--formatted writer (use {0} for
+                        positional arguments, or {column_name} to insert the
+                        actual value of table.column_name) (default: {0})
 
 logging:
-  -f LOGFILE, --logfile LOGFILE
-                        the file to log to
+  -L LOGFILE, --logfile LOGFILE
+                        the file to log to (default:
+                        /usr/local/var/log/dbnav.log)
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
-                        the minimum level to log
+                        the minimum level to log (default: warning)
 
 formatters:
-  -T, --test            output format: test specific
-  -I, --insert          output format: SQL insert statements
-  -U, --update          output format: SQL update statements
-  -D, --delete          output format: SQL delete statements
-  -Y, --yaml            output format: YAML data
+  -T, --test            output format: test specific (default: None)
+  -I, --insert          output format: SQL insert statements (default: True)
+  -U, --update          output format: SQL update statements (default: None)
+  -D, --delete          output format: SQL delete statements (default: None)
+  -Y, --yaml            output format: YAML data (default: None)
+  -F, --formatted       output format: given with the -f/--format option
+                        (default: None)
 ```
 
 ### Examples
@@ -469,7 +482,7 @@ Executes the SQL statements from the given file on the database specified by the
 
 ### Usage
 ```
-usage: dbexec [-h] [--version] [-f LOGFILE]
+usage: dbexec [-h] [--version] [-L LOGFILE]
               [-l {critical,error,warning,info,debug}] [-T] [-D] [-I]
               [-s STATEMENTS] [-p PROGRESS] [-n TABLE_NAME]
               uri [infile]
@@ -478,7 +491,7 @@ Executes the SQL statements from the given file on the database specified by
 the given URI
 
 positional arguments:
-  uri                   the URI to parse (format for PostgreSQL:
+  uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database; for SQLite: databasefile.db)
   infile                the path to the file containing the SQL query to
                         execute (default: -)
@@ -497,7 +510,7 @@ optional arguments:
                         __TABLE__)
 
 logging:
-  -f LOGFILE, --logfile LOGFILE
+  -L LOGFILE, --logfile LOGFILE
                         the file to log to (default:
                         /usr/local/var/log/dbnav.log)
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
@@ -514,7 +527,7 @@ A diff tool that compares the structure of two database tables with each other.
 
 ### Usage
 ```
-usage: dbdiff [-h] [--version] [-f LOGFILE]
+usage: dbdiff [-h] [--version] [-L LOGFILE]
               [-l {critical,error,warning,info,debug}] [-T] [-D] [-S] [-v]
               [-c]
               left right
@@ -523,10 +536,10 @@ A diff tool that compares the structure of two database tables with each
 other.
 
 positional arguments:
-  left                  the left URI to parse (format for PostgreSQL:
+  left                  the left URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table; for SQLite:
                         databasefile.db/table)
-  right                 the right URI to parse (format for PostgreSQL:
+  right                 the right URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table; for SQLite:
                         databasefile.db/table)
 
@@ -539,7 +552,7 @@ optional arguments:
   -c, --compare-ddl     compares the DDLs for each column (default: False)
 
 logging:
-  -f LOGFILE, --logfile LOGFILE
+  -L LOGFILE, --logfile LOGFILE
                         the file to log to (default:
                         /usr/local/var/log/dbnav.log)
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
@@ -588,10 +601,10 @@ company TEXT(255)                          <
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.12-py2.7.egg?raw=true) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.13-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.12-py2.7.egg
+pip install dbnav-0.13-py2.7.egg
 ```
 
 ### Alfred Workflow

@@ -5,6 +5,7 @@ from .baseitem import BaseItem
 
 OPTION_URI_DATABASE_FORMAT = '%s/'
 
+
 class Database(BaseItem):
     """The database used with the given connection"""
 

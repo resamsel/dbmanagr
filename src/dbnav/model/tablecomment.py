@@ -13,6 +13,7 @@ COMMENT_DISPLAY = 'display'
 
 logger = logging.getLogger(__name__)
 
+
 class TableComment:
     """The comment on the given table that allows to display much more accurate information"""
 
@@ -25,7 +26,7 @@ class TableComment:
         if json_string:
             try:
                 self.d = dict(self.d.items() + json.loads(json_string).items())
-            except TypeError, e:
+            except TypeError:
                 pass
 
         if COMMENT_ID in self.d:
@@ -39,9 +40,8 @@ class TableComment:
         self.search = self.d[COMMENT_SEARCH]
         self.display = self.d[COMMENT_DISPLAY]
         self.order = self.d[COMMENT_ORDER_BY]
-        
+
         logger.debug('Table comment for %s: %s', table, self)
 
     def __repr__(self):
         return self.d.__repr__()
-

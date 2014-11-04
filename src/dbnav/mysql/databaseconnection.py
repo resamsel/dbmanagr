@@ -1,31 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import shelve
 import logging
 
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
-from os.path import expanduser
 
-from ..model.databaseconnection import *
-from ..model.database import *
-from ..model.table import *
-from ..model.column import *
-from ..model.foreignkey import *
-from ..options import Options
+from dbnav.model.databaseconnection import DatabaseConnection
+from dbnav.model.database import Database
 
-CACHE_TIME = 2*60
 AUTOCOMPLETE_FORMAT = '%s@%s/%s'
 
 logger = logging.getLogger(__name__)
+
 
 class MySQLDatabase(Database):
     def __init__(self, connection, name):
         self.connection = connection
         self.name = name
+
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % (self.connection.user, self.connection.host, self.name)
+
 
 class MySQLConnection(DatabaseConnection):
     """A database connection"""
@@ -33,7 +29,7 @@ class MySQLConnection(DatabaseConnection):
     def __init__(self, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
-            database = database,
+            database=database,
             driver='mysql')
         self.host = host
         self.port = port
@@ -71,30 +67,31 @@ class MySQLConnection(DatabaseConnection):
 
         if options.user:
             filter = options.user
-            if options.host != None:
+            if options.host is not None:
                 matches = filter in self.user
             else:
                 matches = filter in self.user or filter in self.host
-        if options.host != None:
+        if options.host is not None:
             matches = matches and options.host in self.host
 
         return matches
 
     def connect(self, database):
         logger.debug('Connecting to database %s', database)
-        
+
         if database:
             try:
                 self.connect_to('mysql+mysqldb://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
                 self.database = database
-            except OperationalError, e:
+            except OperationalError:
                 self.connect_to('mysql+mysqldb://%s:%s@%s/' % (self.user, self.password, self.host))
                 database = None
         else:
             self.connect_to('mysql+mysqldb://%s:%s@%s/' % (self.user, self.password, self.host))
 
     def restriction(self, alias, column, operator, value, map_null_operator=True):
-        logger.debug('restriction(alias=%s, column=%s (%s), operator=%s, value=%s)',
+        logger.debug(
+            'restriction(alias=%s, column=%s (%s), operator=%s, value=%s)',
             alias, column, column.type if column else '', operator, value)
 
         if operator in ['~', 'like'] and isinstance(column.type, Integer):

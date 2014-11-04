@@ -7,6 +7,7 @@ from dbnav.formatter import Formatter
 
 logger = logging.getLogger(__name__)
 
+
 class Column(BaseItem):
     """A table column"""
 
@@ -18,8 +19,6 @@ class Column(BaseItem):
         self.nullable = nullable
         self.default = default
         self.autoincrement = autoincrement
-        
-        #logger.debug('Column: %s', self.__dict__)
 
     def __repr__(self):
         if self.table:
@@ -27,7 +26,7 @@ class Column(BaseItem):
         return self.name
 
     def __str__(self):
-        return self.__repr__();
+        return self.__repr__()
 
     def ddl(self):
         return '{0} {1}{2}{3}'.format(
