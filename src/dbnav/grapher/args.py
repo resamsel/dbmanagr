@@ -31,7 +31,8 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument('uri',
-    help='the URI to parse (format for PostgreSQL/MySQL: user@host/database/table; for SQLite: databasefile.db/table)')
+    help='the URI to parse (format for PostgreSQL/MySQL: '
+        'user@host/database/table; for SQLite: databasefile.db/table)')
 parser.add_argument('-c',
     '--columns',
     dest='include_columns',
@@ -101,11 +102,14 @@ parser.add_argument('-M',
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-r',
     '--recursive',
-    help='include any forward/back reference to the starting table, recursing through all tables eventually',
+    help='include any forward/back reference to the starting table, '
+        'recursing through all tables eventually',
     action='store_true')
 group.add_argument('-i',
     '--include',
-    help='include the specified columns and their foreign rows, if any. Multiple columns can be specified by separating them with a comma (,)')
+    help='include the specified columns and their foreign rows, if any. '
+        'Multiple columns can be specified by separating them with a comma '
+        '(,)')
 parser.add_argument('-x',
     '--exclude',
     help='exclude the specified columns')

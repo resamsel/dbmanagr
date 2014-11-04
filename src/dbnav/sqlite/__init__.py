@@ -24,10 +24,12 @@ init_sqlite(
         expanduser('~/.dbexplorer/dbexplorer.cfg')),
     getenv(
         'NAVICAT_CFG',
-        expanduser('~/Library/Application Support/PremiumSoft CyberTech/preference.plist')),
+        expanduser('~/Library/Application Support/PremiumSoft CyberTech'
+            '/preference.plist')),
     getenv(
         'NAVICAT_CFG',
-        expanduser('~/Library/Containers/com.prect.NavicatEssentialsForSQLite/Data/Library/Application Support/PremiumSoft CyberTech/preference.plist'))
+        expanduser('~/Library/Containers/com.prect.NavicatEssentialsForSQLite'
+            '/Data/Library/Application Support/PremiumSoft CyberTech/preference.plist'))
 )
 
 Options.parser['sqlite'] = SQLiteOptionsParser()

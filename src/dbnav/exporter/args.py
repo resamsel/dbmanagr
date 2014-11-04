@@ -48,10 +48,12 @@ parser = argparse.ArgumentParser(prog='dbexport',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument('uri',
-    help="""the URI to parse (format for PostgreSQL/MySQL: user@host/database/table?column=value; for SQLite: databasefile.db/table?column=value)""")
+    help='the URI to parse (format for PostgreSQL/MySQL: user@host/database/table?column=value; '
+        'for SQLite: databasefile.db/table?column=value)')
 parser.add_argument('-i',
     '--include',
-    help='include the specified columns and their foreign rows, if any (multiple columns can be specified by separating them with a comma)')
+    help='include the specified columns and their foreign rows, if any (multiple columns can be '
+        'specified by separating them with a comma)')
 parser.add_argument('-x',
     '--exclude',
     help='Exclude the specified columns')
@@ -67,4 +69,5 @@ parser.add_argument('-p',
 parser.add_argument('-f',
     '--format',
     default=u'{0}',
-    help='the format for the -F/--formatted writer (use {0} for positional arguments, or {column_name} to insert the actual value of table.column_name)')
+    help='the format for the -F/--formatted writer (use {0} for positional arguments, '
+        'or {column_name} to insert the actual value of table.column_name)')

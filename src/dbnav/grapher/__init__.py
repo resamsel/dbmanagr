@@ -47,7 +47,9 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                 consumed.append(table.name)
                 table.init_columns(table.connection)
 
-                logger.debug('consume table=%s ,include=%s, exclude=%s, consumed=%s, indent=%d', table, include, exclude, consumed, indent)
+                logger.debug(
+                    'consume table=%s ,include=%s, exclude=%s, consumed=%s, indent=%d',
+                    table, include, exclude, consumed, indent)
 
                 for col in filter(lambda col: col.name not in exclude, table.cols):
                     fk = table.foreign_key(col.name)

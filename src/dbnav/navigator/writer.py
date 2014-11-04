@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from dbnav.writer import FormatWriter
-from dbnav.formatter import Formatter, SimplifiedFormatter, XmlFormatter, JsonFormatter, SimpleFormatter, AutocompleteFormatter
+from dbnav.formatter import Formatter, AutocompleteFormatter, XmlFormatter
+from dbnav.formatter import JsonFormatter, SimpleFormatter, SimplifiedFormatter
 from dbnav.item import Item
 
 

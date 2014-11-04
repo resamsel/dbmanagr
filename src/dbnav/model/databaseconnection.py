@@ -107,7 +107,15 @@ def values(connection, table, filter):
 
 
 class DatabaseRow:
-    columns = {'id': 1, 'title': 'Title', 'subtitle': 'Subtitle', 'column_name': 'column', 0: '0', 1: '1', 'column': 'col'}
+    columns = {
+        'id': 1,
+        'title': 'Title',
+        'subtitle': 'Subtitle',
+        'column_name': 'column',
+        0: '0',
+        1: '1',
+        'column': 'col'
+    }
 
     def __init__(self, *args):
         self.columns = DatabaseRow.columns.copy()

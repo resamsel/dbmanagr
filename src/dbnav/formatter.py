@@ -114,12 +114,35 @@ class XmlFormatter(SimplifiedFormatter):
 
 class JsonFormatter(SimplifiedFormatter):
     def __init__(self):
-        SimplifiedFormatter.__init__(self, default_format=u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{validity}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""", item_format=u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{validity}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""")
+        SimplifiedFormatter.__init__(
+            self,
+            default_format=u'   {{ '
+                           u'"uid": "{uid}", '
+                           u'"arg": "{title}", '
+                           u'"autocomplete": "{autocomplete}", '
+                           u'"valid": "{validity}", '
+                           u'"title": "{title}", '
+                           u'"subtitle": "{subtitle}", '
+                           u'"icon": "{icon}" '
+                           u'}}',
+            item_format=u'   {{ '
+                        u'"uid": "{uid}", '
+                        u'"arg": "{title}", '
+                        u'"autocomplete": '
+                        u'"{autocomplete}", '
+                        u'"valid": "{validity}", '
+                        u'"title": "{title}", '
+                        u'"subtitle": "{subtitle}", '
+                        u'"icon": "{icon}" '
+                        u'}}')
 
 
 class SimpleFormatter(SimplifiedFormatter):
     def __init__(self):
-        SimplifiedFormatter.__init__(self, default_format=u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""", item_format=u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""")
+        SimplifiedFormatter.__init__(
+            self,
+            default_format=u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""",
+            item_format=u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""")
 
 
 class AutocompleteFormatter(SimplifiedFormatter):
