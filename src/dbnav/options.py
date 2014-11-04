@@ -6,7 +6,7 @@ import logging
 
 from dbnav.writer import *
 from dbnav.item import *
-from dbnav.querybuilder import QueryFilter
+from dbnav.queryfilter import QueryFilter
 
 AND_OPERATOR = '&'
 OPERATORS = ['>=','<=','!=','=','~','*','>','<',':']

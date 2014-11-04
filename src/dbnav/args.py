@@ -18,7 +18,7 @@ def parent_parser():
     group = parser.add_argument_group('logging')
     group.add_argument('-L',
 		'--logfile',
-        type=argparse.FileType('w'),
+        type=argparse.FileType('a'),
 		default=default_log_file(),
 		help='the file to log to')
     group.add_argument('-l',

@@ -1,16 +1,9 @@
-class Projection:
-    def __init__(self, value, alias):
-        self.value = value
-        self.alias = None
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-        if not value.endswith('.%s' % alias):
-            self.alias = alias
-    def __repr__(self):
-        if not self.alias:
-            return self.value
-        return PROJECTION_FORMAT.format(self.value, self.alias)
-    def __str__(self):
-        return self.__repr__()
+from sqlalchemy.types import Integer
+
+from dbnav.logger import logger
 
 class Comment:
     def __init__(self, table, counter, aliases, alias):
@@ -35,9 +28,9 @@ class Comment:
                 break
 
         if not comment.id and table.primary_key:
-            comment.id = '{0}.%s' % table.primary_key
+            comment.id = '{%s}' % table.primary_key
         if not comment.id:
-            comment.id = "'-'"
+            comment.id = "-"
 
         if not self.display:
             for column in columns:
@@ -51,7 +44,7 @@ class Comment:
             if name == table.primary_key:
                 comment.subtitle = "'%s'" % name
             else:
-                comment.subtitle = "'%s (id=' || %s || ')'" % (name, comment.id)
+                comment.subtitle = "{%s} (id=%s)" % (name, comment.id)
         if not comment.subtitle:
             if table.primary_key:
                 comment.subtitle = "'%s'" % table.primary_key
@@ -66,25 +59,26 @@ class Comment:
                 logger.error("Error: %s" % e)
                 return s
         
-        self.id = f(comment.id)
+        self.id = comment.id
         self.title = comment.title
         self.subtitle = comment.subtitle
-        self.order = map(f, comment.order)
-        self.search = map(f, comment.search)
-
+        self.order = comment.order
+        self.search = comment.search
+        
         if table.primary_key in [c.name for c in columns]:
-            self.columns[table.primary_key] = Projection(self.id, 'id')
+            self.columns[table.primary_key] = self.id
         else:
-            self.columns[table.primary_key] = Projection("'-'", 'id')
+            self.columns[table.primary_key] = "'-'"
         if self.title != '*':
-            self.columns['title'] = Projection(self.title, 'title')
-        self.columns['subtitle'] = Projection(self.subtitle, 'subtitle')
+            self.columns['title'] = self.title
+        self.columns['subtitle'] = self.subtitle
         for column in self.display:
-            self.columns[column] = Projection('%s.%s' % (self.alias, column), column)
+            self.columns[column] = column
         
         if not self.search:
-            self.search.append(self.title)
-            self.search.append(self.subtitle)
+            d = dict(map(lambda k: (str(k), k), self.columns.keys()))
+            self.search.append(self.title.format(**d))
+            #self.search.append(self.subtitle.format(**d))
 
     def __repr__(self):
         return str(self.__dict__)
@@ -97,7 +91,7 @@ class Comment:
             for name in ['name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment']:
                 if c.name == name:
                     if not isinstance(c.type, Integer):
-                        return (name, '{0}.%s' % c.name)
+                        return (name, '{%s}' % c.name)
                     elif '%s_title' % name in self.fk_titles:
                         return ('%s_title' % name, self.fk_titles['%s_title' % name])
 
@@ -105,12 +99,12 @@ class Comment:
         for c in columns:
             for name in ['name', 'title', 'key', 'text']:
                 if c.name.endswith(name) and not isinstance(c.type, Integer):
-                    return (name, '{0}.%s' % c.name)
+                    return (name, '{%s}' % c.name)
 
         if comment.id:
-            return ('id', comment.id)
+            return ('id', '{%s}' % comment.id)
 
-        return ('First column', '{0}.%s' % columns[0].name)
+        return ('First column', '{%s}' % columns[0].name)
 
     def populate_titles(self, fk_titles, foreign_keys):
         #logger.debug("Populate titles: %s", foreign_keys.keys())

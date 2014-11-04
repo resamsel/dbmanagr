@@ -15,7 +15,7 @@ from dbnav.item import Item, INVALID
 from dbnav.sources import Source
 from dbnav.logger import logger, logduration
 from dbnav.utils import remove_prefix
-from dbnav.querybuilder import QueryFilter
+from dbnav.queryfilter import QueryFilter
 from dbnav.model.databaseconnection import values
 from dbnav.formatter import Formatter
 from dbnav.writer import Writer, TestWriter

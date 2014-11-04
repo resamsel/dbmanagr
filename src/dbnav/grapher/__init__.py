@@ -14,7 +14,7 @@ from dbnav.logger import logger, logduration
 from dbnav.model.column import Column
 from dbnav.model.table import Table
 from dbnav.utils import prefixes, remove_prefix
-from dbnav.querybuilder import QueryFilter
+from dbnav.queryfilter import QueryFilter
 from dbnav.model.databaseconnection import values
 from dbnav.node import BaseNode, ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.writer import Writer

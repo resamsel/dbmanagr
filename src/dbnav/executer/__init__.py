@@ -13,7 +13,7 @@ from dbnav.sources import Source
 from dbnav.logger import logger, logduration
 from dbnav.model.table import Table
 from dbnav.utils import prefixes, remove_prefix
-from dbnav.querybuilder import QueryFilter
+from dbnav.queryfilter import QueryFilter
 
 from .args import parser
 from .writer import ExecuteWriter

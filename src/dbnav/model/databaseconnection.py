@@ -11,7 +11,8 @@ from sqlalchemy.types import TIMESTAMP
 import datetime
 
 from dbnav.logger import logger, logduration
-from ..querybuilder import QueryBuilder
+from dbnav.querybuilder import QueryBuilder, SimplifyMapper
+from dbnav.comment import Comment
 from .column import *
 from dbnav.item import VALID, INVALID
 from .baseitem import BaseItem
@@ -53,14 +54,22 @@ def values(connection, table, filter):
     logger.debug('values(connection=%s, table=%s, filter=%s)', connection, table, filter)
 
     foreign_keys = table.fks
-    query = QueryBuilder(connection,
+    builder = QueryBuilder(connection,
                 table,
                 filter=filter.filter,
                 limit=1,
-                simplify=filter.simplify).build()
-    result = connection.execute(query, 'Values')
-        
-    row = Row(connection, table, result.fetchone())
+                simplify=filter.simplify)
+
+    result = connection.queryone(
+        builder.build(),
+        'Values',
+        SimplifyMapper(table,
+            comment=Comment(table,
+                builder.counter,
+                builder.aliases,
+                None)))
+
+    row = Row(connection, table, result)
 
     logger.debug('Comment.display: %s', table.comment.display)
     if table.comment.display:
@@ -73,8 +82,8 @@ def values(connection, table, filter):
     def val(row, column):
         colname = '%s_title' % column
         if colname in row.row:
-            return u'%s (%s)' % (row.row[colname], row.row[column])
-        return row.row[tostring(column)]
+            return u'%s (%s)' % (row[colname], row[column])
+        return row[tostring(column)]
 
     values = []
     for key in keys:
@@ -82,13 +91,13 @@ def values(connection, table, filter):
         if key in table.fks:
             # Key is a foreign key column
             fk = table.fks[key]
-            autocomplete = fk.b.table.autocomplete(fk.b.name, row.row[tostring(key)])
+            autocomplete = fk.b.table.autocomplete(fk.b.name, row[tostring(key)])
         elif table.column(key).primary_key:
             # Key is a simple column, but primary key
-            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
+            autocomplete = table.autocomplete(key, row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
         else:
             # Key is a simple column
-            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
+            autocomplete = table.autocomplete(key, row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
         f = fkey(Column(table, key))
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
@@ -98,7 +107,7 @@ def values(connection, table, filter):
     for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
         fk = foreign_keys[key]
         if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(fk.a.name, row.row[fk.b.name], OPTION_URI_MULTIPLE_ROWS_FORMAT)
+            autocomplete = fk.a.table.autocomplete(fk.a.name, row[fk.b.name], OPTION_URI_MULTIPLE_ROWS_FORMAT)
             logger.debug('table.name=%s, fk=%s, autocomplete=%s', table.name, fk, autocomplete)
             values.append(
                 Value(fk.a,
@@ -255,24 +264,37 @@ class DatabaseConnection(BaseItem):
         
         return result
 
-    def query(self, query, name='Unnamed', mapper=None):
-        logger.info('Query %s: %s', name, query)
-        
+    def queryall(self, query, name='Unnamed', mapper=None):
+        logger.info('Query all %s: %s', name, query)
+
         start = time.time()
         result = query.all()
-        logduration('Query %s' % name, start)
-        
+        logduration('Query all %s' % name, start)
+
         if mapper:
             for row in result:
                 mapper.map(row)
-        
+
+        return result
+
+    def queryone(self, query, name='Unnamed', mapper=None):
+        logger.info('Query one %s: %s', name, query)
+
+        start = time.time()
+        result = query.one()
+        logduration('Query one %s' % name, start)
+
+        if mapper:
+            mapper.map(result)
+
         return result
 
     def filter(self, options):
         return True
 
     def databases(self):
-        return map(lambda name: Database(self, name), self.inspector.get_schema_names())
+        return map(lambda name: Database(self, name),
+            self.inspector.get_schema_names())
 
     def tables(self):
         if not self.tbls:
@@ -283,8 +305,7 @@ class DatabaseConnection(BaseItem):
         return self.tbls
 
     def tablesof(self, database):
-        return map(
-            lambda name: Table(self, database, name, ''),
+        return map(lambda name: Table(self, database, name, ''),
             self.inspector.get_table_names())
 
     def put_foreign_keys(self):

@@ -1,204 +1,74 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
 from collections import Counter
-from sqlalchemy.types import Integer
-from difflib import get_close_matches
+from sqlalchemy import or_
+from sqlalchemy.orm.session import Session
+from sqlalchemy.sql.expression import text
 
-from .model.column import Column
-from dbnav.model.exception import UnknownColumnException
+from dbnav.logger import logger
+from dbnav.comment import Comment
+from dbnav.model.column import Column
 
-QUERY_FORMAT = u"""
-select
-        {1}
-    from
-        {0} {2}{3}
-    where
-        {4}
-    order by
-        {5}
-    {6}
-"""
-LIMIT_FORMAT = u"limit {0}"
-JOIN_FORMAT = u"""
-        left outer join {0} {1} on {1}.{2} = {3}.{4}"""
-ALIAS_FORMAT = u"{0}_title"
-PROJECTION_FORMAT = u"""{0} {1}"""
-SEARCH_FORMAT = u"cast(%s as char) %s '%s'"
-LIST_SEPARATOR = u""",
-        """
-AND_SEPARATOR = u"""
-        and """
-OR_SEPARATOR = u"""
-        or """
 OPERATORS = {
-    '=': '=',
-    '!=': '!=',
-    '~': 'like',
-    '*': 'like',
-    '>': '>',
-    '>=': '>=',
-    '<=': '<=',
-    '<': '<',
-    'in': 'in',
-    ':': 'in'
+    '=':    lambda c, v: c == v,
+    '!=':   lambda c, v: c != v,
+    '~':    lambda c, v: c.like(v),
+    '*':    lambda c, v: c.like(v),
+    '>':    lambda c, v: c > v,
+    '>=':   lambda c, v: c >= v,
+    '<=':   lambda c, v: c <= v,
+    '<':    lambda c, v: c < v,
+    'in':   lambda c, v: c.in_(v),
+    ':':    lambda c, v: c.in_(v)
 }
 
-logger = logging.getLogger(__name__)
+def add_filter(query, column, operator, value):
+    return query.filter(OPERATORS.get(operator)(column, value))
 
-class QueryFilter:
-    def __init__(self, lhs, operator=None, rhs=None):
-        self.lhs = lhs
-        self.operator = operator
-        self.rhs = rhs
-class Join:
-    def __init__(self, table, alias, column, fk_alias, fk_column):
+def create_title(comment, columns):
+    logger.debug('create_title(comment=%s, columns=%s)', comment, columns)
+
+    # find specially named columns (but is not an integer - integers are no good names)
+    for c in filter(lambda c: not isinstance(c.type, Integer), columns):
+        for name in ['name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment']:
+            logger.debug('c.name=%s, name=%s', c.name, name)
+            if c.name == name:
+                return c.name
+#                elif '%s_title' % name in self.fk_titles:
+#                    return ('%s_title' % name, self.fk_titles['%s_title' % name])
+
+    # find columns that end with special names
+    for c in filter(lambda c: not isinstance(c.type, Integer), columns):
+        for name in ['name', 'title', 'key', 'text']:
+            logger.debug('c.name=%s, name=%s', c.name, name)
+            if c.name.endswith(name):
+                return c.name
+
+    if comment.id:
+        return comment.id
+
+    return columns[0].name
+
+class SimplifyMapper:
+    def __init__(self, table, comment=None):
         self.table = table
-        self.alias = alias
-        self.column = column
-        self.fk_alias = fk_alias
-        self.fk_column = fk_column
-    def __repr__(self):
-        return JOIN_FORMAT.format(self.table, self.alias, self.column, self.fk_alias, self.fk_column)
-    def __str__(self):
-        return self.__repr__()
-class Projection:
-    def __init__(self, value, alias):
-        self.value = value
-        self.alias = None
-
-        if not value.endswith('.%s' % alias):
-            self.alias = alias
-    def __repr__(self):
-        if not self.alias:
-            return self.value
-        return PROJECTION_FORMAT.format(self.value, self.alias)
-    def __str__(self):
-        return self.__repr__()
-class Comment:
-    def __init__(self, qb, table):
-        self.qb = qb
-        self.alias = qb.alias
-
-        comment = table.comment
-
-        self.fk_titles = {}
-        self.columns = {}
-        self.display = comment.display
-        table.primary_key = None
-
-        columns = qb.connection.columns(table)
-        
-        # finds the primary key
-        for c in columns:
-            if c.primary_key:
-                table.primary_key = c.name
-                break
-
-        if not comment.id and table.primary_key:
-            comment.id = '{0}.%s' % table.primary_key
-        if not comment.id:
-            comment.id = "'-'"
-
-        if not self.display:
-            for column in columns:
-                self.display.append(column.name)
-
-        self.populate_titles(self.fk_titles, table.fks)
-
-        if not comment.title:
-            name, title = self.create_title(comment, columns)
-            comment.title = title
-            if name == table.primary_key:
-                comment.subtitle = "'%s'" % name
-            else:
-                comment.subtitle = "'%s (id=' || %s || ')'" % (name, comment.id)
-        if not comment.subtitle:
-            if table.primary_key:
-                comment.subtitle = "'%s'" % table.primary_key
-            else:
-                comment.subtitle = "'There is no primary key'"
-
-        def f(s):
-            try:
-                return s.format(self.alias, **self.fk_titles)
-            except KeyError, e:
-                logger.debug("Foreign key titles: %s" % self.fk_titles)
-                logger.error("Error: %s" % e)
-                return s
-        
-        self.id = f(comment.id)
-        self.title = f(comment.title)
-        self.subtitle = f(comment.subtitle)
-        self.order = map(f, comment.order)
-        self.search = map(f, comment.search)
-
-        if table.primary_key in [c.name for c in columns]:
-            self.columns[table.primary_key] = Projection(self.id, 'id')
-        else:
-            self.columns[table.primary_key] = Projection("'-'", 'id')
-        if self.title != '*':
-            self.columns['title'] = Projection(self.title, 'title')
-        self.columns['subtitle'] = Projection(self.subtitle, 'subtitle')
-        for column in self.display:
-            self.columns[column] = Projection('%s.%s' % (self.alias, column), column)
-        
-        if not self.search:
-            self.search.append(self.title)
-            self.search.append(self.subtitle)
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-    def create_title(self, comment, columns):
-        logger.debug('create_title(comment=%s, columns=%s)', comment, columns)
-
-        # find specially named columns (but is not an integer - integers are no good names)
-        for c in columns:
-            for name in ['name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment']:
-                if c.name == name:
-                    if not isinstance(c.type, Integer):
-                        return (name, '{0}.%s' % c.name)
-                    elif '%s_title' % name in self.fk_titles:
-                        return ('%s_title' % name, self.fk_titles['%s_title' % name])
-
-        # find columns that end with special names
-        for c in columns:
-            for name in ['name', 'title', 'key', 'text']:
-                if c.name.endswith(name) and not isinstance(c.type, Integer):
-                    return (name, '{0}.%s' % c.name)
-
-        if comment.id:
-            return ('id', comment.id)
-
-        return ('First column', '{0}.%s' % columns[0].name)
-
-    def populate_titles(self, fk_titles, foreign_keys):
-        #logger.debug("Populate titles: %s", foreign_keys.keys())
-        for key in foreign_keys.keys():
-            if key in self.display:
-                fk = foreign_keys[key]
-                fktable = fk.b.table
-                self.qb.counter[fktable.name] += 1
-                alias = '%s_%d' % (fktable.name, self.qb.counter[fktable.name])
-                self.qb.aliases[key] = alias
-                k = '%s_title' % key
-                try:
-                    if fktable.comment.title:
-                        fk_titles[k] = fktable.comment.title.format(alias)
-                except KeyError, e:
-#                    c = Comment(self.qb, fktable)
-#                    columns = c.columns
-#                    k_ = k.replace('%s_' % fk.a.name, '')
-                    fk_titles[k] = "'columns[k_]'"
-#                    self.qb.joins[fktable.name] = Join(fktable.name, alias, fk.b.name, self.alias, fk.a.name)
+        self.comment = comment
+    def map(self, row):
+        #logger.debug('SimplifyMapper.map(self, row(%s)=#%d)', type(row), len(row))
+        d = row.__dict__
+        for k in ['title', 'subtitle']:
+            if k not in d:
+                if self.comment:
+                    d[k] = self.comment.__dict__[k].format(self.table.name, **d)
+                else:
+                    d[k] = create_title(self.comment, self.table.columns()).format(
+                        self.table.name, **d)
 
 class QueryBuilder:
-    def __init__(self, connection, table, id=None, filter=None, order=None, limit=None, simplify=True):
+    def __init__(self, connection, table, filter=None, order=None, limit=None, simplify=True):
         self.connection = connection
         self.table = table
-        self.id = id
         self.filter = filter if filter else []
         self.order = order if order else []
         self.limit = limit
@@ -210,115 +80,86 @@ class QueryBuilder:
         self.alias = '_%s' % self.table.name
 
     def build(self):
+        logger.debug('QueryBuilder.build(self)')
+
         foreign_keys = self.table.foreign_keys()
-        where = '1=1'
-        order = self.order
-        limit = LIMIT_FORMAT.format(self.limit) if self.limit > 0 else ''
-        comment = Comment(self, self.table)
-        
+        search_fields = []
+
+        Entity = self.table.entity
+
+        session = Session(self.connection.engine)
+        query = session.query(Entity).enable_eagerloads(True)
+
         if self.simplify:
+            logger.debug('Simplify result')
+
+            # Add referenced tables from comment to be linked
+            comment = Comment(self.table, self.counter, self.aliases, self.alias)
+            
+            logger.debug('Comment: %s', comment)
+
             for key in foreign_keys.keys():
                 if key in comment.display:
                     fk = foreign_keys[key]
                     fktable = fk.b.table
-                    if key in self.aliases:
-                        alias = self.aliases[key]
-                        try:
-                            if fktable.comment.title:
-                                title = fktable.comment.title.format(alias)
-                                if title != '*':
-                                    a = ALIAS_FORMAT.format(fk.a.name)
-                                    comment.columns[a] = Projection(title, a)
-                            self.joins[alias] = Join(
-                                self.connection.escape_keyword(fk.b.table.name),
-                                alias,
-                                fk.b.name,
-                                self.alias,
-                                fk.a.name)
-                        except KeyError, e:
-                            logger.error(
-                                "KeyError: %s, table=%s, comment.title=%s",
-                                e, fktable, fktable.comment.title)
+                    logger.debug('Adding join for table %s', fktable.name)
+                    query = query.join(fktable.entity)
 
-        logger.debug('Comment for %s: %s', self.table, comment)
+            if not self.order:
+                if 'id' in comment.columns:
+                    self.order = [comment.columns['id']]
 
-        if self.id:
-            if '=' in comment.id:
-                (name, value) = comment.id.split('=')
-                where = "{0}.{1} = '{2}'".format(self.alias, name, value)
-            else:
-                where = "%s = '%s'" % (comment.id, self.id)
-        elif self.filter:
+            logger.debug('Order: %s', self.order)
+
+            keys = dict(map(lambda k: (str(k), k), comment.columns.keys()))
+            if comment.search:
+                for s in comment.search:
+                    search_fields.append(s.format(**keys))
+
+            if not search_fields:
+                search_fields.append(comment.title.format(**keys))
+                #search_fields.append(comment.subtitle)
+
+            logger.debug('Search fields: %s', search_fields)
+
+        if self.filter:
             wheres = []
             for f in self.filter:
-                logger.debug("Filter: column=%s, operator=%s, filter=%s",
+                logger.debug("Filter: lhs=%s, op=%s, rhs=%s",
                      f.lhs, f.operator, f.rhs)
-                operator = OPERATORS.get(f.operator, '=')
                 if f.lhs != '':
                     if f.operator:
-                        logger.debug('lhs=%s, operator=%s, rhs=%s', f.lhs, f.operator, f.rhs)
+                        logger.debug('lhs=%s, operator=%s, rhs=%s',
+                            f.lhs, f.operator, f.rhs)
                         col = self.table.column(f.lhs)
                         if not col:
                             raise UnknownColumnException(self.table, f.lhs)
-                        wheres.append(self.connection.restriction(
-                            self.alias,
-                            col,
-                            operator,
-                            f.rhs))
-                elif comment.search:
+                        logger.debug('Adding filter: lhs=%s, operator=%s, rhs=%s',
+                            f.lhs, f.operator, f.rhs)
+                        query = add_filter(query,
+                            Entity.columns[col.name],
+                            f.operator,
+                            f.rhs)
+                        logger.debug('Filter added')
+                elif search_fields:
+                    logger.debug('Search fields: %s', search_fields)
                     rhs = f.rhs
                     if rhs == '' and f.operator == '*':
                         rhs = '%'
-                    conjunctions = []
-                    for search_field in comment.search:
-                        def col(alias, field):
-                            prefix = '%s.' % alias
-                            if field.startswith(prefix):
-                                field = field[len(prefix):]
-                            c = self.table.column(field)
-                            if c:
-                                return c
-                            return Column(None, field, False, 'String')
-                        logger.debug('Search field=%s, col(alias, search_field)=%s', search_field, col(self.alias, search_field).__dict__)
-                        conjunctions.append(self.connection.restriction(
-                            self.alias,
-                            col(self.alias, search_field),
-                            operator,
-                            rhs))
+                    ss = map(lambda s: OPERATORS.get(f.operator)(Entity.columns[s], rhs),
+                        filter(lambda s: s in Entity.columns,
+                            search_fields))
                     if 'id' in comment.columns:
                         col = self.table.column('id')
                         if not col:
                             raise UnknownColumnException(self.table, 'id')
-                        conjunctions.append(self.connection.restriction(
-                            self.alias,
-                            col,
-                            operator,
-                            rhs))
-                    wheres.append(OR_SEPARATOR.join(conjunctions))
-            if wheres:
-                where = AND_SEPARATOR.join(wheres)
+                        ss.append(OPERATORS.get(f.operator)(Entity.columns[col.name], rhs))
+                    query = query.filter(or_(*ss))
 
-        logger.debug('Order: %s', order)
-        
-        if not order:
-            if 'id' in comment.columns:
-                order.append(comment.columns['id'].value)
-            else:
-                order.append('1')
-        
-        logger.debug('Order: %s', order)
-        
-        if self.simplify:
-            projection = comment.columns.values()
-        else:
-            projection = map(
-                lambda col: Projection('%s.%s' % (self.alias, col.name), col.name),
-                self.table.cols)
+        if self.order:
+            for order in self.order:
+                query = query.order_by(Entity.columns[order])
 
-        return QUERY_FORMAT.format(self.connection.escape_keyword(self.table.name),
-            LIST_SEPARATOR.join(map(str, projection)),
-            self.alias,
-            ''.join(map(str, self.joins.values())),
-            where,
-            LIST_SEPARATOR.join(order),
-            limit)
+        logger.debug('Slice: 0, %d', self.limit)
+
+        return query.slice(0, self.limit)

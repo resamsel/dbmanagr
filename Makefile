@@ -45,7 +45,7 @@ install-bash-completion:
 install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
-test:
+test: assemble
 	$(SETUPTOOLS) test
 
 develop:

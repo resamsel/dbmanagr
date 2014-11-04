@@ -22,9 +22,9 @@ class Config:
             datefmt="%Y-%m-%d %H:%M:%S")
 
         logger.info("""
-    ###
-    ### Exporter called with args: %s
-    ###""", options.argv)
+###
+### %s called with args: %s
+###""", parser.prog, options.argv)
 
         logger.debug("Options: %s", options)
 

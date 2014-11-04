@@ -6,12 +6,12 @@ import logging
 
 from sqlalchemy.exc import ProgrammingError
 
-from ..logger import logduration
-from .tablecomment import TableComment
-from .column import *
-from .row import *
-from ..querybuilder2 import QueryBuilder, SimplifyMapper
-from .baseitem import BaseItem
+from dbnav.logger import logduration
+from dbnav.model.tablecomment import TableComment
+from dbnav.model.column import *
+from dbnav.model.row import *
+from dbnav.querybuilder import QueryBuilder, SimplifyMapper
+from dbnav.model.baseitem import BaseItem
 from dbnav.comment import Comment
 
 DEFAULT_LIMIT = 50
@@ -25,7 +25,7 @@ class Table(BaseItem):
         self.connection = connection
         self.database = database
         self.name = name
-        self.table = connection.meta.tables[name]
+        self.entity = connection.meta.tables[name]
         self.comment = TableComment(self, comment)
         self.owner = owner
         self.size = size
@@ -89,7 +89,7 @@ class Table(BaseItem):
             simplify=simplify)
 
         try:
-            result = self.connection.query(builder.build(),
+            result = self.connection.queryall(builder.build(),
                 name='Rows',
                 mapper=SimplifyMapper(self,
                     comment=Comment(self,
