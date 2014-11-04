@@ -1,42 +1,41 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
-import time
-import sys
-import argparse
 import re
 
 from collections import OrderedDict
 
 from dbnav import wrapper
 from dbnav.config import Config
-from dbnav.item import Item, INVALID
 from dbnav.sources import Source
-from dbnav.logger import logger, logduration
+from dbnav.logger import logger
 from dbnav.utils import remove_prefix
-from dbnav.querybuilder import QueryFilter
-from dbnav.model.databaseconnection import values
+from dbnav.queryfilter import QueryFilter
 from dbnav.formatter import Formatter
-from dbnav.writer import Writer, TestWriter
-from dbnav.args import parent_parser, format_group
+from dbnav.writer import Writer
 from dbnav.model.exception import UnknownColumnException
 
 from .args import parser, SqlInsertWriter
+
 
 class RowItem():
     def __init__(self, row, exclude):
         self.row = row
         self.exclude = exclude
+
     def __hash__(self):
         return hash(self.row.autocomplete())
+
     def __eq__(self, o):
         return hash(self.row.autocomplete()) == hash(o.row.autocomplete())
+
     def format(self):
         Formatter.formatter.format_row(self.row)
 
+
 def fk_by_a_table_name(fks):
     return dict(map(lambda (k, v): (v.a.table.name, v), fks.iteritems()))
+
 
 def create_items(items, include, exclude):
     logger.debug('create_items(items=%s, include=%s, exclude=%s)', items, include, exclude)
@@ -100,11 +99,13 @@ def create_items(items, include, exclude):
                     simplify=False),
                 remove_prefix(fk.a.table.name, include),
                 remove_prefix(fk.a.table.name, exclude))
-            
+
     return results_pre + map(lambda i: RowItem(i, exclude), items) + results_post
+
 
 def prefix(s):
     return re.sub('([^\\.]*)\\..*', '\\1', s)
+
 
 class DatabaseExporter:
     """The main class"""
@@ -119,8 +120,8 @@ class DatabaseExporter:
         for connection in cons:
             opts = options.get(connection.driver)
             if ((opts.show == 'values'
-                or opts.show == 'columns' and opts.filter != None)
-                and connection.matches(opts)):
+                    or opts.show == 'columns' and opts.filter is not None)
+                    and connection.matches(opts)):
                 try:
                     connection.connect(opts.database)
                     tables = connection.tables()
@@ -141,8 +142,10 @@ class DatabaseExporter:
 
         raise Exception('Specify the complete URI to a table')
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     options = Config.init(argv, parser)

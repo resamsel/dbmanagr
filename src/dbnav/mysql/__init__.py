@@ -11,6 +11,7 @@ from dbnav.mysql.sources import DBExplorerMySQLSource, MypassSource
 from dbnav.options import Options
 from dbnav.mysql.options import MySQLOptionsParser
 
+
 def init_mysql(dbexplorer_config, mypass_config):
     Source.sources.append(DBExplorerMySQLSource(dbexplorer_config))
     Source.sources.append(MypassSource(mypass_config))

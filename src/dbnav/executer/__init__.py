@@ -11,19 +11,19 @@ from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
 from dbnav.logger import logger, logduration
-from dbnav.model.table import Table
-from dbnav.utils import prefixes, remove_prefix
-from dbnav.querybuilder import QueryFilter
 
 from .args import parser
 from .writer import ExecuteWriter
+
 
 class Item:
     def __init__(self, connection, row):
         self.connection = connection
         self.row = row
+
     def __str__(self):
         return '\t'.join(map(lambda c: unicode(c), self.row))
+
 
 def read_sql(file):
     start = time.time()
@@ -36,8 +36,9 @@ def read_sql(file):
         file.close()
 
     logduration('Reading input statements', start)
-    
+
     return sql
+
 
 def read_statements(opts):
     if opts.statements:
@@ -57,8 +58,9 @@ def read_statements(opts):
 
     logduration('Splitting SQL statements', start)
     logger.info('Number of SQL statements: %d', len(stmts))
-    
+
     return stmts
+
 
 class DatabaseExecuter:
     """The main class"""
@@ -86,7 +88,7 @@ class DatabaseExecuter:
                 changes = 0
                 # Counts the statements
                 counter = 0
-                    
+
                 start = None
                 trans = None
                 try:
@@ -124,8 +126,10 @@ class DatabaseExecuter:
 
         raise Exception('Specify the complete URI to a table')
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     options = Config.init(argv, parser)

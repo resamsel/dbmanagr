@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
-import time
-import sys
-
 from dbnav.writer import Writer
 
 from dbnav import wrapper
-from dbnav.logger import logger, logduration
 from dbnav.config import Config
 from dbnav.sources import Source
 from .args import parser
 from .writer import DiffWriter
 
+
 def column_ddl(c):
     return c.ddl()
+
+
 def column_name(c):
     return c.name
+
 
 class DatabaseDiffer:
     """The main class"""
@@ -46,10 +45,10 @@ class DatabaseDiffer:
             if ropts.table not in rtables:
                 raise Exception("Could not find table '{0}' in right connection".format(ropts.table))
             rtable = rtables[ropts.table]
-            
+
             lcols = map(column_ddl if left.compare_ddl else column_name, ltable.columns())
             rcols = map(column_ddl if right.compare_ddl else column_name, rtable.columns())
-            
+
             lplus = dict(map(
                 lambda c: (c.split()[0], ltable.column(c.split()[0])),
                 list(set(lcols) - set(rcols))))
@@ -72,8 +71,10 @@ class DatabaseDiffer:
             lcon.close()
             rcon.close()
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     left = Config.init(argv, parser)

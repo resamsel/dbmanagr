@@ -9,6 +9,7 @@ from dbnav.logger import logger
 
 __all__ = ('navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger', 'options', 'tests')
 
+
 def wrapper(f):
     try:
         print Writer.write(f(sys.argv))

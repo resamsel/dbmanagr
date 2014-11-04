@@ -4,63 +4,57 @@
 import time
 import logging
 import math
-
-from sqlalchemy import *
-from sqlalchemy.engine import reflection
-from sqlalchemy.types import TIMESTAMP
 import datetime
 
-from ..logger import *
-from ..querybuilder import QueryBuilder
-from .column import *
-from dbnav.item import VALID, INVALID
-from .baseitem import BaseItem
+from sqlalchemy import create_engine, MetaData, Boolean, Float, Integer
+from sqlalchemy.engine import reflection
+from sqlalchemy.types import TIMESTAMP
+
+from dbnav.logger import logduration
+from dbnav.querybuilder import QueryBuilder, SimplifyMapper
+from dbnav.comment import Comment
+from dbnav.utils import tostring, dictsplus, dictminus
+from dbnav.model.column import Column
+from dbnav.model.baseitem import BaseItem
 from dbnav.model.foreignkey import ForeignKey
 from dbnav.model.database import Database
 from dbnav.model.row import Row
 from dbnav.model.table import Table
+from dbnav.model.tablecomment import COMMENT_TITLE
 from dbnav.model.value import Value, KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
 from dbnav.model.exception import UnknownColumnException
 
 logger = logging.getLogger(__name__)
 
-OPTION_URI_TABLES_FORMAT = u'%s%s/'
 OPTION_URI_SINGLE_ROW_FORMAT = u'%s%s/?%s'
 OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
-def tostring(key):
-    if isinstance(key, unicode):
-        return key.encode('ascii', errors='ignore')
-    return key
-
-def dictsplus(dicts, key, value):
-    for d in dicts:
-        dictplus(d, key, value)
-    return dicts
-
-def dictplus(d, key, value):
-    d[key] = value
-    
-def dictminus(d, key):
-    r = dict(d)
-    if key in d:
-        del r[key]
-    return r
 
 def values(connection, table, filter):
     """Creates row values according to the given filter"""
-    
+
     logger.debug('values(connection=%s, table=%s, filter=%s)', connection, table, filter)
 
     foreign_keys = table.fks
-    query = QueryBuilder(connection,
+    builder = QueryBuilder(
+        connection,
+        table,
+        filter=filter.filter,
+        limit=1,
+        simplify=filter.simplify)
+
+    result = connection.queryone(
+        builder.build(),
+        'Values',
+        SimplifyMapper(
+            table,
+            comment=Comment(
                 table,
-                filter=filter.filter,
-                limit=1,
-                simplify=filter.simplify).build()
-    result = connection.execute(query, 'Values')
-        
-    row = Row(connection, table, result.fetchone())
+                builder.counter,
+                builder.aliases,
+                None)))
+
+    row = Row(connection, table, result)
 
     logger.debug('Comment.display: %s', table.comment.display)
     if table.comment.display:
@@ -68,13 +62,14 @@ def values(connection, table, filter):
     else:
         keys = sorted(row.row.keys(), key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
 
-    def fkey(column): return foreign_keys[column.name] if column.name in foreign_keys else column
+    def fkey(column):
+        return foreign_keys[column.name] if column.name in foreign_keys else column
 
     def val(row, column):
         colname = '%s_title' % column
         if colname in row.row:
-            return u'%s (%s)' % (row.row[colname], row.row[column])
-        return row.row[tostring(column)]
+            return u'%s (%s)' % (row[colname], row[column])
+        return row[tostring(column)]
 
     values = []
     for key in keys:
@@ -82,44 +77,56 @@ def values(connection, table, filter):
         if key in table.fks:
             # Key is a foreign key column
             fk = table.fks[key]
-            autocomplete = fk.b.table.autocomplete(fk.b.name, row.row[tostring(key)])
+            autocomplete = fk.b.table.autocomplete(fk.b.name, row[tostring(key)])
         elif table.column(key).primary_key:
             # Key is a simple column, but primary key
-            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
+            autocomplete = table.autocomplete(key, row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
         else:
             # Key is a simple column
-            autocomplete = table.autocomplete(key, row.row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
+            autocomplete = table.autocomplete(key, row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
         f = fkey(Column(table, key))
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
             kind = KIND_FOREIGN_KEY
-        values.append(Value(value, f, autocomplete, VALID, kind))
+        values.append(Value(value, f, autocomplete, True, kind))
 
     for key in sorted(foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
         fk = foreign_keys[key]
         if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(fk.a.name, row.row[fk.b.name], OPTION_URI_MULTIPLE_ROWS_FORMAT)
+            autocomplete = fk.a.table.autocomplete(fk.a.name, row[fk.b.name], OPTION_URI_MULTIPLE_ROWS_FORMAT)
             logger.debug('table.name=%s, fk=%s, autocomplete=%s', table.name, fk, autocomplete)
             values.append(
-                Value(fk.a,
+                Value(
+                    fk.a,
                     fkey(Column(fk.a.table, fk.a.name)),
                     autocomplete,
-                    INVALID,
+                    False,
                     KIND_FOREIGN_VALUE))
 
     return values
 
+
 class DatabaseRow:
-    columns = {'id': 1, 'title': 'Title', 'subtitle': 'Subtitle', 'column_name': 'column', 0: '0', 1: '1', 'column': 'col'}
+    columns = {
+        'id': 1,
+        'title': 'Title',
+        'subtitle': 'Subtitle',
+        'column_name': 'column',
+        0: '0',
+        1: '1',
+        'column': 'col'
+    }
+
     def __init__(self, *args):
         self.columns = DatabaseRow.columns.copy()
         if len(args) > 0:
             self.columns.update(args[0])
             if 'id' not in self.columns:
                 self.columns['id'] = 0
+
     def __getitem__(self, i):
         logger.debug('DatabaseRow.__getitem__(%s: %s), columns=%s', str(i), type(i), self.columns)
-        if i == None:
+        if i is None:
             return None
         if type(i) is str and i not in self.columns:
             raise UnknownColumnException(None, i, map(
@@ -128,16 +135,21 @@ class DatabaseRow:
                     lambda (k, v): type(k) is str,
                     self.columns.iteritems())))
         return self.columns[i]
+
     def __contains__(self, item):
         return item in self.columns
+
 
 class Cursor:
     def execute(self, query):
         pass
+
     def fetchone(self):
         return DatabaseRow()
+
     def fetchall(self):
         return [DatabaseRow()]
+
 
 class DatabaseConnection(BaseItem):
     def __init__(self, **kwargs):
@@ -201,7 +213,7 @@ class DatabaseConnection(BaseItem):
                 logger.debug('columns, check filter=%s', options.filter)
                 if not options.filter:
                     raise Exception("No filter given")
-                if len(options.filter) > 0 and options.filter[-1].rhs == None:
+                if len(options.filter) > 0 and options.filter[-1].rhs is None:
                     return sorted(
                         table.columns(self, options.filter[-1].lhs),
                         key=lambda c: c.name.lower())
@@ -212,7 +224,7 @@ class DatabaseConnection(BaseItem):
                             limit=options.limit,
                             simplify=options.simplify),
                         key=lambda r: r[0])
-            
+
             if options.show == 'values':
                 return values(self, table, options)
         finally:
@@ -226,6 +238,8 @@ class DatabaseConnection(BaseItem):
         self.engine = create_engine(source)
         self.con = self.engine.connect()
         self.inspector = reflection.Inspector.from_engine(self.engine)
+        self.meta = MetaData()
+        self.meta.reflect(bind=self.engine)
 
     def connected(self):
         return self.con
@@ -243,21 +257,48 @@ class DatabaseConnection(BaseItem):
 
     def execute(self, query, name='Unnamed'):
         logger.info('Query %s: %s', name, query)
-        
+
         cur = self.cursor()
         if not cur:
             raise Exception('Database is not connected')
         start = time.time()
         result = cur.execute(query)
         logduration('Query %s' % name, start)
-        
+
+        return result
+
+    def queryall(self, query, name='Unnamed', mapper=None):
+        logger.info('Query all %s: %s', name, query)
+
+        start = time.time()
+        result = query.all()
+        logduration('Query all %s' % name, start)
+
+        if mapper:
+            for row in result:
+                mapper.map(row)
+
+        return result
+
+    def queryone(self, query, name='Unnamed', mapper=None):
+        logger.info('Query one %s: %s', name, query)
+
+        start = time.time()
+        result = query.one()
+        logduration('Query one %s' % name, start)
+
+        if mapper:
+            mapper.map(result)
+
         return result
 
     def filter(self, options):
         return True
 
     def databases(self):
-        return map(lambda name: Database(self, name), self.inspector.get_schema_names())
+        return map(
+            lambda name: Database(self, name),
+            self.inspector.get_schema_names())
 
     def tables(self):
         if not self.tbls:
@@ -273,10 +314,11 @@ class DatabaseConnection(BaseItem):
             self.inspector.get_table_names())
 
     def put_foreign_keys(self):
-        fks = reduce(lambda x, y: x + y,
+        fks = reduce(
+            lambda x, y: x + y,
             map(lambda (k, v): dictsplus(self.inspector.get_foreign_keys(k), 'name', k),
                 self.tbls.iteritems()),
-                [])
+            [])
 
         for _fk in fks:
             a = Column(
@@ -305,7 +347,7 @@ class DatabaseConnection(BaseItem):
     def restriction(self, alias, column, operator, value, map_null_operator=True):
         if not column:
             raise Exception('Column is None!')
-        if column.table and alias != None:
+        if column.table and alias is not None:
             return u"{0}.{1} {2} {3}".format(alias, column.name, operator, self.format_value(column, value))
         if operator in ['=', '!='] and (value == 'null' or value is None):
             if map_null_operator:
@@ -317,8 +359,7 @@ class DatabaseConnection(BaseItem):
         return u'{0} {1} {2}'.format(column.name, operator, self.format_value(column, value))
 
     def format_value(self, column, value):
-        #print column.type, value, type(value), value == None
-        if value == None or (type(value) is float and math.isnan(value)):
+        if value is None or (type(value) is float and math.isnan(value)):
             return 'null'
         if type(value) is list:
             return '({0})'.format(','.join([self.format_value(column, v) for v in value]))

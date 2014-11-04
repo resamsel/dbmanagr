@@ -1,33 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
-import time
-import sys
-
 from collections import deque
 from dbnav import wrapper
 from dbnav.config import Config
-from dbnav.item import Item, INVALID
 from dbnav.sources import Source
-from dbnav.logger import logger, logduration
-from dbnav.model.column import Column
-from dbnav.model.table import Table
+from dbnav.logger import logger
 from dbnav.utils import prefixes, remove_prefix
-from dbnav.querybuilder import QueryFilter
-from dbnav.model.databaseconnection import values
-from dbnav.node import BaseNode, ColumnNode, ForeignKeyNode, NameNode, TableNode
+from dbnav.node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.writer import Writer
 
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
+
 
 def bfs(start, include=[], exclude=[], indent=0, opts=None):
     logger.debug('bfs(start=%s, include=%s, exclude=%s, indent=%d)',
         start, include, exclude, indent)
 
     head = [TableNode(start, include, exclude, indent)]
-    consumed=[]
+    consumed = []
     found = True
     while found:
         if opts.max_depth > 0 and indent > opts.max_depth:
@@ -36,7 +28,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
         found = False
         tail = deque(head)
         head = []
-        
+
         while tail:
             node = tail.popleft()
 
@@ -55,11 +47,13 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                 consumed.append(table.name)
                 table.init_columns(table.connection)
 
-                logger.debug('consume table=%s ,include=%s, exclude=%s, consumed=%s, indent=%d', table, include, exclude, consumed, indent)
+                logger.debug(
+                    'consume table=%s ,include=%s, exclude=%s, consumed=%s, indent=%d',
+                    table, include, exclude, consumed, indent)
 
                 for col in filter(lambda col: col.name not in exclude, table.cols):
                     fk = table.foreign_key(col.name)
-#                    logger.debug('consumed=%s', consumed)
+                    # logger.debug('consumed=%s', consumed)
                     if not fk:
                         if opts.include_columns:
                             # Add column
@@ -70,11 +64,11 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                         head.append(ForeignKeyNode(fk, table, indent))
                         if (fk.a.name in prefixes(include)
                                 or (opts.recursive and fk.b.table.name not in consumed)):
-#                            logger.debug('adds table=%s', fk.b.table)
+                            # logger.debug('adds table=%s', fk.b.table)
                             head.append(TableNode(fk.b.table,
                                 include=remove_prefix(fk.a.name, include),
                                 exclude=remove_prefix(fk.a.name, exclude),
-                                indent=indent+1))
+                                indent=indent + 1))
                             found = True
 
                 if opts.include_back_references:
@@ -86,17 +80,18 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                         if (fk.a.table.name in prefixes(include)
                                 or (opts.recursive and fk.a.table.name not in consumed)):
                             # Collects the back references
-    #                        logger.debug('adds table=%s', fk.a.table)
+                            # logger.debug('adds table=%s', fk.a.table)
                             head.append(TableNode(fk.a.table,
                                 include=remove_prefix(fk.a.table.name, include),
                                 exclude=remove_prefix(fk.a.table.name, exclude),
-                                indent=indent+1))
+                                indent=indent + 1))
                             found = True
             else:
                 head.append(node)
         indent += 1
 
     return head
+
 
 class DatabaseGrapher:
     """The main class"""
@@ -152,8 +147,10 @@ class DatabaseGrapher:
 
         raise Exception('Specify the complete URI to a table')
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     options = Config.init(argv, parser)
