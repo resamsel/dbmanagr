@@ -5,10 +5,12 @@ from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, SimplifiedFormatter, XmlFormatter, JsonFormatter, SimpleFormatter, AutocompleteFormatter
 from dbnav.item import Item
 
+
 class SimplifiedWriter(FormatWriter):
     def __init__(self):
         FormatWriter.__init__(self, u'{0}')
         Formatter.set(SimplifiedFormatter())
+
 
 class XmlWriter(FormatWriter):
     def __init__(self):
@@ -23,6 +25,7 @@ class XmlWriter(FormatWriter):
             items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
         return self.str(items)
 
+
 class JsonWriter(FormatWriter):
     def __init__(self):
         FormatWriter.__init__(self,
@@ -32,10 +35,12 @@ class JsonWriter(FormatWriter):
 """,)
         Formatter.set(JsonFormatter())
 
+
 class AutocompleteWriter(FormatWriter):
     def __init__(self):
         FormatWriter.__init__(self, u'{0}', u'{autocomplete}')
         Formatter.set(AutocompleteFormatter())
+
 
 class SimpleWriter(FormatWriter):
     def __init__(self):

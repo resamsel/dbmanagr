@@ -11,6 +11,7 @@ from .sources import DBExplorerSQLiteSource, NavicatSQLiteSource
 from dbnav.options import Options
 from .options import SQLiteOptionsParser
 
+
 def init_sqlite(dbexplorer_config, navicat_config1, navicat_config2=None):
     Source.sources.append(DBExplorerSQLiteSource(dbexplorer_config))
     Source.sources.append(NavicatSQLiteSource(navicat_config1))

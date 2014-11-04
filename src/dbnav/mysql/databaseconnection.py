@@ -13,6 +13,7 @@ AUTOCOMPLETE_FORMAT = '%s@%s/%s'
 
 logger = logging.getLogger(__name__)
 
+
 class MySQLDatabase(Database):
     def __init__(self, connection, name):
         self.connection = connection
@@ -20,6 +21,7 @@ class MySQLDatabase(Database):
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % (self.connection.user, self.connection.host, self.name)
+
 
 class MySQLConnection(DatabaseConnection):
     """A database connection"""

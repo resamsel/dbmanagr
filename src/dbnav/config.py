@@ -11,6 +11,7 @@ import dbnav.postgresql  # noqa
 import dbnav.sqlite  # noqa
 import dbnav.mysql  # noqa
 
+
 class Config:
     @staticmethod
     def init(argv, parser):

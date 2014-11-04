@@ -8,13 +8,16 @@ from dbnav.formatter import Formatter
 
 logger = logging.getLogger(__name__)
 
+
 def hash(s):
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
+
 
 def item(v):
     if v.__class__.__name__ == 'BaseItem':
         return v.item()
     return v
+
 
 class Item:
     def __init__(self, value, title, subtitle, autocomplete, valid, icon):

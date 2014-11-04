@@ -4,6 +4,7 @@
 from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, DefaultFormatter
 
+
 def value_from_column(column, config):
     if config.verbose > 3:
         return '{0}?{1}'.format(column.autocomplete().split('?')[0], column.ddl())
@@ -15,10 +16,12 @@ def value_from_column(column, config):
         return unicode(column)
     return column_name(column, config)
 
+
 def column_name(column, config):
     if config.compare_ddl:
         return column.ddl()
     return column.name
+
 
 class DiffWriter(FormatWriter):
     def __init__(self, left=None, right=None):
@@ -45,6 +48,7 @@ class DiffWriter(FormatWriter):
             a.append(u'> {0}'.format(value_from_column(right, self.right)))
         return u'\n'.join(a)
 
+
 class DiffColumnWriter(DiffWriter):
     def __init__(self, left=None, right=None):
         DiffWriter.__init__(self, left, right)
@@ -68,6 +72,7 @@ class DiffColumnWriter(DiffWriter):
         else:
             s += ' <'
         return s
+
 
 class DiffTestWriter(DiffWriter):
     pass

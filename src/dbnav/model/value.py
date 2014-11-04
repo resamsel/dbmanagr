@@ -14,6 +14,7 @@ IMAGE_VALUE = 'images/value.png'
 IMAGE_FOREIGN_KEY = 'images/foreign-key.png'
 IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 
+
 class Value(BaseItem):
     """A value from the database"""
 

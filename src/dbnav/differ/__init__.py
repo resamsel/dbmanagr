@@ -9,10 +9,14 @@ from dbnav.sources import Source
 from .args import parser
 from .writer import DiffWriter
 
+
 def column_ddl(c):
     return c.ddl()
+
+
 def column_name(c):
     return c.name
+
 
 class DatabaseDiffer:
     """The main class"""
@@ -67,8 +71,10 @@ class DatabaseDiffer:
             lcon.close()
             rcon.close()
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     left = Config.init(argv, parser)

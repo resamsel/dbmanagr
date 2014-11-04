@@ -36,6 +36,7 @@ parser.add_argument('-s', '--simplify', dest='simplify', default=True, help='sim
 parser.add_argument('-N', '--no-simplify', dest='simplify', help='don\'t simplify the output', action='store_false')
 parser.add_argument('-m', '--limit', type=int, default=50, help='limit the results of the main query to this amount of rows')
 
+
 class DatabaseNavigator:
     """The main class"""
 
@@ -56,8 +57,10 @@ class DatabaseNavigator:
             lambda c: c.item(),
             sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     options = Config.init(argv, parser)

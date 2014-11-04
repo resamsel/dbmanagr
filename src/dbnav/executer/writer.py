@@ -8,6 +8,7 @@ import datetime
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
+
 def sql_escape(value):
     if type(value) is str or type(value) is unicode:
         return "'%s'" % value
@@ -17,10 +18,12 @@ def sql_escape(value):
         return unicode(value).lower()
     return unicode(value)
 
+
 class ExecuteWriter(StdoutWriter):
     def __init__(self, options=None):
         StdoutWriter.__init__(self, u'{0}', u'{item}')
         Formatter.set(DefaultFormatter())
+
 
 class SqlInsertWriter(FormatWriter):
     def __init__(self, options=None):
@@ -40,6 +43,7 @@ class SqlInsertWriter(FormatWriter):
 
     def create_values(self, values):
         return u','.join(map(sql_escape, values))
+
 
 class ExecuteTestWriter(ExecuteWriter):
     pass

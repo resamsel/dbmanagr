@@ -13,6 +13,7 @@ NULLABLE_OPTIONS = {
     None: ''
 }
 
+
 class BaseNode:
     def __hash__(self):
         return hash(self.__dict__)
@@ -22,6 +23,7 @@ class BaseNode:
 
     def format(self):
         return Formatter.format_node(self)
+
 
 class ColumnNode(BaseNode):
     def __init__(self, column, indent=0):
@@ -41,6 +43,7 @@ class ColumnNode(BaseNode):
 
     def format(self):
         return Formatter.format_column_node(self)
+
 
 class ForeignKeyNode(BaseNode):
     def __init__(self, fk, parent=None, indent=0):
@@ -77,6 +80,7 @@ class ForeignKeyNode(BaseNode):
     def format(self):
         return Formatter.format_foreign_key_node(self)
 
+
 class TableNode(BaseNode):
     def __init__(self, table, include=[], exclude=[], indent=0):
         self.table = table
@@ -92,6 +96,7 @@ class TableNode(BaseNode):
 
     def format(self):
         return Formatter.format_table_node(self)
+
 
 class NameNode(BaseNode):
     def __init__(self, name, indent=0):

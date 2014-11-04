@@ -22,8 +22,10 @@ OPERATORS = {
     ':': lambda c, v: c.in_(v)
 }
 
+
 def add_filter(query, column, operator, value):
     return query.filter(OPERATORS.get(operator)(column, value))
+
 
 def create_title(comment, columns):
     logger.debug('create_title(comment=%s, columns=%s)', comment, columns)
@@ -49,6 +51,7 @@ def create_title(comment, columns):
 
     return columns[0].name
 
+
 class SimplifyMapper:
     def __init__(self, table, comment=None):
         self.table = table
@@ -64,6 +67,7 @@ class SimplifyMapper:
                 else:
                     d[k] = create_title(self.comment, self.table.columns()).format(
                         self.table.name, **d)
+
 
 class QueryBuilder:
     def __init__(self, connection, table, filter=None, order=None, limit=None, simplify=True):

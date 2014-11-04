@@ -6,6 +6,7 @@ from string import capwords
 from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, DefaultFormatter
 
+
 class SqlInsertWriter(FormatWriter):
     def __init__(self, options=None):
         FormatWriter.__init__(self, u'{0}', u'insert into {table} ({columns}) values ({values});')
@@ -33,6 +34,7 @@ class SqlInsertWriter(FormatWriter):
                 filter(
                     lambda col: col.name not in exclude,
                     table.columns())))
+
 
 class SqlUpdateWriter(FormatWriter):
     def __init__(self, options=None):
@@ -64,6 +66,7 @@ class SqlUpdateWriter(FormatWriter):
                 lambda col: table.connection.restriction(None, col, '=', row[col.name]),
                 pks))
 
+
 class SqlDeleteWriter(FormatWriter):
     def __init__(self, options=None):
         FormatWriter.__init__(self, u'{0}', u'delete from {table} where {restriction};')
@@ -84,18 +87,22 @@ class SqlDeleteWriter(FormatWriter):
                 lambda col: table.connection.restriction(None, col, '=', row[col.name]),
                 pks))
 
+
 def yaml_format_entity(name):
     return capwords(name, '_').replace('_', '')
+
 
 def yaml_format_field(name):
     s = yaml_format_entity(name)
     return s[:1].lower() + s[1:]
+
 
 def yaml_field(col):
     if col.name in col.table.fks:
         fk = col.table.fks[col.name]
         return yaml_format_field(fk.b.table.name)
     return yaml_format_field(col.name)
+
 
 def yaml_value(col, value):
     if col.name in col.table.fks:
@@ -110,6 +117,7 @@ def yaml_value(col, value):
     if type(value) is bool:
         return u'!!bool %s' % unicode(value).lower()
     return value
+
 
 class YamlWriter(FormatWriter):
     def __init__(self, options=None):
@@ -147,6 +155,7 @@ class YamlWriter(FormatWriter):
         """.join(
             map(lambda col: '{0}: {1}'.format(yaml_field(col), yaml_value(col, row[col.name])),
                 filter(lambda col: col.name not in exclude, row.table.columns())))
+
 
 class FormattedWriter(FormatWriter):
     def __init__(self, options=None):

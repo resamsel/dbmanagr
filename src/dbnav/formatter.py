@@ -3,6 +3,7 @@
 
 from xml.sax import saxutils
 
+
 class DefaultFormatter:
     def __init__(self):
         pass
@@ -33,6 +34,7 @@ class DefaultFormatter:
 
     def format_foreign_key_node(self, item):
         return self.format(item)
+
 
 class SimplifiedFormatter(DefaultFormatter):
     def __init__(self,
@@ -67,6 +69,7 @@ class SimplifiedFormatter(DefaultFormatter):
     def escape(self, value):
         return value
 
+
 class TestFormatter(SimplifiedFormatter):
     def format(self, item):
         return u'{title}\t{autocomplete}'.format(
@@ -78,6 +81,7 @@ class TestFormatter(SimplifiedFormatter):
             title=item.title,
             autocomplete=item.autocomplete)
 
+
 class GraphvizFormatter(DefaultFormatter):
     def format_name_node(self, item):
         return u'  root={0};'.format(item)
@@ -88,6 +92,7 @@ class GraphvizFormatter(DefaultFormatter):
 
     def format_foreign_key_node(self, item):
         return u'  {fk.a.table.name}:{fk.a.name} -> {fk.b.table.name}:{fk.b.name} [];'.format(fk=item)
+
 
 class XmlFormatter(SimplifiedFormatter):
     def __init__(self):
@@ -106,17 +111,21 @@ class XmlFormatter(SimplifiedFormatter):
             return saxutils.escape(value)
         return saxutils.escape(unicode(value))
 
+
 class JsonFormatter(SimplifiedFormatter):
     def __init__(self):
         SimplifiedFormatter.__init__(self, default_format=u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{validity}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""", item_format=u"""   {{ "uid": "{uid}", "arg": "{title}", "autocomplete": "{autocomplete}", "valid": "{validity}", "title": "{title}", "subtitle": "{subtitle}", "icon": "{icon}" }}""")
+
 
 class SimpleFormatter(SimplifiedFormatter):
     def __init__(self):
         SimplifiedFormatter.__init__(self, default_format=u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""", item_format=u"""{uid}\t{title}\t{subtitle}\t{autocomplete}""")
 
+
 class AutocompleteFormatter(SimplifiedFormatter):
     def __init__(self):
         SimplifiedFormatter.__init__(self, default_format=u"""{autocomplete}""", item_format=u"""{autocomplete}""")
+
 
 class Formatter:
     formatter = DefaultFormatter()

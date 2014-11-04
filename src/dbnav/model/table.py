@@ -17,6 +17,7 @@ OPTION_URI_VALUE_FORMAT = '%s%s/?%s'
 
 logger = logging.getLogger(__name__)
 
+
 class Table(BaseItem):
     def __init__(self, connection, database, name, comment, owner=None, size=None):
         self.connection = connection

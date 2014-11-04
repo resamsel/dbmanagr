@@ -13,6 +13,7 @@ from dbnav.writer import Writer
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
 
+
 def bfs(start, include=[], exclude=[], indent=0, opts=None):
     logger.debug('bfs(start=%s, include=%s, exclude=%s, indent=%d)',
         start, include, exclude, indent)
@@ -89,6 +90,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
 
     return head
 
+
 class DatabaseGrapher:
     """The main class"""
 
@@ -143,8 +145,10 @@ class DatabaseGrapher:
 
         raise Exception('Specify the complete URI to a table')
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     options = Config.init(argv, parser)

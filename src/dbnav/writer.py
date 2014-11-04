@@ -9,15 +9,18 @@ from dbnav.formatter import Formatter, TestFormatter, DefaultFormatter
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
 
+
 def html_escape(s):
     if type(s) == str or type(s) == unicode:
         return s.replace('&', '&amp;').replace('"', '&quot;').replace('<', '&lt;')
     return s
 
+
 def escape(s):
     if type(s) == unicode:
         return s.replace('"', '&quot;')
     return s
+
 
 class DefaultWriter:
     def write(self, items):
@@ -28,6 +31,7 @@ class DefaultWriter:
 
     def itemtostring(self, item):
         return unicode(item)
+
 
 class StdoutWriter(DefaultWriter):
     def __init__(self,
@@ -62,6 +66,7 @@ class StdoutWriter(DefaultWriter):
                 return self.format_error_format.format(item=item, **item.__dict__)
         return self.item_format.format(item=item)
 
+
 class FormatWriter(StdoutWriter):
     def __init__(self,
             items_format=u"""Title\tSubtitle\tAutocomplete
@@ -75,12 +80,14 @@ class FormatWriter(StdoutWriter):
     def itemtostring(self, item):
         return item.format()
 
+
 class TestWriter(FormatWriter):
     def __init__(self, items_format=u"""Title\tAutocomplete
 {0}""",
             item_format=u"""{title}\t{autocomplete}"""):
         FormatWriter.__init__(self, items_format, item_format)
         Formatter.set(TestFormatter())
+
 
 class Writer:
     writer = StdoutWriter()

@@ -10,8 +10,10 @@ OPERATORS = ['>=', '<=', '!=', '=', '~', '*', '>', '<', ':']
 
 logger = logging.getLogger(__name__)
 
+
 def parse_loglevel(level):
     return getattr(logging, level.upper(), None)
+
 
 def parse_filter(s):
     filter = []
@@ -31,11 +33,13 @@ def parse_filter(s):
             filter.append(QueryFilter(term))
     return filter
 
+
 class Filter:
     def __init__(self, lhs, operator, rhs=None):
         self.lhs = lhs
         self.operator = operator
         self.rhs = rhs
+
 
 class Options:
     parser = {}

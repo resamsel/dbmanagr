@@ -8,6 +8,7 @@ from os.path import isfile
 from dbnav.sources import Source
 from .databaseconnection import MySQLConnection
 
+
 class MypassSource(Source):
     def __init__(self, file):
         Source.__init__(self)
@@ -25,6 +26,7 @@ class MypassSource(Source):
                 self.connections.append(connection)
 
         return self.connections
+
 
 class DBExplorerMySQLSource(Source):
     def __init__(self, file):

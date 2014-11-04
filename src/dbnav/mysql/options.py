@@ -8,6 +8,7 @@ from dbnav.options import parse_filter
 
 OPTION_URI_FORMAT = '%s@%s/%s'
 
+
 class MySQLOptions:
     def __init__(self):
         self.user = None
@@ -19,6 +20,7 @@ class MySQLOptions:
 
     def __repr__(self):
         return str(self.__dict__)
+
 
 class MySQLOptionsParser:
     def parse(self, source):

@@ -5,6 +5,7 @@ from difflib import get_close_matches
 
 from dbnav.logger import logger
 
+
 def unknown_column_message(table, column, haystack=None):
     if haystack is None:
         haystack = map(lambda c: c.name, table.cols)
@@ -19,6 +20,7 @@ def unknown_column_message(table, column, haystack=None):
         column,
         table.name if table else '?',
         u', '.join(matches))
+
 
 class UnknownColumnException(Exception):
     def __init__(self, table, column, haystack=None):

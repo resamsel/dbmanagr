@@ -15,12 +15,14 @@ AUTOCOMPLETE_FORMAT = "%s/"
 
 logger = logging.getLogger(__name__)
 
+
 class SQLiteDatabase(Database):
     def __init__(self, filename):
         self.filename = filename
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % self.filename
+
 
 class SQLiteConnection(DatabaseConnection):
     """A database connection"""

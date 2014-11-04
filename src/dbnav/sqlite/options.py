@@ -5,12 +5,14 @@ from urlparse import urlparse
 
 from dbnav.options import parse_filter
 
+
 class SQLiteOptions:
     def get(self, driver):
         return self
 
     def __repr__(self):
         return str(self.__dict__)
+
 
 class SQLiteOptionsParser:
     def parse(self, source):

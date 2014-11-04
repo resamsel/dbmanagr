@@ -17,6 +17,7 @@ from dbnav.model.exception import UnknownColumnException
 
 from .args import parser, SqlInsertWriter
 
+
 class RowItem():
     def __init__(self, row, exclude):
         self.row = row
@@ -31,8 +32,10 @@ class RowItem():
     def format(self):
         Formatter.formatter.format_row(self.row)
 
+
 def fk_by_a_table_name(fks):
     return dict(map(lambda (k, v): (v.a.table.name, v), fks.iteritems()))
+
 
 def create_items(items, include, exclude):
     logger.debug('create_items(items=%s, include=%s, exclude=%s)', items, include, exclude)
@@ -99,8 +102,10 @@ def create_items(items, include, exclude):
             
     return results_pre + map(lambda i: RowItem(i, exclude), items) + results_post
 
+
 def prefix(s):
     return re.sub('([^\\.]*)\\..*', '\\1', s)
+
 
 class DatabaseExporter:
     """The main class"""
@@ -137,8 +142,10 @@ class DatabaseExporter:
 
         raise Exception('Specify the complete URI to a table')
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     options = Config.init(argv, parser)

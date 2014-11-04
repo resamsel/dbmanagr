@@ -7,6 +7,7 @@ from dbnav.formatter import Formatter
 
 logger = logging.getLogger(__name__)
 
+
 class BaseItem:
     def title(self):
         return 'Title'

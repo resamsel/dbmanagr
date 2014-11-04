@@ -15,6 +15,7 @@ from dbnav.logger import logger, logduration
 from .args import parser
 from .writer import ExecuteWriter
 
+
 class Item:
     def __init__(self, connection, row):
         self.connection = connection
@@ -22,6 +23,7 @@ class Item:
 
     def __str__(self):
         return '\t'.join(map(lambda c: unicode(c), self.row))
+
 
 def read_sql(file):
     start = time.time()
@@ -36,6 +38,7 @@ def read_sql(file):
     logduration('Reading input statements', start)
     
     return sql
+
 
 def read_statements(opts):
     if opts.statements:
@@ -57,6 +60,7 @@ def read_statements(opts):
     logger.info('Number of SQL statements: %d', len(stmts))
     
     return stmts
+
 
 class DatabaseExecuter:
     """The main class"""
@@ -122,8 +126,10 @@ class DatabaseExecuter:
 
         raise Exception('Specify the complete URI to a table')
 
+
 def main():
     wrapper(run)
+
 
 def run(argv):
     options = Config.init(argv, parser)

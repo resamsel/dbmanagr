@@ -5,6 +5,7 @@ from sqlalchemy.types import Integer
 
 from dbnav.logger import logger
 
+
 class Comment:
     def __init__(self, table, counter, aliases, alias):
         self.table = table
