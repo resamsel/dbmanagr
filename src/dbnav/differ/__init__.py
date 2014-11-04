@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
-import time
-import sys
-
 from dbnav.writer import Writer
 
 from dbnav import wrapper
-from dbnav.logger import logger, logduration
 from dbnav.config import Config
 from dbnav.sources import Source
 from .args import parser

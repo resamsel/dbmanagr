@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from dbnav.writer import FormatWriter, StdoutWriter
+from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, SimplifiedFormatter, XmlFormatter, JsonFormatter, SimpleFormatter, AutocompleteFormatter
 from dbnav.item import Item
 
@@ -17,6 +17,7 @@ class XmlWriter(FormatWriter):
 {0}
 </items>""")
         Formatter.set(XmlFormatter())
+
     def write(self, items):
         if not items:
             items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]

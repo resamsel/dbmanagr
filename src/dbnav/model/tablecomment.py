@@ -25,7 +25,7 @@ class TableComment:
         if json_string:
             try:
                 self.d = dict(self.d.items() + json.loads(json_string).items())
-            except TypeError, e:
+            except TypeError:
                 pass
 
         if COMMENT_ID in self.d:

@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import time
 
-from .options import *
+from dbnav.logger import logger
+from .options import Options
 
 # load sources
-from .postgresql import *
-from .sqlite import *
-from .mysql import *
+import dbnav.postgresql  # noqa
+import dbnav.sqlite  # noqa
+import dbnav.mysql  # noqa
 
 class Config:
     @staticmethod

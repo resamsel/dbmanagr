@@ -2,16 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import time
-import sys
 import argparse
 
 from dbnav import wrapper
 from dbnav.config import Config
-from dbnav.item import Item, create_connections, INVALID
-from dbnav.writer import Writer, TestWriter
+from dbnav.item import Item
+from dbnav.writer import Writer
 from dbnav.sources import Source
-from dbnav.logger import logger
 from dbnav.args import parent_parser, format_group
 
 from .writer import SimplifiedWriter, XmlWriter, JsonWriter, SimpleWriter, AutocompleteWriter
@@ -55,7 +52,9 @@ class DatabaseNavigator:
                 return connection.proceed(opts)
 
         # print all connections
-        return create_connections(sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
+        return map(
+            lambda c: c.item(),
+            sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
 
 def main():
     wrapper(run)
@@ -72,7 +71,7 @@ def run(argv):
         return DatabaseNavigator.navigate(options)
     except BaseException, e:
         if Writer.writer.__class__.__name__ in ['XmlWriter', 'TestWriter']:
-            return [Item('', unicode(e), e.__class__, '', INVALID, '')]
+            return [Item('', unicode(e), e.__class__, '', False, '')]
         else:
             raise
 

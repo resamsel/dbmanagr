@@ -1,21 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import shelve
+# import shelve
 import logging
 
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
-from os.path import expanduser
 
-from ..model.databaseconnection import *
-from ..model.database import *
-from ..model.table import *
-from ..model.column import *
-from ..model.foreignkey import *
-from ..options import Options
+from dbnav.model.databaseconnection import DatabaseConnection
+from dbnav.model.database import Database
+from dbnav.model.table import Table
+from dbnav.model.column import Column
+from dbnav.model.foreignkey import ForeignKey
 
-CACHE_TIME = 2*60
 DATABASES_QUERY = """
 select
         db.datname as database_name
@@ -74,12 +71,15 @@ AUTOCOMPLETE_FORMAT = '%s@%s/%s'
 
 logger = logging.getLogger(__name__)
 
+
 class PostgreSQLDatabase(Database):
     def __init__(self, connection, name):
         self.connection = connection
         self.name = name
+
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % (self.connection.user, self.connection.host, self.name)
+
 
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
@@ -87,7 +87,7 @@ class PostgreSQLConnection(DatabaseConnection):
     def __init__(self, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
-            database = database,
+            database=database,
             driver='postgresql')
         self.host = host
         self.port = port
@@ -125,11 +125,11 @@ class PostgreSQLConnection(DatabaseConnection):
 
         if options.user:
             filter = options.user
-            if options.host != None:
+            if options.host is not None:
                 matches = filter in self.user
             else:
                 matches = filter in self.user or filter in self.host
-        if options.host != None:
+        if options.host is not None:
             matches = matches and options.host in self.host
 
         return matches
@@ -141,7 +141,7 @@ class PostgreSQLConnection(DatabaseConnection):
             try:
                 self.connect_to('postgresql://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
                 self.database = database
-            except OperationalError, e:
+            except OperationalError:
                 self.connect_to('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
                 database = None
         else:
@@ -157,12 +157,13 @@ class PostgreSQLConnection(DatabaseConnection):
         return self.dbs
 
     def tablesof(self, database):
-        ## sqlalchemy does not yet provide reflecting comments
-        #tables = [Table(self, database, t, '') for t in self.inspector.get_table_names()]
+        # sqlalchemy does not yet provide reflecting comments
+        # tables = [Table(self, database, t, '') for t in self.inspector.get_table_names()]
 
         result = self.execute(TABLES_QUERY, 'Tables')
 
-        def t(row): return Table(self, database, row[0], row[1], row[2], row[3])
+        def t(row):
+            return Table(self, database, row[0], row[1], row[2], row[3])
 
         return map(t, result)
 
@@ -185,7 +186,8 @@ class PostgreSQLConnection(DatabaseConnection):
             self.tbls[b.table.name].fks[str(a)] = fk
 
     def restriction(self, alias, column, operator, value, map_null_operator=True):
-        logger.debug('restriction(alias=%s, column=%s (%s), operator=%s, value=%s)',
+        logger.debug(
+            'restriction(alias=%s, column=%s (%s), operator=%s, value=%s)',
             alias, column, column.type if column else '', operator, value)
 
         if operator in ['~', 'like'] and isinstance(column.type, Integer):

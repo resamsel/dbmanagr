@@ -17,23 +17,23 @@ def parent_parser():
     parser.add_argument('--version', action='version', version='%(prog)s {0}'.format(__version__))
     group = parser.add_argument_group('logging')
     group.add_argument('-L',
-		'--logfile',
+        '--logfile',
         type=argparse.FileType('a'),
-		default=default_log_file(),
-		help='the file to log to')
+        default=default_log_file(),
+        help='the file to log to')
     group.add_argument('-l',
-		'--loglevel',
-		default='warning',
+        '--loglevel',
+        default='warning',
         choices=['critical', 'error', 'warning', 'info', 'debug'],
-		help='the minimum level to log')
+        help='the minimum level to log')
     return parser
 
 def format_group(parser, test_writer=TestWriter):
     group = parser.add_argument_group('formatters')
     group.add_argument('-T',
-		'--test',
-		help='output format: test specific',
-		dest='formatter',
-		action='store_const',
-		const=test_writer)
+        '--test',
+        help='output format: test specific',
+        dest='formatter',
+        action='store_const',
+        const=test_writer)
     return group

@@ -74,11 +74,10 @@ class Comment:
         self.columns['subtitle'] = self.subtitle
         for column in self.display:
             self.columns[column] = column
-        
+
         if not self.search:
             d = dict(map(lambda k: (str(k), k), self.columns.keys()))
             self.search.append(self.title.format(**d))
-            #self.search.append(self.subtitle.format(**d))
 
     def __repr__(self):
         return str(self.__dict__)
@@ -107,7 +106,7 @@ class Comment:
         return ('First column', '{%s}' % columns[0].name)
 
     def populate_titles(self, fk_titles, foreign_keys):
-        #logger.debug("Populate titles: %s", foreign_keys.keys())
+        # logger.debug("Populate titles: %s", foreign_keys.keys())
         for key in foreign_keys.keys():
             if key in self.display:
                 fk = foreign_keys[key]
@@ -119,6 +118,6 @@ class Comment:
                 try:
                     if fktable.comment.title:
                         fk_titles[k] = fktable.comment.title.format(alias)
-                except KeyError, e:
+                except KeyError:
                     fk_titles[k] = "'columns[k_]'"
 

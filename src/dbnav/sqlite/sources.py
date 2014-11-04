@@ -1,34 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
 from plistlib import readPlist
 from os.path import isfile
-from os import path
 
-from ..sources import *
-from .databaseconnection import *
-from ..logger import *
+from dbnav.sources import Source
+from .databaseconnection import SQLiteConnection
 
 logger = logging.getLogger(__name__)
+
 
 class DBExplorerSQLiteSource(Source):
     def __init__(self, file):
         logger.debug("DBExplorerSQLiteSource.__init__(%s)", file)
         Source.__init__(self)
         self.file = file
+
     def list(self):
         if not isfile(self.file):
             return self.connections
         if not self.connections:
             try:
                 tree = ET.parse(self.file)
-            except IOError, e:
+            except IOError:
                 return []
             root = tree.getroot()
             for c in root.iter('connection'):
-                url = urlparse(c.find('url').text.replace('jdbc:',''))
+                url = urlparse(c.find('url').text.replace('jdbc:', ''))
                 if url.scheme == 'sqlite':
                     logger.debug("Found connection: %s", url)
                     connection = SQLiteConnection(url.path)
@@ -36,10 +38,12 @@ class DBExplorerSQLiteSource(Source):
         
         return self.connections
 
+
 class NavicatSQLiteSource(Source):
     def __init__(self, file):
         Source.__init__(self)
         self.file = file
+
     def list(self):
         if not isfile(self.file):
             return self.connections

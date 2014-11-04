@@ -6,7 +6,7 @@ from difflib import get_close_matches
 from dbnav.logger import logger
 
 def unknown_column_message(table, column, haystack=None):
-    if haystack == None:
+    if haystack is None:
         haystack = map(lambda c: c.name, table.cols)
     logger.debug('haystack: %s', haystack)
     matches = get_close_matches(column, haystack)
@@ -16,9 +16,9 @@ def unknown_column_message(table, column, haystack=None):
             table.name if table else '?',
             haystack)
     return 'Column "{0}" was not found on table "{1}" (close matches: {2})'.format(
-            column,
-            table.name if table else '?',
-            u', '.join(matches))
+        column,
+        table.name if table else '?',
+        u', '.join(matches))
 
 class UnknownColumnException(Exception):
     def __init__(self, table, column, haystack=None):

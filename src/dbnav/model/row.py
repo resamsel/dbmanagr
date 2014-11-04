@@ -22,8 +22,8 @@ class Row(BaseItem):
         self.row = row
 
     def __getitem__(self, i):
-        #logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
-        if i == None:
+        # logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
+        if i is None:
             return None
         if type(i) == unicode:
             i = i.encode('ascii')

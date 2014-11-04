@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 import logging
 
 from sqlalchemy.exc import ProgrammingError
 
-from dbnav.logger import logduration
 from dbnav.model.tablecomment import TableComment
-from dbnav.model.column import *
-from dbnav.model.row import *
+from dbnav.model.row import Row
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.model.baseitem import BaseItem
 from dbnav.comment import Comment
@@ -40,11 +37,10 @@ class Table(BaseItem):
     def autocomplete(self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 
-        if column == None:
+        if column is None:
             return u'%s%s?' % (self.uri, self.name)
 
         tablename = self.name
-        fks = self.fks
         if type(value) is buffer:
             value = '[BLOB]'
         else:
@@ -59,11 +55,11 @@ class Table(BaseItem):
         """Retrieves columns of table with given filter applied"""
 
         if not self.cols:
-            if connection == None:
+            if connection is None:
                 connection = self.connection
             self.init_columns(connection)
 
-        if column == None:
+        if column is None:
             return self.cols
 
         return [c for c in self.cols if column in c.name]
@@ -103,14 +99,14 @@ class Table(BaseItem):
         except BaseException, e:
             logger.error(
                 '%s: check comment on table %s\n%s',
-                    e.__class__.__name__,
-                    self.name,
-                    e.__dict__)
+                e.__class__.__name__,
+                self.name,
+                e.__dict__)
             logger.error(e, exc_info=1)
             raise Exception('{}: check comment on table {}\n{}'.format(
-                    e.__class__,
-                    self.name,
-                    unicode(e)))
+                e.__class__,
+                self.name,
+                unicode(e)))
 
         return map(lambda row: Row(self.connection, self, row), result)
 

@@ -5,7 +5,6 @@ from collections import OrderedDict
 
 from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, DefaultFormatter, GraphvizFormatter
-from dbnav.node import ColumnNode
 
 class GraphWriter(FormatWriter):
     def __init__(self):
@@ -19,6 +18,7 @@ class GraphvizWriter(FormatWriter):
 }}""")
         self.include_tables = include_tables
         Formatter.set(GraphvizFormatter())
+
     def filter(self, items):
         # Removes duplicate items and keeps order
         return list(OrderedDict.fromkeys(items))

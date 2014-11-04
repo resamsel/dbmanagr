@@ -27,14 +27,17 @@ class SqlInsertWriter(FormatWriter):
         FormatWriter.__init__(self, u'{0}', u'insert into {table} ({columns}) values ({values});')
         Formatter.set(DefaultFormatter())
         self.table_name = options.table_name
+
     def itemtostring(self, item):
         row = item.row
         return self.item_format.format(
             table=self.table_name,
             columns=self.create_columns(row.keys()),
             values=self.create_values(row.values()))
+
     def create_columns(self, cols):
         return u','.join(map(unicode, cols))
+
     def create_values(self, values):
         return u','.join(map(sql_escape, values))
 

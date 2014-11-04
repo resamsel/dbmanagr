@@ -1,25 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
-import time
-import sys
-import argparse
 import re
 
 from collections import OrderedDict
 
 from dbnav import wrapper
 from dbnav.config import Config
-from dbnav.item import Item, INVALID
 from dbnav.sources import Source
-from dbnav.logger import logger, logduration
+from dbnav.logger import logger
 from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
-from dbnav.model.databaseconnection import values
 from dbnav.formatter import Formatter
-from dbnav.writer import Writer, TestWriter
-from dbnav.args import parent_parser, format_group
+from dbnav.writer import Writer
 from dbnav.model.exception import UnknownColumnException
 
 from .args import parser, SqlInsertWriter
@@ -28,10 +21,13 @@ class RowItem():
     def __init__(self, row, exclude):
         self.row = row
         self.exclude = exclude
+
     def __hash__(self):
         return hash(self.row.autocomplete())
+
     def __eq__(self, o):
         return hash(self.row.autocomplete()) == hash(o.row.autocomplete())
+
     def format(self):
         Formatter.formatter.format_row(self.row)
 
@@ -119,8 +115,8 @@ class DatabaseExporter:
         for connection in cons:
             opts = options.get(connection.driver)
             if ((opts.show == 'values'
-                or opts.show == 'columns' and opts.filter != None)
-                and connection.matches(opts)):
+                    or opts.show == 'columns' and opts.filter is not None)
+                    and connection.matches(opts)):
                 try:
                     connection.connect(opts.database)
                     tables = connection.tables()

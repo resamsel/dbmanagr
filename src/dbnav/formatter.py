@@ -6,22 +6,31 @@ from xml.sax import saxutils
 class DefaultFormatter:
     def __init__(self):
         pass
+
     def format(self, item):
         return unicode(item)
+
     def format_item(self, item):
         return self.format(item)
+
     def format_row(self, item):
         return u', '.join(map(unicode, item))
+
     def format_column(self, item):
         return self.format(item)
+
     def format_node(self, item):
         return self.format(item)
+
     def format_column_node(self, item):
         return self.format(item)
+
     def format_name_node(self, item):
         return self.format(item)
+
     def format_table_node(self, item):
         return self.format(item)
+
     def format_foreign_key_node(self, item):
         return self.format(item)
 
@@ -31,6 +40,7 @@ class SimplifiedFormatter(DefaultFormatter):
             item_format=u'{title}\t{subtitle}'):
         self.default_format = default_format
         self.item_format = item_format
+
     def format(self, item):
         return self.default_format.format(
             title=self.escape(item.title()),
@@ -40,17 +50,20 @@ class SimplifiedFormatter(DefaultFormatter):
             validity=self.escape(item.validity()),
             icon=self.escape(item.icon()),
             value=self.escape(item.value()))
+
     def format_item(self, item):
         return self.item_format.format(
             title=self.escape(item.title),
             subtitle=self.escape(item.subtitle),
             autocomplete=self.escape(item.autocomplete),
             uid=self.escape(item.uid),
-            validity=self.escape(item.valid),
+            validity=self.escape({True: 'yes', False: 'no'}.get(item.valid, 'yes')),
             icon=self.escape(item.icon),
             value=self.escape(item.value))
+
     def format_row(self, item):
         return self.format(item)
+
     def escape(self, value):
         return value
 
@@ -59,6 +72,7 @@ class TestFormatter(SimplifiedFormatter):
         return u'{title}\t{autocomplete}'.format(
             title=item.title(),
             autocomplete=item.autocomplete())
+
     def format_item(self, item):
         return u'{title}\t{autocomplete}'.format(
             title=item.title,
@@ -67,9 +81,11 @@ class TestFormatter(SimplifiedFormatter):
 class GraphvizFormatter(DefaultFormatter):
     def format_name_node(self, item):
         return u'  root={0};'.format(item)
+
     def format_table_node(self, item):
-        columns = map(lambda (i,it): u'<{1}> {1}'.format(i, it.name), enumerate(item.table.columns()))
+        columns = map(lambda (i, it): u'<{1}> {1}'.format(i, it.name), enumerate(item.table.columns()))
         return u'  {0} [shape="record" label="{0}| {1}"];'.format(item.table.name, '| '.join(columns))
+
     def format_foreign_key_node(self, item):
         return u'  {fk.a.table.name}:{fk.a.name} -> {fk.b.table.name}:{fk.b.name} [];'.format(fk=item)
 
@@ -84,6 +100,7 @@ class XmlFormatter(SimplifiedFormatter):
         <subtitle>{subtitle}</subtitle>
         <icon>{icon}</icon>
     </item>""")
+
     def escape(self, value):
         if type(value) == str or type(value) == unicode:
             return saxutils.escape(value)

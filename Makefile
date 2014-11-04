@@ -1,6 +1,7 @@
 VERSION = src/dbnav/version.py
 TARGET = target
 SETUPTOOLS = python setup.py
+FLAKE8 = flake8 --select=F
 DIST = dist
 ACTUAL = $(TARGET)/testfiles/actual
 SOURCES = src/images src/info.plist src/5AD6B622-051E-41D9-A608-70919939967A.png
@@ -46,6 +47,7 @@ install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
 test: assemble
+	$(FLAKE8) src/dbnav
 	$(SETUPTOOLS) test
 
 develop:

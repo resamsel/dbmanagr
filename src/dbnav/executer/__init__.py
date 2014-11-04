@@ -11,9 +11,6 @@ from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
 from dbnav.logger import logger, logduration
-from dbnav.model.table import Table
-from dbnav.utils import prefixes, remove_prefix
-from dbnav.queryfilter import QueryFilter
 
 from .args import parser
 from .writer import ExecuteWriter
@@ -22,6 +19,7 @@ class Item:
     def __init__(self, connection, row):
         self.connection = connection
         self.row = row
+
     def __str__(self):
         return '\t'.join(map(lambda c: unicode(c), self.row))
 

@@ -2,25 +2,24 @@
 # -*- coding: utf-8 -*-
 
 from collections import Counter
-from sqlalchemy import or_
+from sqlalchemy import or_, Integer
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql.expression import text
 
 from dbnav.logger import logger
 from dbnav.comment import Comment
-from dbnav.model.column import Column
+from dbnav.model.exception import UnknownColumnException
 
 OPERATORS = {
-    '=':    lambda c, v: c == v,
-    '!=':   lambda c, v: c != v,
-    '~':    lambda c, v: c.like(v),
-    '*':    lambda c, v: c.like(v),
-    '>':    lambda c, v: c > v,
-    '>=':   lambda c, v: c >= v,
-    '<=':   lambda c, v: c <= v,
-    '<':    lambda c, v: c < v,
-    'in':   lambda c, v: c.in_(v),
-    ':':    lambda c, v: c.in_(v)
+    '=': lambda c, v: c == v,
+    '!=': lambda c, v: c != v,
+    '~': lambda c, v: c.like(v),
+    '*': lambda c, v: c.like(v),
+    '>': lambda c, v: c > v,
+    '>=': lambda c, v: c >= v,
+    '<=': lambda c, v: c <= v,
+    '<': lambda c, v: c < v,
+    'in': lambda c, v: c.in_(v),
+    ':': lambda c, v: c.in_(v)
 }
 
 def add_filter(query, column, operator, value):
@@ -54,8 +53,9 @@ class SimplifyMapper:
     def __init__(self, table, comment=None):
         self.table = table
         self.comment = comment
+
     def map(self, row):
-        #logger.debug('SimplifyMapper.map(self, row(%s)=#%d)', type(row), len(row))
+        # logger.debug('SimplifyMapper.map(self, row(%s)=#%d)', type(row), len(row))
         d = row.__dict__
         for k in ['title', 'subtitle']:
             if k not in d:
@@ -118,12 +118,10 @@ class QueryBuilder:
 
             if not search_fields:
                 search_fields.append(comment.title.format(**keys))
-                #search_fields.append(comment.subtitle)
 
             logger.debug('Search fields: %s', search_fields)
 
         if self.filter:
-            wheres = []
             for f in self.filter:
                 logger.debug("Filter: lhs=%s, op=%s, rhs=%s",
                      f.lhs, f.operator, f.rhs)

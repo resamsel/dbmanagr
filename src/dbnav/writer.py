@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
 import codecs
 import sys
 
-from dbnav.item import Item
-from dbnav.node import ColumnNode
-from dbnav.formatter import Formatter, XmlFormatter, SimplifiedFormatter, TestFormatter, DefaultFormatter
+from dbnav.formatter import Formatter, TestFormatter, DefaultFormatter
 
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
@@ -25,8 +22,10 @@ def escape(s):
 class DefaultWriter:
     def write(self, items):
         return self.str(items)
+
     def str(self, items):
         return map(self.itemtostring, items)
+
     def itemtostring(self, item):
         return unicode(item)
 
@@ -44,13 +43,16 @@ class StdoutWriter(DefaultWriter):
         self.format_error_format = format_error_format
         
         Formatter.set(DefaultFormatter())
+
     def filter(self, items):
         return items
+
     def str(self, items):
         s = self.item_separator.join(
             map(lambda i: self.itemtostring(i),
                 self.filter(items)))
         return self.items_format.format(s)
+
     def itemtostring(self, item):
         if hasattr(item, '__dict__'):
             try:
@@ -69,6 +71,7 @@ class FormatWriter(StdoutWriter):
 """,
             format_error_format=u'{0}'):
         StdoutWriter.__init__(self, items_format, item_format, item_separator, format_error_format)
+
     def itemtostring(self, item):
         return item.format()
 

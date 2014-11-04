@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import logging
 
-from dbnav.writer import *
-from dbnav.item import *
 from dbnav.queryfilter import QueryFilter
 
 AND_OPERATOR = '&'
-OPERATORS = ['>=','<=','!=','=','~','*','>','<',':']
+OPERATORS = ['>=', '<=', '!=', '=', '~', '*', '>', '<', ':']
 
 logger = logging.getLogger(__name__)
 

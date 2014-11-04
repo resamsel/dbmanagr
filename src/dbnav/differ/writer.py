@@ -11,7 +11,7 @@ def value_from_column(column, config):
         return column.autocomplete()
     if config.verbose > 1:
         return '/'.join(column.autocomplete().split('/')[1:])
-    if config.verbose >0:
+    if config.verbose > 0:
         return unicode(column)
     return column_name(column, config)
 
@@ -26,6 +26,7 @@ class DiffWriter(FormatWriter):
         Formatter.set(DefaultFormatter())
         self.left = left
         self.right = right
+
     def str(self, items):
         if not items:
             return 'No differences found'
@@ -33,6 +34,7 @@ class DiffWriter(FormatWriter):
             map(lambda i: self.itemtostring(i),
                 self.filter(items)))
         return self.items_format.format(s)
+
     def itemtostring(self, item):
         """We receive a tuple (left, right), for which any part may be empty"""
         left, right = item
@@ -48,17 +50,18 @@ class DiffColumnWriter(DiffWriter):
         DiffWriter.__init__(self, left, right)
         self.left = left
         self.right = right
+
     def itemtostring(self, item):
         """We receive a tuple (left, right), for which any part may be empty"""
         left, right = item
         s = ''
         if left:
             val = value_from_column(left, self.left)
-            s += u'{1}{0}'.format(u' '*(42-len(val)), val)
+            s += u'{1}{0}'.format(u' ' * (42 - len(val)), val)
             if right:
                 s += ' | '
         else:
-            s += u'{0} > '.format(u' '*42)
+            s += u'{0} > '.format(u' ' * 42)
         if right:
             val = value_from_column(right, self.right)
             s += val
