@@ -37,9 +37,13 @@ select
         false foreign_column_nullable
     from
         information_schema.table_constraints tc
-        join information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name
-        join information_schema.constraint_column_usage ccu ON ccu.constraint_name = tc.constraint_name
-        join information_schema.columns c on (c.table_name = tc.table_name and c.column_name = kcu.column_name)
+        join information_schema.key_column_usage kcu
+            ON tc.constraint_name = kcu.constraint_name
+        join information_schema.constraint_column_usage ccu
+            ON ccu.constraint_name = tc.constraint_name
+        join information_schema.columns c
+            on (c.table_name = tc.table_name
+                and c.column_name = kcu.column_name)
     where
         constraint_type = 'FOREIGN KEY'
 """
@@ -78,7 +82,9 @@ class PostgreSQLDatabase(Database):
         self.name = name
 
     def __repr__(self):
-        return AUTOCOMPLETE_FORMAT % (self.connection.user, self.connection.host, self.name)
+        return AUTOCOMPLETE_FORMAT % (
+            self.connection.user, self.connection.host, self.name
+        )
 
 
 class PostgreSQLConnection(DatabaseConnection):
@@ -97,7 +103,9 @@ class PostgreSQLConnection(DatabaseConnection):
         self.dbs = None
 
     def __repr__(self):
-        return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
+        return '%s@%s/%s' % (
+            self.user, self.host, self.database if self.database != '*' else ''
+        )
 
     def autocomplete(self):
         """Retrieves the autocomplete string"""
@@ -139,13 +147,19 @@ class PostgreSQLConnection(DatabaseConnection):
 
         if database:
             try:
-                self.connect_to('postgresql://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
+                self.connect_to(
+                    'postgresql://%s:%s@%s/%s' % (
+                        self.user, self.password, self.host, database))
                 self.database = database
             except OperationalError:
-                self.connect_to('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
+                self.connect_to(
+                    'postgresql://%s:%s@%s/' % (
+                        self.user, self.password, self.host))
                 database = None
         else:
-            self.connect_to('postgresql://%s:%s@%s/' % (self.user, self.password, self.host))
+            self.connect_to(
+                'postgresql://%s:%s@%s/' % (
+                    self.user, self.password, self.host))
 
     def databases(self):
         # does not yet work with sqlalchemy...
@@ -158,7 +172,8 @@ class PostgreSQLConnection(DatabaseConnection):
 
     def tablesof(self, database):
         # sqlalchemy does not yet provide reflecting comments
-        # tables = [Table(self, database, t, '') for t in self.inspector.get_table_names()]
+        # tables = [Table(self, database, t, '') for t in
+        #     self.inspector.get_table_names()]
 
         result = self.execute(TABLES_QUERY, 'Tables')
 
@@ -185,7 +200,8 @@ class PostgreSQLConnection(DatabaseConnection):
             self.tbls[a.table.name].fks[a.name] = fk
             self.tbls[b.table.name].fks[str(a)] = fk
 
-    def restriction(self, alias, column, operator, value, map_null_operator=True):
+    def restriction(
+            self, alias, column, operator, value, map_null_operator=True):
         logger.debug(
             'restriction(alias=%s, column=%s (%s), operator=%s, value=%s)',
             alias, column, column.type if column else '', operator, value)
@@ -193,7 +209,8 @@ class PostgreSQLConnection(DatabaseConnection):
         if operator in ['~', 'like'] and isinstance(column.type, Integer):
             try:
                 int(value)
-                # LIKE not allowed on integer columns, change operator to equals
+                # LIKE not allowed on integer columns, change operator to
+                # equals
                 operator = '='
             except ValueError:
                 pass
@@ -205,7 +222,9 @@ class PostgreSQLConnection(DatabaseConnection):
         lhs = column.name
         if column.table:
             lhs = '{0}{1}'.format(alias, column.name)
-        if value and isinstance(column.type, Integer) and type(value) is not list:
+        if (value
+                and isinstance(column.type, Integer)
+                and type(value) is not list):
             try:
                 int(value)
             except ValueError:

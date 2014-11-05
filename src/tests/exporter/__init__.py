@@ -10,13 +10,17 @@ from tests.sources import init_sources
 from dbnav import exporter
 
 DIR = path.dirname(__file__)
-TEST_CASES = map(lambda p: path.basename(p), glob.glob(path.join(DIR, 'resources/testcase-*')))
+TEST_CASES = map(
+    lambda p: path.basename(p),
+    glob.glob(path.join(DIR, 'resources/testcase-*')))
 
 init_sources(DIR)
+
 
 class OutputTestCase(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
+
 
 def load_suite():
     command = 'dbexport'

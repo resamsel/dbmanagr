@@ -82,11 +82,11 @@ class DatabaseDiffer:
             rcon.close()
 
 
-def main():
-    run(sys.argv)
-
-
 @decorator
+def main():
+    return run(sys.argv)
+
+
 def run(argv):
     left = Config.init(argv, parser)
     left.uri = left.left

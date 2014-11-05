@@ -5,6 +5,10 @@ from sqlalchemy.types import Integer
 
 from dbnav.logger import logger
 
+NAMES = [
+    'name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment'
+]
+
 
 class Comment:
     def __init__(self, table, counter, aliases, alias):
@@ -86,14 +90,18 @@ class Comment:
     def create_title(self, comment, columns):
         logger.debug('create_title(comment=%s, columns=%s)', comment, columns)
 
-        # find specially named columns (but is not an integer - integers are no good names)
+        # find specially named columns (but is not an integer - integers are
+        # no good names)
         for c in columns:
-            for name in ['name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment']:
+            for name in NAMES:
                 if c.name == name:
                     if not isinstance(c.type, Integer):
                         return (name, '{%s}' % c.name)
                     elif '%s_title' % name in self.fk_titles:
-                        return ('%s_title' % name, self.fk_titles['%s_title' % name])
+                        return (
+                            '%s_title' % name,
+                            self.fk_titles['%s_title' % name]
+                        )
 
         # find columns that end with special names
         for c in columns:

@@ -7,8 +7,8 @@ import functools
 
 logger = logging.getLogger(__name__)
 
-ENTRY_MESSAGE = '⇢ %s({})'
-EXIT_MESSAGE = '⇠ %s [%0.3fms] = %s'
+ENTRY_MESSAGE = u'⇢ %s({})'
+EXIT_MESSAGE = u'⇠ %s [%0.3fms] = %s'
 
 
 class log_with(object):
@@ -28,7 +28,12 @@ and exit points of the function with logging.DEBUG level.
             fargs = args
             if f.__name__ == '__init__':
                 fargs = fargs[1:]
-            fargs = map(lambda v: v, fargs) + map(lambda (k, v): v, kwargs)
+            fargs = map(
+                lambda v: unicode(v),
+                fargs)\
+                + map(
+                    lambda (k, v): unicode(v),
+                    kwargs)
             formats = map(
                 lambda arg: '%s', fargs) + map(
                     lambda (k, v): '{}=%s'.format(k), kwargs)
@@ -36,11 +41,11 @@ and exit points of the function with logging.DEBUG level.
                 ENTRY_MESSAGE.format(', '.join(formats)),
                 f.__name__, *fargs)
             start = time.time()
-            f_result = f(*args, **kwargs)
+            result = f(*args, **kwargs)
             self.logger.debug(
                 EXIT_MESSAGE,
-                f.__name__, (time.time() - start) * 1000.0, f_result)
-            return f_result
+                f.__name__, (time.time() - start) * 1000.0, 'result')
+            return result
         return wrapper
 
 

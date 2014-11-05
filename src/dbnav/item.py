@@ -30,7 +30,9 @@ class Item:
         self.uid = hash(autocomplete)
 
     def escaped(self, f):
-        return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
+        return dict(map(
+            lambda (k, v): (k.encode('ascii', 'ignore'), f(v)),
+            self.__dict__.iteritems()))
 
     def __str__(self):
         return str(self.__dict__)

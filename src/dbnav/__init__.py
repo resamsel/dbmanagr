@@ -9,8 +9,10 @@ from functools import wraps
 from dbnav.writer import Writer
 from dbnav.logger import logger
 
-__all__ = ('navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger',
-    'options', 'tests')
+__all__ = (
+    'navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger',
+    'options', 'tests'
+)
 
 
 def decorator(f):
@@ -27,5 +29,6 @@ def decorator(f):
                 raise
             else:
                 # Show the error message if log level is INFO or higher
-                sys.stderr.write('{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
+                sys.stderr.write(
+                    '{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
     return wrapper

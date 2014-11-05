@@ -150,11 +150,11 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 
-def main():
-    run(sys.argv)
-
-
 @decorator
+def main():
+    return run(sys.argv)
+
+
 def run(argv):
     options = Config.init(argv, parser)
 

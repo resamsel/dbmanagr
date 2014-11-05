@@ -13,7 +13,8 @@ from dbnav.writer import Writer
 from dbnav.sources import Source
 from dbnav.args import parent_parser, format_group
 
-from .writer import SimplifiedWriter, XmlWriter, JsonWriter, SimpleWriter, AutocompleteWriter
+from .writer import SimplifiedWriter, XmlWriter, JsonWriter, SimpleWriter
+from .writer import AutocompleteWriter
 
 logger = logging.getLogger(__name__)
 
@@ -110,14 +111,16 @@ class DatabaseNavigator:
         # print all connections
         return map(
             lambda c: c.item(),
-            sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
-
-
-def main():
-    run(sys.argv)
+            sorted(
+                [c for c in cons if c.filter(options)],
+                key=lambda c: c.title().lower()))
 
 
 @decorator
+def main():
+    return run(sys.argv)
+
+
 def run(argv):
     options = Config.init(argv, parser)
 

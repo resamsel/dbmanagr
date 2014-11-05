@@ -3,10 +3,11 @@
 
 import unittest
 
-import tests.navigator
-import tests.grapher
-import tests.exporter
-import tests.differ
+from tests import navigator
+from tests import grapher
+from tests import exporter
+from tests import differ
+
 
 def load_suite():
     suite = unittest.TestSuite()

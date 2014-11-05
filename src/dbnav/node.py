@@ -35,7 +35,8 @@ class ColumnNode(BaseNode):
 
     def __str__(self):
         indent = '  ' * self.indent
-        return '{0}- {1}{2}{3}'.format(indent,
+        return '{0}- {1}{2}{3}'.format(
+            indent,
             self.column.name,
             PRIMARY_KEY_OPTIONS.get(self.column.primary_key),
             NULLABLE_OPTIONS.get(self.column.nullable),
@@ -52,7 +53,9 @@ class ForeignKeyNode(BaseNode):
         self.indent = indent
 
     def escaped(self, f):
-        return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
+        return dict(map(
+            lambda (k, v): (k.encode('ascii', 'ignore'), f(v)),
+            self.__dict__.iteritems()))
 
     def __getattr__(self, name):
         if self.fk:
@@ -70,12 +73,17 @@ class ForeignKeyNode(BaseNode):
     def __str__(self):
         indent = '  ' * self.indent
         if self.fk.a.table.name == self.parent.name:
-            return u'{0}→ {1}{3} → {2}'.format(indent,
+            return u'{0}→ {1}{3} → {2}'.format(
+                indent,
                 self.fk.a.name,
                 self.fk.b,
                 NULLABLE_OPTIONS.get(self.fk.a.nullable))
-        return u'{0}↑ {1} ({2} → {3}.{4})'.format(indent,
-            self.fk.a.table.name, self.fk.a.name, self.fk.b.table.name, self.fk.b.name)
+        return u'{0}↑ {1} ({2} → {3}.{4})'.format(
+            indent,
+            self.fk.a.table.name,
+            self.fk.a.name,
+            self.fk.b.table.name,
+            self.fk.b.name)
 
     def format(self):
         return Formatter.format_foreign_key_node(self)

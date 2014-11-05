@@ -21,12 +21,14 @@ def parent_parser():
         action='version',
         version='%(prog)s {0}'.format(__version__))
     group = parser.add_argument_group('logging')
-    group.add_argument('-L',
+    group.add_argument(
+        '-L',
         '--logfile',
         type=argparse.FileType('a'),
         default=default_log_file(),
         help='the file to log to')
-    group.add_argument('-l',
+    group.add_argument(
+        '-l',
         '--loglevel',
         default='warning',
         choices=['critical', 'error', 'warning', 'info', 'debug'],
@@ -36,7 +38,8 @@ def parent_parser():
 
 def format_group(parser, test_writer=TestWriter):
     group = parser.add_argument_group('formatters')
-    group.add_argument('-T',
+    group.add_argument(
+        '-T',
         '--test',
         help='output format: test specific',
         dest='formatter',

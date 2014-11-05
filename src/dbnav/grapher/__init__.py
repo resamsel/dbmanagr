@@ -2,19 +2,22 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import logging
 
 from collections import deque
 
 from dbnav import decorator
 from dbnav.config import Config
 from dbnav.sources import Source
-from dbnav.logger import logger
+from dbnav.logger import log_with
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.writer import Writer
 
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
+
+logger = logging.getLogger(__name__)
 
 
 def bfs(start, include=[], exclude=[], indent=0, opts=None):
@@ -82,11 +85,11 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                             found = True
 
                 if opts.include_back_references:
-                    def f(key, fk):
-                        return (
-                            fk.b.table.name == table.name
-                            and fk.a.table.name not in exclude)
-                    for key, fk in filter(f, table.fks.iteritems()):
+                    for key, fk in filter(
+                            lambda (key, fk): (
+                                fk.b.table.name == table.name
+                                and fk.a.table.name not in exclude),
+                            table.fks.iteritems()):
                         logger.debug(
                             'adds back reference: fk=%s, include=%s',
                             fk, include)
@@ -115,6 +118,7 @@ class DatabaseGrapher:
     """The main class"""
 
     @staticmethod
+    @log_with(logger)
     def graph(options):
         """The main method that splits the arguments and starts the magic"""
 
@@ -125,56 +129,61 @@ class DatabaseGrapher:
             opts = options.get(connection.driver)
             if connection.matches(opts) and opts.show in [
                     'tables', 'columns', 'values']:
-                try:
-                    connection.connect(opts.database)
-                    tables = connection.tables()
-                    if opts.table not in tables:
-                        raise Exception(
-                            "Could not find table '{0}'".format(opts.table))
-                    table = tables[opts.table]
-                    nodes = []
-                    indent = 0
-                    if opts.include_driver:
-                        nodes.append(
-                            NameNode(connection.driver, indent=indent))
-                        indent += 1
-                    if opts.include_connection:
-                        nodes.append(NameNode(str(connection), indent=indent))
-                        indent += 1
-                    if opts.include_database and opts.database:
-                        nodes.append(NameNode(opts.database, indent=indent))
-                        indent += 1
-                    nodes.append(NameNode(table.name, indent=indent))
-                    nodes += bfs(
-                        table,
-                        include=opts.include,
-                        exclude=opts.exclude,
-                        indent=indent,
-                        opts=opts)
-
-                    def include_node(item):
-                        if opts.formatter is GraphvizWriter:
-                            if isinstance(item, TableNode):
-                                return True
-                            if isinstance(item, ColumnNode):
-                                return False
-                        elif opts.include_columns and isinstance(
-                                item, ColumnNode):
-                            return True
-                        return not isinstance(item, TableNode)
-
-                    return filter(include_node, nodes)
-                finally:
-                    connection.close()
+                return DatabaseGrapher.build(connection, opts)
 
         raise Exception('Specify the complete URI to a table')
 
+    @staticmethod
+    @log_with(logger)
+    def build(connection, opts):
+        try:
+            connection.connect(opts.database)
+            tables = connection.tables()
+            if opts.table not in tables:
+                raise Exception(
+                    "Could not find table '{0}'".format(opts.table))
+            table = tables[opts.table]
+            nodes = []
+            indent = 0
+            if opts.include_driver:
+                nodes.append(
+                    NameNode(connection.driver, indent=indent))
+                indent += 1
+            if opts.include_connection:
+                nodes.append(NameNode(str(connection), indent=indent))
+                indent += 1
+            if opts.include_database and opts.database:
+                nodes.append(NameNode(opts.database, indent=indent))
+                indent += 1
+            nodes.append(NameNode(table.name, indent=indent))
+            nodes += bfs(
+                table,
+                include=opts.include,
+                exclude=opts.exclude,
+                indent=indent,
+                opts=opts)
 
-def main():
-    run(sys.argv)
+            def include_node(item):
+                if opts.formatter is GraphvizWriter:
+                    if isinstance(item, TableNode):
+                        return True
+                    if isinstance(item, ColumnNode):
+                        return False
+                elif opts.include_columns and isinstance(
+                        item, ColumnNode):
+                    return True
+                return not isinstance(item, TableNode)
+
+            return filter(include_node, nodes)
+        finally:
+            connection.close()
 
 
 @decorator
+def main():
+    return run(sys.argv)
+
+
 def run(argv):
     options = Config.init(argv, parser)
 
