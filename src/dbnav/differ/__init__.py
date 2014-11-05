@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+
 from dbnav.writer import Writer
 
-from dbnav import wrapper
+from dbnav import decorator
 from dbnav.config import Config
 from dbnav.sources import Source
 from .args import parser
@@ -39,15 +41,23 @@ class DatabaseDiffer:
             rcon.connect(ropts.database)
             ltables = lcon.tables()
             if lopts.table not in ltables:
-                raise Exception("Could not find table '{0}' in left connection".format(lopts.table))
+                raise Exception(
+                    "Could not find table '{0}' in left connection".format(
+                        lopts.table))
             ltable = ltables[lopts.table]
             rtables = rcon.tables()
             if ropts.table not in rtables:
-                raise Exception("Could not find table '{0}' in right connection".format(ropts.table))
+                raise Exception(
+                    "Could not find table '{0}' in right connection".format(
+                        ropts.table))
             rtable = rtables[ropts.table]
 
-            lcols = map(column_ddl if left.compare_ddl else column_name, ltable.columns())
-            rcols = map(column_ddl if right.compare_ddl else column_name, rtable.columns())
+            lcols = map(
+                column_ddl if left.compare_ddl else column_name,
+                ltable.columns())
+            rcols = map(
+                column_ddl if right.compare_ddl else column_name,
+                rtable.columns())
 
             lplus = dict(map(
                 lambda c: (c.split()[0], ltable.column(c.split()[0])),
@@ -73,9 +83,10 @@ class DatabaseDiffer:
 
 
 def main():
-    wrapper(run)
+    run(sys.argv)
 
 
+@decorator
 def run(argv):
     left = Config.init(argv, parser)
     left.uri = left.left

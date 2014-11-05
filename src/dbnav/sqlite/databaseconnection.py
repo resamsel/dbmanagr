@@ -5,6 +5,7 @@ import logging
 
 from os.path import basename
 
+from dbnav.logger import log_with
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 
@@ -28,7 +29,6 @@ class SQLiteConnection(DatabaseConnection):
     """A database connection"""
 
     def __init__(self, path):
-        logger.debug("SQLiteConnection.__init__(%s)", path)
         self.path = path
         self.filename = basename(self.path)
         self.con = None
@@ -63,11 +63,9 @@ class SQLiteConnection(DatabaseConnection):
         options = options.get(self.driver)
         return not options.uri or options.uri in self.path
 
+    @log_with(logger)
     def connect(self, database=None):
-        logger.debug('Connecting to database %s' % database)
-
         self.connect_to('sqlite+pysqlite:///%s' % self.path)
 
     def databases(self):
-        logger.debug('Retrieve databases')
         return [SQLiteDatabase(self)]

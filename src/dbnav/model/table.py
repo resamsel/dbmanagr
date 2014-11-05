@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 
 class Table(BaseItem):
-    def __init__(self, connection, database, name, comment, owner=None, size=None):
+    def __init__(
+            self, connection, database, name, comment, owner=None, size=None):
         self.connection = connection
         self.database = database
         self.name = name
@@ -35,7 +36,8 @@ class Table(BaseItem):
     def __repr__(self):
         return self.name
 
-    def autocomplete(self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
+    def autocomplete(
+            self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 
         if column is None:
@@ -78,7 +80,8 @@ class Table(BaseItem):
     def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=False):
         """Retrieves rows from the table with the given filter applied"""
 
-        builder = QueryBuilder(self.connection,
+        builder = QueryBuilder(
+            self.connection,
             self,
             filter=filter,
             order=self.comment.order if simplify else [],
@@ -86,10 +89,13 @@ class Table(BaseItem):
             simplify=simplify)
 
         try:
-            result = self.connection.queryall(builder.build(),
+            result = self.connection.queryall(
+                builder.build(),
                 name='Rows',
-                mapper=SimplifyMapper(self,
-                    comment=Comment(self,
+                mapper=SimplifyMapper(
+                    self,
+                    comment=Comment(
+                        self,
                         builder.counter,
                         builder.aliases,
                         None)))
@@ -131,4 +137,7 @@ class Table(BaseItem):
         return 'images/table.png'
 
     def escaped(self, f):
-        return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
+        return dict(
+            map(
+                lambda (k, v): (k.encode('ascii', 'ignore'), f(v)),
+                self.__dict__.iteritems()))

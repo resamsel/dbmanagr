@@ -19,7 +19,7 @@ class Config:
 
         logging.basicConfig(stream=options.logfile,
             level=options.loglevel,
-            format="%(asctime)s %(levelname)s %(filename)s:%(lineno)s: %(message)s",
+            format="%(asctime)s %(levelname)s %(name)s: %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S")
 
         logger.info("""

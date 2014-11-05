@@ -7,7 +7,8 @@ from dbnav.formatter import Formatter, DefaultFormatter
 
 def value_from_column(column, config):
     if config.verbose > 3:
-        return '{0}?{1}'.format(column.autocomplete().split('?')[0], column.ddl())
+        return '{0}?{1}'.format(
+            column.autocomplete().split('?')[0], column.ddl())
     if config.verbose > 2:
         return column.autocomplete()
     if config.verbose > 1:

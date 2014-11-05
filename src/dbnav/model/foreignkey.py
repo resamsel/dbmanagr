@@ -3,7 +3,8 @@
 
 
 class ForeignKey:
-    """A foreign key connection between the originating column a and the foreign column b"""
+    """A foreign key connection between the originating column a and the
+foreign column b"""
 
     def __init__(self, a, b):
         self.a = a

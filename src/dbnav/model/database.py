@@ -14,7 +14,10 @@ class Database(BaseItem):
         self.name = name
 
     def __repr__(self):
-        return '%s@%s/%s' % (self.connection.user, self.connection.host, self.name)
+        return '{user}@{host}/{database}'.format(
+            user=self.connection.user,
+            host=self.connection.host,
+            database=self.name)
 
     def title(self):
         return self.autocomplete()

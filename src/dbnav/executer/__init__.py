@@ -6,7 +6,7 @@ import sys
 import sqlparse
 import re
 
-from dbnav import wrapper
+from dbnav import decorator
 from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
@@ -74,11 +74,13 @@ class DatabaseExecuter:
         # Search exact match of connection
         for connection in cons:
             opts = options.get(connection.driver)
-            if connection.matches(opts) and opts.show in ['databases', 'tables', 'columns', 'values']:
+            if connection.matches(opts) and opts.show in [
+                    'databases', 'tables', 'columns', 'values']:
                 # Reads the statements
                 stmts = read_statements(opts)
 
-                # Exit gracefully when no statements have been found (or the input got cancelled)
+                # Exit gracefully when no statements have been found (or the
+                # input got cancelled)
                 if not stmts:
                     return []
 
@@ -100,9 +102,11 @@ class DatabaseExecuter:
                     for stmt in stmts:
                         result = connection.execute(stmt, '%d' % counter)
                         if result.cursor:
-                            results.extend(map(lambda row: Item(connection, row), result))
+                            results.extend(map(
+                                lambda row: Item(connection, row), result))
                         else:
-                            # increase changes based on the returned result info
+                            # increase changes based on the returned result
+                            # info
                             changes += result.rowcount
                         if opts.progress > 0 and counter % opts.progress == 0:
                             sys.stdout.write('.')
@@ -128,9 +132,10 @@ class DatabaseExecuter:
 
 
 def main():
-    wrapper(run)
+    run(sys.argv)
 
 
+@decorator
 def run(argv):
     options = Config.init(argv, parser)
 

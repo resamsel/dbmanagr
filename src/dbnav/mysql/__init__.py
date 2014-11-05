@@ -17,9 +17,11 @@ def init_mysql(dbexplorer_config, mypass_config):
     Source.sources.append(MypassSource(mypass_config))
 
 init_mysql(
-    getenv('DBEXPLORER_CFG',
+    getenv(
+        'DBEXPLORER_CFG',
         expanduser('~/.dbexplorer/dbexplorer.cfg')),
-    getenv('PGPASS_CFG',
+    getenv(
+        'PGPASS_CFG',
         expanduser('~/.mypass'))
 )
 

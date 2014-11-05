@@ -15,10 +15,15 @@ logger = logging.getLogger(__name__)
 
 
 class TableComment:
-    """The comment on the given table that allows to display much more accurate information"""
+    """The comment on the given table that allows to display much more
+accurate information"""
 
     def __init__(self, table, json_string):
-        self.d = {COMMENT_ORDER_BY: [], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
+        self.d = {
+            COMMENT_ORDER_BY: [],
+            COMMENT_SEARCH: [],
+            COMMENT_DISPLAY: []
+        }
         self.id = None
         self.title = None
         self.subtitle = None

@@ -11,7 +11,15 @@ logger = logging.getLogger(__name__)
 class Column(BaseItem):
     """A table column"""
 
-    def __init__(self, table, name, primary_key=False, type=None, nullable=None, default=None, autoincrement=None):
+    def __init__(
+            self,
+            table,
+            name,
+            primary_key=False,
+            type=None,
+            nullable=None,
+            default=None,
+            autoincrement=None):
         self.table = table
         self.name = name
         self.primary_key = primary_key
@@ -34,7 +42,8 @@ class Column(BaseItem):
             self.type.compile(),
             {False: ' not null'}.get(self.nullable, ''),
             {None: ''}.get(self.default, ' default {0}'.format(self.default)),
-            {None: ''}.get(self.autocomplete, ' autoincrement {0}'.format(self.autoincrement)))
+            {None: ''}.get(self.autocomplete, ' autoincrement {0}'.format(
+                self.autoincrement)))
 
     def title(self):
         return self.name

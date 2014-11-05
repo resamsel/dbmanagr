@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+
 from collections import deque
-from dbnav import wrapper
+
+from dbnav import decorator
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.logger import logger
@@ -15,7 +18,8 @@ from .writer import GraphWriter, GraphvizWriter
 
 
 def bfs(start, include=[], exclude=[], indent=0, opts=None):
-    logger.debug('bfs(start=%s, include=%s, exclude=%s, indent=%d)',
+    logger.debug(
+        'bfs(start=%s, include=%s, exclude=%s, indent=%d)',
         start, include, exclude, indent)
 
     head = [TableNode(start, include, exclude, indent)]
@@ -48,10 +52,12 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                 table.init_columns(table.connection)
 
                 logger.debug(
-                    'consume table=%s ,include=%s, exclude=%s, consumed=%s, indent=%d',
+                    'consume table=%s, include=%s, exclude=%s, consumed=%s, '
+                    'indent=%d',
                     table, include, exclude, consumed, indent)
 
-                for col in filter(lambda col: col.name not in exclude, table.cols):
+                for col in filter(
+                        lambda col: col.name not in exclude, table.cols):
                     fk = table.foreign_key(col.name)
                     # logger.debug('consumed=%s', consumed)
                     if not fk:
@@ -60,30 +66,42 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                             head.append(ColumnNode(col, indent))
                     elif fk.a.table.name == table.name:
                         # Collects the forward references
-                        logger.debug('adds forward reference: fk=%s, include=%s', fk, include)
+                        logger.debug(
+                            'adds forward reference: fk=%s, include=%s',
+                            fk, include)
                         head.append(ForeignKeyNode(fk, table, indent))
                         if (fk.a.name in prefixes(include)
-                                or (opts.recursive and fk.b.table.name not in consumed)):
+                                or (opts.recursive
+                                    and fk.b.table.name not in consumed)):
                             # logger.debug('adds table=%s', fk.b.table)
-                            head.append(TableNode(fk.b.table,
+                            head.append(TableNode(
+                                fk.b.table,
                                 include=remove_prefix(fk.a.name, include),
                                 exclude=remove_prefix(fk.a.name, exclude),
                                 indent=indent + 1))
                             found = True
 
                 if opts.include_back_references:
-                    for key, fk in filter(
-                            lambda (key, fk): fk.b.table.name == table.name and fk.a.table.name not in exclude,
-                            table.fks.iteritems()):
-                        logger.debug('adds back reference: fk=%s, include=%s', fk, include)
+                    def f(key, fk):
+                        return (
+                            fk.b.table.name == table.name
+                            and fk.a.table.name not in exclude)
+                    for key, fk in filter(f, table.fks.iteritems()):
+                        logger.debug(
+                            'adds back reference: fk=%s, include=%s',
+                            fk, include)
                         head.append(ForeignKeyNode(fk, table, indent))
                         if (fk.a.table.name in prefixes(include)
-                                or (opts.recursive and fk.a.table.name not in consumed)):
+                                or (opts.recursive
+                                    and fk.a.table.name not in consumed)):
                             # Collects the back references
                             # logger.debug('adds table=%s', fk.a.table)
-                            head.append(TableNode(fk.a.table,
-                                include=remove_prefix(fk.a.table.name, include),
-                                exclude=remove_prefix(fk.a.table.name, exclude),
+                            head.append(TableNode(
+                                fk.a.table,
+                                include=remove_prefix(
+                                    fk.a.table.name, include),
+                                exclude=remove_prefix(
+                                    fk.a.table.name, exclude),
                                 indent=indent + 1))
                             found = True
             else:
@@ -105,17 +123,20 @@ class DatabaseGrapher:
         # search exact match of connection
         for connection in cons:
             opts = options.get(connection.driver)
-            if connection.matches(opts) and opts.show in ['tables', 'columns', 'values']:
+            if connection.matches(opts) and opts.show in [
+                    'tables', 'columns', 'values']:
                 try:
                     connection.connect(opts.database)
                     tables = connection.tables()
                     if opts.table not in tables:
-                        raise Exception("Could not find table '{0}'".format(opts.table))
+                        raise Exception(
+                            "Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
                     nodes = []
                     indent = 0
                     if opts.include_driver:
-                        nodes.append(NameNode(connection.driver, indent=indent))
+                        nodes.append(
+                            NameNode(connection.driver, indent=indent))
                         indent += 1
                     if opts.include_connection:
                         nodes.append(NameNode(str(connection), indent=indent))
@@ -137,7 +158,8 @@ class DatabaseGrapher:
                                 return True
                             if isinstance(item, ColumnNode):
                                 return False
-                        elif opts.include_columns and isinstance(item, ColumnNode):
+                        elif opts.include_columns and isinstance(
+                                item, ColumnNode):
                             return True
                         return not isinstance(item, TableNode)
 
@@ -149,9 +171,10 @@ class DatabaseGrapher:
 
 
 def main():
-    wrapper(run)
+    run(sys.argv)
 
 
+@decorator
 def run(argv):
     options = Config.init(argv, parser)
 

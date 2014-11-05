@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 import re
 
 from collections import OrderedDict
 
-from dbnav import wrapper
+from dbnav import decorator
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.logger import logger
@@ -38,7 +39,9 @@ def fk_by_a_table_name(fks):
 
 
 def create_items(items, include, exclude):
-    logger.debug('create_items(items=%s, include=%s, exclude=%s)', items, include, exclude)
+    logger.debug(
+        'create_items(items=%s, include=%s, exclude=%s)',
+        items, include, exclude)
 
     results_pre = []
     results_post = []
@@ -75,10 +78,12 @@ def create_items(items, include, exclude):
                     fk = fks[c]
                 col = item.table.column(c)
                 if not col and not fk:
-                    raise UnknownColumnException(item.table,
+                    raise UnknownColumnException(
+                        item.table,
                         x,
                         fks.keys() + map(lambda c: c.name, item.table.cols))
-            # only check first item, as we expect all items are from the same table
+            # only check first item, as we expect all items are from the same
+            # table
             break
     for fk in includes.keys():
         if fk.a.table.name == item.table.name:
@@ -100,7 +105,8 @@ def create_items(items, include, exclude):
                 remove_prefix(fk.a.table.name, include),
                 remove_prefix(fk.a.table.name, exclude))
 
-    return results_pre + map(lambda i: RowItem(i, exclude), items) + results_post
+    return results_pre + map(
+        lambda i: RowItem(i, exclude), items) + results_post
 
 
 def prefix(s):
@@ -126,7 +132,8 @@ class DatabaseExporter:
                     connection.connect(opts.database)
                     tables = connection.tables()
                     if opts.table not in tables:
-                        raise Exception("Could not find table '{0}'".format(opts.table))
+                        raise Exception(
+                            "Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
                     items = create_items(
                         table.rows(
@@ -144,9 +151,10 @@ class DatabaseExporter:
 
 
 def main():
-    wrapper(run)
+    run(sys.argv)
 
 
+@decorator
 def run(argv):
     options = Config.init(argv, parser)
 
