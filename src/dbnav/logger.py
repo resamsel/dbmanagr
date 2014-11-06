@@ -21,13 +21,13 @@ class log_with(object):
         self.logger = _logger
 
     def __call__(self, f):
-        '''Returns a wrapper that wraps func. The wrapper will log the entry
+        '''Returns a wrapper that wraps f. The wrapper will log the entry
 and exit points of the function with logging.DEBUG level.
 '''
 
-        @functools.wraps(f)
-        def wrapper(*args, **kwargs):
-            if self.logger.getEffectiveLevel() <= logging.DEBUG:
+        if self.logger.getEffectiveLevel() <= logging.DEBUG:
+            @functools.wraps(f)
+            def wrapper(*args, **kwargs):
                 fargs = args
                 if f.__name__ == '__init__':
                     fargs = fargs[1:]
@@ -38,15 +38,18 @@ and exit points of the function with logging.DEBUG level.
                 self.logger.debug(
                     ENTRY_MESSAGE.format(', '.join(formats)),
                     f.__name__, *fargs)
-            start = time.time()
-            result = f(*args, **kwargs)
-            if self.logger.getEffectiveLevel() <= logging.DEBUG:
+                start = time.time()
+                result = f(*args, **kwargs)
                 self.logger.debug(
                     EXIT_MESSAGE,
                     f.__name__,
                     (time.time() - start) * 1000.0,
                     encode(result))
-            return result
+                return result
+        else:
+            @functools.wraps(f)
+            def wrapper(*args, **kwargs):
+                return f(*args, **kwargs)
         return wrapper
 
 
