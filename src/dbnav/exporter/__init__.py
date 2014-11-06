@@ -3,13 +3,14 @@
 
 import sys
 import re
+import logging
 
 from collections import OrderedDict
 
 from dbnav import decorator
+from dbnav.logger import log_with
 from dbnav.config import Config
 from dbnav.sources import Source
-from dbnav.logger import logger
 from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
 from dbnav.formatter import Formatter
@@ -17,6 +18,8 @@ from dbnav.writer import Writer
 from dbnav.model.exception import UnknownColumnException
 
 from .args import parser, SqlInsertWriter
+
+logger = logging.getLogger(__name__)
 
 
 class RowItem():
@@ -38,11 +41,8 @@ def fk_by_a_table_name(fks):
     return dict(map(lambda (k, v): (v.a.table.name, v), fks.iteritems()))
 
 
+@log_with(logger)
 def create_items(items, include, exclude):
-    logger.debug(
-        'create_items(items=%s, include=%s, exclude=%s)',
-        items, include, exclude)
-
     results_pre = []
     results_post = []
     includes = {}

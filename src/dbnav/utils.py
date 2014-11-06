@@ -4,6 +4,18 @@
 import re
 
 
+def encode(v):
+    if v is None:
+        return None
+    if type(v) is unicode:
+        return v
+    if type(v) is str:
+        return unicode(v, 'UTF-8')
+    if type(v) is list:
+        return map(encode, v)
+    return unicode(v)
+
+
 def prefixes(items):
     return set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in items])
 

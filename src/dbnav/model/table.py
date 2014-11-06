@@ -25,7 +25,7 @@ class Table(BaseItem):
         self.database = database
         self.name = name
         self.entity = connection.meta.tables[name]
-        self.comment = TableComment(self, comment)
+        self.comment = TableComment(comment)
         self.owner = owner
         self.size = size
         self.cols = None
