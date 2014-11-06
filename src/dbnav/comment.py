@@ -11,13 +11,11 @@ NAMES = [
 
 
 class Comment:
-    def __init__(self, table, counter, aliases, alias):
+    def __init__(self, table, comment, counter, aliases, alias):
         self.table = table
         self.counter = counter
         self.aliases = aliases
         self.alias = alias
-
-        comment = table.comment
 
         self.fk_titles = {}
         self.columns = {}
@@ -125,7 +123,8 @@ class Comment:
                 self.aliases[key] = alias
                 k = '%s_title' % key
                 try:
-                    if fktable.comment.title:
-                        fk_titles[k] = fktable.comment.title.format(alias)
+                    comment = self.table.connection.comment(fktable.name)
+                    if comment.title:
+                        fk_titles[k] = comment.title.format(alias)
                 except KeyError:
                     fk_titles[k] = "'columns[k_]'"

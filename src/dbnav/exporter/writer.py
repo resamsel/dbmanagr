@@ -25,8 +25,9 @@ class SqlInsertWriter(FormatWriter):
             values=self.create_values(row, exclude))
 
     def create_columns(self, row, exclude):
+        table = row.table
         return u','.join(
-            map(lambda col: col.name,
+            map(lambda col: table.connection.escape_keyword(col.name),
                 filter(
                     lambda col: col.name not in exclude,
                     row.table.columns())))
@@ -144,7 +145,7 @@ class YamlWriter(FormatWriter):
         row = item.row
         exclude = item.exclude
         table = row.table
-        tablename = table.connection.escape_keyword(table.name).replace(
+        tablename = table.name.replace(
             '_', '')
         prefix = ''
         if self.last_table != table:

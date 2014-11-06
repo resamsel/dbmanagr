@@ -20,7 +20,7 @@ from dbnav.model.foreignkey import ForeignKey
 from dbnav.model.database import Database
 from dbnav.model.row import Row
 from dbnav.model.table import Table
-from dbnav.model.tablecomment import COMMENT_TITLE
+from dbnav.model.tablecomment import TableComment, COMMENT_TITLE
 from dbnav.model.value import Value
 from dbnav.model.value import KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
 from dbnav.model.exception import UnknownColumnException
@@ -43,6 +43,8 @@ def values(connection, table, filter):
         limit=1,
         simplify=filter.simplify)
 
+    comment = connection.comment(table.name)
+
     result = connection.queryone(
         builder.build(),
         'Values',
@@ -50,15 +52,16 @@ def values(connection, table, filter):
             table,
             comment=Comment(
                 table,
+                comment,
                 builder.counter,
                 builder.aliases,
                 None)))
 
     row = Row(connection, table, result)
 
-    logger.debug('Comment.display: %s', table.comment.display)
-    if table.comment.display:
-        keys = table.comment.display
+    logger.debug('Comment.display: %s', comment.display)
+    if comment.display:
+        keys = comment.display
     else:
         keys = sorted(
             row.row.keys(),
@@ -165,8 +168,9 @@ class Cursor:
 class DatabaseConnection(BaseItem):
     def __init__(self, **kwargs):
         self.database = kwargs.get('database', None)
-        self.tbls = kwargs.get('tbls', None)
         self.driver = kwargs.get('driver', None)
+        self._tables = kwargs.get('tbls', None)
+        self._comments = kwargs.get('comments', None)
 
     def title(self):
         return 'Title'
@@ -310,40 +314,60 @@ class DatabaseConnection(BaseItem):
             lambda name: Database(self, name),
             self.inspector.get_schema_names())
 
+    def init_tables(self, database):
+        self._tables = dict(map(
+            lambda name: (name, Table(self, database, name)),
+            self.inspector.get_table_names()))
+        logger.debug('Tables: %s' % self._tables)
+        self.init_foreign_keys()
+
     def tables(self):
-        if not self.tbls:
-            self.tbls = {
-                t.name.encode('ascii'): t for t in self.tablesof(self.database)
-            }
-            logger.debug('Table Map: %s' % self.tbls)
-            self.put_foreign_keys()
+        if not self._tables:
+            self.init_tables(self.database)
 
-        return self.tbls
+        return self._tables
 
-    def tablesof(self, database):
-        return map(
-            lambda name: Table(self, database, name, ''),
-            self.inspector.get_table_names())
+    def table(self, tablename):
+        return self.tables().get(tablename, None)
 
-    def put_foreign_keys(self):
+    def init_comments(self):
+        self._comments = dict(map(
+            lambda k: (k, TableComment('')),
+            self.tables().keys()))
+        comment = self.table('_comment')
+        if comment:
+            # Table _comments exists, query it
+            for row in comment.rows():
+                self._comments[row['table']] = TableComment(row['comment'])
+
+    def comments(self):
+        if not self._comments:
+            self.init_comments()
+
+        return self._comments
+
+    def comment(self, tablename):
+        return self.comments().get(tablename, None)
+
+    def init_foreign_keys(self):
         fks = reduce(
             lambda x, y: x + y,
             map(
                 lambda (k, v): dictsplus(
                     self.inspector.get_foreign_keys(k), 'name', k),
-                self.tbls.iteritems()),
+                self._tables.iteritems()),
             [])
 
         for _fk in fks:
             a = Column(
-                self.tbls[_fk['name']],
+                self._tables[_fk['name']],
                 _fk['constrained_columns'][0])
             b = Column(
-                self.tbls[_fk['referred_table']],
+                self._tables[_fk['referred_table']],
                 _fk['referred_columns'][0])
             fk = ForeignKey(a, b)
-            self.tbls[a.table.name].fks[a.name] = fk
-            self.tbls[b.table.name].fks[str(a)] = fk
+            self._tables[a.table.name].fks[a.name] = fk
+            self._tables[b.table.name].fks[str(a)] = fk
 
     def columns(self, table):
         """Returns a list of Column objects"""
@@ -365,7 +389,10 @@ class DatabaseConnection(BaseItem):
             raise Exception('Column is None!')
         if column.table and alias is not None:
             return u"{0}.{1} {2} {3}".format(
-                alias, column.name, operator, self.format_value(column, value))
+                alias,
+                self.escape_keyword(column.name),
+                operator,
+                self.format_value(column, value))
         if operator in ['=', '!='] and (value == 'null' or value is None):
             if map_null_operator:
                 operator = {
@@ -374,7 +401,9 @@ class DatabaseConnection(BaseItem):
                 }.get(operator)
             value = None
         return u'{0} {1} {2}'.format(
-            column.name, operator, self.format_value(column, value))
+            self.escape_keyword(column.name),
+            operator,
+            self.format_value(column, value))
 
     def format_value(self, column, value):
         if value is None or (type(value) is float and math.isnan(value)):
@@ -412,6 +441,8 @@ class DatabaseConnection(BaseItem):
         return u"'%s'" % value.replace('%', '%%').replace("'", "''")
 
     def escape_keyword(self, keyword):
+        if keyword in ['user', 'table', 'column']:
+            return '"%s"' % keyword
         return keyword
 
     def __str__(self):

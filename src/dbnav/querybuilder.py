@@ -109,7 +109,11 @@ class QueryBuilder:
 
             # Add referenced tables from comment to be linked
             comment = Comment(
-                self.table, self.counter, self.aliases, self.alias)
+                self.table,
+                self.connection.comment(self.table.name),
+                self.counter,
+                self.aliases,
+                self.alias)
 
             logger.debug('Comment: %s', comment)
 

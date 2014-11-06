@@ -5,7 +5,6 @@ import logging
 
 from sqlalchemy.exc import ProgrammingError, DataError
 
-from dbnav.model.tablecomment import TableComment
 from dbnav.model.row import Row
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.model.baseitem import BaseItem
@@ -20,12 +19,11 @@ logger = logging.getLogger(__name__)
 
 class Table(BaseItem):
     def __init__(
-            self, connection, database, name, comment, owner=None, size=None):
+            self, connection, database, name, owner=None, size=None):
         self.connection = connection
         self.database = database
         self.name = name
         self.entity = connection.meta.tables[name]
-        self.comment = TableComment(comment)
         self.owner = owner
         self.size = size
         self.cols = None
@@ -84,7 +82,7 @@ class Table(BaseItem):
             self.connection,
             self,
             filter=filter,
-            order=self.comment.order if simplify else [],
+            order=self.connection.comment(self.name).order if simplify else [],
             limit=limit,
             simplify=simplify)
 
@@ -96,6 +94,7 @@ class Table(BaseItem):
                     self,
                     comment=Comment(
                         self,
+                        self.connection.comment(self.name),
                         builder.counter,
                         builder.aliases,
                         None)))

@@ -17,6 +17,9 @@ class MockSource(Source):
                     path.join(DIR, '../resources/dbnav.sqlite')))
             self.connections.append(
                 SQLiteConnection(
+                    path.join(DIR, '../resources/dbnav-c.sqlite')))
+            self.connections.append(
+                SQLiteConnection(
                     path.join(DIR, '../resources/me@xyz.com.sqlite')))
 
         return self.connections
