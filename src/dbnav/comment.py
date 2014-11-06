@@ -82,7 +82,7 @@ class Comment:
 
         if not self.search:
             d = dict(map(lambda k: (str(k), k), self.columns.keys()))
-            self.search.append(self.title.format(**d))
+            self.search.append(self.title.format(self.table.name, **d))
 
     def __repr__(self):
         return str(self.__dict__)

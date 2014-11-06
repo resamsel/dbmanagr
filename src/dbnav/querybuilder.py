@@ -182,4 +182,8 @@ class QueryBuilder:
 
         logger.debug('Slice: 0, %d', self.limit)
 
-        return query.slice(0, self.limit)
+        # For Markus: don't slice if limit is -1!
+        if self.limit > 0:
+            return query.slice(0, self.limit)
+
+        return query

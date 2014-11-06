@@ -3,7 +3,7 @@
 
 import logging
 
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError, DataError
 
 from dbnav.model.tablecomment import TableComment
 from dbnav.model.row import Row
@@ -99,21 +99,16 @@ class Table(BaseItem):
                         builder.counter,
                         builder.aliases,
                         None)))
-        except ProgrammingError, e:
-            raise Exception(
-                'Configuration error: check comment on table {}\n{}'.format(
-                    self.name, e.orig))
-        except BaseException, e:
-            logger.error(
-                '%s: check comment on table %s\n%s',
-                e.__class__.__name__,
-                self.name,
-                e.__dict__)
+        except DataError as e:
+            raise
+        except ProgrammingError as e:
+            raise
+        except BaseException as e:
             logger.error(e, exc_info=1)
-            raise Exception('{}: check comment on table {}\n{}'.format(
-                e.__class__,
-                self.name,
-                unicode(e)))
+            import sys
+            raise type(e), type(e)(
+                '{} (check comment on table {})'.format(e.message, self.name)
+            ), sys.exc_info()[2]
 
         return map(lambda row: Row(self.connection, self, row), result)
 
