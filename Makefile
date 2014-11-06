@@ -1,43 +1,44 @@
+# May be overridden by environment variables
+MAKE ?= make
+PYTHON ?= python
+FLAKE8 ?= flake8
+SED ?= gsed
+GIT ?= git
+ZIP ?= zip
+UNZIP ?= unzip
+ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
+BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
+
 VERSION = src/dbnav/version.py
 TARGET = target
-SETUPTOOLS = python setup.py
-FLAKE8 = flake8 --count
+SETUPTOOLS = $(PYTHON) setup.py
 DIST = dist
 ACTUAL = $(TARGET)/testfiles/actual
-SOURCES = src/images src/info.plist src/5AD6B622-051E-41D9-A608-70919939967A.png
-BASH_COMPLETION_SOURCE = src/bash_completion/dbnav
-BASH_COMPLETION_TARGET = ~/.bash_completion.d
+RESOURCES = resources/images resources/info.plist resources/5AD6B622-051E-41D9-A608-70919939967A.png
+BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
 ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
-ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 
 init:
 	mkdir -p $(TARGET) $(TARGET)/test $(ACTUAL) $(TARGET)/files
-
-clean:
-	$(SETUPTOOLS) clean
-	rm -rf $(TARGET)
-	rm -f .dbnavigator.cache
 
 assemble: init assemble-main assemble-alfred
 
 assemble-main:
 	$(SETUPTOOLS) bdist_egg
 
-assemble-alfred: $(SOURCES)
+assemble-alfred: $(RESOURCES)
 	rm -rf $(ALFRED)
 	mkdir -p $(ALFRED)
 	cp -r $^ $(ALFRED)
 	rm -f $(ARCHIVE)
-	cd $(ALFRED); zip -rq ../../$(ARCHIVE) . \
+	cd $(ALFRED); $(ZIP) -rq ../../$(ARCHIVE) . \
 		--exclude images/.DS_Store "images/dbnavigator.sketch/*"
 
-archive: assemble
-
-build: archive test
+build: assemble test
 
 install-alfred: assemble-alfred
-	unzip -oq $(ARCHIVE) -d $(ALFRED_WORKFLOW)
+	$(UNZIP) -oq $(ARCHIVE) -d $(ALFRED_WORKFLOW)
 
 install-bash-completion:
 	mkdir -p $(BASH_COMPLETION_TARGET)
@@ -53,13 +54,19 @@ test: assemble
 develop:
 	$(SETUPTOOLS) develop
 
-README.md: develop README.sh
+README.md: develop resources/README.md.sh
 	sh $(word 2, $^)
-	python toc.py $@
+	$(PYTHON) scripts/toc.py $@
 
 release-%:
-	gsed 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION)
-	make README.md
-	git rm dist/dbnav*-py2.7.egg
+	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION)
+	$(MAKE) README.md
+	$(GIT) rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg
-	git add dist/dbnav-$(@:release-%=%)-py2.7.egg
+	$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
+
+clean:
+	$(SETUPTOOLS) clean --all
+	rm -rf $(TARGET)
+	rm -rf $(DIST)
+	rm -f .dbnavigator.cache*

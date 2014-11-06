@@ -11,7 +11,7 @@ cat <<EOF > README.md
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
-![Alfred Database Navigator Sample](docs/images/dbnav-example.png "Alfred Database Navigator Sample")
+![Alfred Database Navigator Sample](resources/images/dbnav-example.png "Alfred Database Navigator Sample")
 
 [TOC]
 
