@@ -25,9 +25,9 @@ class log_with(object):
 and exit points of the function with logging.DEBUG level.
 '''
 
-        if self.logger.getEffectiveLevel() <= logging.DEBUG:
-            @functools.wraps(f)
-            def wrapper(*args, **kwargs):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            if self.logger.getEffectiveLevel() <= logging.DEBUG:
                 fargs = args
                 if f.__name__ == '__init__':
                     fargs = fargs[1:]
@@ -46,9 +46,7 @@ and exit points of the function with logging.DEBUG level.
                     (time.time() - start) * 1000.0,
                     encode(result))
                 return result
-        else:
-            @functools.wraps(f)
-            def wrapper(*args, **kwargs):
+            else:
                 return f(*args, **kwargs)
         return wrapper
 

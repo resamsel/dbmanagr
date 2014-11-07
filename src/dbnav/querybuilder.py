@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 from collections import Counter
-from sqlalchemy import or_, Integer
+from sqlalchemy import or_, Integer, String
 from sqlalchemy.orm.session import Session
 
-from dbnav.logger import logger
+from dbnav.logger import log_with
 from dbnav.comment import Comment
 from dbnav.model.exception import UnknownColumnException
 
@@ -26,13 +28,28 @@ OPERATORS = {
 }
 
 
+logger = logging.getLogger(__name__)
+
+
+@log_with(logger)
+def allowed(column, operator, value):
+    if operator in ['~', '*']:
+        return isinstance(column.type, String)
+    return True
+
+
+def operation(column, operator, value):
+    return OPERATORS.get(operator)(column, value)
+
+
 def add_filter(query, column, operator, value):
-    return query.filter(OPERATORS.get(operator)(column, value))
+    if allowed(column, operator, value):
+        return query.filter(operation(column, operator, value))
+    return query
 
 
+@log_with(logger)
 def create_title(comment, columns):
-    logger.debug('create_title(comment=%s, columns=%s)', comment, columns)
-
     # find specially named columns (but is not an integer - integers are no
     # good names)
     for c in filter(lambda c: not isinstance(c.type, Integer), columns):
@@ -167,17 +184,19 @@ class QueryBuilder:
                     if rhs == '' and f.operator == '*':
                         rhs = '%'
                     ss = map(
-                        lambda s: OPERATORS.get(f.operator)(
-                            Entity.columns[s], rhs),
+                        lambda s: operation(
+                            Entity.columns[s], f.operator, rhs),
                         filter(
-                            lambda s: s in Entity.columns,
+                            lambda s: s in Entity.columns and allowed(
+                                Entity.columns[s], f.operator, rhs),
                             search_fields))
                     if 'id' in comment.columns:
                         col = self.table.column('id')
                         if not col:
                             raise UnknownColumnException(self.table, 'id')
-                        ss.append(OPERATORS.get(f.operator)(
-                            Entity.columns[col.name], rhs))
+                        column = Entity.columns[col.name]
+                        if allowed(column, f.operator, rhs):
+                            ss.append(operation(column, f.operator, rhs))
                     query = query.filter(or_(*ss))
 
         if self.order:

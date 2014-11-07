@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 from sqlalchemy.types import Integer
 
-from dbnav.logger import logger
+from dbnav.logger import log_with
 
 NAMES = [
-    'name', 'title', 'key', 'text', 'username', 'user_name', 'email', 'comment'
+    'name', 'title', 'key', 'text', 'username', 'user_name', 'email',
+    'comment', 'street', 'city'
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class Comment:
@@ -85,9 +90,8 @@ class Comment:
     def __repr__(self):
         return str(self.__dict__)
 
+    @log_with(logger)
     def create_title(self, comment, columns):
-        logger.debug('create_title(comment=%s, columns=%s)', comment, columns)
-
         # find specially named columns (but is not an integer - integers are
         # no good names)
         for c in columns:
@@ -105,12 +109,12 @@ class Comment:
         for c in columns:
             for name in ['name', 'title', 'key', 'text']:
                 if c.name.endswith(name) and not isinstance(c.type, Integer):
-                    return (name, '{%s}' % c.name)
+                    return (name, c.name)
 
         if comment.id:
-            return ('id', '{%s}' % comment.id)
+            return ('{id}', comment.id)
 
-        return ('First column', '{%s}' % columns[0].name)
+        return ('First column', columns[0].name)
 
     def populate_titles(self, fk_titles, foreign_keys):
         # logger.debug("Populate titles: %s", foreign_keys.keys())

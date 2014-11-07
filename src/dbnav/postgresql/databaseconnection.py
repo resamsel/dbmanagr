@@ -7,6 +7,7 @@ import logging
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
 
+from dbnav.logger import log_with
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 from dbnav.model.table import Table
@@ -171,6 +172,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
         return self.dbs
 
+    @log_with(logger)
     def init_tables(self, database):
         # sqlalchemy does not yet provide reflecting comments
         # tables = [Table(self, database, t, '') for t in
@@ -178,31 +180,32 @@ class PostgreSQLConnection(DatabaseConnection):
 
         result = self.execute(TABLES_QUERY, 'Tables')
 
-        def t(row):
-            return Table(self, database, row[0], row[2], row[3])
-
-        self._tables = map(t, result)
-        self._comments = map(
-            lambda row: (row[0], TableComment(row[1])),
-            result)
+        self._tables = {}
+        self._comments = {}
+        for row in result:
+            self._tables[row[0]] = Table(
+                self, database, row[0], row[2], row[3])
+            self._comments[row[0]] = TableComment(row[1])
 
     def init_foreign_keys(self):
         """Retrieves the foreign keys of the table"""
 
         result = self.execute(FOREIGN_KEY_QUERY, 'Foreign Keys')
 
+        tables = self._tables
+
         for row in result:
             a = Column(
-                self._tables[row['table_name'].encode('ascii')],
+                tables[row['table_name'].encode('ascii')],
                 row['column_name'],
                 nullable=row['column_nullable'])
             b = Column(
-                self._tables[row['foreign_table_name'].encode('ascii')],
+                tables[row['foreign_table_name'].encode('ascii')],
                 row['foreign_column_name'],
                 nullable=row['foreign_column_nullable'])
             fk = ForeignKey(a, b)
-            self._tables[a.table.name].fks[a.name] = fk
-            self._tables[b.table.name].fks[str(a)] = fk
+            tables[a.table.name].fks[a.name] = fk
+            tables[b.table.name].fks[str(a)] = fk
 
     def restriction(
             self, alias, column, operator, value, map_null_operator=True):

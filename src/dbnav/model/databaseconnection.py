@@ -322,6 +322,7 @@ class DatabaseConnection(BaseItem):
         logger.debug('Tables: %s' % self._tables)
         self.init_foreign_keys()
 
+    @log_with(logger)
     def tables(self):
         if not self._tables:
             self.init_tables(self.database)
