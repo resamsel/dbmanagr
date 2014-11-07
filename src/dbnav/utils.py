@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import re
 
+from sqlalchemy.types import Integer
 
-def encode(v):
-    if v is None:
-        return None
-    if type(v) is unicode:
-        return v
-    if type(v) is str:
-        return unicode(v, 'UTF-8')
-    if type(v) is list:
-        return map(encode, v)
-    return unicode(v)
+from dbnav.logger import log_with
+
+NAMES = [
+    'name', 'title', 'key', 'text', 'username', 'user_name', 'email',
+    'comment', 'street', 'city'
+]
+NAME_SUFFIXES = ['name', 'title', 'key', 'text']
+
+logger = logging.getLogger(__name__)
 
 
 def prefixes(items):
@@ -46,3 +47,34 @@ def dictminus(d, key):
     if key in d:
         del r[key]
     return r
+
+
+@log_with(logger)
+def create_title(comment, columns, fk_titles=None):
+    if fk_titles is None:
+        fk_titles = {}
+
+    # Find certain column names (but their type is not an integer - integers
+    # are no good names)
+    for c in columns:
+        for name in filter(lambda name: c.name == name, NAMES):
+            if not isinstance(c.type, Integer):
+                return (name, '{%s}' % c.name)
+            # Column c is an integer column, might have a title attached so we
+            # can still use that title
+            title = '%s_title' % name
+            if title in fk_titles:
+                return (title, fk_titles[title])
+
+    # Find first column that ends with any of certain suffixes
+    for c in columns:
+        for name in filter(lambda s: c.name.endswith(s), NAME_SUFFIXES):
+            if not isinstance(c.type, Integer):
+                return (name, c.name)
+
+    # Use the comment id, if any
+    if comment.id:
+        return ('{id}', comment.id)
+
+    # Default: use the first column
+    return ('First column', columns[0].name)

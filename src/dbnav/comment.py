@@ -3,14 +3,7 @@
 
 import logging
 
-from sqlalchemy.types import Integer
-
-from dbnav.logger import log_with
-
-NAMES = [
-    'name', 'title', 'key', 'text', 'username', 'user_name', 'email',
-    'comment', 'street', 'city'
-]
+from dbnav.utils import create_title
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +40,7 @@ class Comment:
         self.populate_titles(self.fk_titles, table.fks)
 
         if not comment.title:
-            name, title = self.create_title(comment, columns)
+            name, title = create_title(comment, columns, self.fk_titles)
             comment.title = title
             if name == table.primary_key:
                 comment.subtitle = "'%s'" % name
@@ -90,34 +83,9 @@ class Comment:
     def __repr__(self):
         return str(self.__dict__)
 
-    @log_with(logger)
-    def create_title(self, comment, columns):
-        # find specially named columns (but is not an integer - integers are
-        # no good names)
-        for c in columns:
-            for name in NAMES:
-                if c.name == name:
-                    if not isinstance(c.type, Integer):
-                        return (name, '{%s}' % c.name)
-                    elif '%s_title' % name in self.fk_titles:
-                        return (
-                            '%s_title' % name,
-                            self.fk_titles['%s_title' % name]
-                        )
-
-        # find columns that end with special names
-        for c in columns:
-            for name in ['name', 'title', 'key', 'text']:
-                if c.name.endswith(name) and not isinstance(c.type, Integer):
-                    return (name, c.name)
-
-        if comment.id:
-            return ('{id}', comment.id)
-
-        return ('First column', columns[0].name)
-
     def populate_titles(self, fk_titles, foreign_keys):
         # logger.debug("Populate titles: %s", foreign_keys.keys())
+        connection = self.table.connection
         for key in foreign_keys.keys():
             if key in self.display:
                 fk = foreign_keys[key]
@@ -127,7 +95,7 @@ class Comment:
                 self.aliases[key] = alias
                 k = '%s_title' % key
                 try:
-                    comment = self.table.connection.comment(fktable.name)
+                    comment = connection.comment(fktable.name)
                     if comment.title:
                         fk_titles[k] = comment.title.format(alias)
                 except KeyError:

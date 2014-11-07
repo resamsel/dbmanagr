@@ -5,12 +5,22 @@ import logging
 import time
 import functools
 
-from dbnav.utils import encode
-
 logger = logging.getLogger(__name__)
 
 ENTRY_MESSAGE = u'⇢ %s({})'
 EXIT_MESSAGE = u'⇠ %s [%0.3fms] = %s'
+
+
+def encode(v):
+    if v is None:
+        return None
+    if type(v) is unicode:
+        return v
+    if type(v) is str:
+        return unicode(v, 'UTF-8')
+    if type(v) is list:
+        return map(encode, v)
+    return unicode(v)
 
 
 class log_with(object):
