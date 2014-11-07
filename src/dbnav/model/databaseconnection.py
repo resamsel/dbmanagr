@@ -101,7 +101,8 @@ def values(connection, table, filter):
         values.append(Value(value, f, autocomplete, True, kind))
 
     for key in sorted(
-            foreign_keys, key=lambda k: foreign_keys[k].a.table.name):
+            foreign_keys,
+            key=lambda k: foreign_keys[k].a.table.name):
         fk = foreign_keys[key]
         if fk.b.table.name == table.name:
             autocomplete = fk.a.table.autocomplete(
