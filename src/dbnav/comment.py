@@ -18,6 +18,12 @@ class Comment:
         self.fk_titles = {}
         self.columns = {}
         self.display = comment.display
+
+        self.build(comment)
+
+    def build(self, comment):
+        table = self.table
+
         table.primary_key = None
 
         columns = table.columns()
@@ -52,14 +58,6 @@ class Comment:
             else:
                 comment.subtitle = "'There is no primary key'"
 
-        def f(s):
-            try:
-                return s.format(self.alias, **self.fk_titles)
-            except KeyError, e:
-                logger.debug("Foreign key titles: %s" % self.fk_titles)
-                logger.error("Error: %s" % e)
-                return s
-
         self.id = comment.id
         self.title = comment.title
         self.subtitle = comment.subtitle
@@ -80,23 +78,24 @@ class Comment:
             d = dict(map(lambda k: (str(k), k), self.columns.keys()))
             self.search.append(self.title.format(self.table.name, **d))
 
-    def __repr__(self):
-        return str(self.__dict__)
-
     def populate_titles(self, fk_titles, foreign_keys):
         # logger.debug("Populate titles: %s", foreign_keys.keys())
         connection = self.table.connection
-        for key in foreign_keys.keys():
-            if key in self.display:
-                fk = foreign_keys[key]
-                fktable = fk.b.table
-                self.counter[fktable.name] += 1
-                alias = '%s_%d' % (fktable.name, self.counter[fktable.name])
-                self.aliases[key] = alias
-                k = '%s_title' % key
-                try:
-                    comment = connection.comment(fktable.name)
-                    if comment.title:
-                        fk_titles[k] = comment.title.format(alias)
-                except KeyError:
-                    fk_titles[k] = "'columns[k_]'"
+        for key in filter(
+                lambda k: k in self.display,
+                foreign_keys.keys()):
+            fk = foreign_keys[key]
+            fktable = fk.b.table
+            self.counter[fktable.name] += 1
+            alias = '%s_%d' % (fktable.name, self.counter[fktable.name])
+            self.aliases[key] = alias
+            k = '%s_title' % key
+            try:
+                comment = connection.comment(fktable.name)
+                if comment.title:
+                    fk_titles[k] = comment.title.format(alias)
+            except KeyError:
+                fk_titles[k] = "'columns[k_]'"
+
+    def __repr__(self):
+        return unicode(self.__dict__)
