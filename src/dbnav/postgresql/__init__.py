@@ -15,16 +15,21 @@ from .options import PostgreSQLOptionsParser
 def init_postgresql(dbexplorer_config, pgpass_config, navicat_config):
     Source.sources.append(DBExplorerPostgreSQLSource(dbexplorer_config))
     Source.sources.append(PgpassSource(pgpass_config))
-    # Doesn't make much sense at the moment - passwords are encrypted in the plist file
+    # Doesn't make much sense at the moment - passwords are encrypted in the
+    # plist file
     # Source.sources.append(NavicatPostgreSQLSource(navicat_config))
 
 init_postgresql(
-    getenv('DBEXPLORER_CFG',
+    getenv(
+        'DBEXPLORER_CFG',
         expanduser('~/.dbexplorer/dbexplorer.cfg')),
-    getenv('PGPASS_CFG',
+    getenv(
+        'PGPASS_CFG',
         expanduser('~/.pgpass')),
-    getenv('NAVICAT_CFG',
-        expanduser('~/Library/Application Support/PremiumSoft CyberTech/preference.plist'))
+    getenv(
+        'NAVICAT_CFG',
+        expanduser('~/Library/Application Support/PremiumSoft CyberTech/'
+                   'preference.plist'))
 )
 
 Options.parser['postgresql'] = PostgreSQLOptionsParser()

@@ -51,7 +51,8 @@ class DBExplorerPostgreSQLSource(Source):
                     database = '*'
                     user = c.find('user').text
                     password = c.find('password').text
-                    connection = PostgreSQLConnection(host, port, database, user, password)
+                    connection = PostgreSQLConnection(
+                        host, port, database, user, password)
                     self.connections.append(connection)
 
         return self.connections

@@ -3,9 +3,8 @@
 
 import logging
 
-from sqlalchemy.exc import ProgrammingError
+from sqlalchemy.exc import ProgrammingError, DataError
 
-from dbnav.model.tablecomment import TableComment
 from dbnav.model.row import Row
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.model.baseitem import BaseItem
@@ -19,12 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 class Table(BaseItem):
-    def __init__(self, connection, database, name, comment, owner=None, size=None):
+    def __init__(
+            self, connection, database, name, owner=None, size=None):
         self.connection = connection
         self.database = database
         self.name = name
         self.entity = connection.meta.tables[name]
-        self.comment = TableComment(self, comment)
         self.owner = owner
         self.size = size
         self.cols = None
@@ -35,7 +34,8 @@ class Table(BaseItem):
     def __repr__(self):
         return self.name
 
-    def autocomplete(self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
+    def autocomplete(
+            self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 
         if column is None:
@@ -78,36 +78,36 @@ class Table(BaseItem):
     def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=False):
         """Retrieves rows from the table with the given filter applied"""
 
-        builder = QueryBuilder(self.connection,
+        builder = QueryBuilder(
+            self.connection,
             self,
             filter=filter,
-            order=self.comment.order if simplify else [],
+            order=self.connection.comment(self.name).order if simplify else [],
             limit=limit,
             simplify=simplify)
 
         try:
-            result = self.connection.queryall(builder.build(),
+            result = self.connection.queryall(
+                builder.build(),
                 name='Rows',
-                mapper=SimplifyMapper(self,
-                    comment=Comment(self,
+                mapper=SimplifyMapper(
+                    self,
+                    comment=Comment(
+                        self,
+                        self.connection.comment(self.name),
                         builder.counter,
                         builder.aliases,
                         None)))
-        except ProgrammingError, e:
-            raise Exception(
-                'Configuration error: check comment on table {}\n{}'.format(
-                    self.name, e.orig))
-        except BaseException, e:
-            logger.error(
-                '%s: check comment on table %s\n%s',
-                e.__class__.__name__,
-                self.name,
-                e.__dict__)
+        except DataError as e:
+            raise
+        except ProgrammingError as e:
+            raise
+        except BaseException as e:
             logger.error(e, exc_info=1)
-            raise Exception('{}: check comment on table {}\n{}'.format(
-                e.__class__,
-                self.name,
-                unicode(e)))
+            import sys
+            raise type(e), type(e)(
+                '{} (check comment on table {})'.format(e.message, self.name)
+            ), sys.exc_info()[2]
 
         return map(lambda row: Row(self.connection, self, row), result)
 
@@ -131,4 +131,7 @@ class Table(BaseItem):
         return 'images/table.png'
 
     def escaped(self, f):
-        return dict(map(lambda (k, v): (k.encode('ascii', 'ignore'), f(v)), self.__dict__.iteritems()))
+        return dict(
+            map(
+                lambda (k, v): (k.encode('ascii', 'ignore'), f(v)),
+                self.__dict__.iteritems()))

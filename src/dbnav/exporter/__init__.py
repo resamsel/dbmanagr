@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 import re
+import logging
 
 from collections import OrderedDict
 
-from dbnav import wrapper
+from dbnav import decorator
+from dbnav.logger import LogWith
 from dbnav.config import Config
 from dbnav.sources import Source
-from dbnav.logger import logger
 from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
 from dbnav.formatter import Formatter
@@ -16,6 +18,8 @@ from dbnav.writer import Writer
 from dbnav.model.exception import UnknownColumnException
 
 from .args import parser, SqlInsertWriter
+
+logger = logging.getLogger(__name__)
 
 
 class RowItem():
@@ -37,9 +41,8 @@ def fk_by_a_table_name(fks):
     return dict(map(lambda (k, v): (v.a.table.name, v), fks.iteritems()))
 
 
+@LogWith(logger)
 def create_items(items, include, exclude):
-    logger.debug('create_items(items=%s, include=%s, exclude=%s)', items, include, exclude)
-
     results_pre = []
     results_post = []
     includes = {}
@@ -75,10 +78,12 @@ def create_items(items, include, exclude):
                     fk = fks[c]
                 col = item.table.column(c)
                 if not col and not fk:
-                    raise UnknownColumnException(item.table,
+                    raise UnknownColumnException(
+                        item.table,
                         x,
                         fks.keys() + map(lambda c: c.name, item.table.cols))
-            # only check first item, as we expect all items are from the same table
+            # only check first item, as we expect all items are from the same
+            # table
             break
     for fk in includes.keys():
         if fk.a.table.name == item.table.name:
@@ -100,7 +105,8 @@ def create_items(items, include, exclude):
                 remove_prefix(fk.a.table.name, include),
                 remove_prefix(fk.a.table.name, exclude))
 
-    return results_pre + map(lambda i: RowItem(i, exclude), items) + results_post
+    return results_pre + map(
+        lambda i: RowItem(i, exclude), items) + results_post
 
 
 def prefix(s):
@@ -126,7 +132,8 @@ class DatabaseExporter:
                     connection.connect(opts.database)
                     tables = connection.tables()
                     if opts.table not in tables:
-                        raise Exception("Could not find table '{0}'".format(opts.table))
+                        raise Exception(
+                            "Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
                     items = create_items(
                         table.rows(
@@ -143,8 +150,9 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 
+@decorator
 def main():
-    wrapper(run)
+    return run(sys.argv)
 
 
 def run(argv):

@@ -15,7 +15,8 @@ class SimplifiedWriter(FormatWriter):
 
 class XmlWriter(FormatWriter):
     def __init__(self):
-        FormatWriter.__init__(self,
+        FormatWriter.__init__(
+            self,
             u"""<items>
 {0}
 </items>""")
@@ -23,13 +24,15 @@ class XmlWriter(FormatWriter):
 
     def write(self, items):
         if not items:
-            items = [Item(None, 'Nothing found', '', '', 'no', 'images/icon.png')]
+            items = [Item(
+                None, 'Nothing found', '', '', 'no', 'images/icon.png')]
         return self.str(items)
 
 
 class JsonWriter(FormatWriter):
     def __init__(self):
-        FormatWriter.__init__(self,
+        FormatWriter.__init__(
+            self,
             u"""[
 {0}
 ]""", item_separator=u""",
@@ -45,7 +48,8 @@ class AutocompleteWriter(FormatWriter):
 
 class SimpleWriter(FormatWriter):
     def __init__(self):
-        FormatWriter.__init__(self,
+        FormatWriter.__init__(
+            self,
             u"""Id\tTitle\tSubtitle\tAutocomplete
 {0}""")
         Formatter.set(SimpleFormatter())

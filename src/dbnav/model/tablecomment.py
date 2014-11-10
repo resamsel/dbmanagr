@@ -15,33 +15,43 @@ logger = logging.getLogger(__name__)
 
 
 class TableComment:
-    """The comment on the given table that allows to display much more accurate information"""
+    """The comment on the given table that allows to display much more
+accurate information"""
 
-    def __init__(self, table, json_string):
-        self.d = {COMMENT_ORDER_BY: [], COMMENT_SEARCH: [], COMMENT_DISPLAY: []}
+    def __init__(self, json_string):
         self.id = None
         self.title = None
         self.subtitle = None
+        self.search = None
+        self.display = None
+        self.order = None
+
+        self.parse(json_string)
+
+    def parse(self, json_string):
+        d = {
+            COMMENT_ORDER_BY: [],
+            COMMENT_SEARCH: [],
+            COMMENT_DISPLAY: []
+        }
 
         if json_string:
             try:
-                self.d = dict(self.d.items() + json.loads(json_string).items())
+                d.update(json.loads(json_string))
             except TypeError:
                 pass
 
-        if COMMENT_ID in self.d:
-            self.id = self.d[COMMENT_ID]
-        if COMMENT_TITLE in self.d and self.id:
-            self.d[COMMENT_TITLE] = '{0}.%s' % self.id
-        if COMMENT_TITLE in self.d:
-            self.title = self.d[COMMENT_TITLE]
-        if COMMENT_SUBTITLE in self.d:
-            self.subtitle = self.d[COMMENT_SUBTITLE]
-        self.search = self.d[COMMENT_SEARCH]
-        self.display = self.d[COMMENT_DISPLAY]
-        self.order = self.d[COMMENT_ORDER_BY]
-
-        logger.debug('Table comment for %s: %s', table, self)
+        if COMMENT_ID in d:
+            self.id = d[COMMENT_ID]
+        if COMMENT_TITLE in d and self.id:
+            d[COMMENT_TITLE] = '{0}.%s' % self.id
+        if COMMENT_TITLE in d:
+            self.title = d[COMMENT_TITLE]
+        if COMMENT_SUBTITLE in d:
+            self.subtitle = d[COMMENT_SUBTITLE]
+        self.search = d[COMMENT_SEARCH]
+        self.display = d[COMMENT_DISPLAY]
+        self.order = d[COMMENT_ORDER_BY]
 
     def __repr__(self):
-        return self.d.__repr__()
+        return self.__dict__.__repr__()

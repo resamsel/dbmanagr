@@ -6,10 +6,11 @@ import logging
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
 
+from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 
-AUTOCOMPLETE_FORMAT = '%s@%s/%s'
+AUTOCOMPLETE_FORMAT = '{user}@{host}/{database}'
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,11 @@ class MySQLDatabase(Database):
         self.name = name
 
     def __repr__(self):
-        return AUTOCOMPLETE_FORMAT % (self.connection.user, self.connection.host, self.name)
+        return AUTOCOMPLETE_FORMAT.format(
+            user=self.connection.user,
+            host=self.connection.host,
+            database=self.name
+        )
 
 
 class MySQLConnection(DatabaseConnection):
@@ -39,7 +44,11 @@ class MySQLConnection(DatabaseConnection):
         self.dbs = None
 
     def __repr__(self):
-        return '%s@%s/%s' % (self.user, self.host, self.database if self.database != '*' else '')
+        return AUTOCOMPLETE_FORMAT.format(
+            user=self.user,
+            host=self.host,
+            database=self.database if self.database != '*' else ''
+        )
 
     def autocomplete(self):
         """Retrieves the autocomplete string"""
@@ -81,23 +90,37 @@ class MySQLConnection(DatabaseConnection):
 
         if database:
             try:
-                self.connect_to('mysql+mysqldb://%s:%s@%s/%s' % (self.user, self.password, self.host, database))
+                self.connect_to(
+                    'mysql+mysqldb://{user}:{password}@{host}/{database}'
+                    .format(
+                        user=self.user,
+                        password=self.password,
+                        host=self.host,
+                        database=database))
                 self.database = database
             except OperationalError:
-                self.connect_to('mysql+mysqldb://%s:%s@%s/' % (self.user, self.password, self.host))
+                self.connect_to(
+                    'mysql+mysqldb://{user}:{password}@{host}/'.format(
+                        user=self.user,
+                        password=self.password,
+                        host=self.host))
                 database = None
         else:
-            self.connect_to('mysql+mysqldb://%s:%s@%s/' % (self.user, self.password, self.host))
+            self.connect_to(
+                'mysql+mysqldb://{user}:{password}@{host}/'.format(
+                    user=self.user,
+                    password=self.password,
+                    host=self.host))
 
-    def restriction(self, alias, column, operator, value, map_null_operator=True):
-        logger.debug(
-            'restriction(alias=%s, column=%s (%s), operator=%s, value=%s)',
-            alias, column, column.type if column else '', operator, value)
+    @LogWith(logger)
+    def restriction(
+            self, alias, column, operator, value, map_null_operator=True):
 
         if operator in ['~', 'like'] and isinstance(column.type, Integer):
             try:
                 int(value)
-                # LIKE not allowed on integer columns, change operator to equals
+                # LIKE not allowed on integer columns, change operator to
+                # equals
                 operator = '='
             except ValueError:
                 pass
@@ -109,7 +132,9 @@ class MySQLConnection(DatabaseConnection):
         lhs = column.name
         if column.table:
             lhs = '{0}{1}'.format(alias, column.name)
-        if value and isinstance(column.type, Integer) and type(value) is not list:
+        if (value
+                and isinstance(column.type, Integer)
+                and type(value) is not list):
             try:
                 int(value)
             except ValueError:

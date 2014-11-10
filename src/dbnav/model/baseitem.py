@@ -28,7 +28,8 @@ class BaseItem:
         return self.title()
 
     def item(self):
-        return Item(self.value(),
+        return Item(
+            self.value(),
             self.title(),
             self.subtitle(),
             self.autocomplete(),

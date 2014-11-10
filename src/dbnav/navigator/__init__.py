@@ -3,21 +3,24 @@
 
 import logging
 import argparse
+import sys
 
-from dbnav import wrapper
+from dbnav.logger import LogWith
+from dbnav import decorator
 from dbnav.config import Config
 from dbnav.item import Item
 from dbnav.writer import Writer
 from dbnav.sources import Source
 from dbnav.args import parent_parser, format_group
 
-from .writer import SimplifiedWriter, XmlWriter, JsonWriter, SimpleWriter, AutocompleteWriter
+from .writer import SimplifiedWriter, XmlWriter, JsonWriter, SimpleWriter
+from .writer import AutocompleteWriter
+
+logger = logging.getLogger(__name__)
 
 IMAGE_CONNECTION = 'images/connection.png'
 IMAGE_DATABASE = 'images/database.png'
 IMAGE_TABLE = 'images/table.png'
-
-logger = logging.getLogger(__name__)
 
 parent = parent_parser()
 group = format_group(parent)
@@ -65,8 +68,8 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     'uri',
     help='the URI to parse (format for PostgreSQL/MySQL: '
-        'user@host/database/table?filter; for SQLite: '
-        'databasefile.db/table?filter)',
+         'user@host/database/table?filter; for SQLite: '
+         'databasefile.db/table?filter)',
     nargs='?')
 parser.add_argument(
     '-s',
@@ -93,6 +96,7 @@ class DatabaseNavigator:
     """The main class"""
 
     @staticmethod
+    @LogWith(logger)
     def navigate(options):
         """The main method that splits the arguments and starts the magic"""
 
@@ -107,11 +111,14 @@ class DatabaseNavigator:
         # print all connections
         return map(
             lambda c: c.item(),
-            sorted([c for c in cons if c.filter(options)], key=lambda c: c.title().lower()))
+            sorted(
+                [c for c in cons if c.filter(options)],
+                key=lambda c: c.title().lower()))
 
 
+@decorator
 def main():
-    wrapper(run)
+    return run(sys.argv)
 
 
 def run(argv):

@@ -20,11 +20,8 @@ setup(
     description = "The database navigator for the command line",
     keywords = "database navigator exporter grapher postgres sqlite graphviz diff",
 
-    packages = find_packages('src'),
+    packages = find_packages('src', exclude=['tests']),
     package_dir = { '':'src' },
-    package_data = {
-        'src/images': ['*.png']
-    },
 
     test_suite = 'tests.load_suite',
 
@@ -47,6 +44,6 @@ setup(
     },
     
     data_files = [
-        ('/usr/local/etc/bash_completion.d', ['src/bash_completion/dbnav'])
+        ('/usr/local/etc/bash_completion.d', ['resources/bash_completion/dbnav'])
     ]
 )

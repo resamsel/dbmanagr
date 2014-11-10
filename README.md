@@ -2,7 +2,7 @@
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
-![Alfred Database Navigator Sample](docs/images/dbnav-example.png "Alfred Database Navigator Sample")
+![Alfred Database Navigator Sample](resources/images/dbnav-example.png "Alfred Database Navigator Sample")
 
 - [Main Features](#main-features)
 - [Database Navigation](#database-navigation)
@@ -219,8 +219,10 @@ Visualises the dependencies of a table using its foreign key references (forward
 ```
 usage: dbgraph [-h] [--version] [-L LOGFILE]
                [-l {critical,error,warning,info,debug}] [-T] [-D] [-G] [-c]
-               [-C] [-k] [-K] [-v] [-V] [-n] [-N] [-b] [-B] [-M MAX_DEPTH]
-               [-r | -i INCLUDE] [-x EXCLUDE]
+               [-C] [--back-references] [--no-back-references] [--driver]
+               [--no-driver] [--connection] [--no-connection] [--database]
+               [--no-database] [-M MAX_DEPTH] [-r | -i INCLUDE] [-x EXCLUDE]
+               [-v]
                uri
 
 A database visualisation tool that creates graphs from the database structure
@@ -235,21 +237,19 @@ optional arguments:
   --version             show program's version number and exit
   -c, --columns         include columns in output (default: False)
   -C, --no-columns      don't include columns in output (default: True)
-  -k, --back-references
-                        include back references in output (default: True)
-  -K, --no-back-references
-                        don't include back references in output (default:
+  --back-references     include back references in output (default: True)
+  --no-back-references  don't include back references in output (default:
                         False)
-  -v, --driver          include database driver in output (does not work well
+  --driver              include database driver in output (does not work well
                         with graphviz as output) (default: False)
-  -V, --no-driver       don't include database driver in output (default:
+  --no-driver           don't include database driver in output (default:
                         True)
-  -n, --connection      include connection in output (does not work well with
+  --connection          include connection in output (does not work well with
                         graphviz as output) (default: False)
-  -N, --no-connection   don't include connection in output (default: True)
-  -b, --database        include database in output (does not work well with
+  --no-connection       don't include connection in output (default: True)
+  --database            include database in output (does not work well with
                         graphviz as output) (default: False)
-  -B, --no-database     don't include database in output (default: True)
+  --no-database         don't include database in output (default: True)
   -M MAX_DEPTH, --max-depth MAX_DEPTH
                         the maximum depth to use in recursion/inclusion
                         (default: -1)
@@ -262,6 +262,9 @@ optional arguments:
                         separating them with a comma (,) (default: None)
   -x EXCLUDE, --exclude EXCLUDE
                         exclude the specified columns (default: None)
+  -v, --verbose         specify the verbosity of the output, increase the
+                        number of occurences of this option to increase
+                        verbosity (default: None)
 
 logging:
   -L LOGFILE, --logfile LOGFILE
@@ -437,7 +440,7 @@ insert into article (id,user_id,created,title,text,tags) values (1,558,'2013-10-
 `dbexport -i user_id dbnav.sqlite/article?id=2`
 
 ```
-insert into user (id,first_name,last_name,company,username,email,phone,gender,url) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male','http://epa.gov/in/hac.html?nisi=lobortis&at=convallis&nibh=tortor&in=risus&hac=dapibus&habitasse=augue&platea=vel&dictumst=accumsan&aliquam=tellus&augue=nisi&quam=eu&sollicitudin=orci&vitae=mauris&consectetuer=lacinia&eget=sapien&rutrum=quis&at=libero&lorem=nullam&integer=sit&tincidunt=amet&ante=turpis&vel=elementum&ipsum=ligula&praesent=vehicula&blandit=consequat&lacinia=morbi&erat=a&vestibulum=ipsum&sed=integer&magna=a&at=nibh&nunc=in&commodo=quis&placerat=justo&praesent=maecenas&blandit=rhoncus&nam=aliquam&nulla=lacus&integer=morbi&pede=quis&justo=tortor&lacinia=id&eget=nulla&tincidunt=ultrices&eget=aliquet&tempus=maecenas&vel=leo&pede=odio&morbi=condimentum&porttitor=id&lorem=luctus&id=nec&ligula=molestie&suspendisse=sed&ornare=justo&consequat=pellentesque&lectus=viverra&in=pede&est=ac&risus=diam&auctor=cras&sed=pellentesque&tristique=volutpat&in=dui&tempus=maecenas&sit=tristique&amet=est&sem=et&fusce=tempus&consequat=semper');
+insert into "user" (id,first_name,last_name,company,username,email,phone,gender,url) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male','http://epa.gov/in/hac.html?nisi=lobortis&at=convallis&nibh=tortor&in=risus&hac=dapibus&habitasse=augue&platea=vel&dictumst=accumsan&aliquam=tellus&augue=nisi&quam=eu&sollicitudin=orci&vitae=mauris&consectetuer=lacinia&eget=sapien&rutrum=quis&at=libero&lorem=nullam&integer=sit&tincidunt=amet&ante=turpis&vel=elementum&ipsum=ligula&praesent=vehicula&blandit=consequat&lacinia=morbi&erat=a&vestibulum=ipsum&sed=integer&magna=a&at=nibh&nunc=in&commodo=quis&placerat=justo&praesent=maecenas&blandit=rhoncus&nam=aliquam&nulla=lacus&integer=morbi&pede=quis&justo=tortor&lacinia=id&eget=nulla&tincidunt=ultrices&eget=aliquet&tempus=maecenas&vel=leo&pede=odio&morbi=condimentum&porttitor=id&lorem=luctus&id=nec&ligula=molestie&suspendisse=sed&ornare=justo&consequat=pellentesque&lectus=viverra&in=pede&est=ac&risus=diam&auctor=cras&sed=pellentesque&tristique=volutpat&in=dui&tempus=maecenas&sit=tristique&amet=est&sem=et&fusce=tempus&consequat=semper');
 insert into article (id,user_id,created,title,text,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at','vestibulum aliquet ultrices erat tortor sollicitudin');
 ```
 
@@ -445,7 +448,7 @@ insert into article (id,user_id,created,title,text,tags) values (2,960,'2014-03-
 `dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2`
 
 ```
-insert into user (id,first_name,last_name,company,username,email,phone,gender) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male');
+insert into "user" (id,first_name,last_name,company,username,email,phone,gender) values (960,'Todd','Willis','','twillisqn','twillisqn@ovh.net','','Male');
 insert into article (id,user_id,created,title,tags) values (2,960,'2014-03-01 21:51:18','duis bibendum morbi','vestibulum aliquet ultrices erat tortor sollicitudin');
 ```
 
@@ -601,10 +604,10 @@ company TEXT(255)                          <
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.13.1-py2.7.egg?raw=true) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.14-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.13.1-py2.7.egg
+pip install dbnav-0.14-py2.7.egg
 ```
 
 ### Alfred Workflow

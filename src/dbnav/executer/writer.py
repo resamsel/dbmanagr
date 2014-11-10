@@ -27,7 +27,10 @@ class ExecuteWriter(StdoutWriter):
 
 class SqlInsertWriter(FormatWriter):
     def __init__(self, options=None):
-        FormatWriter.__init__(self, u'{0}', u'insert into {table} ({columns}) values ({values});')
+        FormatWriter.__init__(
+            self,
+            u'{0}',
+            u'insert into {table} ({columns}) values ({values});')
         Formatter.set(DefaultFormatter())
         self.table_name = options.table_name
 

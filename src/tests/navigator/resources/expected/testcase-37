@@ -1,0 +1,9 @@
+Title	Autocomplete
+Joe	dbnav-c.sqlite/user?first_name=Joe
+Boyd	dbnav-c.sqlite/user?last_name=Boyd
+jboyd0@stanford.edu	dbnav-c.sqlite/user?email=jboyd0@stanford.edu
+jboyd0	dbnav-c.sqlite/user?username=jboyd0
+1	dbnav-c.sqlite/user/?id=1
+← article.user_id	dbnav-c.sqlite/article?user_id=1
+← blog_user.user_id	dbnav-c.sqlite/blog_user?user_id=1
+← user_address.user_id	dbnav-c.sqlite/user_address?user_id=1

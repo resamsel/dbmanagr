@@ -50,7 +50,8 @@ class DBExplorerMySQLSource(Source):
                     database = '*'
                     user = c.find('user').text
                     password = c.find('password').text
-                    connection = MySQLConnection(host, port, database, user, password)
+                    connection = MySQLConnection(
+                        host, port, database, user, password)
                     self.connections.append(connection)
 
         return self.connections
