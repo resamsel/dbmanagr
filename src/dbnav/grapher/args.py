@@ -53,21 +53,18 @@ parser.add_argument(
     help='don\'t include columns in output',
     action='store_false')
 parser.add_argument(
-    '-k',
     '--back-references',
     dest='include_back_references',
     default=True,
     help='include back references in output',
     action='store_true')
 parser.add_argument(
-    '-K',
     '--no-back-references',
     dest='include_back_references',
     default=False,
     help='don\'t include back references in output',
     action='store_false')
 parser.add_argument(
-    '-v',
     '--driver',
     dest='include_driver',
     default=False,
@@ -75,14 +72,12 @@ parser.add_argument(
          'as output)',
     action='store_true')
 parser.add_argument(
-    '-V',
     '--no-driver',
     dest='include_driver',
     default=True,
     help='don\'t include database driver in output',
     action='store_false')
 parser.add_argument(
-    '-n',
     '--connection',
     dest='include_connection',
     default=False,
@@ -90,14 +85,12 @@ parser.add_argument(
          'output)',
     action='store_true')
 parser.add_argument(
-    '-N',
     '--no-connection',
     dest='include_connection',
     default=True,
     help='don\'t include connection in output',
     action='store_false')
 parser.add_argument(
-    '-b',
     '--database',
     dest='include_database',
     default=False,
@@ -105,7 +98,6 @@ parser.add_argument(
          'output)',
     action='store_true')
 parser.add_argument(
-    '-B',
     '--no-database',
     dest='include_database',
     default=True,
@@ -135,3 +127,9 @@ parser.add_argument(
     '-x',
     '--exclude',
     help='exclude the specified columns')
+parser.add_argument(
+    '-v',
+    '--verbose',
+    action='count',
+    help='specify the verbosity of the output, increase the number of '
+         'occurences of this option to increase verbosity')

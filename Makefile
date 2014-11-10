@@ -6,6 +6,7 @@ SED ?= gsed
 GIT ?= git
 ZIP ?= zip
 UNZIP ?= unzip
+PIP ?= pip
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
@@ -13,6 +14,7 @@ VERSION = src/dbnav/version.py
 TARGET = target
 SETUPTOOLS = $(PYTHON) setup.py
 DIST = dist
+PIP_DEPS = flake8 pep8-naming flake8-todo
 ACTUAL = $(TARGET)/testfiles/actual
 RESOURCES = resources/images resources/info.plist resources/5AD6B622-051E-41D9-A608-70919939967A.png
 BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
@@ -48,6 +50,8 @@ install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
 test: assemble
+	$(PIP) install $(PIP_DEPS)
+	$(PIP) install --upgrade $(PIP_DEPS)
 	$(FLAKE8) src/dbnav
 	$(SETUPTOOLS) test
 

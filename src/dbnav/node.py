@@ -24,6 +24,9 @@ class BaseNode:
     def format(self):
         return Formatter.format_node(self)
 
+    def format_verbose(self, verbosity=0):
+        return self.format()
+
 
 class ColumnNode(BaseNode):
     def __init__(self, column, indent=0):
@@ -44,6 +47,10 @@ class ColumnNode(BaseNode):
 
     def format(self):
         return Formatter.format_column_node(self)
+
+    def format_verbose(self, verbosity=0):
+        indent = '  ' * self.indent
+        return '{0}- {1}'.format(indent, self.column.ddl())
 
 
 class ForeignKeyNode(BaseNode):

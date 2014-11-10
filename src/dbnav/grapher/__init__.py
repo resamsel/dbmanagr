@@ -188,9 +188,9 @@ def run(argv):
     options = Config.init(argv, parser)
 
     if options.formatter:
-        Writer.set(options.formatter())
+        Writer.set(options.formatter(options))
     else:
-        Writer.set(GraphWriter())
+        Writer.set(GraphWriter(options))
 
     return DatabaseGrapher.graph(options)
 
