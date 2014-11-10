@@ -6,7 +6,7 @@ import re
 
 from sqlalchemy.types import Integer
 
-from dbnav.logger import log_with
+from dbnav.logger import LogWith
 
 NAMES = [
     'name', 'title', 'key', 'text', 'username', 'user_name', 'email',
@@ -49,7 +49,7 @@ def dictminus(d, key):
     return r
 
 
-@log_with(logger)
+@LogWith(logger)
 def create_title(comment, columns, fk_titles=None):
     if fk_titles is None:
         fk_titles = {}

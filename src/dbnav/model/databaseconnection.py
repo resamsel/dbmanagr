@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, MetaData, Boolean, Float, Integer
 from sqlalchemy.engine import reflection
 from sqlalchemy.types import TIMESTAMP
 
-from dbnav.logger import logduration, log_with
+from dbnav.logger import logduration, LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import Comment
 from dbnav.utils import tostring, dictsplus, dictminus
@@ -31,7 +31,7 @@ OPTION_URI_SINGLE_ROW_FORMAT = u'%s%s/?%s'
 OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
 
-@log_with(logger)
+@LogWith(logger)
 def values(connection, table, filter):
     """Creates row values according to the given filter"""
 
@@ -139,7 +139,7 @@ class DatabaseRow:
             if 'id' not in self.columns:
                 self.columns['id'] = 0
 
-    @log_with(logger)
+    @LogWith(logger)
     def __getitem__(self, i):
         if i is None:
             return None
@@ -322,7 +322,7 @@ class DatabaseConnection(BaseItem):
         logger.debug('Tables: %s' % self._tables)
         self.init_foreign_keys()
 
-    @log_with(logger)
+    @LogWith(logger)
     def tables(self):
         if not self._tables:
             self.init_tables(self.database)

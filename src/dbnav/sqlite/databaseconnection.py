@@ -5,7 +5,7 @@ import logging
 
 from os.path import basename
 
-from dbnav.logger import log_with
+from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 
@@ -63,7 +63,7 @@ class SQLiteConnection(DatabaseConnection):
         options = options.get(self.driver)
         return not options.uri or options.uri in self.path
 
-    @log_with(logger)
+    @LogWith(logger)
     def connect(self, database=None):
         self.connect_to('sqlite+pysqlite:///%s' % self.path)
 

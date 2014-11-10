@@ -5,7 +5,7 @@ import logging
 import argparse
 import sys
 
-from dbnav.logger import log_with
+from dbnav.logger import LogWith
 from dbnav import decorator
 from dbnav.config import Config
 from dbnav.item import Item
@@ -96,7 +96,7 @@ class DatabaseNavigator:
     """The main class"""
 
     @staticmethod
-    @log_with(logger)
+    @LogWith(logger)
     def navigate(options):
         """The main method that splits the arguments and starts the magic"""
 

@@ -8,7 +8,7 @@ import logging
 from collections import OrderedDict
 
 from dbnav import decorator
-from dbnav.logger import log_with
+from dbnav.logger import LogWith
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.utils import remove_prefix
@@ -41,7 +41,7 @@ def fk_by_a_table_name(fks):
     return dict(map(lambda (k, v): (v.a.table.name, v), fks.iteritems()))
 
 
-@log_with(logger)
+@LogWith(logger)
 def create_items(items, include, exclude):
     results_pre = []
     results_post = []

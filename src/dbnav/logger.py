@@ -23,7 +23,7 @@ def encode(v):
     return unicode(v)
 
 
-class log_with(object):
+class LogWith(object):
     '''Logging decorator that allows you to log with a specific logger.
 '''
 

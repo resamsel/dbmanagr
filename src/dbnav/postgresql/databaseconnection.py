@@ -7,7 +7,7 @@ import logging
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
 
-from dbnav.logger import log_with
+from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 from dbnav.model.table import Table
@@ -172,7 +172,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
         return self.dbs
 
-    @log_with(logger)
+    @LogWith(logger)
     def init_tables(self, database):
         # sqlalchemy does not yet provide reflecting comments
         # tables = [Table(self, database, t, '') for t in

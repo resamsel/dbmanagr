@@ -8,7 +8,7 @@ from sqlalchemy import or_, String
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import Session
 
-from dbnav.logger import log_with
+from dbnav.logger import LogWith
 from dbnav.utils import create_title
 from dbnav.comment import Comment
 from dbnav.model.exception import UnknownColumnException
@@ -30,7 +30,7 @@ OPERATORS = {
 logger = logging.getLogger(__name__)
 
 
-@log_with(logger)
+@LogWith(logger)
 def allowed(column, operator, value):
     if operator in ['~', '*']:
         return isinstance(column.type, String)
@@ -46,7 +46,7 @@ class SimplifyMapper:
         self.table = table
         self.comment = comment
 
-    @log_with(logger)
+    @LogWith(logger)
     def map(self, row):
         d = row.__dict__
         for k in filter(
@@ -84,19 +84,16 @@ class QueryBuilder:
 
         self.alias = '_%s' % self.table.name
 
+    @LogWith(logger)
     def build(self):
-        logger.debug('QueryBuilder.build(self)')
-
         foreign_keys = self.table.foreign_keys()
         search_fields = []
 
-        Entity = aliased(self.table.entity, name=self.alias)
+        entity = aliased(self.table.entity, name=self.alias)
 
-        projection = map(lambda x: x, Entity.columns)
+        projection = map(lambda x: x, entity.columns)
         joins = []
         if self.simplify:
-            logger.debug('Simplify result')
-
             # Add referenced tables from comment to be linked
             comment = Comment(
                 self.table,
@@ -105,8 +102,9 @@ class QueryBuilder:
                 self.aliases,
                 self.alias)
 
-            logger.debug('Comment: %s', comment)
-            logger.debug('Foreign keys: %s', foreign_keys)
+            logger.debug(
+                'Comment: %s, foreign keys: %s',
+                comment, foreign_keys.keys())
 
             # TODO: Refactor into separate method and do this recursively
             for key in foreign_keys.keys():
@@ -119,12 +117,12 @@ class QueryBuilder:
                             lambda d: d.startswith(prefix),
                             comment.display)):
                     logger.debug('Adding join for %s', fk.b.name)
-                    E = fktable.entity
-                    projection.append(E.columns[column])
+                    fkentity = fktable.entity
+                    projection.append(fkentity.columns[column])
 
                     # Prevent multiple joins of the same table
-                    if E not in joins:
-                        joins.append(E)
+                    if fkentity not in joins:
+                        joins.append(fkentity)
 
             if not self.order:
                 if 'id' in comment.columns:
@@ -162,10 +160,10 @@ class QueryBuilder:
                             'Adding filter: lhs=%s, operator=%s, rhs=%s',
                             f.lhs, f.operator, f.rhs)
                         if allowed(
-                                Entity.columns[col.name], f.operator, f.rhs):
+                                entity.columns[col.name], f.operator, f.rhs):
                             filters.append(
                                 operation(
-                                    Entity.columns[col.name],
+                                    entity.columns[col.name],
                                     f.operator,
                                     f.rhs))
                 elif search_fields:
@@ -175,16 +173,16 @@ class QueryBuilder:
                         rhs = '%'
                     ss = map(
                         lambda s: operation(
-                            Entity.columns[s], f.operator, rhs),
+                            entity.columns[s], f.operator, rhs),
                         filter(
-                            lambda s: s in Entity.columns and allowed(
-                                Entity.columns[s], f.operator, rhs),
+                            lambda s: s in entity.columns and allowed(
+                                entity.columns[s], f.operator, rhs),
                             search_fields))
                     if 'id' in comment.columns:
                         col = self.table.column('id')
                         if not col:
                             raise UnknownColumnException(self.table, 'id')
-                        column = Entity.columns[col.name]
+                        column = entity.columns[col.name]
                         if allowed(column, f.operator, rhs):
                             ss.append(operation(column, f.operator, rhs))
                     filters.append(or_(*ss))
@@ -192,7 +190,7 @@ class QueryBuilder:
         orders = []
         if self.order:
             for order in self.order:
-                orders.append(Entity.columns[order])
+                orders.append(entity.columns[order])
 
         # Create a session
         session = Session(self.connection.engine)
@@ -215,7 +213,7 @@ class QueryBuilder:
 
         logger.debug('Slice: 0, %d', self.limit)
 
-        # For Markus: don't slice if limit is -1!
+        # For Markus: don't slice if limit is less than 1!
         if self.limit > 0:
             return query.slice(0, self.limit)
 

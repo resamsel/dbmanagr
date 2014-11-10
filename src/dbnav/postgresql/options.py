@@ -36,7 +36,7 @@ class PostgreSQLOptionsParser:
 
             if len(locs) > 0:
                 opts.user = locs[0]
-            if '@' in opts.uri:
+            if len(locs) > 1 and '@' in opts.uri:
                 opts.host = locs[1]
             if len(paths) > 1:
                 opts.database = paths[1]

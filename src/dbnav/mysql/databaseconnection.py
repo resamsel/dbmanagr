@@ -6,7 +6,7 @@ import logging
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.types import Integer
 
-from dbnav.logger import log_with
+from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 
@@ -112,7 +112,7 @@ class MySQLConnection(DatabaseConnection):
                     password=self.password,
                     host=self.host))
 
-    @log_with(logger)
+    @LogWith(logger)
     def restriction(
             self, alias, column, operator, value, map_null_operator=True):
 

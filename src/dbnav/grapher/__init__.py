@@ -9,7 +9,7 @@ from collections import deque
 from dbnav import decorator
 from dbnav.config import Config
 from dbnav.sources import Source
-from dbnav.logger import log_with
+from dbnav.logger import LogWith
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.writer import Writer
@@ -118,7 +118,7 @@ class DatabaseGrapher:
     """The main class"""
 
     @staticmethod
-    @log_with(logger)
+    @LogWith(logger)
     def graph(options):
         """The main method that splits the arguments and starts the magic"""
 
@@ -134,7 +134,7 @@ class DatabaseGrapher:
         raise Exception('Specify the complete URI to a table')
 
     @staticmethod
-    @log_with(logger)
+    @LogWith(logger)
     def build(connection, opts):
         try:
             connection.connect(opts.database)
