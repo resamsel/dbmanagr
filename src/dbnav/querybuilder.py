@@ -41,6 +41,25 @@ def operation(column, operator, value):
     return OPERATORS.get(operator)(column, value)
 
 
+def add_references(display, foreign_keys, projection, joins):
+    for key in foreign_keys.keys():
+        fk = foreign_keys[key]
+        fktable = fk.b.table
+        prefix = '%s.' % key
+        for column in map(
+                lambda c: c.replace(prefix, ''),
+                filter(
+                    lambda d: d.startswith(prefix),
+                    display)):
+            logger.debug('Adding join for %s', fk.b.name)
+            fkentity = fktable.entity
+            projection.append(fkentity.columns[column])
+
+            # Prevent multiple joins of the same table
+            if fkentity not in joins:
+                joins.append(fkentity)
+
+
 class SimplifyMapper:
     def __init__(self, table, comment=None):
         self.table = table
@@ -106,23 +125,7 @@ class QueryBuilder:
                 'Comment: %s, foreign keys: %s',
                 comment, foreign_keys.keys())
 
-            # TODO: Refactor into separate method and do this recursively
-            for key in foreign_keys.keys():
-                fk = foreign_keys[key]
-                fktable = fk.b.table
-                prefix = '%s.' % key
-                for column in map(
-                        lambda c: c.replace(prefix, ''),
-                        filter(
-                            lambda d: d.startswith(prefix),
-                            comment.display)):
-                    logger.debug('Adding join for %s', fk.b.name)
-                    fkentity = fktable.entity
-                    projection.append(fkentity.columns[column])
-
-                    # Prevent multiple joins of the same table
-                    if fkentity not in joins:
-                        joins.append(fkentity)
+            add_references(comment.display, foreign_keys, projection, joins)
 
             if not self.order:
                 if 'id' in comment.columns:
