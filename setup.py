@@ -20,7 +20,8 @@ setup(
     description = "The database navigator for the command line",
     keywords = "database navigator exporter grapher postgres sqlite graphviz diff",
 
-    packages = find_packages('src', exclude=['tests']),
+    packages = find_packages(
+        'src', exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
     package_dir = { '':'src' },
 
     test_suite = 'tests.load_suite',
@@ -31,6 +32,12 @@ setup(
         'psycopg2>=2.5.1',
         'sqlparse>=0.1.13',
         'mysql-python>=1.2.5'
+    ],
+    
+    tests_require = [
+        'flake8>=2.2.5',
+        'pep8-naming>=0.2.2',
+        'flake8-todo>=0.3'
     ],
 
     entry_points = {

@@ -49,9 +49,7 @@ install-bash-completion:
 install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
-test: assemble
-	$(PIP) install $(PIP_DEPS)
-	$(PIP) install --upgrade $(PIP_DEPS)
+test: init
 	$(FLAKE8) src/dbnav
 	$(SETUPTOOLS) test
 
