@@ -8,7 +8,7 @@ from sqlalchemy.exc import ProgrammingError, DataError
 from dbnav.model.row import Row
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.model.baseitem import BaseItem
-from dbnav.comment import Comment
+from dbnav.comment import create_comment
 
 DEFAULT_LIMIT = 50
 
@@ -92,7 +92,7 @@ class Table(BaseItem):
                 name='Rows',
                 mapper=SimplifyMapper(
                     self,
-                    comment=Comment(
+                    comment=create_comment(
                         self,
                         self.connection.comment(self.name),
                         builder.counter,

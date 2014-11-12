@@ -10,7 +10,7 @@ from sqlalchemy.orm.session import Session
 
 from dbnav.logger import LogWith
 from dbnav.utils import create_title
-from dbnav.comment import Comment
+from dbnav.comment import create_comment
 from dbnav.model.exception import UnknownColumnException
 
 OPERATORS = {
@@ -114,7 +114,7 @@ class QueryBuilder:
         joins = []
         if self.simplify:
             # Add referenced tables from comment to be linked
-            comment = Comment(
+            comment = create_comment(
                 self.table,
                 self.connection.comment(self.table.name),
                 self.counter,

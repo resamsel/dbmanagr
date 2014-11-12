@@ -12,7 +12,7 @@ from sqlalchemy.types import TIMESTAMP
 
 from dbnav.logger import logduration, LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
-from dbnav.comment import Comment
+from dbnav.comment import create_comment
 from dbnav.utils import tostring, dictsplus, dictminus
 from dbnav.model.column import Column
 from dbnav.model.baseitem import BaseItem
@@ -50,7 +50,7 @@ def values(connection, table, filter):
         'Values',
         SimplifyMapper(
             table,
-            comment=Comment(
+            comment=create_comment(
                 table,
                 comment,
                 builder.counter,
