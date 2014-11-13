@@ -11,10 +11,6 @@ OPERATORS = ['>=', '<=', '!=', '=', '~', '*', '>', '<', ':']
 logger = logging.getLogger(__name__)
 
 
-def parse_loglevel(level):
-    return getattr(logging, level.upper(), None)
-
-
 def parse_filter(s):
     filter = []
     for term in s.split(AND_OPERATOR):
@@ -62,8 +58,6 @@ class Options:
 
         args = parser.parse_args(argv[1:])
 
-        if args.loglevel:
-            args.loglevel = parse_loglevel(args.loglevel)
         if hasattr(args, 'include'):
             args.include = args.include.split(',') if args.include else []
         if hasattr(args, 'exclude'):
