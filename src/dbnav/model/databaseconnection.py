@@ -32,10 +32,89 @@ OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
 
 @LogWith(logger)
+def fkey(column, foreign_keys):
+    if column.name in foreign_keys:
+        return foreign_keys[column.name]
+    return column
+
+
+@LogWith(logger)
+def val(row, column):
+    colname = '%s_title' % column
+    if colname in row.row.keys():
+        return u'%s (%s)' % (row[colname], row[column])
+    if column in row.row.keys():
+        return row[tostring(column)]
+    return row[tostring(column)]
+
+
+def forward_references(row, table, keys, aliases):
+    foreign_keys = table.fks
+    alias = aliases[table.name]
+
+    refs = []
+    for key in keys:
+        value = val(row, key)
+        logger.debug('%s in table.fks: %s', key, foreign_keys.keys())
+        _key = key.replace('{0}_'.format(alias), '', 1)
+        logger.debug('_key: %s', _key)
+        if key in foreign_keys:
+            # Key is a foreign key column
+            fk = foreign_keys[key]
+            autocomplete = fk.b.table.autocomplete(
+                fk.b.name, row[tostring(key)])
+        elif table.column(_key).primary_key:
+            # Key is a simple column, but primary key
+            autocomplete = table.autocomplete(
+                _key,
+                row[tostring(key)],
+                OPTION_URI_SINGLE_ROW_FORMAT)
+        else:
+            # Key is a simple column
+            autocomplete = table.autocomplete(
+                _key,
+                row[tostring(key)],
+                OPTION_URI_MULTIPLE_ROWS_FORMAT)
+        f = fkey(Column(table, key), foreign_keys)
+        kind = KIND_VALUE
+        if f.__class__.__name__ == 'ForeignKey':
+            kind = KIND_FOREIGN_KEY
+        refs.append(Value(value, f, autocomplete, True, kind))
+
+    return refs
+
+
+def back_references(row, table, aliases):
+    foreign_keys = table.fks
+
+    refs = []
+    for key in sorted(
+            foreign_keys,
+            key=lambda k: foreign_keys[k].a.table.name):
+        fk = foreign_keys[key]
+        if fk.b.table.name == table.name:
+            autocomplete = fk.a.table.autocomplete(
+                fk.a.name, row['{0}_{1}'.format(
+                    aliases[fk.b.table.name], fk.b.name)],
+                OPTION_URI_MULTIPLE_ROWS_FORMAT)
+            logger.debug(
+                'table.name=%s, fk=%s, autocomplete=%s',
+                table.name, fk, autocomplete)
+            refs.append(
+                Value(
+                    fk.a,
+                    fkey(Column(fk.a.table, fk.a.name), foreign_keys),
+                    autocomplete,
+                    False,
+                    KIND_FOREIGN_VALUE))
+
+    return refs
+
+
+@LogWith(logger)
 def values(connection, table, filter):
     """Creates row values according to the given filter"""
 
-    foreign_keys = table.fks
     builder = QueryBuilder(
         connection,
         table,
@@ -43,80 +122,40 @@ def values(connection, table, filter):
         limit=1,
         simplify=filter.simplify)
 
-    comment = connection.comment(table.name)
+    mapper = None
+    keys = None
+    if filter.simplify:
+        comment = create_comment(
+            table,
+            connection.comment(table.name),
+            builder.counter,
+            builder.aliases,
+            None)
+
+        keys = comment.display
+
+        mapper = SimplifyMapper(
+            table,
+            comment=comment)
 
     result = connection.queryone(
         builder.build(),
         'Values',
-        SimplifyMapper(
-            table,
-            comment=create_comment(
-                table,
-                comment,
-                builder.counter,
-                builder.aliases,
-                None)))
+        mapper)
 
     row = Row(connection, table, result)
 
-    logger.debug('Comment.display: %s', comment.display)
-    if comment.display:
-        keys = comment.display
-    else:
+    if keys is None:
         keys = sorted(
             row.row.keys(),
             key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
 
-    def fkey(column):
-        if column.name in foreign_keys:
-            return foreign_keys[column.name]
-        return column
+    logger.debug('Keys: %s', keys)
 
-    def val(row, column):
-        colname = '%s_title' % column
-        if colname in row.row:
-            return u'%s (%s)' % (row[colname], row[column])
-        return row[tostring(column)]
-
-    values = []
-    for key in keys:
-        value = val(row, key)
-        if key in table.fks:
-            # Key is a foreign key column
-            fk = table.fks[key]
-            autocomplete = fk.b.table.autocomplete(
-                fk.b.name, row[tostring(key)])
-        elif table.column(key).primary_key:
-            # Key is a simple column, but primary key
-            autocomplete = table.autocomplete(
-                key, row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
-        else:
-            # Key is a simple column
-            autocomplete = table.autocomplete(
-                key, row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
-        f = fkey(Column(table, key))
-        kind = KIND_VALUE
-        if f.__class__.__name__ == 'ForeignKey':
-            kind = KIND_FOREIGN_KEY
-        values.append(Value(value, f, autocomplete, True, kind))
-
-    for key in sorted(
-            foreign_keys,
-            key=lambda k: foreign_keys[k].a.table.name):
-        fk = foreign_keys[key]
-        if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(
-                fk.a.name, row[fk.b.name], OPTION_URI_MULTIPLE_ROWS_FORMAT)
-            logger.debug(
-                'table.name=%s, fk=%s, autocomplete=%s',
-                table.name, fk, autocomplete)
-            values.append(
-                Value(
-                    fk.a,
-                    fkey(Column(fk.a.table, fk.a.name)),
-                    autocomplete,
-                    False,
-                    KIND_FOREIGN_VALUE))
+    values = forward_references(
+        row, table, keys, builder.aliases)
+    values += back_references(
+        row, table, builder.aliases)
 
     return values
 
@@ -339,7 +378,7 @@ class DatabaseConnection(BaseItem):
         comment = self.table('_comment')
         if comment:
             # Table _comments exists, query it
-            for row in comment.rows():
+            for row in comment.rows(limit=-1, simplify=False):
                 self._comments[row['table']] = TableComment(row['comment'])
 
     def comments(self):

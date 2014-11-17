@@ -9,6 +9,7 @@ from dbnav.model.row import Row
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.model.baseitem import BaseItem
 from dbnav.comment import create_comment
+from dbnav.model.exception import UnknownColumnException
 
 DEFAULT_LIMIT = 50
 
@@ -29,7 +30,7 @@ class Table(BaseItem):
         self.cols = None
         self.fks = {}
         self.uri = connection.autocomplete()
-        self.primary_key = 'id'
+        self.primary_key = None
 
     def __repr__(self):
         return self.name
@@ -75,8 +76,14 @@ class Table(BaseItem):
 
         return None
 
-    def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=False):
+    def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=None):
         """Retrieves rows from the table with the given filter applied"""
+        logger.debug(
+            'table.rows(self=%s, filter=%s, limit=%s, simplify=%s)',
+            self, filter, limit, simplify)
+
+        if simplify is None:
+            simplify = False
 
         builder = QueryBuilder(
             self.connection,
@@ -86,21 +93,27 @@ class Table(BaseItem):
             limit=limit,
             simplify=simplify)
 
+        mapper = None
+        if simplify:
+            mapper = SimplifyMapper(
+                self,
+                comment=create_comment(
+                    self,
+                    self.connection.comment(self.name),
+                    builder.counter,
+                    builder.aliases,
+                    None))
+
         try:
             result = self.connection.queryall(
                 builder.build(),
                 name='Rows',
-                mapper=SimplifyMapper(
-                    self,
-                    comment=create_comment(
-                        self,
-                        self.connection.comment(self.name),
-                        builder.counter,
-                        builder.aliases,
-                        None)))
+                mapper=mapper)
         except DataError as e:
             raise
         except ProgrammingError as e:
+            raise
+        except UnknownColumnException as e:
             raise
         except BaseException as e:
             logger.error(e, exc_info=1)

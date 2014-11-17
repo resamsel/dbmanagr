@@ -50,21 +50,13 @@ def dictminus(d, key):
 
 
 @LogWith(logger)
-def create_title(comment, columns, fk_titles=None):
-    if fk_titles is None:
-        fk_titles = {}
-
+def create_title(comment, columns):
     # Find certain column names (but their type is not an integer - integers
     # are no good names)
     for c in columns:
         for name in filter(lambda name: c.name == name, NAMES):
             if not isinstance(c.type, Integer):
                 return (name, '{%s}' % c.name)
-            # Column c is an integer column, might have a title attached so we
-            # can still use that title
-            title = '%s_title' % name
-            if title in fk_titles:
-                return (title, fk_titles[title])
 
     # Find first column that ends with any of certain suffixes
     for c in columns:

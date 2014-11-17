@@ -4,6 +4,7 @@
 import logging
 import time
 import functools
+import inspect
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,12 @@ def encode(v):
     if type(v) is list:
         return map(encode, v)
     return unicode(v)
+
+
+def argtostring(k, v):
+    if k == 'self':
+        return k
+    return '{0}={1}'.format(k, encode(v))
 
 
 class LogWith(object):
@@ -41,8 +48,12 @@ and exit points of the function with logging.DEBUG level.
                 fargs = args
                 if f.__name__ == '__init__':
                     fargs = fargs[1:]
-                fargs = map(encode, fargs) + map(
-                    lambda (k, v): encode(v), kwargs)
+                fargs = map(
+                    lambda (k, v): argtostring(k, v),
+                    inspect.getcallargs(f, *fargs).iteritems())
+                fargs += map(
+                    lambda (k, v): encode(v),
+                    kwargs)
                 formats = map(lambda arg: '%s', fargs) + map(
                     lambda (k, v): '{}=%s'.format(k), kwargs)
                 self.logger.debug(
