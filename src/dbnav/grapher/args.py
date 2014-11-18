@@ -32,7 +32,6 @@ parser = argparse.ArgumentParser(
     prog='dbgraph',
     description='A database visualisation tool that creates graphs from the '
                 'database structure',
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument(
     'uri',
@@ -108,7 +107,8 @@ parser.add_argument(
     '--max-depth',
     default=-1,
     type=int,
-    help='the maximum depth to use in recursion/inclusion')
+    help='the maximum depth to use in recursion/inclusion (default: '
+         '%(default)s)')
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument(

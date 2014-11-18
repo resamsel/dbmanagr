@@ -29,7 +29,6 @@ parser = argparse.ArgumentParser(
     prog='dbexec',
     description='Executes the SQL statements from the given file on the '
                 'database specified by the given URI',
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument(
     'uri',
@@ -52,9 +51,9 @@ parser.add_argument(
     default=-1,
     type=int,
     help='show progress after this amount of executions when inserting/'
-         'updating large data sets')
+         'updating large data sets (default: %(default)s)')
 parser.add_argument(
     '-n',
     '--table-name',
     default='__TABLE__',
-    help='the table name for generic select statements')
+    help='the table name for generic select statements (default: %(default)s)')

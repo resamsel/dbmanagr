@@ -54,7 +54,6 @@ parser = argparse.ArgumentParser(
     prog='dbexport',
     description='An export tool that exports database rows in different '
                 'formats.',
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     parents=[parent])
 parser.add_argument(
     'uri',
@@ -75,16 +74,17 @@ parser.add_argument(
     '--limit',
     type=int,
     default=50,
-    help='limit the results of the main query to this amount of rows')
+    help='limit the results of the main query to this amount of rows '
+         '(default: %(default)s)')
 parser.add_argument(
     '-p',
     '--package',
     default='models',
-    help='the package for YAML entities')
+    help='the package for YAML entities (default: %(default)s)')
 parser.add_argument(
     '-f',
     '--format',
     default=u'{0}',
     help='the format for the -F/--formatted writer (use {0} for positional '
          'arguments, or {column_name} to insert the actual value of '
-         'table.column_name)')
+         'table.column_name) (default: %(default)s)')
