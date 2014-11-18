@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __all__ = ('__version__',)
-__version__ = "0.14"
+__version__ = "0.15"
 
 if __name__ == "__main__":
     print __version__
