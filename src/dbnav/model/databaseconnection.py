@@ -11,10 +11,11 @@ from sqlalchemy.engine import reflection
 from sqlalchemy.types import TIMESTAMP
 
 from dbnav.logger import logduration, LogWith
+from dbnav.exception import UnknownColumnException
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
-from dbnav.utils import tostring, dictsplus, dictminus
-from dbnav.model.column import Column
+from dbnav.utils import tostring
+from dbnav.model.column import create_column
 from dbnav.model.baseitem import BaseItem
 from dbnav.model.foreignkey import ForeignKey
 from dbnav.model.database import Database
@@ -23,7 +24,6 @@ from dbnav.model.table import Table
 from dbnav.model.tablecomment import TableComment, COMMENT_TITLE
 from dbnav.model.value import Value
 from dbnav.model.value import KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
-from dbnav.model.exception import UnknownColumnException
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +32,10 @@ OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
 
 @LogWith(logger)
-def fkey(column, foreign_keys):
-    if column.name in foreign_keys:
-        return foreign_keys[column.name]
-    return column
+def foreign_key_or_column(table, column, foreign_keys):
+    if column in foreign_keys:
+        return foreign_keys[column]
+    return table.column(column)
 
 
 @LogWith(logger)
@@ -75,7 +75,7 @@ def forward_references(row, table, keys, aliases):
                 _key,
                 row[tostring(key)],
                 OPTION_URI_MULTIPLE_ROWS_FORMAT)
-        f = fkey(Column(table, key), foreign_keys)
+        f = foreign_key_or_column(table, key, foreign_keys)
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
             kind = KIND_FOREIGN_KEY
@@ -103,7 +103,7 @@ def back_references(row, table, aliases):
             refs.append(
                 Value(
                     fk.a,
-                    fkey(Column(fk.a.table, fk.a.name), foreign_keys),
+                    foreign_key_or_column(fk.a.table, fk.a.name, foreign_keys),
                     autocomplete,
                     False,
                     KIND_FOREIGN_VALUE))
@@ -209,6 +209,8 @@ class DatabaseConnection(BaseItem):
     def __init__(self, **kwargs):
         self.database = kwargs.get('database', None)
         self.driver = kwargs.get('driver', None)
+        self._inspector = None
+        self._meta = None
         self._tables = kwargs.get('tbls', None)
         self._comments = kwargs.get('comments', None)
 
@@ -291,9 +293,19 @@ class DatabaseConnection(BaseItem):
         logger.debug('Connecting to %s', source)
         self.engine = create_engine(source)
         self.con = self.engine.connect()
-        self.inspector = reflection.Inspector.from_engine(self.engine)
-        self.meta = MetaData()
-        self.meta.reflect(bind=self.engine)
+
+    def meta(self):
+        if self._meta is None:
+            self._meta = MetaData()
+            self._meta.reflect(bind=self.engine)
+
+        return self._meta
+
+    def inspector(self):
+        if self._inspector is None:
+            self._inspector = reflection.Inspector.from_engine(self.engine)
+
+        return self._inspector
 
     def connected(self):
         return self.con
@@ -309,6 +321,7 @@ class DatabaseConnection(BaseItem):
     def begin(self):
         return self.con.begin()
 
+    @LogWith(logger, log_args=False, log_result=False)
     def execute(self, query, name='Unnamed'):
         logger.info('Query %s: %s', name, query)
 
@@ -321,6 +334,7 @@ class DatabaseConnection(BaseItem):
 
         return result
 
+    @LogWith(logger, log_args=False, log_result=False)
     def queryall(self, query, name='Unnamed', mapper=None):
         logger.info('Query all %s: %s', name, query)
 
@@ -334,6 +348,7 @@ class DatabaseConnection(BaseItem):
 
         return result
 
+    @LogWith(logger, log_args=False, log_result=False)
     def queryone(self, query, name='Unnamed', mapper=None):
         logger.info('Query one %s: %s', name, query)
 
@@ -352,12 +367,13 @@ class DatabaseConnection(BaseItem):
     def databases(self):
         return map(
             lambda name: Database(self, name),
-            self.inspector.get_schema_names())
+            self.inspector().get_schema_names())
 
+    @LogWith(logger)
     def init_tables(self, database):
         self._tables = dict(map(
-            lambda name: (name, Table(self, database, name)),
-            self.inspector.get_table_names()))
+            lambda table: (table, Table(self, database, table)),
+            self.meta().tables))
         logger.debug('Tables: %s' % self._tables)
         self.init_foreign_keys()
 
@@ -370,6 +386,9 @@ class DatabaseConnection(BaseItem):
 
     def table(self, tablename):
         return self.tables().get(tablename, None)
+
+    def entity(self, tablename):
+        return self.meta().tables[tablename]
 
     def init_comments(self):
         self._comments = dict(map(
@@ -391,38 +410,28 @@ class DatabaseConnection(BaseItem):
         return self.comments().get(tablename, None)
 
     def init_foreign_keys(self):
-        fks = reduce(
-            lambda x, y: x + y,
-            map(
-                lambda (k, v): dictsplus(
-                    self.inspector.get_foreign_keys(k), 'name', k),
-                self._tables.iteritems()),
-            [])
+        for k, t in self.meta().tables.iteritems():
+            for _fk in t.foreign_keys:
+                a = create_column(
+                    self._tables[_fk.parent.table.name],
+                    str(_fk.parent.key),
+                    _fk.parent)
+                b = create_column(
+                    self._tables[_fk.column.table.name],
+                    str(_fk.column.key),
+                    _fk.column)
+                fk = ForeignKey(a, b)
+                self._tables[a.table.name].fks[a.name] = fk
+                self._tables[b.table.name].fks[str(a)] = fk
 
-        for _fk in fks:
-            a = Column(
-                self._tables[_fk['name']],
-                _fk['constrained_columns'][0])
-            b = Column(
-                self._tables[_fk['referred_table']],
-                _fk['referred_columns'][0])
-            fk = ForeignKey(a, b)
-            self._tables[a.table.name].fks[a.name] = fk
-            self._tables[b.table.name].fks[str(a)] = fk
-
+    @LogWith(logger)
     def columns(self, table):
         """Returns a list of Column objects"""
 
-        cols = self.inspector.get_columns(table.name)
-        pks = self.inspector.get_pk_constraint(
-            table.name)['constrained_columns']
-
+        # FIX ME: Use entity.columns directly instead of using Column wrapper
         return map(
-            lambda col: Column(
-                table,
-                primary_key=[col['name']] == pks,
-                **dictminus(col, 'primary_key')),
-            cols)
+            lambda c: create_column(table, str(c.name), c),
+            table.entity.columns)
 
     def restriction(
             self, alias, column, operator, value, map_null_operator=True):

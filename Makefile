@@ -50,7 +50,7 @@ install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
 test: init
-	$(FLAKE8) src/dbnav
+	$(FLAKE8) src
 	$(SETUPTOOLS) test
 
 develop:

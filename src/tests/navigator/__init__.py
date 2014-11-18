@@ -3,6 +3,7 @@
 
 import glob
 import unittest
+import os
 
 from os import path
 from tests.generator import test_generator, params
@@ -18,7 +19,15 @@ init_sources(DIR)
 
 
 class OutputTestCase(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):  # noqa
+        os.environ['UNITTEST'] = 'True'
+
+    @classmethod
+    def tearDownClass(cls):  # noqa
+        del os.environ['UNITTEST']
+
+    def setUp(self):  # noqa
         self.maxDiff = None
 
 

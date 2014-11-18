@@ -15,7 +15,7 @@ from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
 from dbnav.formatter import Formatter
 from dbnav.writer import Writer
-from dbnav.model.exception import UnknownColumnException
+from dbnav.exception import UnknownColumnException
 
 from .args import parser, SqlInsertWriter
 
@@ -79,9 +79,9 @@ def create_items(items, include, exclude):
                 col = item.table.column(c)
                 if not col and not fk:
                     raise UnknownColumnException(
-                        item.table,
-                        x,
-                        fks.keys() + map(lambda c: c.name, item.table.cols))
+                        item.table, x,
+                        fks.keys() + map(
+                            lambda c: c.name, item.table.columns()))
             # only check first item, as we expect all items are from the same
             # table
             break

@@ -48,7 +48,7 @@ class Row(BaseItem):
     def autocomplete(self):
         column = self.table.primary_key
         if not column:
-            column = self.table.cols[0].name
+            column = self.table.column(0).name
         value = self[column]
         return self.table.autocomplete(column, value)
 

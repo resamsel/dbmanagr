@@ -96,7 +96,7 @@ class DatabaseNavigator:
     """The main class"""
 
     @staticmethod
-    @LogWith(logger)
+    @LogWith(logger, log_result=False)
     def navigate(options):
         """The main method that splits the arguments and starts the magic"""
 

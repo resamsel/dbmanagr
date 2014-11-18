@@ -42,10 +42,11 @@ def dictplus(d, key, value):
     d[key] = value
 
 
-def dictminus(d, key):
+def dictminus(d, *keys):
     r = dict(d)
-    if key in d:
-        del r[key]
+    for key in keys:
+        if key in d:
+            del r[key]
     return r
 
 

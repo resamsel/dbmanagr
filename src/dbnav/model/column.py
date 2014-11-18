@@ -4,6 +4,7 @@
 import logging
 from dbnav.model.baseitem import BaseItem
 from dbnav.formatter import Formatter
+from dbnav.utils import dictminus
 
 logger = logging.getLogger(__name__)
 
@@ -11,22 +12,10 @@ logger = logging.getLogger(__name__)
 class Column(BaseItem):
     """A table column"""
 
-    def __init__(
-            self,
-            table,
-            name,
-            primary_key=False,
-            type=None,
-            nullable=None,
-            default=None,
-            autoincrement=None):
+    def __init__(self, table, name, **kwargs):
         self.table = table
         self.name = name
-        self.primary_key = primary_key
-        self.type = type
-        self.nullable = nullable
-        self.default = default
-        self.autoincrement = autoincrement
+        self.__dict__.update(kwargs)
 
     def __repr__(self):
         if self.table:
@@ -59,3 +48,7 @@ class Column(BaseItem):
 
     def format(self):
         return Formatter.format_column(self)
+
+
+def create_column(table, name, column):
+    return Column(table, name, **dictminus(column.__dict__, 'name', 'table'))

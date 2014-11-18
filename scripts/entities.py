@@ -16,6 +16,11 @@ c = engine.connect()
 meta = MetaData()
 meta.reflect(bind=engine)
 
+for k, t in meta.tables.iteritems():
+    for fk in t.foreign_keys:
+        print '{t.name}: {fk.parent.table.name}.{fk.parent.key} -> {fk.column.table.name}.{fk.column.key}'.format(
+            fk=fk, t=t)
+
 article = aliased(meta.tables['article'], name='_article')
 user = aliased(meta.tables['user'], name='_user')
 blog_user = aliased(meta.tables['blog_user'], name='_blog_user')

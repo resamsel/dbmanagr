@@ -34,38 +34,61 @@ class LogWith(object):
     '''Logging decorator that allows you to log with a specific logger.
 '''
 
-    def __init__(self, _logger):
-        self.logger = _logger
+    def __init__(self, logger, log_args=True, log_result=True):
+        self.logger = logger
+        self.log_args = log_args
+        self.log_result = log_result
 
     def __call__(self, f):
-        '''Returns a wrapper that wraps f. The wrapper will log the entry
-and exit points of the function with logging.DEBUG level.
+        '''Returns a wrapper that wraps function f. The wrapper will log the
+entry and exit points of the function with logging.DEBUG level.
 '''
 
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             if self.logger.getEffectiveLevel() <= logging.DEBUG:
-                fargs = args
-                if f.__name__ == '__init__':
-                    fargs = fargs[1:]
-                fargs = map(
-                    lambda (k, v): argtostring(k, v),
-                    inspect.getcallargs(f, *fargs).iteritems())
-                fargs += map(
-                    lambda (k, v): encode(v),
-                    kwargs)
-                formats = map(lambda arg: '%s', fargs) + map(
-                    lambda (k, v): '{}=%s'.format(k), kwargs)
-                self.logger.debug(
-                    ENTRY_MESSAGE.format(', '.join(formats)),
-                    f.__name__, *fargs)
+                if self.log_args:
+                    # Keeps order of args intact
+                    cargs = inspect.getcallargs(f, *args)
+                    fargs = map(
+                        lambda k: argtostring(k, cargs[k]),
+                        inspect.getargspec(f).args)
+                    # Adds keyword arguments
+                    fargs += map(lambda (k, v): encode(v), kwargs)
+
+                    # Creates format for the log message
+                    formats = map(lambda arg: '%s', fargs)
+                    formats += map(lambda (k, v): '{}=%s'.format(k), kwargs)
+
+                    # Do the logging
+                    self.logger.debug(
+                        ENTRY_MESSAGE.format(', '.join(formats)),
+                        f.__name__, *fargs)
+                else:
+                    # Do the logging
+                    self.logger.debug(
+                        ENTRY_MESSAGE.format('<omitted>'),
+                        f.__name__)
+
+                # Starts the stopwatch
                 start = time.time()
+                # Invokes the method/function
                 result = f(*args, **kwargs)
-                self.logger.debug(
-                    EXIT_MESSAGE,
-                    f.__name__,
-                    (time.time() - start) * 1000.0,
-                    encode(result))
+
+                if self.log_result:
+                    # Logs returned value and duration of the call
+                    self.logger.debug(
+                        EXIT_MESSAGE,
+                        f.__name__,
+                        (time.time() - start) * 1000.0,
+                        encode(result))
+                else:
+                    self.logger.debug(
+                        EXIT_MESSAGE,
+                        f.__name__,
+                        (time.time() - start) * 1000.0,
+                        '<omitted>')
+
                 return result
             else:
                 return f(*args, **kwargs)

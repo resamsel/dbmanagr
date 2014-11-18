@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
 import codecs
 import sys
 
+from dbnav.logger import LogWith
 from dbnav.formatter import Formatter, TestFormatter, DefaultFormatter
 
 UTF8Writer = codecs.getwriter('utf8')
 sys.stdout = UTF8Writer(sys.stdout)
+
+logger = logging.getLogger(__name__)
 
 
 def html_escape(s):
@@ -109,5 +113,6 @@ class Writer:
         Writer.writer = arg
 
     @staticmethod
+    @LogWith(logger, log_args=False, log_result=False)
     def write(items):
         return Writer.writer.write(items)

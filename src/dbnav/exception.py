@@ -13,7 +13,7 @@ NO_CLOSE_MATCHES = 'Column "{0}" was not found on table "{1}" '\
 
 def unknown_column_message(table, column, haystack=None):
     if haystack is None:
-        haystack = map(lambda c: c.name, table.cols)
+        haystack = map(lambda c: c.name, table.columns())
     logger.debug('haystack: %s', haystack)
     matches = get_close_matches(column, haystack)
     if not matches:

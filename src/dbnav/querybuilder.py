@@ -11,7 +11,7 @@ from sqlalchemy.orm.session import Session
 from dbnav.logger import LogWith
 from dbnav.utils import create_title
 from dbnav.comment import create_comment
-from dbnav.model.exception import UnknownColumnException
+from dbnav.exception import UnknownColumnException
 from dbnav.queryfilter import QueryFilter
 
 OPERATORS = {
@@ -42,17 +42,23 @@ def operation(column, operator, value):
     return OPERATORS.get(operator)(column, value)
 
 
-def add_references(table, foreign_keys, joins):
+def add_references(table, foreign_keys, joins, comment):
     for key, fk in filter(
-            lambda (k, v): v.a.table.name == table.name,
+            lambda (k, v): (
+                v.a.table.name == table.name and k in comment.display),
             foreign_keys.iteritems()):
         fktable = fk.b.table
         fkentity = fktable.entity
 
         # Prevent multiple joins of the same table
-        if fkentity.name not in joins.keys():
-            joins[fkentity.name] = aliased(
-                fkentity, name='_{0}'.format(fkentity.name))
+        add_join(fkentity, joins)
+
+
+@LogWith(logger)
+def add_join(entity, joins):
+    if entity.name not in joins.keys():
+        joins[entity.name] = aliased(
+            entity, name='_{0}'.format(entity.name))
 
 
 @LogWith(logger)
@@ -64,7 +70,7 @@ def add_filter(f, filters, table, foreign_keys, joins):
         if ref not in foreign_keys:
             raise UnknownColumnException(table, ref)
         t = foreign_keys[ref].b.table
-        logger.debug('ref=%s, lhs=%s', ref, colname)
+        add_join(t.entity, joins)
         return add_filter(
             QueryFilter(colname, f.operator, f.rhs), filters, t, t.fks, joins)
 
@@ -72,10 +78,7 @@ def add_filter(f, filters, table, foreign_keys, joins):
     col = table.column(colname)
     if not col:
         raise UnknownColumnException(table, colname)
-    if table.name not in joins.keys():
-        joins[table.name] = aliased(
-            table.entity,
-            name='_{0}'.format(table.name))
+    add_join(table.entity, joins)
     tentity = joins[table.name]
     if allowed(tentity.columns[col.name], f.operator, f.rhs):
         op = operation(
@@ -94,13 +97,8 @@ class SimplifyMapper:
 
     def map(self, row):
         d = row.__dict__
-        for k in filter(
-                lambda k: k not in d,
-                ['title', 'subtitle']):
+        for k in filter(lambda k: k not in d, ['title', 'subtitle']):
             if self.comment:
-                logger.debug(
-                    'Formatting %s: "%s".format(%s, **%s)',
-                    k, self.comment.__dict__[k], self.table.name, d)
                 d[k] = self.comment.__dict__[k].format(
                     self.table.name, **d)
                 d['id'] = d['{0}_{1}'.format(
@@ -155,7 +153,7 @@ class QueryBuilder:
                 'Comment: %s, foreign keys: %s',
                 comment, foreign_keys.keys())
 
-            add_references(self.table, foreign_keys, joins)
+            add_references(self.table, foreign_keys, joins, comment)
 
             logger.debug('Joins: %s', joins)
 
