@@ -7,3 +7,7 @@ class QueryFilter:
         self.lhs = lhs
         self.operator = operator
         self.rhs = rhs
+
+    def __str__(self):
+        return 'lhs={self.lhs}, op={self.operator}, rhs={self.rhs}'.format(
+            self=self)

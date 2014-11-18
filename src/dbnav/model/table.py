@@ -5,10 +5,11 @@ import logging
 
 from sqlalchemy.exc import ProgrammingError, DataError
 
-from dbnav.model.row import Row
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
+from dbnav.comment import create_comment
+from dbnav.exception import UnknownColumnException
+from dbnav.model.row import Row
 from dbnav.model.baseitem import BaseItem
-from dbnav.comment import Comment
 
 DEFAULT_LIMIT = 50
 
@@ -23,13 +24,13 @@ class Table(BaseItem):
         self.connection = connection
         self.database = database
         self.name = name
-        self.entity = connection.meta.tables[name]
+        self.entity = connection.entity(name)
         self.owner = owner
         self.size = size
-        self.cols = None
+        self._columns = None
         self.fks = {}
         self.uri = connection.autocomplete()
-        self.primary_key = 'id'
+        self.primary_key = None
 
     def __repr__(self):
         return self.name
@@ -50,33 +51,42 @@ class Table(BaseItem):
         return format % (self.uri, tablename, value)
 
     def init_columns(self, connection):
-        self.cols = connection.columns(self)
+        self._columns = connection.columns(self)
 
     def columns(self, connection=None, column=None):
-        """Retrieves columns of table with given filter applied"""
+        """Retrieves columns of table with optional filter applied"""
 
-        if not self.cols:
+        if not self._columns:
             if connection is None:
                 connection = self.connection
             self.init_columns(connection)
 
         if column is None:
-            return self.cols
+            return self._columns
 
-        return [c for c in self.cols if column in c.name]
+        return filter(lambda c: column in c.name, self._columns)
 
     def column(self, name):
-        if not self.cols:
+        if not self._columns:
             self.init_columns(self.connection)
 
-        for col in self.cols:
+        if type(name) is int:
+            return self._columns[name]
+
+        for col in self._columns:
             if col.name == name:
                 return col
 
         return None
 
-    def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=False):
+    def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=None):
         """Retrieves rows from the table with the given filter applied"""
+        logger.debug(
+            'table.rows(self=%s, filter=%s, limit=%s, simplify=%s)',
+            self, filter, limit, simplify)
+
+        if simplify is None:
+            simplify = False
 
         builder = QueryBuilder(
             self.connection,
@@ -86,21 +96,27 @@ class Table(BaseItem):
             limit=limit,
             simplify=simplify)
 
+        mapper = None
+        if simplify:
+            mapper = SimplifyMapper(
+                self,
+                comment=create_comment(
+                    self,
+                    self.connection.comment(self.name),
+                    builder.counter,
+                    builder.aliases,
+                    None))
+
         try:
             result = self.connection.queryall(
                 builder.build(),
                 name='Rows',
-                mapper=SimplifyMapper(
-                    self,
-                    comment=Comment(
-                        self,
-                        self.connection.comment(self.name),
-                        builder.counter,
-                        builder.aliases,
-                        None)))
+                mapper=mapper)
         except DataError as e:
             raise
         except ProgrammingError as e:
+            raise
+        except UnknownColumnException as e:
             raise
         except BaseException as e:
             logger.error(e, exc_info=1)

@@ -73,31 +73,30 @@ A database navigation tool that shows database structure and content
 positional arguments:
   uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database/table?filter; for SQLite:
-                        databasefile.db/table?filter) (default: None)
+                        databasefile.db/table?filter)
 
 optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
-  -s, --simplify        simplify the output (default: True)
-  -N, --no-simplify     don't simplify the output (default: True)
+  -s, --simplify        simplify the output
+  -N, --no-simplify     don't simplify the output
   -m LIMIT, --limit LIMIT
                         limit the results of the main query to this amount of
                         rows (default: 50)
 
 logging:
   -L LOGFILE, --logfile LOGFILE
-                        the file to log to (default:
-                        /usr/local/var/log/dbnav.log)
+                        the file to log to
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
-                        the minimum level to log (default: warning)
+                        the minimum level to log
 
 formatters:
-  -T, --test            output format: test specific (default: None)
-  -D, --default         output format: default (default: None)
-  -S, --simple          output format: simple (default: None)
-  -J, --json            output format: JSON (default: None)
-  -X, --xml             output format: XML (default: None)
-  -A, --autocomplete    output format: autocomplete (default: None)
+  -T, --test            output format: test specific
+  -D, --default         output format: default
+  -S, --simple          output format: simple
+  -J, --json            output format: JSON
+  -X, --xml             output format: XML
+  -A, --autocomplete    output format: autocomplete
 ```
 
 In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your data. No options may be given.
@@ -235,49 +234,44 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
-  -c, --columns         include columns in output (default: False)
-  -C, --no-columns      don't include columns in output (default: True)
-  --back-references     include back references in output (default: True)
-  --no-back-references  don't include back references in output (default:
-                        False)
+  -c, --columns         include columns in output
+  -C, --no-columns      don't include columns in output
+  --back-references     include back references in output
+  --no-back-references  don't include back references in output
   --driver              include database driver in output (does not work well
-                        with graphviz as output) (default: False)
-  --no-driver           don't include database driver in output (default:
-                        True)
+                        with graphviz as output)
+  --no-driver           don't include database driver in output
   --connection          include connection in output (does not work well with
-                        graphviz as output) (default: False)
-  --no-connection       don't include connection in output (default: True)
+                        graphviz as output)
+  --no-connection       don't include connection in output
   --database            include database in output (does not work well with
-                        graphviz as output) (default: False)
-  --no-database         don't include database in output (default: True)
+                        graphviz as output)
+  --no-database         don't include database in output
   -M MAX_DEPTH, --max-depth MAX_DEPTH
                         the maximum depth to use in recursion/inclusion
                         (default: -1)
   -r, --recursive       include any forward/back reference to the starting
                         table, recursing through all tables eventually
-                        (default: False)
   -i INCLUDE, --include INCLUDE
                         include the specified columns and their foreign rows,
                         if any. Multiple columns can be specified by
-                        separating them with a comma (,) (default: None)
+                        separating them with a comma (,)
   -x EXCLUDE, --exclude EXCLUDE
-                        exclude the specified columns (default: None)
+                        exclude the specified columns
   -v, --verbose         specify the verbosity of the output, increase the
                         number of occurences of this option to increase
-                        verbosity (default: None)
+                        verbosity
 
 logging:
   -L LOGFILE, --logfile LOGFILE
-                        the file to log to (default:
-                        /usr/local/var/log/dbnav.log)
+                        the file to log to
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
-                        the minimum level to log (default: warning)
+                        the minimum level to log
 
 formatters:
-  -T, --test            output format: test specific (default: None)
+  -T, --test            output format: test specific
   -D, --default         output format: human readable hierarchical text
-                        (default: True)
-  -G, --graphviz        output format: a Graphviz graph (default: None)
+  -G, --graphviz        output format: a Graphviz graph
 ```
 
 ### Examples
@@ -390,9 +384,9 @@ optional arguments:
   -i INCLUDE, --include INCLUDE
                         include the specified columns and their foreign rows,
                         if any (multiple columns can be specified by
-                        separating them with a comma) (default: None)
+                        separating them with a comma)
   -x EXCLUDE, --exclude EXCLUDE
-                        Exclude the specified columns (default: None)
+                        Exclude the specified columns
   -m LIMIT, --limit LIMIT
                         limit the results of the main query to this amount of
                         rows (default: 50)
@@ -405,19 +399,17 @@ optional arguments:
 
 logging:
   -L LOGFILE, --logfile LOGFILE
-                        the file to log to (default:
-                        /usr/local/var/log/dbnav.log)
+                        the file to log to
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
-                        the minimum level to log (default: warning)
+                        the minimum level to log
 
 formatters:
-  -T, --test            output format: test specific (default: None)
-  -I, --insert          output format: SQL insert statements (default: True)
-  -U, --update          output format: SQL update statements (default: None)
-  -D, --delete          output format: SQL delete statements (default: None)
-  -Y, --yaml            output format: YAML data (default: None)
+  -T, --test            output format: test specific
+  -I, --insert          output format: SQL insert statements
+  -U, --update          output format: SQL update statements
+  -D, --delete          output format: SQL delete statements
+  -Y, --yaml            output format: YAML data
   -F, --formatted       output format: given with the -f/--format option
-                        (default: None)
 ```
 
 ### Examples
@@ -497,14 +489,14 @@ positional arguments:
   uri                   the URI to parse (format for PostgreSQL/MySQL:
                         user@host/database; for SQLite: databasefile.db)
   infile                the path to the file containing the SQL query to
-                        execute (default: -)
+                        execute
 
 optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
   -s STATEMENTS, --statements STATEMENTS
                         the statements to execute (infile will be ignored when
-                        this parameter is given) (default: None)
+                        this parameter is given)
   -p PROGRESS, --progress PROGRESS
                         show progress after this amount of executions when
                         inserting/updating large data sets (default: -1)
@@ -514,15 +506,14 @@ optional arguments:
 
 logging:
   -L LOGFILE, --logfile LOGFILE
-                        the file to log to (default:
-                        /usr/local/var/log/dbnav.log)
+                        the file to log to
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
-                        the minimum level to log (default: warning)
+                        the minimum level to log
 
 formatters:
-  -T, --test            output format: test specific (default: None)
-  -D, --default         output format: tuples (default: None)
-  -I, --insert          output format: SQL insert statements (default: None)
+  -T, --test            output format: test specific
+  -D, --default         output format: tuples
+  -I, --insert          output format: SQL insert statements
 ```
 
 ## Database Differ
@@ -551,22 +542,19 @@ optional arguments:
   --version             show program's version number and exit
   -v, --verbose         specify the verbosity of the output, increase the
                         number of occurences of this option to increase
-                        verbosity (default: None)
-  -c, --compare-ddl     compares the DDLs for each column (default: False)
+                        verbosity
+  -c, --compare-ddl     compares the DDLs for each column
 
 logging:
   -L LOGFILE, --logfile LOGFILE
-                        the file to log to (default:
-                        /usr/local/var/log/dbnav.log)
+                        the file to log to
   -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
-                        the minimum level to log (default: warning)
+                        the minimum level to log
 
 formatters:
-  -T, --test            output format: test specific (default: None)
+  -T, --test            output format: test specific
   -D, --default         output format: human readable hierarchical text
-                        (default: True)
   -S, --side-by-side    output format: compare side-by-side in two columns
-                        (default: None)
 ```
 
 ### Examples
@@ -604,10 +592,10 @@ company TEXT(255)                          <
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.14-py2.7.egg?raw=true) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.15-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.14-py2.7.egg
+pip install dbnav-0.15-py2.7.egg
 ```
 
 ### Alfred Workflow

@@ -1,0 +1,12 @@
+2	user.id
+Evelyn	user.first_name
+Gardner	user.last_name
+	user.company
+egardner1	user.username
+	user.email
+8-(549)755-1011	user.phone
+Female	user.gender
+	user.url
+← article.user_id	article.user_id
+← blog_user.user_id	blog_user.user_id
+← user_address.user_id	user_address.user_id

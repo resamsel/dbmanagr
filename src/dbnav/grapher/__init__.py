@@ -60,7 +60,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                     table, include, exclude, consumed, indent)
 
                 for col in filter(
-                        lambda col: col.name not in exclude, table.cols):
+                        lambda col: col.name not in exclude, table.columns()):
                     fk = table.foreign_key(col.name)
                     # logger.debug('consumed=%s', consumed)
                     if not fk:

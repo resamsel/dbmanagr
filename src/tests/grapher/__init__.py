@@ -18,7 +18,7 @@ init_sources(DIR)
 
 
 class OutputTestCase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self):  # noqa
         self.maxDiff = None
 
 

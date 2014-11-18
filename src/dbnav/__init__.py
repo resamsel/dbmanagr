@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
 import logging
+import pdb
 
 from functools import wraps
 
@@ -25,8 +27,12 @@ def decorator(f):
         except BaseException as e:
             logger.exception(e)
             if logger.getEffectiveLevel() <= logging.DEBUG:
-                # Only raise the exception when debugging is enabled!
-                raise
+                # Start post mortem debugging only when debugging is enabled
+                if os.getenv('UNITTEST', 'False') == 'True':
+                    raise
+                type, value, tb = sys.exc_info()
+                # traceback.print_exc()
+                pdb.post_mortem(tb)
             else:
                 # Show the error message if log level is INFO or higher
                 sys.stderr.write(

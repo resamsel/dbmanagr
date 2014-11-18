@@ -3,8 +3,18 @@
 
 import os
 import argparse
+import logging
+
 from dbnav.writer import TestWriter
 from dbnav.version import __version__
+
+
+class LogLevel(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(
+            namespace,
+            self.dest,
+            getattr(logging, str(values.upper()), None))
 
 
 def default_log_file():
@@ -30,7 +40,8 @@ def parent_parser():
     group.add_argument(
         '-l',
         '--loglevel',
-        default='warning',
+        action=LogLevel,
+        default=logging.WARNING,
         choices=['critical', 'error', 'warning', 'info', 'debug'],
         help='the minimum level to log')
     return parser

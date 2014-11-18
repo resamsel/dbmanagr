@@ -12,8 +12,6 @@ from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 from dbnav.model.table import Table
 from dbnav.model.tablecomment import TableComment
-from dbnav.model.column import Column
-from dbnav.model.foreignkey import ForeignKey
 
 DATABASES_QUERY = """
 select
@@ -29,26 +27,6 @@ select
             or pg_catalog.pg_get_userbyid(db.datdba) = r.rolname
         )
     order by 1"""
-FOREIGN_KEY_QUERY = """
-select
-        tc.table_name,
-        kcu.column_name,
-        case c.is_nullable when 'YES' then true else false end column_nullable,
-        ccu.table_name foreign_table_name,
-        ccu.column_name foreign_column_name,
-        false foreign_column_nullable
-    from
-        information_schema.table_constraints tc
-        join information_schema.key_column_usage kcu
-            ON tc.constraint_name = kcu.constraint_name
-        join information_schema.constraint_column_usage ccu
-            ON ccu.constraint_name = tc.constraint_name
-        join information_schema.columns c
-            on (c.table_name = tc.table_name
-                and c.column_name = kcu.column_name)
-    where
-        constraint_type = 'FOREIGN KEY'
-"""
 TABLES_QUERY = """
 select
         t.table_name as tbl,
@@ -187,32 +165,11 @@ class PostgreSQLConnection(DatabaseConnection):
                 self, database, row[0], row[2], row[3])
             self._comments[row[0]] = TableComment(row[1])
 
-    def init_foreign_keys(self):
-        """Retrieves the foreign keys of the table"""
+        self.init_foreign_keys()
 
-        result = self.execute(FOREIGN_KEY_QUERY, 'Foreign Keys')
-
-        tables = self._tables
-
-        for row in result:
-            a = Column(
-                tables[row['table_name'].encode('ascii')],
-                row['column_name'],
-                nullable=row['column_nullable'])
-            b = Column(
-                tables[row['foreign_table_name'].encode('ascii')],
-                row['foreign_column_name'],
-                nullable=row['foreign_column_nullable'])
-            fk = ForeignKey(a, b)
-            tables[a.table.name].fks[a.name] = fk
-            tables[b.table.name].fks[str(a)] = fk
-
+    @LogWith(logger)
     def restriction(
             self, alias, column, operator, value, map_null_operator=True):
-        logger.debug(
-            'restriction(alias=%s, column=%s (%s), operator=%s, value=%s)',
-            alias, column, column.type if column else '', operator, value)
-
         if operator in ['~', 'like'] and isinstance(column.type, Integer):
             try:
                 int(value)
