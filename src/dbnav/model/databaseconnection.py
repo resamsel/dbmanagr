@@ -75,7 +75,7 @@ def forward_references(row, table, keys, aliases):
                 _key,
                 row[tostring(key)],
                 OPTION_URI_MULTIPLE_ROWS_FORMAT)
-        f = foreign_key_or_column(table, key, foreign_keys)
+        f = foreign_key_or_column(table, _key, foreign_keys)
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
             kind = KIND_FOREIGN_KEY

@@ -107,6 +107,7 @@ def create_comment(table, comment, counter, aliases, alias):
         else:
             id = "-"
 
+    title, subtitle = None, None
     if comment.title:
         title = comment.title.format(**caliases)
     else:
@@ -119,15 +120,16 @@ def create_comment(table, comment, counter, aliases, alias):
         if name == primary_key:
             subtitle = "'%s'" % name
         else:
-            subtitle = "{%s} (id=%s)" % (name, id)
+            subtitle = "%s (id=%s)" % (caliases[name], id)
 
-    if comment.subtitle:
-        subtitle = comment.subtitle.format(**caliases)
-    else:
-        if primary_key:
-            subtitle = "'%s'" % primary_key
+    if not subtitle:
+        if comment.subtitle:
+            subtitle = comment.subtitle.format(**caliases)
         else:
-            subtitle = "'There is no primary key'"
+            if primary_key:
+                subtitle = "'%s'" % primary_key
+            else:
+                subtitle = "'There is no primary key'"
 
     if comment.order:
         order = comment.order
