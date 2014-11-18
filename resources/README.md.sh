@@ -278,7 +278,15 @@ A diff tool that compares the structure of two database tables with each other.
 Install the [latest egg-file](dist/dbnav-`python src/dbnav/version.py`-py2.7.egg?raw=true) from the dist directory.
 
 \`\`\`
-pip install dbnav-`python src/dbnav/version.py`-py2.7.egg
+easy_install dbnav-`python src/dbnav/version.py`-py2.7.egg
+\`\`\`
+
+### Install Dependencies
+
+You need PostgreSQL and MySQL installed to install the required python dependencies. [Homebrew](http://brew.sh/) can help you with that:
+
+\`\`\`
+brew install postgresql9 mysql
 \`\`\`
 
 ### Alfred Workflow

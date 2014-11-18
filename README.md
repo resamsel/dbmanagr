@@ -23,6 +23,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Usage](#usage-4)
 	- [Examples](#examples-3)
 - [Installation](#installation)
+	- [Install Dependencies](#install-dependencies)
 	- [Alfred Workflow](#alfred-workflow)
 - [Connection Configuration](#connection-configuration)
 	- [Sample ~/.pgpass](#sample-pgpass)
@@ -595,7 +596,15 @@ company TEXT(255)                          <
 Install the [latest egg-file](dist/dbnav-0.15-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.15-py2.7.egg
+easy_install dbnav-0.15-py2.7.egg
+```
+
+### Install Dependencies
+
+You need PostgreSQL and MySQL installed to install the required python dependencies. [Homebrew](http://brew.sh/) can help you with that:
+
+```
+brew install postgresql9 mysql
 ```
 
 ### Alfred Workflow
