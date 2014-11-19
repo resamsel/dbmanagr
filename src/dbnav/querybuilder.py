@@ -90,6 +90,10 @@ def add_filter(f, filters, table, foreign_keys, joins):
     return None
 
 
+def create_label(alias_format):
+    return lambda column: column.label(alias_format.format(col=column))
+
+
 class SimplifyMapper:
     def __init__(self, table, comment=None):
         self.table = table
@@ -148,10 +152,6 @@ class QueryBuilder:
                 self.counter,
                 self.aliases,
                 self.alias)
-
-            logger.debug(
-                'Comment: %s, foreign keys: %s',
-                comment, foreign_keys.keys())
 
             add_references(self.table, foreign_keys, joins, comment)
 
@@ -218,9 +218,7 @@ class QueryBuilder:
         else:
             alias_format = '{col.name}'
         logger.debug('Projection: %s', projection)
-        query = session.query(*map(
-            lambda col: col.label(alias_format.format(col=col)),
-            projection))
+        query = session.query(*map(create_label(alias_format), projection))
         logger.debug('Query (init): %s', query)
 
         # Add found joins
@@ -233,8 +231,7 @@ class QueryBuilder:
             query = query.outerjoin(join)
             for column in join.columns.keys():
                 col = join.columns[column]
-                query = query.add_column(col.label(
-                    alias_format.format(col=col)))
+                query = query.add_column(create_label(alias_format)(col))
         logger.debug('Query (joins): %s', query)
 
         # Add filters
