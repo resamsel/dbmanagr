@@ -40,6 +40,7 @@ def dictsplus(dicts, key, value):
 
 def dictplus(d, key, value):
     d[key] = value
+    return d
 
 
 def dictminus(d, *keys):
@@ -72,11 +73,14 @@ def create_title(comment, columns, exclude=None):
     for suffix in filter(lambda n: n not in exclude, NAME_SUFFIXES):
         for c in filter(lambda c: c.name.endswith(suffix), columns):
             if not isinstance(c.type, Integer):
-                return (name, c.name)
+                return (c.name, '{%s}' % c.name)
 
     # Use the comment id, if any
-    if comment.id:
-        return ('{id}', comment.id)
+    if comment and comment.id:
+        return ('id', '{%s}' % comment.id)
 
     # Default: use the first column
-    return ('First column', columns[0].name)
+    if len(columns) > 0:
+        return (columns[0].name, '{%s}' % columns[0].name)
+
+    return None

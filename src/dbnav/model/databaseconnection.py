@@ -372,7 +372,7 @@ class DatabaseConnection(BaseItem):
     @LogWith(logger)
     def init_tables(self, database):
         self._tables = dict(map(
-            lambda table: (table, Table(self, database, table)),
+            lambda table: (table, Table(self, database, self.entity(table))),
             self.meta().tables))
         logger.debug('Tables: %s' % self._tables)
         self.init_foreign_keys()

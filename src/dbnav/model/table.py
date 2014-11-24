@@ -20,16 +20,18 @@ logger = logging.getLogger(__name__)
 
 class Table(BaseItem):
     def __init__(
-            self, connection, database, name, owner=None, size=None):
+            self, connection, database, entity, owner=None, size=None):
         self.connection = connection
         self.database = database
-        self.name = name
-        self.entity = connection.entity(name)
+        self.name = entity.name
+        self.entity = entity
         self.owner = owner
         self.size = size
         self._columns = None
         self.fks = {}
-        self.uri = connection.autocomplete()
+
+        if connection:
+            self.uri = connection.autocomplete()
         self.primary_key = None
 
     def __repr__(self):

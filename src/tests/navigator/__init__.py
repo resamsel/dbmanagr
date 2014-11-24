@@ -3,11 +3,11 @@
 
 import glob
 import unittest
-import os
 
 from os import path
 from tests.generator import test_generator, params
 from tests.sources import init_sources
+from tests.testcase import ParentTestCase
 from dbnav import navigator
 
 DIR = path.dirname(__file__)
@@ -18,17 +18,8 @@ TEST_CASES = map(
 init_sources(DIR)
 
 
-class OutputTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):  # noqa
-        os.environ['UNITTEST'] = 'True'
-
-    @classmethod
-    def tearDownClass(cls):  # noqa
-        del os.environ['UNITTEST']
-
-    def setUp(self):  # noqa
-        self.maxDiff = None
+class OutputTestCase(ParentTestCase):
+    pass
 
 
 def load_suite():

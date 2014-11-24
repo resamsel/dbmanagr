@@ -7,6 +7,7 @@ import unittest
 from os import path
 from tests.generator import test_generator, params
 from tests.sources import init_sources
+from tests.testcase import ParentTestCase
 from dbnav import grapher
 
 DIR = path.dirname(__file__)
@@ -17,9 +18,8 @@ TEST_CASES = map(
 init_sources(DIR)
 
 
-class OutputTestCase(unittest.TestCase):
-    def setUp(self):  # noqa
-        self.maxDiff = None
+class OutputTestCase(ParentTestCase):
+    pass
 
 
 def load_suite():

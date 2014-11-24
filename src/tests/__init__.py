@@ -3,17 +3,16 @@
 
 import unittest
 
-from tests import navigator
-from tests import grapher
-from tests import exporter
-from tests import differ
-from tests import utils
+from tests import navigator, grapher, exporter, differ
+from tests import utils, comment, querybuilder
 
 
 def load_suite():
     suite = unittest.TestSuite()
 
     suite.addTest(utils.load_suite())
+    suite.addTest(comment.load_suite())
+    suite.addTest(querybuilder.load_suite())
 
     suite.addTest(navigator.load_suite())
     suite.addTest(grapher.load_suite())

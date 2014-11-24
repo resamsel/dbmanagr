@@ -42,10 +42,11 @@ def operation(column, operator, value):
     return OPERATORS.get(operator)(column, value)
 
 
-def add_references(table, foreign_keys, joins, comment):
+def add_references(tablename, foreign_keys, joins, comment):
     for key, fk in filter(
             lambda (k, v): (
-                v.a.table.name == table.name and k in comment.display),
+                v.a.table.name == tablename
+                and (comment is None or k in comment.display)),
             foreign_keys.iteritems()):
         fktable = fk.b.table
         fkentity = fktable.entity
@@ -53,12 +54,16 @@ def add_references(table, foreign_keys, joins, comment):
         # Prevent multiple joins of the same table
         add_join(fkentity, joins)
 
+    return joins
+
 
 @LogWith(logger)
 def add_join(entity, joins):
     if entity.name not in joins.keys():
         joins[entity.name] = aliased(
             entity, name='_{0}'.format(entity.name))
+
+    return joins
 
 
 @LogWith(logger)
@@ -153,7 +158,7 @@ class QueryBuilder:
                 self.aliases,
                 self.alias)
 
-            add_references(self.table, foreign_keys, joins, comment)
+            add_references(self.table.name, foreign_keys, joins, comment)
 
             logger.debug('Joins: %s', joins)
 

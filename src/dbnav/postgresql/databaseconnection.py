@@ -162,7 +162,7 @@ class PostgreSQLConnection(DatabaseConnection):
         self._comments = {}
         for row in result:
             self._tables[row[0]] = Table(
-                self, database, row[0], row[2], row[3])
+                self, database, self.entity(row[0]), row[2], row[3])
             self._comments[row[0]] = TableComment(row[1])
 
         self.init_foreign_keys()
