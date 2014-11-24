@@ -50,6 +50,12 @@ def dictminus(d, *keys):
     return r
 
 
+def getorelse(i, e):
+    if i is not None:
+        return i
+    return e
+
+
 @LogWith(logger)
 def create_title(comment, columns, exclude=None):
     if exclude is None:
