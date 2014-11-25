@@ -30,11 +30,11 @@ class DatabaseDiffer:
         lcon = Source.connection(left)
         if not lcon:
             raise Exception('Could not find connection {0}'.format(left.uri))
-        lopts = left.get(lcon.driver)
+        lopts = left.get(lcon.dbms)
         rcon = Source.connection(right)
         if not rcon:
             raise Exception('Could not find connection {0}'.format(right.uri))
-        ropts = right.get(rcon.driver)
+        ropts = right.get(rcon.dbms)
 
         try:
             lcon.connect(lopts.database)

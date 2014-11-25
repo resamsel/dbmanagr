@@ -28,7 +28,7 @@ class SQLiteDatabase(Database):
 class SQLiteConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, path):
+    def __init__(self, uri, path):
         self.path = path
         self.filename = basename(self.path)
         self.con = None
@@ -36,7 +36,7 @@ class SQLiteConnection(DatabaseConnection):
             self,
             dbms='sqlite',
             database=self.databases()[0],
-            driver='sqlite')
+            uri=uri)
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % self.filename
@@ -65,7 +65,7 @@ class SQLiteConnection(DatabaseConnection):
 
     @LogWith(logger)
     def connect(self, database=None):
-        self.connect_to('sqlite+pysqlite:///%s' % self.path)
+        self.connect_to(self.uri.format(file=self.path))
 
     def databases(self):
         return [SQLiteDatabase(self)]

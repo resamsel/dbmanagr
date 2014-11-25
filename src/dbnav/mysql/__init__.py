@@ -14,9 +14,10 @@ from dbnav.options import Options
 from dbnav.mysql.options import MySQLOptionsParser
 
 DRIVERS = OrderedDict([
-    ('MySQLdb', 'mysqldb'),
-    ('oursql', 'oursql'),
-    ('pymysql', 'pymysql'),
+    ('MySQLdb', 'mysql+mysqldb://{user}:{password}@{host}/{database}'
+                '?charset=utf8&use_unicode=0'),
+    ('oursql', 'mysql+oursql://{user}:{password}@{host}/{database}'),
+    ('pymysql', 'mysql+pymysql://{user}:{password}@{host}/{database}'),
 ])
 
 

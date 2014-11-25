@@ -207,7 +207,7 @@ class DatabaseConnection(BaseItem):
     def __init__(self, **kwargs):
         self.dbms = kwargs.get('dbms', None)
         self.database = kwargs.get('database', None)
-        self.driver = kwargs.get('driver', None)
+        self.uri = kwargs.get('uri', None)
         self._inspector = None
         self._meta = None
         self._tables = kwargs.get('tbls', None)

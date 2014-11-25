@@ -15,9 +15,10 @@ logger = logging.getLogger(__name__)
 
 
 class DBExplorerSQLiteSource(Source):
-    def __init__(self, file):
+    def __init__(self, uri, file):
         logger.debug("DBExplorerSQLiteSource.__init__(%s)", file)
         Source.__init__(self)
+        self.uri = uri
         self.file = file
 
     def list(self):
@@ -33,15 +34,16 @@ class DBExplorerSQLiteSource(Source):
                 url = urlparse(c.find('url').text.replace('jdbc:', ''))
                 if url.scheme == 'sqlite':
                     logger.debug("Found connection: %s", url)
-                    connection = SQLiteConnection(url.path)
+                    connection = SQLiteConnection(self.uri, url.path)
                     self.connections.append(connection)
 
         return self.connections
 
 
 class NavicatSQLiteSource(Source):
-    def __init__(self, file):
+    def __init__(self, uri, file):
         Source.__init__(self)
+        self.uri = uri
         self.file = file
 
     def list(self):
@@ -51,7 +53,7 @@ class NavicatSQLiteSource(Source):
             plist = readPlist(self.file)
 
             for k, v in plist['SQLite']['servers'].items():
-                connection = SQLiteConnection(v['dbfilename'])
+                connection = SQLiteConnection(self.uri, v['dbfilename'])
                 self.connections.append(connection)
 
         return self.connections

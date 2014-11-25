@@ -14,7 +14,7 @@ from dbnav.options import Options
 from .options import PostgreSQLOptionsParser
 
 DRIVERS = OrderedDict([
-    ('psycopg2', 'postgresql')
+    ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}')
 ])
 
 

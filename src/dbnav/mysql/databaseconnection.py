@@ -31,12 +31,12 @@ class MySQLDatabase(Database):
 class MySQLConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, driver, host, port, database, user, password):
+    def __init__(self, uri, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
             dbms='mysql',
             database=database,
-            driver=driver)
+            uri=uri)
         self.host = host
         self.port = port
         self.user = user
@@ -91,9 +91,7 @@ class MySQLConnection(DatabaseConnection):
         if database:
             try:
                 self.connect_to(
-                    'mysql+{driver}://{user}:{password}@{host}/{database}'
-                    .format(
-                        driver=self.driver,
+                    self.uri.format(
                         user=self.user,
                         password=self.password,
                         host=self.host,
@@ -101,17 +99,19 @@ class MySQLConnection(DatabaseConnection):
                 self.database = database
             except OperationalError:
                 self.connect_to(
-                    'mysql+mysqldb://{user}:{password}@{host}/'.format(
+                    self.uri.format(
                         user=self.user,
                         password=self.password,
-                        host=self.host))
+                        host=self.host,
+                        database=''))
                 database = None
         else:
             self.connect_to(
-                'mysql+mysqldb://{user}:{password}@{host}/'.format(
+                self.uri.format(
                     user=self.user,
                     password=self.password,
-                    host=self.host))
+                    host=self.host,
+                    database=''))
 
     @LogWith(logger)
     def restriction(
