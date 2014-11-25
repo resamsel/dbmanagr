@@ -52,7 +52,6 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                 exclude = node.exclude
 
                 consumed.append(table.name)
-                table.init_columns(table.connection)
 
                 logger.debug(
                     'consume table=%s, include=%s, exclude=%s, consumed=%s, '

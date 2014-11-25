@@ -289,6 +289,19 @@ You need PostgreSQL and MySQL installed to install the required python dependenc
 brew install postgresql9 mysql
 \`\`\`
 
+Debian based linux systems may use the following command:
+
+\`\`\`
+apt-get install postgresql mysql
+\`\`\`
+
+Redhat based linux systems may use the following command:
+
+\`\`\`
+yum install postgresql mysql
+\`\`\`
+
+
 ### Alfred Workflow
 To install the Alfred workflow open the [Database Navigator.alfredworkflow](dist/Database Navigator.alfredworkflow?raw=true) file from the dist directory.
 

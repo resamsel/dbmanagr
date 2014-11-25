@@ -3,12 +3,12 @@
 
 import unittest
 
-from collections import Counter
+from collections import Counter, OrderedDict
 
-from tests.testcase import ParentTestCase
 from dbnav.model.column import Column
 from dbnav import comment
-from tests.mock.data import FOREIGN_KEYS
+
+from tests.testcase import DbTestCase
 
 
 def load_suite():
@@ -17,22 +17,31 @@ def load_suite():
     return suite
 
 
-class CommentTestCase(ParentTestCase):
+class CommentTestCase(DbTestCase):
     def test_update_aliases(self):
         """Tests the utils.update_aliases function"""
+
+        con = DbTestCase.connection
+        user = con.table('user')
+        blog_user = con.table('blog_user')
+        aliases = OrderedDict()
+        c = Counter()
 
         self.assertEqual(
             {},
             comment.update_aliases(None, None, {}, {}))
         self.assertEqual(
-            {'t2': '_t2', 't3': '_t3'},
-            comment.update_aliases('t1', Counter(), {}, FOREIGN_KEYS))
+            OrderedDict([('user', '_user')]),
+            comment.update_aliases(
+                'user_address', c, aliases, user.foreign_keys()))
         self.assertEqual(
-            {'t4': '_t4'},
-            comment.update_aliases('t2', Counter(), {}, FOREIGN_KEYS))
+            OrderedDict([('user', '_user'), ('blog', '_blog')]),
+            comment.update_aliases(
+                'blog_user', c, aliases, blog_user.foreign_keys()))
         self.assertEqual(
             {},
-            comment.update_aliases('t3', Counter(), {}, FOREIGN_KEYS))
+            comment.update_aliases(
+                't3', c, {}, user.foreign_keys()))
 
     def test_column_aliases(self):
         """Tests the utils.column_aliases function"""

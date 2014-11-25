@@ -5,7 +5,6 @@
 import logging
 
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.types import Integer
 
 from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
@@ -153,8 +152,6 @@ class PostgreSQLConnection(DatabaseConnection):
     @LogWith(logger)
     def init_tables(self, database):
         # sqlalchemy does not yet provide reflecting comments
-        # tables = [Table(self, database, t, '') for t in
-        #     self.inspector.get_table_names()]
 
         result = self.execute(TABLES_QUERY, 'Tables')
 
@@ -162,50 +159,11 @@ class PostgreSQLConnection(DatabaseConnection):
         self._comments = {}
         for row in result:
             self._tables[row[0]] = Table(
-                self, database, self.entity(row[0]), row[2], row[3])
+                database,
+                self.entity(row[0]),
+                self.autocomplete(),
+                row[2],
+                row[3])
             self._comments[row[0]] = TableComment(row[1])
 
         self.init_foreign_keys()
-
-    @LogWith(logger)
-    def restriction(
-            self, alias, column, operator, value, map_null_operator=True):
-        if operator in ['~', 'like'] and isinstance(column.type, Integer):
-            try:
-                int(value)
-                # LIKE not allowed on integer columns, change operator to
-                # equals
-                operator = '='
-            except ValueError:
-                pass
-
-        if alias:
-            alias = '{0}.'.format(alias)
-        else:
-            alias = ''
-        lhs = column.name
-        if column.table:
-            lhs = '{0}{1}'.format(alias, column.name)
-        if (value
-                and isinstance(column.type, Integer)
-                and type(value) is not list):
-            try:
-                int(value)
-            except ValueError:
-                # column type is integer, but value is not
-                lhs = 'cast({0}{1} as text)'.format(alias, column.name)
-        if operator in ['=', '!='] and (value == 'null' or value is None):
-            if map_null_operator:
-                operator = {
-                    '=': 'is',
-                    '!=': 'is not'
-                }.get(operator)
-            value = None
-        rhs = self.format_value(column, value)
-
-        return ' '.join([lhs, operator, rhs])
-
-    def escape_keyword(self, keyword):
-        if keyword in ['user', 'select']:
-            return '"%s"' % keyword
-        return keyword

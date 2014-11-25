@@ -4,6 +4,8 @@
 import unittest
 import os
 
+from tests.mock.sources import MockSource
+
 
 class ParentTestCase(unittest.TestCase):
     @classmethod
@@ -26,3 +28,17 @@ class ParentTestCase(unittest.TestCase):
 
     def setUp(self):  # noqa
         self.maxDiff = None
+
+
+class DbTestCase(ParentTestCase):
+    connection = None
+
+    @classmethod
+    def set_up_class(cls):
+        DbTestCase.connection = MockSource().list()[1]
+        DbTestCase.connection.connect()
+
+    @classmethod
+    def tear_down_class(cls):
+        DbTestCase.connection.close()
+        DbTestCase.connection = None
