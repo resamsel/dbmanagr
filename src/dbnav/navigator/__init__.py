@@ -32,7 +32,7 @@ class DatabaseNavigator:
 
         # search exact match of connection
         for connection in cons:
-            opts = options.get(connection.driver)
+            opts = options.get(connection.dbs)
             if opts.show != 'connections' and connection.matches(opts):
                 return connection.proceed(opts)
 

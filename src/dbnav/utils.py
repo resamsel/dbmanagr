@@ -3,18 +3,27 @@
 
 import logging
 import re
+import pkgutil
 
 from sqlalchemy.types import Integer
 
 from dbnav.logger import LogWith
 
 NAMES = [
-    'name', 'title', 'key', 'text', 'username', 'user_name', 'email',
-    'comment', 'street', 'city'
+    'name', 'title', 'key', 'text', 'first_name', 'username', 'user_name',
+    'last_name', 'email', 'comment', 'street', 'city'
 ]
 NAME_SUFFIXES = ['name', 'title', 'key', 'text']
 
 logger = logging.getLogger(__name__)
+
+
+def module_installed(*modules):
+    installed = map(lambda m: m[1], pkgutil.iter_modules())
+    for module in modules:
+        if module in installed:
+            return module
+    return None
 
 
 def prefixes(items):
@@ -40,6 +49,7 @@ def dictsplus(dicts, key, value):
 
 def dictplus(d, key, value):
     d[key] = value
+    return d
 
 
 def dictminus(d, *keys):
@@ -50,24 +60,36 @@ def dictminus(d, *keys):
     return r
 
 
+def getorelse(i, e):
+    if i is not None:
+        return i
+    return e
+
+
 @LogWith(logger)
-def create_title(comment, columns):
+def create_title(comment, columns, exclude=None):
+    if exclude is None:
+        exclude = []
+
     # Find certain column names (but their type is not an integer - integers
     # are no good names)
-    for c in columns:
-        for name in filter(lambda name: c.name == name, NAMES):
+    for name in filter(lambda n: n not in exclude, NAMES):
+        for c in filter(lambda c: c.name == name, columns):
             if not isinstance(c.type, Integer):
                 return (name, '{%s}' % c.name)
 
     # Find first column that ends with any of certain suffixes
-    for c in columns:
-        for name in filter(lambda s: c.name.endswith(s), NAME_SUFFIXES):
+    for suffix in filter(lambda n: n not in exclude, NAME_SUFFIXES):
+        for c in filter(lambda c: c.name.endswith(suffix), columns):
             if not isinstance(c.type, Integer):
-                return (name, c.name)
+                return (c.name, '{%s}' % c.name)
 
     # Use the comment id, if any
-    if comment.id:
-        return ('{id}', comment.id)
+    if comment and comment.id:
+        return ('id', '{%s}' % comment.id)
 
     # Default: use the first column
-    return ('First column', columns[0].name)
+    if len(columns) > 0:
+        return (columns[0].name, '{%s}' % columns[0].name)
+
+    return None

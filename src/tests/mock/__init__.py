@@ -8,4 +8,4 @@ from .sources import MockSource
 
 
 def init_mock():
-    Source.sources.append(MockSource())
+    Source.sources = [MockSource()]

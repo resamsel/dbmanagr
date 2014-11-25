@@ -10,3 +10,5 @@ __all__ = [
     "foreignkey",
     "baseitem"
 ]
+
+DEFAULT_LIMIT = 50

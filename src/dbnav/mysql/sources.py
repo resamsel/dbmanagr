@@ -10,8 +10,9 @@ from .databaseconnection import MySQLConnection
 
 
 class MypassSource(Source):
-    def __init__(self, file):
+    def __init__(self, driver, file):
         Source.__init__(self)
+        self.driver = driver
         self.file = file
 
     def list(self):
@@ -22,15 +23,17 @@ class MypassSource(Source):
                 mypass = f.readlines()
 
             for line in mypass:
-                connection = MySQLConnection(*line.strip().split(':'))
+                connection = MySQLConnection(
+                    self.driver, *line.strip().split(':'))
                 self.connections.append(connection)
 
         return self.connections
 
 
 class DBExplorerMySQLSource(Source):
-    def __init__(self, file):
+    def __init__(self, driver, file):
         Source.__init__(self)
+        self.driver = driver
         self.file = file
 
     def list(self):
@@ -51,7 +54,7 @@ class DBExplorerMySQLSource(Source):
                     user = c.find('user').text
                     password = c.find('password').text
                     connection = MySQLConnection(
-                        host, port, database, user, password)
+                        self.driver, host, port, database, user, password)
                     self.connections.append(connection)
 
         return self.connections

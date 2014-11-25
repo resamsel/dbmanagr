@@ -42,7 +42,7 @@ def fk_by_a_table_name(fks):
 
 
 @LogWith(logger)
-def create_items(items, include, exclude):
+def create_items(connection, items, include, exclude):
     results_pre = []
     results_post = []
     includes = {}
@@ -58,13 +58,13 @@ def create_items(items, include, exclude):
             if not col and not fk:
                 raise UnknownColumnException(item.table, i)
             if fk:
-                fk.a.table.connection = item.table.connection
+                # fk.a.table.connection = item.table.connection
                 if fk not in includes:
                     includes[fk] = []
                 includes[fk].append(item[fk.b.name])
             if col and col.name in item.table.fks:
                 fk = item.table.fks[col.name]
-                fk.b.table.connection = item.table.connection
+                # fk.b.table.connection = item.table.connection
                 if fk not in includes:
                     includes[fk] = []
                 includes[fk].append(item[fk.a.name])
@@ -89,7 +89,9 @@ def create_items(items, include, exclude):
         if fk.a.table.name == item.table.name:
             # forward references, must be in pre
             results_pre += create_items(
-                fk.b.table.rows(
+                connection,
+                connection.rows(
+                    fk.b.table,
                     [QueryFilter(fk.b.name, 'in', includes[fk])],
                     limit=-1,
                     simplify=False),
@@ -98,7 +100,9 @@ def create_items(items, include, exclude):
         else:
             # backward reference, must be in post
             results_post += create_items(
-                fk.a.table.rows(
+                connection,
+                connection.rows(
+                    fk.a.table,
                     [QueryFilter(fk.a.name, 'in', includes[fk])],
                     limit=-1,
                     simplify=False),
@@ -124,7 +128,7 @@ class DatabaseExporter:
 
         # search exact match of connection
         for connection in cons:
-            opts = options.get(connection.driver)
+            opts = options.get(connection.dbs)
             if ((opts.show == 'values'
                     or opts.show == 'columns' and opts.filter is not None)
                     and connection.matches(opts)):
@@ -136,7 +140,9 @@ class DatabaseExporter:
                             "Could not find table '{0}'".format(opts.table))
                     table = tables[opts.table]
                     items = create_items(
-                        table.rows(
+                        connection,
+                        connection.rows(
+                            table,
                             opts.filter,
                             opts.limit,
                             simplify=False),
@@ -161,7 +167,7 @@ def run(argv):
     if options.formatter:
         Writer.set(options.formatter(options))
     else:
-        Writer.set(SqlInsertWriter())
+        Writer.set(SqlInsertWriter(options))
 
     return DatabaseExporter.export(options)
 

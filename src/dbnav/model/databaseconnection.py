@@ -3,18 +3,16 @@
 
 import time
 import logging
-import math
-import datetime
 
-from sqlalchemy import create_engine, MetaData, Boolean, Float, Integer
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.engine import reflection
-from sqlalchemy.types import TIMESTAMP
 
 from dbnav.logger import logduration, LogWith
 from dbnav.exception import UnknownColumnException
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
 from dbnav.utils import tostring
+from dbnav.model import DEFAULT_LIMIT
 from dbnav.model.column import create_column
 from dbnav.model.baseitem import BaseItem
 from dbnav.model.foreignkey import ForeignKey
@@ -207,6 +205,7 @@ class Cursor:
 
 class DatabaseConnection(BaseItem):
     def __init__(self, **kwargs):
+        self.dbs = kwargs.get('dbs', None)
         self.database = kwargs.get('database', None)
         self.driver = kwargs.get('driver', None)
         self._inspector = None
@@ -262,7 +261,7 @@ class DatabaseConnection(BaseItem):
             if options.table not in tables:
                 raise Exception(
                     "Could not find table '{0}' on {1} ({2})".format(
-                        options.table, self, self.driver))
+                        options.table, self, self.dbs))
 
             table = tables[options.table]
             if options.show == 'columns':
@@ -271,11 +270,12 @@ class DatabaseConnection(BaseItem):
                     raise Exception("No filter given")
                 if len(options.filter) > 0 and options.filter[-1].rhs is None:
                     return sorted(
-                        table.columns(self, options.filter[-1].lhs),
+                        table.columns(options.filter[-1].lhs),
                         key=lambda c: c.name.lower())
                 else:
                     return sorted(
-                        table.rows(
+                        self.rows(
+                            table,
                             options.filter,
                             limit=options.limit,
                             simplify=options.simplify),
@@ -361,6 +361,9 @@ class DatabaseConnection(BaseItem):
 
         return result
 
+    def rows(self, table, filter=None, limit=DEFAULT_LIMIT, simplify=None):
+        return table.rows(self, filter, limit, simplify)
+
     def filter(self, options):
         return True
 
@@ -372,7 +375,8 @@ class DatabaseConnection(BaseItem):
     @LogWith(logger)
     def init_tables(self, database):
         self._tables = dict(map(
-            lambda table: (table, Table(self, database, table)),
+            lambda table: (table, Table(
+                database, self.entity(table), self.autocomplete())),
             self.meta().tables))
         logger.debug('Tables: %s' % self._tables)
         self.init_foreign_keys()
@@ -397,7 +401,7 @@ class DatabaseConnection(BaseItem):
         comment = self.table('_comment')
         if comment:
             # Table _comments exists, query it
-            for row in comment.rows(limit=-1, simplify=False):
+            for row in self.rows(comment, limit=-1, simplify=False):
                 self._comments[row['table']] = TableComment(row['comment'])
 
     def comments(self):
@@ -423,77 +427,6 @@ class DatabaseConnection(BaseItem):
                 fk = ForeignKey(a, b)
                 self._tables[a.table.name].fks[a.name] = fk
                 self._tables[b.table.name].fks[str(a)] = fk
-
-    @LogWith(logger)
-    def columns(self, table):
-        """Returns a list of Column objects"""
-
-        # FIX ME: Use entity.columns directly instead of using Column wrapper
-        return map(
-            lambda c: create_column(table, str(c.name), c),
-            table.entity.columns)
-
-    def restriction(
-            self, alias, column, operator, value, map_null_operator=True):
-        if not column:
-            raise Exception('Column is None!')
-        if column.table and alias is not None:
-            return u"{0}.{1} {2} {3}".format(
-                alias,
-                self.escape_keyword(column.name),
-                operator,
-                self.format_value(column, value))
-        if operator in ['=', '!='] and (value == 'null' or value is None):
-            if map_null_operator:
-                operator = {
-                    '=': 'is',
-                    '!=': 'is not'
-                }.get(operator)
-            value = None
-        return u'{0} {1} {2}'.format(
-            self.escape_keyword(column.name),
-            operator,
-            self.format_value(column, value))
-
-    def format_value(self, column, value):
-        if value is None or (type(value) is float and math.isnan(value)):
-            return 'null'
-        if type(value) is list:
-            return '({0})'.format(
-                ','.join([self.format_value(column, v) for v in value]))
-        if type(value) in [datetime.datetime, datetime.date, datetime.time]:
-            return "'%s'" % value
-        if type(value) is buffer:
-            return u"'[BLOB]'"
-        if column is None:
-            try:
-                return '%d' % int(value)
-            except ValueError:
-                return u"'%s'" % value
-        if (isinstance(column.type, Boolean)
-                and (type(value) is bool or value in ['true', 'false'])):
-            return '%s' % str(value).lower()
-        if isinstance(column.type, Float):
-            try:
-                return '%f' % float(value)
-            except ValueError:
-                pass
-        if isinstance(column.type, Integer):
-            try:
-                return '%d' % int(value)
-            except ValueError:
-                pass
-        if isinstance(column.type, TIMESTAMP):
-            try:
-                return '%d' % int(value)
-            except ValueError:
-                pass
-        return u"'%s'" % value.replace('%', '%%').replace("'", "''")
-
-    def escape_keyword(self, keyword):
-        if keyword in ['user', 'table', 'column']:
-            return '"%s"' % keyword
-        return keyword
 
     def __str__(self):
         return self.__repr__()

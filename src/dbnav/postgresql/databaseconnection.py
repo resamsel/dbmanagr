@@ -5,7 +5,6 @@
 import logging
 
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.types import Integer
 
 from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
@@ -70,17 +69,18 @@ class PostgreSQLDatabase(Database):
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, host, port, database, user, password):
+    def __init__(self, driver, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
+            dbs='postgresql',
             database=database,
-            driver='postgresql')
+            driver=driver)
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.con = None
-        self.dbs = None
+        self._databases = None
 
     def __repr__(self):
         return '%s@%s/%s' % (
@@ -102,13 +102,13 @@ class PostgreSQLConnection(DatabaseConnection):
         return 'PostgreSQL Connection'
 
     def matches(self, options):
-        options = options.get(self.driver)
+        options = options.get(self.dbs)
         if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
     def filter(self, options):
-        options = options.get(self.driver)
+        options = options.get(self.dbs)
         matches = True
 
         if options.user:
@@ -128,33 +128,41 @@ class PostgreSQLConnection(DatabaseConnection):
         if database:
             try:
                 self.connect_to(
-                    'postgresql://%s:%s@%s/%s' % (
-                        self.user, self.password, self.host, database))
+                    '{driver}://{user}:{password}@{host}/{database}'.format(
+                        driver=self.driver,
+                        user=self.user,
+                        password=self.password,
+                        host=self.host,
+                        database=database))
                 self.database = database
             except OperationalError:
                 self.connect_to(
-                    'postgresql://%s:%s@%s/' % (
-                        self.user, self.password, self.host))
+                    '{driver}://{user}:{password}@{host}/'.format(
+                        driver=self.driver,
+                        user=self.user,
+                        password=self.password,
+                        host=self.host))
                 database = None
         else:
             self.connect_to(
-                'postgresql://%s:%s@%s/' % (
-                    self.user, self.password, self.host))
+                '{driver}://{user}:{password}@{host}/'.format(
+                    driver=self.driver,
+                    user=self.user,
+                    password=self.password,
+                    host=self.host))
 
     def databases(self):
         # does not yet work with sqlalchemy...
-        if not self.dbs:
-            self.dbs = map(
+        if not self._databases:
+            self._databases = map(
                 lambda row: PostgreSQLDatabase(self, row[0]),
                 self.execute(DATABASES_QUERY % self.user, 'Databases'))
 
-        return self.dbs
+        return self._databases
 
     @LogWith(logger)
     def init_tables(self, database):
         # sqlalchemy does not yet provide reflecting comments
-        # tables = [Table(self, database, t, '') for t in
-        #     self.inspector.get_table_names()]
 
         result = self.execute(TABLES_QUERY, 'Tables')
 
@@ -162,50 +170,11 @@ class PostgreSQLConnection(DatabaseConnection):
         self._comments = {}
         for row in result:
             self._tables[row[0]] = Table(
-                self, database, row[0], row[2], row[3])
+                database,
+                self.entity(row[0]),
+                self.autocomplete(),
+                row[2],
+                row[3])
             self._comments[row[0]] = TableComment(row[1])
 
         self.init_foreign_keys()
-
-    @LogWith(logger)
-    def restriction(
-            self, alias, column, operator, value, map_null_operator=True):
-        if operator in ['~', 'like'] and isinstance(column.type, Integer):
-            try:
-                int(value)
-                # LIKE not allowed on integer columns, change operator to
-                # equals
-                operator = '='
-            except ValueError:
-                pass
-
-        if alias:
-            alias = '{0}.'.format(alias)
-        else:
-            alias = ''
-        lhs = column.name
-        if column.table:
-            lhs = '{0}{1}'.format(alias, column.name)
-        if (value
-                and isinstance(column.type, Integer)
-                and type(value) is not list):
-            try:
-                int(value)
-            except ValueError:
-                # column type is integer, but value is not
-                lhs = 'cast({0}{1} as text)'.format(alias, column.name)
-        if operator in ['=', '!='] and (value == 'null' or value is None):
-            if map_null_operator:
-                operator = {
-                    '=': 'is',
-                    '!=': 'is not'
-                }.get(operator)
-            value = None
-        rhs = self.format_value(column, value)
-
-        return ' '.join([lhs, operator, rhs])
-
-    def escape_keyword(self, keyword):
-        if keyword in ['user', 'select']:
-            return '"%s"' % keyword
-        return keyword

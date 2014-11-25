@@ -7,9 +7,13 @@ from dbnav.logger import logger
 from .options import Options
 
 # load sources
-import dbnav.postgresql  # noqa
-import dbnav.sqlite  # noqa
-import dbnav.mysql  # noqa
+import dbnav.postgresql as postgresql
+import dbnav.sqlite as sqlite
+import dbnav.mysql as mysql
+
+postgresql.init()
+sqlite.init()
+mysql.init()
 
 
 class Config:

@@ -8,10 +8,10 @@ from sqlalchemy.exc import ProgrammingError, DataError
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
 from dbnav.exception import UnknownColumnException
-from dbnav.model.row import Row
 from dbnav.model.baseitem import BaseItem
-
-DEFAULT_LIMIT = 50
+from dbnav.model.column import create_column
+from dbnav.model.row import Row
+from dbnav.model import DEFAULT_LIMIT
 
 OPTION_URI_VALUE_FORMAT = '%s%s/?%s'
 
@@ -20,16 +20,19 @@ logger = logging.getLogger(__name__)
 
 class Table(BaseItem):
     def __init__(
-            self, connection, database, name, owner=None, size=None):
-        self.connection = connection
+            self, database, entity, uri, owner=None, size=None):
         self.database = database
-        self.name = name
-        self.entity = connection.entity(name)
+        self.name = entity.name
+        self.entity = entity
+        self.uri = uri
         self.owner = owner
         self.size = size
-        self._columns = None
+
+        self._columns = map(
+            lambda c: create_column(self, str(c.name), c),
+            entity.columns)
         self.fks = {}
-        self.uri = connection.autocomplete()
+
         self.primary_key = None
 
     def __repr__(self):
@@ -50,26 +53,15 @@ class Table(BaseItem):
 
         return format % (self.uri, tablename, value)
 
-    def init_columns(self, connection):
-        self._columns = connection.columns(self)
-
-    def columns(self, connection=None, column=None):
+    def columns(self, needle=None):
         """Retrieves columns of table with optional filter applied"""
 
-        if not self._columns:
-            if connection is None:
-                connection = self.connection
-            self.init_columns(connection)
-
-        if column is None:
+        if needle is None:
             return self._columns
 
-        return filter(lambda c: column in c.name, self._columns)
+        return filter(lambda c: needle in c.name, self._columns)
 
     def column(self, name):
-        if not self._columns:
-            self.init_columns(self.connection)
-
         if type(name) is int:
             return self._columns[name]
 
@@ -79,20 +71,28 @@ class Table(BaseItem):
 
         return None
 
-    def rows(self, filter=None, limit=DEFAULT_LIMIT, simplify=None):
+    def rows(
+            self, connection, filter=None, limit=DEFAULT_LIMIT, simplify=None):
         """Retrieves rows from the table with the given filter applied"""
         logger.debug(
-            'table.rows(self=%s, filter=%s, limit=%s, simplify=%s)',
-            self, filter, limit, simplify)
+            'table.rows(self=%s, conn=%s, filter=%s, limit=%s, simplify=%s)',
+            self, connection, filter, limit, simplify)
+
+        comment = None
+        order = []
 
         if simplify is None:
             simplify = False
 
+        if simplify:
+            comment = connection.comment(self.name)
+            order = comment.order
+
         builder = QueryBuilder(
-            self.connection,
+            connection,
             self,
             filter=filter,
-            order=self.connection.comment(self.name).order if simplify else [],
+            order=order,
             limit=limit,
             simplify=simplify)
 
@@ -102,13 +102,13 @@ class Table(BaseItem):
                 self,
                 comment=create_comment(
                     self,
-                    self.connection.comment(self.name),
+                    comment,
                     builder.counter,
                     builder.aliases,
                     None))
 
         try:
-            result = self.connection.queryall(
+            result = connection.queryall(
                 builder.build(),
                 name='Rows',
                 mapper=mapper)
@@ -125,7 +125,7 @@ class Table(BaseItem):
                 '{} (check comment on table {})'.format(e.message, self.name)
             ), sys.exc_info()[2]
 
-        return map(lambda row: Row(self.connection, self, row), result)
+        return map(lambda row: Row(connection, self, row), result)
 
     def foreign_keys(self):
         return self.fks

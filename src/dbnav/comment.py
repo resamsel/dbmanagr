@@ -27,9 +27,7 @@ class Comment:
 
 
 @LogWith(logger)
-def update_aliases(
-        connection, table, display, counter, aliases, foreign_keys):
-    tablename = table.name
+def update_aliases(tablename, counter, aliases, foreign_keys):
     for key in filter(
             lambda k: foreign_keys[k].a.table.name == tablename,
             foreign_keys.keys()):
@@ -48,10 +46,11 @@ def update_aliases(
     return aliases
 
 
-def column_aliases(table, alias):
+@LogWith(logger)
+def column_aliases(columns, alias):
     return dict(map(
         lambda col: (col.name, '{{{0}_{1}}}'.format(alias, col.name)),
-        table.columns()))
+        columns))
 
 
 @LogWith(logger)
@@ -72,21 +71,19 @@ def create_comment(table, comment, counter, aliases, alias):
     alias = aliases[table.name]
 
     aliases = update_aliases(
-        table.connection,
-        table,
-        display,
+        table.name,
         counter,
         aliases,
-        table.fks)
+        table.foreign_keys())
 
     logger.debug('Aliases: %s', aliases)
 
-    caliases = column_aliases(table, alias)
+    caliases = column_aliases(table.columns(), alias)
     for (k, v) in filter(
             lambda (k, v): v.a.table.name == table.name,
-            table.fks.iteritems()):
+            table.foreign_keys().iteritems()):
         caliases.update(
-            column_aliases(v.b.table, aliases[v.b.table.name]))
+            column_aliases(v.b.table.columns(), aliases[v.b.table.name]))
 
     logger.debug('Column aliases: %s', caliases)
 
@@ -107,29 +104,31 @@ def create_comment(table, comment, counter, aliases, alias):
         else:
             id = "-"
 
-    title, subtitle = None, None
+    title, subtitle, name = None, None, None
     if comment.title:
         title = comment.title.format(**caliases)
     else:
         name, title = create_title(comment, table.columns())
-        if not search:
-            d = dict(map(lambda k: (k.name, k.name), table.columns()))
-            search.append(title.format(**d))
+        d = dict(map(lambda k: (k.name, k.name), table.columns()))
+        search.append(title.format(**d))
 
         title = title.format(**caliases)
-        if name == primary_key:
-            subtitle = "'%s'" % name
-        else:
-            subtitle = "%s (id=%s)" % (caliases[name], id)
 
     if not subtitle:
         if comment.subtitle:
             subtitle = comment.subtitle.format(**caliases)
         else:
-            if primary_key:
-                subtitle = "'%s'" % primary_key
+            sname, subtitle = create_title(comment, table.columns(), [name])
+            d = dict(map(lambda k: (k.name, k.name), table.columns()))
+            search.append(subtitle.format(**d))
+
+            subtitle = '{0} (id={1})'.format(subtitle.format(**caliases), id)
+
+        if not subtitle:
+            if name == primary_key:
+                subtitle = "'%s'" % name
             else:
-                subtitle = "'There is no primary key'"
+                subtitle = "%s (id=%s)" % (caliases[name], id)
 
     if comment.order:
         order = comment.order

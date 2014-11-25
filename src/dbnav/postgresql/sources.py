@@ -11,8 +11,9 @@ from .databaseconnection import PostgreSQLConnection
 
 
 class PgpassSource(Source):
-    def __init__(self, file):
+    def __init__(self, driver, file):
         Source.__init__(self)
+        self.driver = driver
         self.file = file
 
     def list(self):
@@ -23,15 +24,17 @@ class PgpassSource(Source):
                 pgpass = f.readlines()
 
             for line in pgpass:
-                connection = PostgreSQLConnection(*line.strip().split(':'))
+                connection = PostgreSQLConnection(
+                    self.driver, *line.strip().split(':'))
                 self.connections.append(connection)
 
         return self.connections
 
 
 class DBExplorerPostgreSQLSource(Source):
-    def __init__(self, file):
+    def __init__(self, driver, file):
         Source.__init__(self)
+        self.driver = driver
         self.file = file
 
     def list(self):
@@ -52,7 +55,7 @@ class DBExplorerPostgreSQLSource(Source):
                     user = c.find('user').text
                     password = c.find('password').text
                     connection = PostgreSQLConnection(
-                        host, port, database, user, password)
+                        self.driver, host, port, database, user, password)
                     self.connections.append(connection)
 
         return self.connections

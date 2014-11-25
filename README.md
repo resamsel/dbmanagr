@@ -23,6 +23,13 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Usage](#usage-4)
 	- [Examples](#examples-3)
 - [Installation](#installation)
+	- [Install Dependencies](#install-dependencies)
+- [Homebrew on Mac OS X](#homebrew-on-mac-os-x)
+- [For Debian based systems](#for-debian-based-systems)
+- [For Redhat based systems](#for-redhat-based-systems)
+- [Homebrew on Mac OS X](#homebrew-on-mac-os-x-1)
+- [For Debian based systems](#for-debian-based-systems-1)
+- [For Redhat based systems](#for-redhat-based-systems-1)
 	- [Alfred Workflow](#alfred-workflow)
 - [Connection Configuration](#connection-configuration)
 	- [Sample ~/.pgpass](#sample-pgpass)
@@ -144,10 +151,10 @@ username | user
 
 Title | Subtitle
 ----- | --------
-jburtonv | jburtonv (id=32)
-jalexander80 | jalexander80 (id=289)
-jpalmer8u | jpalmer8u (id=319)
-jfernandezc8 | jfernandezc8 (id=441)
+Joshua | jburtonv (id=32)
+Joshua | jalexander80 (id=289)
+Joshua | jpalmer8u (id=319)
+Joshua | jfernandezc8 (id=441)
 
 #### Show Rows where multiple Columns equals Value
 When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
@@ -156,7 +163,7 @@ When using the ampersand (&) in a shell make sure to escape it (prepend it with 
 
 Title | Subtitle
 ----- | --------
-jalexander80 | jalexander80 (id=289)
+Joshua | jalexander80 (id=289)
 
 #### Show Rows where Column matches Pattern
 The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
@@ -165,10 +172,10 @@ The tilde (~) will be translated to the *like* operator in SQL. Use the percent 
 
 Title | Subtitle
 ----- | --------
-jburtonv | jburtonv (id=32)
-jalexander80 | jalexander80 (id=289)
-jpalmer8u | jpalmer8u (id=319)
-jfernandezc8 | jfernandezc8 (id=441)
+Joshua | jburtonv (id=32)
+Joshua | jalexander80 (id=289)
+Joshua | jpalmer8u (id=319)
+Joshua | jfernandezc8 (id=441)
 
 #### Show Rows where Column is in List
 The colon (:) will be translated to the *in* operator in SQL.
@@ -177,8 +184,8 @@ The colon (:) will be translated to the *in* operator in SQL.
 
 Title | Subtitle
 ----- | --------
-mrichardsonp | mrichardsonp (id=26)
-mdiaze1 | mdiaze1 (id=506)
+Martin | mrichardsonp (id=26)
+Martin | mdiaze1 (id=506)
 
 #### Show Rows where any (Search) Column matches Pattern
 `dbnav myuser@myhost/mydatabase/mytable?~%erber%`
@@ -592,10 +599,38 @@ company TEXT(255)                          <
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.15-py2.7.egg?raw=true) from the dist directory.
+Install the [latest egg-file](dist/dbnav-0.16-py2.7.egg?raw=true) from the dist directory.
 
 ```
-pip install dbnav-0.15-py2.7.egg
+easy_install dbnav-0.16-py2.7.egg
+```
+
+### Install Dependencies
+
+You need PostgreSQL and MySQL installed to access those databases. [Homebrew](http://brew.sh/) can help you with that:
+
+#### PostgreSQL
+
+```
+## Homebrew on Mac OS X
+brew install postgresql9
+## For Debian based systems
+#apt-get install postgresql
+## For Redhat based systems
+#yum install postgresql
+pip install psycopg2
+```
+
+#### MySQL
+
+```
+## Homebrew on Mac OS X
+brew install mysql
+## For Debian based systems
+#apt-get install mysql
+## For Redhat based systems
+#yum install mysql
+pip install mysql-python
 ```
 
 ### Alfred Workflow
@@ -618,23 +653,23 @@ It's possible to configure the content of the result items for the Database Navi
 ### Usage
 ```
 {
-  "title": "{fname} {lname}",
-  "subtitle": "{email} ({user_name})",
-  "search": ["email", "user_name"],
-  "display": ["fname", "lname", "email", "user_name", "security_info_id", "staff", "disqualified", "time_zone_id", "address", "id"],
-  "order": ["fname", "lname"]
+  "title": "{first_name} {last_name}",
+  "subtitle": "{email} ({username})",
+  "search": ["email", "username"],
+  "display": ["first_name", "last_name", "email", "username", "id"],
+  "order": ["first_name", "last_name"]
 }
 ```
 ### Title
-The *title* is the main entry within the Alfred result item. The string *{0}* will be replaced with the table alias (useful when joining with other tables that also have the given attribute present). The replaced content will then be added to the projection list as is (SQL functions may be added as well as string concatenation as in the example above).
+The *title* is the main entry within the Alfred result item. The content will be used as the format within the string.format() method.
 
 ### Subtitle
-The *subtitle* is the second line within the Alfred result item. The same replacements as with the title will be applied.
+The *subtitle* is the second line within the Alfred result item. See [Title](#title) for details.
 
 ### Search
-The *search* array contains the columns that will be looked into when no column is present in the Alfred query. The same replacements as with the title will be applied.
+The *search* array contains the columns that will be looked into when no filter column is present in the query string.
 
-This should be used to speed up the query significantly. When no *search* is configured the generated query will look something like this (see example **Show Rows where any (Search) Column matches Pattern**):
+This should be used to speed up the query significantly. When no *search* is configured the generated query will look something like this (see example **Show Rows where any (Search) Column matches Pattern**), where *n* is the amount of columns of the table (*n = |table.columns|*):
 
 ```
 select
@@ -644,10 +679,10 @@ select
 		cast(col1 as text) like '%erber%'
 		or cast(col2 as text) like '%erber%'
 		...
-		or cast(colN as text) like '%erber%'
+		or cast(coln as text) like '%erber%'
 ```
 
-When *search* is configured as `["col1", "col7"]` the generated query will look more like this:
+When *search* is configured as `["col1", "col7"]` the generated query will look more like this (two filter expressions instead of *n*):
 
 ```
 select
