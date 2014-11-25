@@ -128,7 +128,7 @@ class DatabaseExporter:
 
         # search exact match of connection
         for connection in cons:
-            opts = options.get(connection.driver)
+            opts = options.get(connection.dbs)
             if ((opts.show == 'values'
                     or opts.show == 'columns' and opts.filter is not None)
                     and connection.matches(opts)):
@@ -167,7 +167,7 @@ def run(argv):
     if options.formatter:
         Writer.set(options.formatter(options))
     else:
-        Writer.set(SqlInsertWriter())
+        Writer.set(SqlInsertWriter(options))
 
     return DatabaseExporter.export(options)
 

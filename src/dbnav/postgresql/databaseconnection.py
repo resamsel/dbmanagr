@@ -69,17 +69,18 @@ class PostgreSQLDatabase(Database):
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, host, port, database, user, password):
+    def __init__(self, driver, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
+            dbs='postgresql',
             database=database,
-            driver='postgresql')
+            driver=driver)
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.con = None
-        self.dbs = None
+        self._databases = None
 
     def __repr__(self):
         return '%s@%s/%s' % (
@@ -101,13 +102,13 @@ class PostgreSQLConnection(DatabaseConnection):
         return 'PostgreSQL Connection'
 
     def matches(self, options):
-        options = options.get(self.driver)
+        options = options.get(self.dbs)
         if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
     def filter(self, options):
-        options = options.get(self.driver)
+        options = options.get(self.dbs)
         matches = True
 
         if options.user:
@@ -127,27 +128,37 @@ class PostgreSQLConnection(DatabaseConnection):
         if database:
             try:
                 self.connect_to(
-                    'postgresql://%s:%s@%s/%s' % (
-                        self.user, self.password, self.host, database))
+                    '{driver}://{user}:{password}@{host}/{database}'.format(
+                        driver=self.driver,
+                        user=self.user,
+                        password=self.password,
+                        host=self.host,
+                        database=database))
                 self.database = database
             except OperationalError:
                 self.connect_to(
-                    'postgresql://%s:%s@%s/' % (
-                        self.user, self.password, self.host))
+                    '{driver}://{user}:{password}@{host}/'.format(
+                        driver=self.driver,
+                        user=self.user,
+                        password=self.password,
+                        host=self.host))
                 database = None
         else:
             self.connect_to(
-                'postgresql://%s:%s@%s/' % (
-                    self.user, self.password, self.host))
+                '{driver}://{user}:{password}@{host}/'.format(
+                    driver=self.driver,
+                    user=self.user,
+                    password=self.password,
+                    host=self.host))
 
     def databases(self):
         # does not yet work with sqlalchemy...
-        if not self.dbs:
-            self.dbs = map(
+        if not self._databases:
+            self._databases = map(
                 lambda row: PostgreSQLDatabase(self, row[0]),
                 self.execute(DATABASES_QUERY % self.user, 'Databases'))
 
-        return self.dbs
+        return self._databases
 
     @LogWith(logger)
     def init_tables(self, database):

@@ -26,7 +26,7 @@ class Source:
     def connection(options):
         # search exact match of connection
         for connection in Source.connections():
-            opts = options.get(connection.driver)
+            opts = options.get(connection.dbs)
             if connection.matches(opts):
                 return connection
         return None

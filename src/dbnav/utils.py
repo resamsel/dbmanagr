@@ -3,6 +3,7 @@
 
 import logging
 import re
+import pkgutil
 
 from sqlalchemy.types import Integer
 
@@ -15,6 +16,14 @@ NAMES = [
 NAME_SUFFIXES = ['name', 'title', 'key', 'text']
 
 logger = logging.getLogger(__name__)
+
+
+def module_installed(*modules):
+    installed = map(lambda m: m[1], pkgutil.iter_modules())
+    for module in modules:
+        if module in installed:
+            return module
+    return None
 
 
 def prefixes(items):

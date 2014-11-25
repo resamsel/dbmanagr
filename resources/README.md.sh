@@ -283,24 +283,31 @@ easy_install dbnav-`python src/dbnav/version.py`-py2.7.egg
 
 ### Install Dependencies
 
-You need PostgreSQL and MySQL installed to install the required python dependencies. [Homebrew](http://brew.sh/) can help you with that:
+You need PostgreSQL and MySQL installed to access those databases. [Homebrew](http://brew.sh/) can help you with that:
+
+#### PostgreSQL
 
 \`\`\`
-brew install postgresql9 mysql
+## Homebrew on Mac OS X
+brew install postgresql9
+## For Debian based systems
+#apt-get install postgresql
+## For Redhat based systems
+#yum install postgresql
+pip install psycopg2
 \`\`\`
 
-Debian based linux systems may use the following command:
+#### MySQL
 
 \`\`\`
-apt-get install postgresql mysql
+## Homebrew on Mac OS X
+brew install mysql
+## For Debian based systems
+#apt-get install mysql
+## For Redhat based systems
+#yum install mysql
+pip install mysql-python
 \`\`\`
-
-Redhat based linux systems may use the following command:
-
-\`\`\`
-yum install postgresql mysql
-\`\`\`
-
 
 ### Alfred Workflow
 To install the Alfred workflow open the [Database Navigator.alfredworkflow](dist/Database Navigator.alfredworkflow?raw=true) file from the dist directory.

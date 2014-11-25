@@ -6,23 +6,35 @@ __all__ = ["databaseconnection", "sources"]
 from os.path import expanduser
 from os import getenv
 
+from dbnav.utils import module_installed
 from dbnav.sources import Source
 from dbnav.mysql.sources import DBExplorerMySQLSource, MypassSource
 from dbnav.options import Options
 from dbnav.mysql.options import MySQLOptionsParser
 
+DRIVERS = {
+    'MySQLdb': 'mysqldb'
+}
 
-def init_mysql(dbexplorer_config, mypass_config):
-    Source.sources.append(DBExplorerMySQLSource(dbexplorer_config))
-    Source.sources.append(MypassSource(mypass_config))
 
-init_mysql(
-    getenv(
-        'DBEXPLORER_CFG',
-        expanduser('~/.dbexplorer/dbexplorer.cfg')),
-    getenv(
-        'PGPASS_CFG',
-        expanduser('~/.mypass'))
-)
+def init_mysql(driver, dbexplorer_config, mypass_config):
+    Source.sources.append(DBExplorerMySQLSource(driver, dbexplorer_config))
+    Source.sources.append(MypassSource(driver, mypass_config))
 
-Options.parser['mysql'] = MySQLOptionsParser()
+
+def init():
+    module = module_installed(*DRIVERS.keys())
+    if not module:
+        return
+
+    init_mysql(
+        DRIVERS[module],
+        getenv(
+            'DBEXPLORER_CFG',
+            expanduser('~/.dbexplorer/dbexplorer.cfg')),
+        getenv(
+            'PGPASS_CFG',
+            expanduser('~/.mypass'))
+    )
+
+    Options.parser['mysql'] = MySQLOptionsParser()

@@ -31,17 +31,17 @@ class MySQLDatabase(Database):
 class MySQLConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, host, port, database, user, password):
+    def __init__(self, driver, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
+            dbs='mysql',
             database=database,
-            driver='mysql')
+            driver=driver)
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.con = None
-        self.dbs = None
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT.format(
@@ -65,13 +65,13 @@ class MySQLConnection(DatabaseConnection):
         return 'MySQL Connection'
 
     def matches(self, options):
-        options = options.get(self.driver)
+        options = options.get('mysql')
         if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
     def filter(self, options):
-        options = options.get(self.driver)
+        options = options.get('mysql')
         matches = True
 
         if options.user:
@@ -91,8 +91,9 @@ class MySQLConnection(DatabaseConnection):
         if database:
             try:
                 self.connect_to(
-                    'mysql+mysqldb://{user}:{password}@{host}/{database}'
+                    'mysql+{driver}://{user}:{password}@{host}/{database}'
                     .format(
+                        driver=self.driver,
                         user=self.user,
                         password=self.password,
                         host=self.host,

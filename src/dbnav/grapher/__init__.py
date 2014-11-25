@@ -125,7 +125,7 @@ class DatabaseGrapher:
 
         # search exact match of connection
         for connection in cons:
-            opts = options.get(connection.driver)
+            opts = options.get(connection.dbs)
             if connection.matches(opts) and opts.show in [
                     'tables', 'columns', 'values']:
                 return DatabaseGrapher.build(connection, opts)
@@ -146,7 +146,7 @@ class DatabaseGrapher:
             indent = 0
             if opts.include_driver:
                 nodes.append(
-                    NameNode(connection.driver, indent=indent))
+                    NameNode(connection.dbs, indent=indent))
                 indent += 1
             if opts.include_connection:
                 nodes.append(NameNode(str(connection), indent=indent))
