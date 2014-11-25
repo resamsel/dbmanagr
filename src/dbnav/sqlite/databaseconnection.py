@@ -32,10 +32,9 @@ class SQLiteConnection(DatabaseConnection):
         self.path = path
         self.filename = basename(self.path)
         self.con = None
-        self.dbs = None
         DatabaseConnection.__init__(
             self,
-            dbs='sqlite',
+            dbms='sqlite',
             database=self.databases()[0],
             driver='sqlite')
 
@@ -55,13 +54,13 @@ class SQLiteConnection(DatabaseConnection):
         return '%s%s' % (self.autocomplete(), table)
 
     def matches(self, options):
-        options = options.get(self.dbs)
+        options = options.get(self.dbms)
         if options.uri:
             return options.uri.startswith(self.filename)
         return False
 
     def filter(self, options):
-        options = options.get(self.dbs)
+        options = options.get(self.dbms)
         return not options.uri or options.uri in self.path
 
     @LogWith(logger)

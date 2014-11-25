@@ -128,7 +128,7 @@ class DatabaseExporter:
 
         # search exact match of connection
         for connection in cons:
-            opts = options.get(connection.dbs)
+            opts = options.get(connection.dbms)
             if ((opts.show == 'values'
                     or opts.show == 'columns' and opts.filter is not None)
                     and connection.matches(opts)):

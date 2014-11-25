@@ -34,7 +34,7 @@ class MySQLConnection(DatabaseConnection):
     def __init__(self, driver, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
-            dbs='mysql',
+            dbms='mysql',
             database=database,
             driver=driver)
         self.host = host

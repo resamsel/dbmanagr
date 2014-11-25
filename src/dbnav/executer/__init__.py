@@ -73,7 +73,7 @@ class DatabaseExecuter:
 
         # Search exact match of connection
         for connection in cons:
-            opts = options.get(connection.dbs)
+            opts = options.get(connection.dbms)
             if connection.matches(opts) and opts.show in [
                     'databases', 'tables', 'columns', 'values']:
                 # Reads the statements

@@ -72,7 +72,7 @@ class PostgreSQLConnection(DatabaseConnection):
     def __init__(self, driver, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
-            dbs='postgresql',
+            dbms='postgresql',
             database=database,
             driver=driver)
         self.host = host
@@ -102,13 +102,13 @@ class PostgreSQLConnection(DatabaseConnection):
         return 'PostgreSQL Connection'
 
     def matches(self, options):
-        options = options.get(self.dbs)
+        options = options.get(self.dbms)
         if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
     def filter(self, options):
-        options = options.get(self.dbs)
+        options = options.get(self.dbms)
         matches = True
 
         if options.user:

@@ -205,7 +205,7 @@ class Cursor:
 
 class DatabaseConnection(BaseItem):
     def __init__(self, **kwargs):
-        self.dbs = kwargs.get('dbs', None)
+        self.dbms = kwargs.get('dbms', None)
         self.database = kwargs.get('database', None)
         self.driver = kwargs.get('driver', None)
         self._inspector = None
@@ -261,7 +261,7 @@ class DatabaseConnection(BaseItem):
             if options.table not in tables:
                 raise Exception(
                     "Could not find table '{0}' on {1} ({2})".format(
-                        options.table, self, self.dbs))
+                        options.table, self, self.dbms))
 
             table = tables[options.table]
             if options.show == 'columns':
