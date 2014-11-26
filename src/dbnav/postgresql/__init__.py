@@ -17,7 +17,9 @@ from .options import PostgreSQLOptionsParser
 DRIVERS = OrderedDict([
     ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}'),
     ('postgresql',
-        'postgresql+pypostgresql://{user}:{password}@{host}/{database}')
+        'postgresql+pypostgresql://{user}:{password}@{host}/{database}'),
+    ('pg8000', 'postgresql+pg8000://{user}:{password}@{host}/{database}'),
+    # ('zxjdbc', 'postgresql+zxjdbc://{user}:{password}@{host}/{database}')
 ])
 
 
