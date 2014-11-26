@@ -15,6 +15,7 @@ __all__ = (
     'navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger',
     'options', 'tests'
 )
+__drivers__ = []
 
 
 def decorator(f):

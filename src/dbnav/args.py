@@ -7,6 +7,7 @@ import logging
 
 from dbnav.writer import TestWriter
 from dbnav.version import __version__
+from dbnav import __drivers__
 
 
 class LogLevel(argparse.Action):
@@ -29,7 +30,8 @@ def parent_parser():
     parser.add_argument(
         '--version',
         action='version',
-        version='%(prog)s {0}'.format(__version__))
+        version='%(prog)s {version} (drivers: {drivers})'.format(
+            version=__version__, drivers=', '.join(__drivers__)))
     group = parser.add_argument_group('logging')
     group.add_argument(
         '-L',

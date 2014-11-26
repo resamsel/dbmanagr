@@ -7,6 +7,7 @@ from os.path import expanduser
 from os import getenv
 from collections import OrderedDict
 
+from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
 from .sources import PgpassSource, DBExplorerPostgreSQLSource
@@ -14,7 +15,9 @@ from dbnav.options import Options
 from .options import PostgreSQLOptionsParser
 
 DRIVERS = OrderedDict([
-    ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}')
+    ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}'),
+    ('postgresql',
+        'postgresql+pypostgresql://{user}:{password}@{host}/{database}')
 ])
 
 
@@ -33,6 +36,7 @@ def init():
     if not module:
         return
 
+    __drivers__.append(module)
     init_postgresql(
         DRIVERS[module],
         getenv(

@@ -7,6 +7,7 @@ from os.path import expanduser
 from os import getenv
 from collections import OrderedDict
 
+from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
 from dbnav.mysql.sources import DBExplorerMySQLSource, MypassSource
@@ -31,6 +32,7 @@ def init():
     if not module:
         return
 
+    __drivers__.append(module)
     init_mysql(
         DRIVERS[module],
         getenv(
