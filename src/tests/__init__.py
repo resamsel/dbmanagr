@@ -4,7 +4,7 @@
 import unittest
 
 from tests import navigator, grapher, exporter, differ
-from tests import utils, comment, querybuilder
+from tests import utils, comment, querybuilder, options
 
 
 def load_suite():
@@ -13,6 +13,7 @@ def load_suite():
     suite.addTest(utils.load_suite())
     suite.addTest(comment.load_suite())
     suite.addTest(querybuilder.load_suite())
+    suite.addTest(options.load_suite())
 
     suite.addTest(navigator.load_suite())
     suite.addTest(grapher.load_suite())

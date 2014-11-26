@@ -19,11 +19,6 @@ class PostgreSQLOptions:
     def get(self, driver):
         return self
 
-    def escape_keyword(self, keyword):
-        if keyword in ['user', 'select']:
-            return '"%s"' % keyword
-        return keyword
-
     @LogWith(logger)
     def restriction(
             self, alias, column, operator, value, map_null_operator=True):

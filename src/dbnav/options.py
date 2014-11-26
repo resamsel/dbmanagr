@@ -16,6 +16,12 @@ OPERATORS = ['>=', '<=', '!=', '=', '~', '*', '>', '<', ':']
 logger = logging.getLogger(__name__)
 
 
+def escape_keyword(keyword):
+    if keyword in ['user', 'table', 'column']:
+        return '"%s"' % keyword
+    return keyword
+
+
 def parse_filter(s):
     filter = []
     for term in s.split(AND_OPERATOR):
@@ -80,9 +86,7 @@ class Options:
         return self.opts[parser]
 
     def escape_keyword(self, keyword):
-        if keyword in ['user', 'table', 'column']:
-            return '"%s"' % keyword
-        return keyword
+        return escape_keyword(keyword)
 
     def restriction(
             self, alias, column, operator, value, map_null_operator=True):
