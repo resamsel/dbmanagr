@@ -22,6 +22,65 @@ def escape_keyword(keyword):
     return keyword
 
 
+def restriction(
+        alias, column, operator, value, map_null_operator=True):
+    if not column:
+        raise Exception('Parameter column may not be None!')
+    if operator in ['=', '!='] and (value is None or value == 'null'):
+        if map_null_operator:
+            operator = {
+                '=': 'is',
+                '!=': 'is not'
+            }.get(operator)
+        value = None
+    if column.table and alias is not None:
+        return u"{0}.{1} {2} {3}".format(
+            alias,
+            escape_keyword(column.name),
+            operator,
+            format_value(column, value))
+    return u'{0} {1} {2}'.format(
+        escape_keyword(column.name),
+        operator,
+        format_value(column, value))
+
+
+def format_value(column, value):
+    if value is None or (type(value) is float and math.isnan(value)):
+        return 'null'
+    if type(value) is list:
+        return '({0})'.format(
+            ','.join([format_value(column, v) for v in value]))
+    if type(value) in [datetime.datetime, datetime.date, datetime.time]:
+        return "'%s'" % value
+    if type(value) is buffer:
+        return u"'[BLOB]'"
+    if column is None:
+        try:
+            return '%d' % int(value)
+        except ValueError:
+            return u"'%s'" % value
+    if (isinstance(column.type, Boolean)
+            and (type(value) is bool or value in ['true', 'false'])):
+        return '%s' % str(value).lower()
+    if isinstance(column.type, Float):
+        try:
+            return '%f' % float(value)
+        except ValueError:
+            pass
+    if isinstance(column.type, Integer):
+        try:
+            return '%d' % int(value)
+        except ValueError:
+            pass
+    if isinstance(column.type, TIMESTAMP):
+        try:
+            return '%d' % int(value)
+        except ValueError:
+            pass
+    return u"'%s'" % value.replace('%', '%%').replace("'", "''")
+
+
 def parse_filter(s):
     filter = []
     for term in s.split(AND_OPERATOR):
@@ -90,60 +149,10 @@ class Options:
 
     def restriction(
             self, alias, column, operator, value, map_null_operator=True):
-        if not column:
-            raise Exception('Column is None!')
-        if column.table and alias is not None:
-            return u"{0}.{1} {2} {3}".format(
-                alias,
-                self.escape_keyword(column.name),
-                operator,
-                self.format_value(column, value))
-        if operator in ['=', '!='] and (value == 'null' or value is None):
-            if map_null_operator:
-                operator = {
-                    '=': 'is',
-                    '!=': 'is not'
-                }.get(operator)
-            value = None
-        return u'{0} {1} {2}'.format(
-            self.escape_keyword(column.name),
-            operator,
-            self.format_value(column, value))
+        return restriction(alias, column, operator, value, map_null_operator)
 
     def format_value(self, column, value):
-        if value is None or (type(value) is float and math.isnan(value)):
-            return 'null'
-        if type(value) is list:
-            return '({0})'.format(
-                ','.join([self.format_value(column, v) for v in value]))
-        if type(value) in [datetime.datetime, datetime.date, datetime.time]:
-            return "'%s'" % value
-        if type(value) is buffer:
-            return u"'[BLOB]'"
-        if column is None:
-            try:
-                return '%d' % int(value)
-            except ValueError:
-                return u"'%s'" % value
-        if (isinstance(column.type, Boolean)
-                and (type(value) is bool or value in ['true', 'false'])):
-            return '%s' % str(value).lower()
-        if isinstance(column.type, Float):
-            try:
-                return '%f' % float(value)
-            except ValueError:
-                pass
-        if isinstance(column.type, Integer):
-            try:
-                return '%d' % int(value)
-            except ValueError:
-                pass
-        if isinstance(column.type, TIMESTAMP):
-            try:
-                return '%d' % int(value)
-            except ValueError:
-                pass
-        return u"'%s'" % value.replace('%', '%%').replace("'", "''")
+        return format_value(column, value)
 
     def __setattr__(self, name, value):
         self.__dict__[name] = value
