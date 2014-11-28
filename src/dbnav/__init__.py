@@ -9,7 +9,7 @@ import pdb
 from functools import wraps
 
 from dbnav.writer import Writer
-from dbnav.logger import logger
+from dbnav.logger import logger as log
 
 __all__ = (
     'navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger',
@@ -26,8 +26,8 @@ def decorator(f):
         except (SystemExit, KeyboardInterrupt) as e:
             sys.exit(-1)
         except BaseException as e:
-            logger.exception(e)
-            if logger.getEffectiveLevel() <= logging.DEBUG:
+            log.exception(e)
+            if log.getEffectiveLevel() <= logging.DEBUG:
                 # Start post mortem debugging only when debugging is enabled
                 if os.getenv('UNITTEST', 'False') == 'True':
                     raise

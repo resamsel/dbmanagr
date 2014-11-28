@@ -67,23 +67,24 @@ def add_join(entity, joins):
 
 
 @LogWith(logger)
-def add_filter(f, filters, table, foreign_keys, joins):
+def add_filter(f, filters, table, joins):
     if not f.operator:
         return None
+
     if '.' in f.lhs:
+        foreign_keys = table.foreign_keys()
         ref, colname = f.lhs.split('.', 1)
         if ref not in foreign_keys:
             raise UnknownColumnException(table, ref)
         t = foreign_keys[ref].b.table
         add_join(t.entity, joins)
         return add_filter(
-            QueryFilter(colname, f.operator, f.rhs), filters, t, t.fks, joins)
+            QueryFilter(colname, f.operator, f.rhs), filters, t, joins)
 
     colname = f.lhs
     col = table.column(colname)
     if not col:
         raise UnknownColumnException(table, colname)
-    add_join(table.entity, joins)
     tentity = joins[table.name]
     if allowed(tentity.columns[col.name], f.operator, f.rhs):
         op = operation(
@@ -92,6 +93,7 @@ def add_filter(f, filters, table, foreign_keys, joins):
             f.rhs)
         filters.append(op)
         return op
+
     return None
 
 
@@ -186,7 +188,7 @@ class QueryBuilder:
                     'Filter: lhs=%s, op=%s, rhs=%s',
                     f.lhs, f.operator, f.rhs)
                 if f.lhs != '':
-                    add_filter(f, filters, self.table, foreign_keys, joins)
+                    add_filter(f, filters, self.table, joins)
                 elif search_fields:
                     logger.debug('Search fields: %s', search_fields)
                     rhs = f.rhs

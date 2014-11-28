@@ -8,7 +8,7 @@ from dbnav.logger import logger
 CLOSE_MATCHES = 'Column "{0}" was not found on table "{1}" '\
     '(close matches: {2})'
 NO_CLOSE_MATCHES = 'Column "{0}" was not found on table "{1}" '\
-    '(no close matches in {2})'
+    '(no close matches in: {2})'
 
 
 def unknown_column_message(table, column, haystack=None):
@@ -20,7 +20,7 @@ def unknown_column_message(table, column, haystack=None):
         return NO_CLOSE_MATCHES.format(
             column,
             table.name if table else '?',
-            haystack)
+            u', '.join(haystack))
     return CLOSE_MATCHES.format(
         column,
         table.name if table else '?',

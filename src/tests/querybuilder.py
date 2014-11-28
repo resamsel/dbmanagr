@@ -18,7 +18,7 @@ def load_suite():
 
 class QueryBuilderTestCase(DbTestCase):
     def test_allowed(self):
-        """Tests the utils.allowed function"""
+        """Tests the querybuilder.allowed function"""
 
         con = DbTestCase.connection
         user = con.entity('user')
@@ -37,7 +37,7 @@ class QueryBuilderTestCase(DbTestCase):
             querybuilder.allowed(user.columns.id, ':', [1, 2, 3]))
 
     def test_add_references(self):
-        """Tests the utils.add_references function"""
+        """Tests the querybuilder.add_references function"""
 
         con = DbTestCase.connection
         user = con.table('user')
@@ -49,7 +49,7 @@ class QueryBuilderTestCase(DbTestCase):
                 user_address.name, user.foreign_keys(), {}, None).keys())
 
     def test_add_joins(self):
-        """Tests the utils.add_joins function"""
+        """Tests the querybuilder.add_joins function"""
 
         con = DbTestCase.connection
         joins = OrderedDict()
@@ -70,3 +70,20 @@ class QueryBuilderTestCase(DbTestCase):
         self.assertEqual(
             ['user_address', 'user', 'address'],
             querybuilder.add_join(con.entity('address'), joins).keys())
+
+    def test_create_label(self):
+        """Tests the querybuilder.create_label function"""
+
+        con = DbTestCase.connection
+        column = con.entity('user').columns.id
+
+        self.assertEqual(
+            'id',
+            querybuilder.create_label('{col.name}')(column).name)
+        self.assertEqual(
+            '_id',
+            querybuilder.create_label('_{col.name}')(column).name)
+        self.assertEqual(
+            '_user_id',
+            querybuilder.create_label(
+                '_{col.table.name}_{col.name}')(column).name)

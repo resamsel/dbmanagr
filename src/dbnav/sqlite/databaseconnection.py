@@ -29,23 +29,17 @@ class SQLiteConnection(DatabaseConnection):
     """A database connection"""
 
     def __init__(self, uri, path):
-        self.path = path
-        self.filename = basename(self.path)
-        self.con = None
         DatabaseConnection.__init__(
             self,
             dbms='sqlite',
             database=self.databases()[0],
             uri=uri)
+        self.path = path
+        self.filename = basename(self.path)
+        self.con = None
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % self.filename
-
-    def autocomplete(self):
-        return self.__repr__()
-
-    def title(self):
-        return self.__repr__()
 
     def subtitle(self):
         return 'SQLite Connection'

@@ -14,19 +14,6 @@ sys.stdout = UTF8Writer(sys.stdout)
 logger = logging.getLogger(__name__)
 
 
-def html_escape(s):
-    if type(s) == str or type(s) == unicode:
-        return s.replace('&', '&amp;').replace('"', '&quot;')\
-            .replace('<', '&lt;')
-    return s
-
-
-def escape(s):
-    if type(s) == unicode:
-        return s.replace('"', '&quot;')
-    return s
-
-
 class DefaultWriter:
     def write(self, items):
         return self.str(items)

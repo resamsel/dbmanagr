@@ -18,8 +18,7 @@ def val(row, column):
 class Row(BaseItem):
     """A table row from the database"""
 
-    def __init__(self, connection, table, row):
-        self.connection = connection
+    def __init__(self, table, row):
         self.table = table
         self.row = row
 
@@ -30,7 +29,10 @@ class Row(BaseItem):
         if type(i) == unicode:
             i = i.encode('ascii')
         if type(i) is str:
-            return self.row.__dict__[i]
+            try:
+                return self.row.__dict__[i]
+            except:
+                return None
         return self.row[i]
 
     def values(self):

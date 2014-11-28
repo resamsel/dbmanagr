@@ -5,6 +5,7 @@ import logging
 
 from sqlalchemy.exc import ProgrammingError, DataError
 
+from dbnav.logger import LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
 from dbnav.exception import UnknownColumnException
@@ -71,12 +72,10 @@ class Table(BaseItem):
 
         return None
 
+    @LogWith(logger, log_result=False)
     def rows(
             self, connection, filter=None, limit=DEFAULT_LIMIT, simplify=None):
         """Retrieves rows from the table with the given filter applied"""
-        logger.debug(
-            'table.rows(self=%s, conn=%s, filter=%s, limit=%s, simplify=%s)',
-            self, connection, filter, limit, simplify)
 
         comment = None
         order = []
@@ -125,7 +124,7 @@ class Table(BaseItem):
                 '{} (check comment on table {})'.format(e.message, self.name)
             ), sys.exc_info()[2]
 
-        return map(lambda row: Row(connection, self, row), result)
+        return map(lambda row: Row(self, row), result)
 
     def foreign_keys(self):
         return self.fks

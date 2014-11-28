@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
 from .baseitem import BaseItem
-
-logger = logging.getLogger(__name__)
 
 KIND_VALUE = 'value'
 KIND_FOREIGN_KEY = 'foreign-key'

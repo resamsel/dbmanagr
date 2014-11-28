@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import json
-import logging
 
 COMMENT_ID = 'id'
 COMMENT_TITLE = 'title'
@@ -10,8 +9,6 @@ COMMENT_SUBTITLE = 'subtitle'
 COMMENT_ORDER_BY = 'order'
 COMMENT_SEARCH = 'search'
 COMMENT_DISPLAY = 'display'
-
-logger = logging.getLogger(__name__)
 
 
 class TableComment:
