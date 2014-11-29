@@ -114,7 +114,10 @@ class DatabaseExecuter:
                         counter += 1
                     if opts.progress > 0 and counter >= opts.progress:
                         sys.stdout.write('\n')
-                    trans.commit()
+                    if opts.dry_run:
+                        trans.rollback()
+                    else:
+                        trans.commit()
                 except:
                     if trans:
                         trans.rollback()
@@ -125,10 +128,13 @@ class DatabaseExecuter:
                         logduration('Executing SQL statements', start)
 
                 if not results:
-                    print 'Changed rows: {0}'.format(changes)
+                    dry_run = ''
+                    if opts.dry_run:
+                        dry_run = ' (dry run)'
+                    print 'Changed rows: {0}{1}'.format(changes, dry_run)
                 return results
 
-        raise Exception('Specify the complete URI to a table')
+        raise Exception('Specify the complete URI to a database')
 
 
 @decorator
