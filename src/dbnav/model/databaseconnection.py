@@ -226,8 +226,8 @@ class DatabaseConnection(BaseItem):
     def connect(self, database):
         pass
 
+    @LogWith(logger)
     def connect_to(self, source):
-        logger.debug('Connecting to %s', source)
         self.engine = create_engine(source)
         self.con = self.engine.connect()
 
@@ -376,7 +376,6 @@ class DatabaseConnection(BaseItem):
 
     def __getstate__(self):
         state = dict(self.__dict__)
-        logger.debug('State: %s' % state)
         if 'con' in state:
             del state['con']
         return state

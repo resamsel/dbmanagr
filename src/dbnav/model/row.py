@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
 from dbnav.model.baseitem import BaseItem
 from dbnav.formatter import Formatter
-
-logger = logging.getLogger(__name__)
 
 
 def val(row, column):
@@ -23,7 +20,6 @@ class Row(BaseItem):
         self.row = row
 
     def __getitem__(self, i):
-        # logger.debug('Row.__getitem__(%s: %s)', str(i), type(i))
         if i is None:
             return None
         if type(i) == unicode:

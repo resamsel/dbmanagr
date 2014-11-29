@@ -45,10 +45,14 @@ class StdoutWriter(DefaultWriter):
         return items
 
     def str(self, items):
+        items = self.prepare(items)
         s = self.item_separator.join(
             map(lambda i: self.itemtostring(i),
                 self.filter(items)))
         return self.items_format.format(s)
+
+    def prepare(self, items):
+        return items
 
     def itemtostring(self, item):
         if hasattr(item, '__dict__'):
