@@ -3,6 +3,7 @@
 
 from dbnav.item import Item
 from dbnav.formatter import Formatter
+from dbnav.utils import hash
 
 
 class BaseItem:

@@ -1,3 +1,8 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); echo $PWD)
+
+cat <<EOF > $DIR/info.plist
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -66,37 +71,13 @@
 				<key>runningsubtext</key>
 				<string>Retrieving...</string>
 				<key>script</key>
-				<string>import sys
-from workflow import Workflow
-
-def main(wf):
-    from dbnav import navigator
-
-    items = navigator.run(wf.args)
-
-    for item in items:
-        print item.__class__
-        wf.add_item(
-            item.title(),
-            item.subtitle(),
-            uid=item.uid(),
-            arg=item.value(),
-            autocomplete=item.autocomplete(),
-            valid=item.validity(),
-            icon=item.icon())
-
-    # Send output to Alfred
-    wf.send_feedback()
-
-if __name__ == '__main__':
-    wf = Workflow(libraries=['dbnav-0.16-py2.7.egg'])
-    sys.exit(wf.run(main))</string>
+				<string>python alfred.py "{query}"</string>
 				<key>subtext</key>
 				<string>Shows database contents</string>
 				<key>title</key>
 				<string>Database Navigator</string>
 				<key>type</key>
-				<integer>3</integer>
+				<integer>0</integer>
 				<key>withspace</key>
 				<true/>
 			</dict>
@@ -141,3 +122,4 @@ if __name__ == '__main__':
 	<string>http://resamsel.com</string>
 </dict>
 </plist>
+EOF

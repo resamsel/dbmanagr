@@ -126,7 +126,7 @@ class Options:
         self.show = 'connections'
         self.simplify = False
 
-        args = parser.parse_args(argv[1:])
+        args = parser.parse_args(argv)
 
         if hasattr(args, 'include'):
             args.include = args.include.split(',') if args.include else []

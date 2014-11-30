@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import uuid
 import logging
 
+from dbnav.utils import hash
 from dbnav.formatter import Formatter
 
 logger = logging.getLogger(__name__)
-
-
-def hash(s):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 
 def item(v):
@@ -20,12 +16,12 @@ def item(v):
 
 
 class Item:
-    def __init__(self, value, title, subtitle, autocomplete, valid, icon):
+    def __init__(self, value, title, subtitle, autocomplete, validity, icon):
         self.value = value
         self.title = title
         self.subtitle = subtitle
         self.autocomplete = autocomplete
-        self.valid = valid
+        self.validity = validity
         self.icon = icon
         self.uid = hash(autocomplete)
 

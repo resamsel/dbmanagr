@@ -37,16 +37,14 @@ class DatabaseNavigator:
                 return connection.proceed(opts)
 
         # print all connections
-        return map(
-            lambda c: c.item(),
-            sorted(
+        return sorted(
                 [c for c in cons if c.filter(options)],
-                key=lambda c: c.title().lower()))
+                key=lambda c: c.title().lower())
 
 
 @decorator
 def main():
-    return run(sys.argv)
+    return run(sys.argv[1:])
 
 
 def run(argv):

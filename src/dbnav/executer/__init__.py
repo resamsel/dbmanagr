@@ -139,7 +139,7 @@ class DatabaseExecuter:
 
 @decorator
 def main():
-    return run(sys.argv)
+    return run(sys.argv[1:])
 
 
 def run(argv):

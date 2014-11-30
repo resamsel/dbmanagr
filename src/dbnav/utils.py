@@ -4,6 +4,7 @@
 import logging
 import re
 import pkgutil
+import uuid
 
 from sqlalchemy.types import Integer
 
@@ -93,3 +94,7 @@ def create_title(comment, columns, exclude=None):
         return (columns[0].name, '{%s}' % columns[0].name)
 
     return None
+
+
+def hash(s):
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
