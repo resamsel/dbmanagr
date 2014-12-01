@@ -7,6 +7,7 @@ from dbnav.sources import Source
 from dbnav.sqlite.databaseconnection import SQLiteConnection
 
 DIR = path.dirname(__file__)
+URI = 'sqlite+pysqlite:///{file}'
 
 
 class MockSource(Source):
@@ -14,12 +15,12 @@ class MockSource(Source):
         if not self.connections:
             self.connections.append(
                 SQLiteConnection(
-                    path.join(DIR, '../resources/dbnav.sqlite')))
+                    URI, path.join(DIR, '../resources/dbnav.sqlite')))
             self.connections.append(
                 SQLiteConnection(
-                    path.join(DIR, '../resources/dbnav-c.sqlite')))
+                    URI, path.join(DIR, '../resources/dbnav-c.sqlite')))
             self.connections.append(
                 SQLiteConnection(
-                    path.join(DIR, '../resources/me@xyz.com.sqlite')))
+                    URI, path.join(DIR, '../resources/me@xyz.com.sqlite')))
 
         return self.connections

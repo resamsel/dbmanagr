@@ -1,3 +1,8 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname $0); echo $PWD)
+
+cat <<EOF > $DIR/info.plist
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -66,7 +71,7 @@
 				<key>runningsubtext</key>
 				<string>Retrieving...</string>
 				<key>script</key>
-				<string>/usr/local/bin/dbnav -X "{query}"</string>
+				<string>python alfred.py "{query}"</string>
 				<key>subtext</key>
 				<string>Shows database contents</string>
 				<key>title</key>
@@ -95,7 +100,7 @@
 				<key>runningsubtext</key>
 				<string>Searching...</string>
 				<key>script</key>
-				<string>/usr/local/bin/dbnav -X "skiline@localhost/skiline/resort?~{query}%"</string>
+				<string>python alfred.py "skiline@localhost/skiline/resort?id={query}|~{query}%"</string>
 				<key>title</key>
 				<string>Skiresort</string>
 				<key>type</key>
@@ -116,22 +121,17 @@
 	<key>uidata</key>
 	<dict>
 		<key>0A1E5AF5-6A96-4EE2-87E3-BBA9B66FDF79</key>
-		<dict>
-			<key>ypos</key>
-			<real>10</real>
-		</dict>
+		<dict/>
 		<key>45B74738-9B9E-470A-B263-574B8C226CE8</key>
 		<dict>
 			<key>ypos</key>
 			<real>130</real>
 		</dict>
 		<key>5AD6B622-051E-41D9-A608-70919939967A</key>
-		<dict>
-			<key>ypos</key>
-			<real>10</real>
-		</dict>
+		<dict/>
 	</dict>
 	<key>webaddress</key>
 	<string>http://resamsel.com</string>
 </dict>
 </plist>
+EOF

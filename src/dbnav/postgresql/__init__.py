@@ -5,16 +5,22 @@ __all__ = ["databaseconnection", "sources", "options"]
 
 from os.path import expanduser
 from os import getenv
+from collections import OrderedDict
 
+from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
 from .sources import PgpassSource, DBExplorerPostgreSQLSource
 from dbnav.options import Options
 from .options import PostgreSQLOptionsParser
 
-DRIVERS = {
-    'psycopg2': 'postgresql'
-}
+DRIVERS = OrderedDict([
+    ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}'),
+    ('postgresql',
+        'postgresql+pypostgresql://{user}:{password}@{host}/{database}'),
+    ('pg8000', 'postgresql+pg8000://{user}:{password}@{host}/{database}'),
+    # ('zxjdbc', 'postgresql+zxjdbc://{user}:{password}@{host}/{database}')
+])
 
 
 def init_postgresql(driver, dbexplorer_config, pgpass_config, navicat_config):
@@ -32,6 +38,7 @@ def init():
     if not module:
         return
 
+    __drivers__.append(module)
     init_postgresql(
         DRIVERS[module],
         getenv(

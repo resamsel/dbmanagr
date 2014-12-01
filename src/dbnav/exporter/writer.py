@@ -82,6 +82,11 @@ class SqlDeleteWriter(FormatWriter):
         Formatter.set(DefaultFormatter())
         self.options = options
 
+    def prepare(self, items):
+        # Fixes issue #4
+        items.reverse()
+        return items
+
     def itemtostring(self, item):
         row = item.row
         table = row.table

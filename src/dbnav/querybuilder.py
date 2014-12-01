@@ -4,7 +4,7 @@
 import logging
 
 from collections import Counter
-from sqlalchemy import or_, String
+from sqlalchemy import or_, and_, String
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import Session
 
@@ -12,7 +12,7 @@ from dbnav.logger import LogWith
 from dbnav.utils import create_title
 from dbnav.comment import create_comment
 from dbnav.exception import UnknownColumnException
-from dbnav.queryfilter import QueryFilter
+from dbnav.queryfilter import QueryFilter, OrOp, BitOp
 
 OPERATORS = {
     '=': lambda c, v: c == v,
@@ -35,6 +35,12 @@ logger = logging.getLogger(__name__)
 def allowed(column, operator, value):
     if operator in ['~', '*']:
         return isinstance(column.type, String)
+    if operator in ['=', '!=']:
+        try:
+            column.type.python_type(value)
+            return True
+        except:
+            return False
     return True
 
 
@@ -66,24 +72,78 @@ def add_join(entity, joins):
     return joins
 
 
+def replace_filter(f, table, entity, comment, search_fields):
+    if isinstance(f, BitOp):
+        f.children = map(
+            lambda child: replace_filter(
+                child, table, entity, comment, search_fields),
+            f.children)
+    elif f.lhs == '' and search_fields:
+        logger.debug('Search fields: %s', search_fields)
+        rhs = f.rhs
+        if rhs == '' and f.operator == '*':
+            rhs = '%'
+        ors = OrOp(map(
+            lambda s: QueryFilter(s, f.operator, rhs),
+            filter(
+                lambda s: s in entity.columns,
+                search_fields)))
+        if 'id' in comment.columns:
+            col = table.column('id')
+            if not col:
+                raise UnknownColumnException(table, 'id')
+            ors.append(QueryFilter(col.name, f.operator, rhs))
+        logger.debug('Searches: %s', ors)
+        return ors
+    return f
+
+
 @LogWith(logger)
-def add_filter(f, filters, table, foreign_keys, joins):
+def add_filters(f, filters, table, joins):
+    if isinstance(f, BitOp):
+        op = {
+            'OrOp': or_,
+            'AndOp': and_
+        }.get(f.__class__.__name__)
+        fs = []
+
+        for c in f.children:
+            add_filters(c, fs, table, joins)
+
+        logger.debug('Filter fs: %s', fs)
+
+        if len(fs) > 1:
+            filters.append(op(*fs))
+        elif len(fs) > 0:
+            filters.append(*fs)
+
+    elif isinstance(f, QueryFilter):
+        logger.debug(
+            'Filter: lhs=%s, op=%s, rhs=%s',
+            f.lhs, f.operator, f.rhs)
+        if f.lhs != '':
+            add_filter(f, filters, table, joins)
+
+
+@LogWith(logger)
+def add_filter(f, filters, table, joins):
     if not f.operator:
         return None
+
     if '.' in f.lhs:
+        foreign_keys = table.foreign_keys()
         ref, colname = f.lhs.split('.', 1)
         if ref not in foreign_keys:
             raise UnknownColumnException(table, ref)
         t = foreign_keys[ref].b.table
         add_join(t.entity, joins)
         return add_filter(
-            QueryFilter(colname, f.operator, f.rhs), filters, t, t.fks, joins)
+            QueryFilter(colname, f.operator, f.rhs), filters, t, joins)
 
     colname = f.lhs
     col = table.column(colname)
     if not col:
         raise UnknownColumnException(table, colname)
-    add_join(table.entity, joins)
     tentity = joins[table.name]
     if allowed(tentity.columns[col.name], f.operator, f.rhs):
         op = operation(
@@ -92,6 +152,9 @@ def add_filter(f, filters, table, foreign_keys, joins):
             f.rhs)
         filters.append(op)
         return op
+    else:
+        filters.append(False)
+
     return None
 
 
@@ -131,7 +194,7 @@ class QueryBuilder:
             simplify=True):
         self.connection = connection
         self.table = table
-        self.filter = filter if filter else []
+        self.filter = filter if filter else OrOp()
         self.order = order if order else []
         self.limit = limit
         self.aliases = {}
@@ -177,37 +240,14 @@ class QueryBuilder:
 
             logger.debug('Search fields: %s', search_fields)
 
+            replace_filter(
+                self.filter, self.table, entity, comment, search_fields)
+
         logger.debug('Aliases: %s', self.aliases)
 
         filters = []
         if self.filter:
-            for f in self.filter:
-                logger.debug(
-                    'Filter: lhs=%s, op=%s, rhs=%s',
-                    f.lhs, f.operator, f.rhs)
-                if f.lhs != '':
-                    add_filter(f, filters, self.table, foreign_keys, joins)
-                elif search_fields:
-                    logger.debug('Search fields: %s', search_fields)
-                    rhs = f.rhs
-                    if rhs == '' and f.operator == '*':
-                        rhs = '%'
-                    ss = map(
-                        lambda s: operation(
-                            entity.columns[s], f.operator, rhs),
-                        filter(
-                            lambda s: s in entity.columns and allowed(
-                                entity.columns[s], f.operator, rhs),
-                            search_fields))
-                    if 'id' in comment.columns:
-                        col = self.table.column('id')
-                        if not col:
-                            raise UnknownColumnException(self.table, 'id')
-                        column = entity.columns[col.name]
-                        if allowed(column, f.operator, rhs):
-                            ss.append(operation(column, f.operator, rhs))
-                    logger.debug('Searches: %s', ss)
-                    filters.append(or_(*ss))
+            add_filters(self.filter, filters, self.table, joins)
 
         orders = []
         if self.order:

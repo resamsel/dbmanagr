@@ -9,6 +9,7 @@ from tests.generator import test_generator, params
 from tests.sources import init_sources
 from tests.testcase import ParentTestCase
 from dbnav import navigator
+from dbnav.exception import UnknownTableException
 
 DIR = path.dirname(__file__)
 TEST_CASES = map(
@@ -31,4 +32,13 @@ def load_suite():
         setattr(OutputTestCase, test_name, test)
     loader = unittest.TestLoader()
     suite = loader.loadTestsFromTestCase(OutputTestCase)
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(NavigatorTestCase))
     return suite
+
+
+class NavigatorTestCase(ParentTestCase):
+    def test_non_existent_table(self):
+        self.assertRaises(
+            UnknownTableException,
+            navigator.run, ['me@xyz.com.sqlite/blog?'])

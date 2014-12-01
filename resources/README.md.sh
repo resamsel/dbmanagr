@@ -275,7 +275,13 @@ A diff tool that compares the structure of two database tables with each other.
 \`\`\`
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-`python src/dbnav/version.py`-py2.7.egg?raw=true) from the dist directory.
+Install using PIP (recommended, as it also upgrades to the latest version):
+
+\`\`\`
+pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=dbnav
+\`\`\`
+
+As an alternative you may also install the [latest egg-file](dist/dbnav-`python src/dbnav/version.py`-py2.7.egg?raw=true) from the dist directory (deprecated):
 
 \`\`\`
 easy_install dbnav-`python src/dbnav/version.py`-py2.7.egg

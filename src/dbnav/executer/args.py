@@ -53,7 +53,13 @@ parser.add_argument(
     help='show progress after this amount of executions when inserting/'
          'updating large data sets (default: %(default)s)')
 parser.add_argument(
-    '-n',
+    '-t',
     '--table-name',
     default='__TABLE__',
     help='the table name for generic select statements (default: %(default)s)')
+parser.add_argument(
+    '-n',
+    '--dry-run',
+    action='store_true',
+    default=False,
+    help='Do a rollback after execution')

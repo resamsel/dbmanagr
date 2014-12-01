@@ -28,25 +28,18 @@ class SQLiteDatabase(Database):
 class SQLiteConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, path):
+    def __init__(self, uri, path):
+        DatabaseConnection.__init__(
+            self,
+            dbms='sqlite',
+            database=self.databases()[0],
+            uri=uri)
         self.path = path
         self.filename = basename(self.path)
         self.con = None
-        self.dbs = None
-        DatabaseConnection.__init__(
-            self,
-            dbs='sqlite',
-            database=self.databases()[0],
-            driver='sqlite')
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT % self.filename
-
-    def autocomplete(self):
-        return self.__repr__()
-
-    def title(self):
-        return self.__repr__()
 
     def subtitle(self):
         return 'SQLite Connection'
@@ -55,18 +48,18 @@ class SQLiteConnection(DatabaseConnection):
         return '%s%s' % (self.autocomplete(), table)
 
     def matches(self, options):
-        options = options.get(self.dbs)
+        options = options.get(self.dbms)
         if options.uri:
             return options.uri.startswith(self.filename)
         return False
 
     def filter(self, options):
-        options = options.get(self.dbs)
+        options = options.get(self.dbms)
         return not options.uri or options.uri in self.path
 
     @LogWith(logger)
     def connect(self, database=None):
-        self.connect_to('sqlite+pysqlite:///%s' % self.path)
+        self.connect_to(self.uri.format(file=self.path))
 
     def databases(self):
         return [SQLiteDatabase(self)]

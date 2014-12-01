@@ -71,8 +71,8 @@ Allows you to explore, visualise and export your database. Additionally allows t
 ### Usage
 ```
 usage: dbnav [-h] [--version] [-L LOGFILE]
-             [-l {critical,error,warning,info,debug}] [-T] [-D] [-S] [-J] [-X]
-             [-A] [-s] [-N] [-m LIMIT]
+             [-l {critical,error,warning,info,debug,trace}] [--trace] [-T]
+             [-D] [-S] [-J] [-X] [-A] [-s] [-N] [-m LIMIT]
              [uri]
 
 A database navigation tool that shows database structure and content
@@ -94,8 +94,9 @@ optional arguments:
 logging:
   -L LOGFILE, --logfile LOGFILE
                         the file to log to
-  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
+  -l {critical,error,warning,info,debug,trace}, --loglevel {critical,error,warning,info,debug,trace}
                         the minimum level to log
+  --trace               trace any exception that occurs
 
 formatters:
   -T, --test            output format: test specific
@@ -206,9 +207,9 @@ egardner1 | user.username
 8-(549)755-1011 | user.phone
 Female | user.gender
  | user.url
-← article.user_id | article.user_id
-← blog_user.user_id | blog_user.user_id
-← user_address.user_id | user_address.user_id
+← article.user_id | article.user_id -> user.id
+← blog_user.user_id | blog_user.user_id -> user.id
+← user_address.user_id | user_address.user_id -> user.id
 
 ## Database Visualisation
 Visualises the dependencies of a table using its foreign key references (forward and back references).
@@ -224,11 +225,11 @@ Visualises the dependencies of a table using its foreign key references (forward
 ### Usage
 ```
 usage: dbgraph [-h] [--version] [-L LOGFILE]
-               [-l {critical,error,warning,info,debug}] [-T] [-D] [-G] [-c]
-               [-C] [--back-references] [--no-back-references] [--driver]
-               [--no-driver] [--connection] [--no-connection] [--database]
-               [--no-database] [-M MAX_DEPTH] [-r | -i INCLUDE] [-x EXCLUDE]
-               [-v]
+               [-l {critical,error,warning,info,debug,trace}] [--trace] [-T]
+               [-D] [-G] [-c] [-C] [--back-references] [--no-back-references]
+               [--driver] [--no-driver] [--connection] [--no-connection]
+               [--database] [--no-database] [-M MAX_DEPTH] [-r | -i INCLUDE]
+               [-x EXCLUDE] [-v]
                uri
 
 A database visualisation tool that creates graphs from the database structure
@@ -272,8 +273,9 @@ optional arguments:
 logging:
   -L LOGFILE, --logfile LOGFILE
                         the file to log to
-  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
+  -l {critical,error,warning,info,debug,trace}, --loglevel {critical,error,warning,info,debug,trace}
                         the minimum level to log
+  --trace               trace any exception that occurs
 
 formatters:
   -T, --test            output format: test specific
@@ -373,9 +375,9 @@ Exports specific rows from the database along with their references rows from ot
 ### Usage
 ```
 usage: dbexport [-h] [--version] [-L LOGFILE]
-                [-l {critical,error,warning,info,debug}] [-T] [-I] [-U] [-D]
-                [-Y] [-F] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT] [-p PACKAGE]
-                [-f FORMAT]
+                [-l {critical,error,warning,info,debug,trace}] [--trace] [-T]
+                [-I] [-U] [-D] [-Y] [-F] [-i INCLUDE] [-x EXCLUDE] [-m LIMIT]
+                [-p PACKAGE] [-f FORMAT]
                 uri
 
 An export tool that exports database rows in different formats.
@@ -407,8 +409,9 @@ optional arguments:
 logging:
   -L LOGFILE, --logfile LOGFILE
                         the file to log to
-  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
+  -l {critical,error,warning,info,debug,trace}, --loglevel {critical,error,warning,info,debug,trace}
                         the minimum level to log
+  --trace               trace any exception that occurs
 
 formatters:
   -T, --test            output format: test specific
@@ -485,8 +488,8 @@ Executes the SQL statements from the given file on the database specified by the
 ### Usage
 ```
 usage: dbexec [-h] [--version] [-L LOGFILE]
-              [-l {critical,error,warning,info,debug}] [-T] [-D] [-I]
-              [-s STATEMENTS] [-p PROGRESS] [-n TABLE_NAME]
+              [-l {critical,error,warning,info,debug,trace}] [--trace] [-T]
+              [-D] [-I] [-s STATEMENTS] [-p PROGRESS] [-t TABLE_NAME] [-n]
               uri [infile]
 
 Executes the SQL statements from the given file on the database specified by
@@ -507,15 +510,17 @@ optional arguments:
   -p PROGRESS, --progress PROGRESS
                         show progress after this amount of executions when
                         inserting/updating large data sets (default: -1)
-  -n TABLE_NAME, --table-name TABLE_NAME
+  -t TABLE_NAME, --table-name TABLE_NAME
                         the table name for generic select statements (default:
                         __TABLE__)
+  -n, --dry-run         Do a rollback after execution
 
 logging:
   -L LOGFILE, --logfile LOGFILE
                         the file to log to
-  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
+  -l {critical,error,warning,info,debug,trace}, --loglevel {critical,error,warning,info,debug,trace}
                         the minimum level to log
+  --trace               trace any exception that occurs
 
 formatters:
   -T, --test            output format: test specific
@@ -529,8 +534,8 @@ A diff tool that compares the structure of two database tables with each other.
 ### Usage
 ```
 usage: dbdiff [-h] [--version] [-L LOGFILE]
-              [-l {critical,error,warning,info,debug}] [-T] [-D] [-S] [-v]
-              [-c]
+              [-l {critical,error,warning,info,debug,trace}] [--trace] [-T]
+              [-D] [-S] [-v] [-c]
               left right
 
 A diff tool that compares the structure of two database tables with each
@@ -555,8 +560,9 @@ optional arguments:
 logging:
   -L LOGFILE, --logfile LOGFILE
                         the file to log to
-  -l {critical,error,warning,info,debug}, --loglevel {critical,error,warning,info,debug}
+  -l {critical,error,warning,info,debug,trace}, --loglevel {critical,error,warning,info,debug,trace}
                         the minimum level to log
+  --trace               trace any exception that occurs
 
 formatters:
   -T, --test            output format: test specific
@@ -599,10 +605,16 @@ company TEXT(255)                          <
 ```
 
 ## Installation
-Install the [latest egg-file](dist/dbnav-0.16-py2.7.egg?raw=true) from the dist directory.
+Install using PIP (recommended, as it also upgrades to the latest version):
 
 ```
-easy_install dbnav-0.16-py2.7.egg
+pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=dbnav
+```
+
+As an alternative you may also install the [latest egg-file](dist/dbnav-0.17.0-py2.7.egg?raw=true) from the dist directory (deprecated):
+
+```
+easy_install dbnav-0.17.0-py2.7.egg
 ```
 
 ### Install Dependencies

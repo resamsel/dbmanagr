@@ -69,12 +69,12 @@ class PostgreSQLDatabase(Database):
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, driver, host, port, database, user, password):
+    def __init__(self, uri, host, port, database, user, password):
         DatabaseConnection.__init__(
             self,
-            dbs='postgresql',
+            dbms='postgresql',
             database=database,
-            driver=driver)
+            uri=uri)
         self.host = host
         self.port = port
         self.user = user
@@ -102,13 +102,13 @@ class PostgreSQLConnection(DatabaseConnection):
         return 'PostgreSQL Connection'
 
     def matches(self, options):
-        options = options.get(self.dbs)
+        options = options.get(self.dbms)
         if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
     def filter(self, options):
-        options = options.get(self.dbs)
+        options = options.get(self.dbms)
         matches = True
 
         if options.user:
@@ -128,8 +128,7 @@ class PostgreSQLConnection(DatabaseConnection):
         if database:
             try:
                 self.connect_to(
-                    '{driver}://{user}:{password}@{host}/{database}'.format(
-                        driver=self.driver,
+                    self.uri.format(
                         user=self.user,
                         password=self.password,
                         host=self.host,
@@ -137,19 +136,19 @@ class PostgreSQLConnection(DatabaseConnection):
                 self.database = database
             except OperationalError:
                 self.connect_to(
-                    '{driver}://{user}:{password}@{host}/'.format(
-                        driver=self.driver,
+                    self.uri.format(
                         user=self.user,
                         password=self.password,
-                        host=self.host))
+                        host=self.host,
+                        database=''))
                 database = None
         else:
             self.connect_to(
-                '{driver}://{user}:{password}@{host}/'.format(
-                    driver=self.driver,
+                self.uri.format(
                     user=self.user,
                     password=self.password,
-                    host=self.host))
+                    host=self.host,
+                    database=''))
 
     def databases(self):
         # does not yet work with sqlalchemy...

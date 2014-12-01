@@ -8,10 +8,10 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.engine import reflection
 
 from dbnav.logger import logduration, LogWith
-from dbnav.exception import UnknownColumnException
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
 from dbnav.utils import tostring
+from dbnav.exception import UnknownTableException
 from dbnav.model import DEFAULT_LIMIT
 from dbnav.model.column import create_column
 from dbnav.model.baseitem import BaseItem
@@ -30,60 +30,49 @@ OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
 
 @LogWith(logger)
-def foreign_key_or_column(table, column, foreign_keys):
-    if column in foreign_keys:
-        return foreign_keys[column]
+def foreign_key_or_column(table, column):
+    fk = table.foreign_key(column)
+    if fk:
+        return fk
     return table.column(column)
 
 
 @LogWith(logger)
 def val(row, column):
-    colname = '%s_title' % column
-    if colname in row.row.keys():
-        return u'%s (%s)' % (row[colname], row[column])
-    if column in row.row.keys():
-        return row[tostring(column)]
     return row[tostring(column)]
 
 
 def forward_references(row, table, keys, aliases):
-    foreign_keys = table.fks
+    foreign_keys = table.foreign_keys()
     alias = aliases[table.name]
 
     refs = []
     for key in keys:
-        value = val(row, key)
-        logger.debug('%s in table.fks: %s', key, foreign_keys.keys())
-        _key = key.replace('{0}_'.format(alias), '', 1)
-        logger.debug('_key: %s', _key)
+        k = key.replace('{0}_'.format(alias), '', 1)
         if key in foreign_keys:
             # Key is a foreign key column
             fk = foreign_keys[key]
             autocomplete = fk.b.table.autocomplete(
                 fk.b.name, row[tostring(key)])
-        elif table.column(_key).primary_key:
+        elif table.column(k).primary_key:
             # Key is a simple column, but primary key
             autocomplete = table.autocomplete(
-                _key,
-                row[tostring(key)],
-                OPTION_URI_SINGLE_ROW_FORMAT)
+                k, row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
         else:
             # Key is a simple column
             autocomplete = table.autocomplete(
-                _key,
-                row[tostring(key)],
-                OPTION_URI_MULTIPLE_ROWS_FORMAT)
-        f = foreign_key_or_column(table, _key, foreign_keys)
+                k, row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
+        f = foreign_key_or_column(table, k)
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
             kind = KIND_FOREIGN_KEY
-        refs.append(Value(value, f, autocomplete, True, kind))
+        refs.append(Value(row[tostring(key)], f, autocomplete, True, kind))
 
     return refs
 
 
 def back_references(row, table, aliases):
-    foreign_keys = table.fks
+    foreign_keys = table.foreign_keys()
 
     refs = []
     for key in sorted(
@@ -101,7 +90,7 @@ def back_references(row, table, aliases):
             refs.append(
                 Value(
                     fk.a,
-                    foreign_key_or_column(fk.a.table, fk.a.name, foreign_keys),
+                    foreign_key_or_column(fk.a.table, fk.a.name),
                     autocomplete,
                     False,
                     KIND_FOREIGN_VALUE))
@@ -141,88 +130,37 @@ def values(connection, table, filter):
         'Values',
         mapper)
 
-    row = Row(connection, table, result)
+    row = Row(table, result)
 
     if keys is None:
         keys = sorted(
             row.row.keys(),
             key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
 
-    logger.debug('Keys: %s', keys)
-
-    values = forward_references(
-        row, table, keys, builder.aliases)
-    values += back_references(
-        row, table, builder.aliases)
+    values = forward_references(row, table, keys, builder.aliases)
+    values += back_references(row, table, builder.aliases)
 
     return values
 
 
-class DatabaseRow:
-    columns = {
-        'id': 1,
-        'title': 'Title',
-        'subtitle': 'Subtitle',
-        'column_name': 'column',
-        0: '0',
-        1: '1',
-        'column': 'col'
-    }
-
-    def __init__(self, *args):
-        self.columns = DatabaseRow.columns.copy()
-        if len(args) > 0:
-            self.columns.update(args[0])
-            if 'id' not in self.columns:
-                self.columns['id'] = 0
-
-    @LogWith(logger)
-    def __getitem__(self, i):
-        if i is None:
-            return None
-        if type(i) is str and i not in self.columns:
-            raise UnknownColumnException(None, i, map(
-                lambda (k, v): k,
-                filter(
-                    lambda (k, v): type(k) is str,
-                    self.columns.iteritems())))
-        return self.columns[i]
-
-    def __contains__(self, item):
-        return item in self.columns
-
-
-class Cursor:
-    def execute(self, query):
-        pass
-
-    def fetchone(self):
-        return DatabaseRow()
-
-    def fetchall(self):
-        return [DatabaseRow()]
-
-
 class DatabaseConnection(BaseItem):
     def __init__(self, **kwargs):
-        self.dbs = kwargs.get('dbs', None)
+        self.dbms = kwargs.get('dbms', None)
         self.database = kwargs.get('database', None)
-        self.driver = kwargs.get('driver', None)
+        self.uri = kwargs.get('uri', None)
         self._inspector = None
         self._meta = None
         self._tables = kwargs.get('tbls', None)
         self._comments = kwargs.get('comments', None)
 
     def title(self):
-        return 'Title'
+        return self.__repr__()
 
     def subtitle(self):
-        return 'Subtitle'
+        return 'Generic Connection'
 
     def autocomplete(self):
-        """Retrieves the autocomplete string"""
-
-        return 'Autocomplete'
+        return self.__repr__()
 
     def icon(self):
         return 'images/connection.png'
@@ -259,18 +197,17 @@ class DatabaseConnection(BaseItem):
 
             tables = self.tables()
             if options.table not in tables:
-                raise Exception(
-                    "Could not find table '{0}' on {1} ({2})".format(
-                        options.table, self, self.dbs))
+                raise UnknownTableException(options.table, tables.keys())
 
             table = tables[options.table]
             if options.show == 'columns':
                 logger.debug('columns, check filter=%s', options.filter)
                 if not options.filter:
                     raise Exception("No filter given")
-                if len(options.filter) > 0 and options.filter[-1].rhs is None:
+                if (len(options.filter) > 0
+                        and options.filter.last().rhs is None):
                     return sorted(
-                        table.columns(options.filter[-1].lhs),
+                        table.columns(options.filter.last().lhs),
                         key=lambda c: c.name.lower())
                 else:
                     return sorted(
@@ -289,8 +226,8 @@ class DatabaseConnection(BaseItem):
     def connect(self, database):
         pass
 
+    @LogWith(logger)
     def connect_to(self, source):
-        logger.debug('Connecting to %s', source)
         self.engine = create_engine(source)
         self.con = self.engine.connect()
 
@@ -439,7 +376,6 @@ class DatabaseConnection(BaseItem):
 
     def __getstate__(self):
         state = dict(self.__dict__)
-        logger.debug('State: %s' % state)
         if 'con' in state:
             del state['con']
         return state

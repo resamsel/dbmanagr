@@ -8,6 +8,7 @@ from dbnav.writer import Writer
 from dbnav import decorator
 from dbnav.config import Config
 from dbnav.sources import Source
+from dbnav.exception import UnknownTableException
 from .args import parser
 from .writer import DiffWriter
 
@@ -30,26 +31,22 @@ class DatabaseDiffer:
         lcon = Source.connection(left)
         if not lcon:
             raise Exception('Could not find connection {0}'.format(left.uri))
-        lopts = left.get(lcon.driver)
+        lopts = left.get(lcon.dbms)
         rcon = Source.connection(right)
         if not rcon:
             raise Exception('Could not find connection {0}'.format(right.uri))
-        ropts = right.get(rcon.driver)
+        ropts = right.get(rcon.dbms)
 
         try:
             lcon.connect(lopts.database)
             rcon.connect(ropts.database)
             ltables = lcon.tables()
             if lopts.table not in ltables:
-                raise Exception(
-                    "Could not find table '{0}' in left connection".format(
-                        lopts.table))
+                raise UnknownTableException(lopts.table, ltables.keys())
             ltable = ltables[lopts.table]
             rtables = rcon.tables()
             if ropts.table not in rtables:
-                raise Exception(
-                    "Could not find table '{0}' in right connection".format(
-                        ropts.table))
+                raise UnknownTableException(ropts.table, rtables.keys())
             rtable = rtables[ropts.table]
 
             lcols = map(
@@ -84,7 +81,7 @@ class DatabaseDiffer:
 
 @decorator
 def main():
-    return run(sys.argv)
+    return run(sys.argv[1:])
 
 
 def run(argv):

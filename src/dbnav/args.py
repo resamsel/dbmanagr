@@ -7,10 +7,14 @@ import logging
 
 from dbnav.writer import TestWriter
 from dbnav.version import __version__
+from dbnav import __drivers__
 
 
 class LogLevel(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
+        if values == 'trace':
+            values = 'debug'
+            setattr(namespace, 'trace', True)
         setattr(
             namespace,
             self.dest,
@@ -29,7 +33,8 @@ def parent_parser():
     parser.add_argument(
         '--version',
         action='version',
-        version='%(prog)s {0}'.format(__version__))
+        version='%(prog)s {version} (drivers: {drivers})'.format(
+            version=__version__, drivers=', '.join(__drivers__)))
     group = parser.add_argument_group('logging')
     group.add_argument(
         '-L',
@@ -42,8 +47,13 @@ def parent_parser():
         '--loglevel',
         action=LogLevel,
         default=logging.WARNING,
-        choices=['critical', 'error', 'warning', 'info', 'debug'],
+        choices=['critical', 'error', 'warning', 'info', 'debug', 'trace'],
         help='the minimum level to log')
+    group.add_argument(
+        '--trace',
+        action='store_true',
+        default=False,
+        help='trace any exception that occurs')
     return parser
 
 

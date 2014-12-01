@@ -82,8 +82,10 @@ def create_comment(table, comment, counter, aliases, alias):
     for (k, v) in filter(
             lambda (k, v): v.a.table.name == table.name,
             table.foreign_keys().iteritems()):
-        caliases.update(
-            column_aliases(v.b.table.columns(), aliases[v.b.table.name]))
+        caliases.update(filter(
+            lambda (k, v): k not in caliases.keys(),
+            column_aliases(
+                v.b.table.columns(), aliases[v.b.table.name]).iteritems()))
 
     logger.debug('Column aliases: %s', caliases)
 

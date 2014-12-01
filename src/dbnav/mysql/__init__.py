@@ -5,16 +5,21 @@ __all__ = ["databaseconnection", "sources"]
 
 from os.path import expanduser
 from os import getenv
+from collections import OrderedDict
 
+from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
 from dbnav.mysql.sources import DBExplorerMySQLSource, MypassSource
 from dbnav.options import Options
 from dbnav.mysql.options import MySQLOptionsParser
 
-DRIVERS = {
-    'MySQLdb': 'mysqldb'
-}
+DRIVERS = OrderedDict([
+    ('MySQLdb', 'mysql+mysqldb://{user}:{password}@{host}/{database}'
+                '?charset=utf8&use_unicode=0'),
+    ('oursql', 'mysql+oursql://{user}:{password}@{host}/{database}'),
+    ('pymysql', 'mysql+pymysql://{user}:{password}@{host}/{database}'),
+])
 
 
 def init_mysql(driver, dbexplorer_config, mypass_config):
@@ -27,6 +32,7 @@ def init():
     if not module:
         return
 
+    __drivers__.append(module)
     init_mysql(
         DRIVERS[module],
         getenv(

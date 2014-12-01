@@ -13,6 +13,7 @@ from dbnav.logger import LogWith
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.writer import Writer
+from dbnav.exception import UnknownTableException
 
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
@@ -125,7 +126,7 @@ class DatabaseGrapher:
 
         # search exact match of connection
         for connection in cons:
-            opts = options.get(connection.dbs)
+            opts = options.get(connection.dbms)
             if connection.matches(opts) and opts.show in [
                     'tables', 'columns', 'values']:
                 return DatabaseGrapher.build(connection, opts)
@@ -139,14 +140,13 @@ class DatabaseGrapher:
             connection.connect(opts.database)
             tables = connection.tables()
             if opts.table not in tables:
-                raise Exception(
-                    "Could not find table '{0}'".format(opts.table))
+                raise UnknownTableException(opts.table, tables.keys())
             table = tables[opts.table]
             nodes = []
             indent = 0
             if opts.include_driver:
                 nodes.append(
-                    NameNode(connection.dbs, indent=indent))
+                    NameNode(connection.dbms, indent=indent))
                 indent += 1
             if opts.include_connection:
                 nodes.append(NameNode(str(connection), indent=indent))
@@ -180,7 +180,7 @@ class DatabaseGrapher:
 
 @decorator
 def main():
-    return run(sys.argv)
+    return run(sys.argv[1:])
 
 
 def run(argv):

@@ -52,7 +52,6 @@ def test_generator(f, command, dir, tc, parameters=None):
     def test(self):
         p, e = params(dir, tc), expected(dir, tc)
         items = f.run([
-            command,
             '-l', 'debug',
             '-L', 'target/dbnavigator.log'] + parameters + p)
         actual = Writer.write(items)

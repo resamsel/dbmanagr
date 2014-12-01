@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import logging
 from dbnav.model.baseitem import BaseItem
 from dbnav.formatter import Formatter
 from dbnav.utils import dictminus
-
-logger = logging.getLogger(__name__)
 
 
 class Column(BaseItem):

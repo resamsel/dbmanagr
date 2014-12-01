@@ -16,7 +16,7 @@ SETUPTOOLS = $(PYTHON) setup.py
 DIST = dist
 PIP_DEPS = flake8 pep8-naming flake8-todo
 ACTUAL = $(TARGET)/testfiles/actual
-RESOURCES = resources/images resources/info.plist resources/5AD6B622-051E-41D9-A608-70919939967A.png
+RESOURCES = resources/alfred/*
 BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
 ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
@@ -29,10 +29,13 @@ assemble: init assemble-main assemble-alfred
 assemble-main:
 	$(SETUPTOOLS) bdist_egg
 
-assemble-alfred: $(RESOURCES)
+assemble-alfred: assemble-main $(RESOURCES)
 	rm -rf $(ALFRED)
 	mkdir -p $(ALFRED)
-	cp -r $^ $(ALFRED)
+	cp -r $(RESOURCES) $(ALFRED)
+	cp dist/dbnav*-py2.7.egg $(ALFRED)
+	sh $(ALFRED)/info.plist.sh
+	rm $(ALFRED)/info.plist.sh
 	rm -f $(ARCHIVE)
 	cd $(ALFRED); $(ZIP) -rq ../../$(ARCHIVE) . \
 		--exclude images/.DS_Store "images/dbnavigator.sketch/*"
