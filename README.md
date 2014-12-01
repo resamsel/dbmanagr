@@ -24,12 +24,6 @@ Allows you to explore, visualise and export your database. Additionally allows t
 	- [Examples](#examples-3)
 - [Installation](#installation)
 	- [Install Dependencies](#install-dependencies)
-- [Homebrew on Mac OS X](#homebrew-on-mac-os-x)
-- [For Debian based systems](#for-debian-based-systems)
-- [For Redhat based systems](#for-redhat-based-systems)
-- [Homebrew on Mac OS X](#homebrew-on-mac-os-x-1)
-- [For Debian based systems](#for-debian-based-systems-1)
-- [For Redhat based systems](#for-redhat-based-systems-1)
 	- [Alfred Workflow](#alfred-workflow)
 - [Connection Configuration](#connection-configuration)
 	- [Sample ~/.pgpass](#sample-pgpass)
@@ -624,11 +618,11 @@ You need PostgreSQL and MySQL installed to access those databases. [Homebrew](ht
 #### PostgreSQL
 
 ```
-## Homebrew on Mac OS X
+#- Homebrew on Mac OS X
 brew install postgresql9
-## For Debian based systems
+#- For Debian based systems
 #apt-get install postgresql
-## For Redhat based systems
+#- For Redhat based systems
 #yum install postgresql
 pip install psycopg2
 ```
@@ -636,11 +630,11 @@ pip install psycopg2
 #### MySQL
 
 ```
-## Homebrew on Mac OS X
+#- Homebrew on Mac OS X
 brew install mysql
-## For Debian based systems
+#- For Debian based systems
 #apt-get install mysql
-## For Redhat based systems
+#- For Redhat based systems
 #yum install mysql
 pip install mysql-python
 ```
