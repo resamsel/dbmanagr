@@ -98,3 +98,11 @@ def create_title(comment, columns, exclude=None):
 
 def hash(s):
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
+
+
+def unicode_decode(arg):
+    if type(arg) is list:
+        return map(unicode_decode, arg)
+    if type(arg) is unicode:
+        return arg
+    return arg.decode('utf-8')

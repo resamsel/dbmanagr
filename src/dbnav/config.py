@@ -4,7 +4,8 @@
 import logging
 
 from dbnav.logger import logger
-from .options import Options
+from dbnav.options import Options
+from dbnav.utils import unicode_decode
 
 # load sources
 import dbnav.sqlite as sqlite
@@ -19,7 +20,7 @@ mysql.init()
 class Config:
     @staticmethod
     def init(argv, parser):
-        options = Options(map(lambda arg: arg.decode("utf-8"), argv), parser)
+        options = Options(unicode_decode(argv), parser)
 
         logging.basicConfig(
             stream=options.logfile,

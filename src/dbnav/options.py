@@ -8,8 +8,9 @@ import datetime
 from sqlalchemy import Boolean, Float, Integer
 from sqlalchemy.types import TIMESTAMP
 
-from dbnav.queryfilter import QueryFilter
+from dbnav.queryfilter import QueryFilter, OrOp, AndOp
 
+OR_OPERATOR = '|'
 AND_OPERATOR = '&'
 OPERATORS = ['>=', '<=', '!=', '=', '~', '*', '>', '<', ':']
 
@@ -82,22 +83,25 @@ def format_value(column, value):
 
 
 def parse_filter(s):
-    filter = []
-    for term in s.split(AND_OPERATOR):
-        found = False
-        for operator in OPERATORS:
-            if operator in term:
-                f = term.split(operator, 1)
-                lhs = f[0]
-                rhs = f[1] if len(f) > 1 else None
-                if operator == ':':
-                    rhs = rhs.split(',')
-                filter.append(QueryFilter(lhs, operator, rhs))
-                found = True
-                break
-        if not found:
-            filter.append(QueryFilter(term))
-    return filter
+    _or = OrOp()
+    for t in s.split(OR_OPERATOR):
+        _and = AndOp()
+        for term in t.split(AND_OPERATOR):
+            found = False
+            for operator in OPERATORS:
+                if operator in term:
+                    f = term.split(operator, 1)
+                    lhs = f[0]
+                    rhs = f[1] if len(f) > 1 else None
+                    if operator == ':':
+                        rhs = rhs.split(',')
+                    _and.append(QueryFilter(lhs, operator, rhs))
+                    found = True
+                    break
+            if not found:
+                _and.append(QueryFilter(term))
+        _or.append(_and)
+    return _or
 
 
 class Filter:

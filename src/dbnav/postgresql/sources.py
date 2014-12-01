@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
 from plistlib import readPlist
@@ -8,6 +10,8 @@ from os.path import isfile
 
 from dbnav.sources import Source
 from .databaseconnection import PostgreSQLConnection
+
+logger = logging.getLogger(__name__)
 
 
 class PgpassSource(Source):
@@ -43,7 +47,9 @@ class DBExplorerPostgreSQLSource(Source):
         if not self.connections:
             try:
                 tree = ET.parse(self.file)
-            except IOError:
+            except Exception as e:
+                logger.warn(
+                    'Error parsing dbExplorer config file: %s', e.message)
                 return []
             root = tree.getroot()
             for c in root.iter('connection'):
@@ -62,8 +68,9 @@ class DBExplorerPostgreSQLSource(Source):
 
 
 class NavicatPostgreSQLSource(Source):
-    def __init__(self, file):
+    def __init__(self, driver, file):
         Source.__init__(self)
+        self.driver = driver
         self.file = file
 
     def list(self):
@@ -72,11 +79,12 @@ class NavicatPostgreSQLSource(Source):
         if not self.connections:
             plist = readPlist(self.file)
 
-            for k, v in plist['PostgreSQL']['servers'].items():
-                # The key is a big problem here: it is encrypted
-                connection = PostgreSQLConnection(
-                    v['host'], v['port'],
-                    v['defaultdatabase'], v['username'], v['key'])
-                self.connections.append(connection)
+            if 'PostgreSQL' in plist:
+                for k, v in plist['PostgreSQL']['servers'].items():
+                    # The key is a big problem here: it is encrypted
+                    connection = PostgreSQLConnection(
+                        v['host'], v['port'],
+                        v['defaultdatabase'], v['username'], v['key'])
+                    self.connections.append(connection)
 
         return self.connections

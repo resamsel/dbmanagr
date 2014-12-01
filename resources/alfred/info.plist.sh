@@ -100,7 +100,7 @@ cat <<EOF > $DIR/info.plist
 				<key>runningsubtext</key>
 				<string>Searching...</string>
 				<key>script</key>
-				<string>/usr/local/bin/dbnav -X "skiline@localhost/skiline/resort?~{query}%"</string>
+				<string>python alfred.py "skiline@localhost/skiline/resort?id={query}|~{query}%"</string>
 				<key>title</key>
 				<string>Skiresort</string>
 				<key>type</key>
@@ -118,6 +118,18 @@ cat <<EOF > $DIR/info.plist
 	</array>
 	<key>readme</key>
 	<string></string>
+	<key>uidata</key>
+	<dict>
+		<key>0A1E5AF5-6A96-4EE2-87E3-BBA9B66FDF79</key>
+		<dict/>
+		<key>45B74738-9B9E-470A-B263-574B8C226CE8</key>
+		<dict>
+			<key>ypos</key>
+			<real>130</real>
+		</dict>
+		<key>5AD6B622-051E-41D9-A608-70919939967A</key>
+		<dict/>
+	</dict>
 	<key>webaddress</key>
 	<string>http://resamsel.com</string>
 </dict>

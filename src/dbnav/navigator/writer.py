@@ -4,7 +4,6 @@
 from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, AutocompleteFormatter, XmlFormatter
 from dbnav.formatter import JsonFormatter, SimpleFormatter, SimplifiedFormatter
-from dbnav.item import Item
 
 
 class SimplifiedWriter(FormatWriter):
@@ -21,12 +20,6 @@ class XmlWriter(FormatWriter):
 {0}
 </items>""")
         Formatter.set(XmlFormatter())
-
-    def write(self, items):
-        if not items:
-            items = [Item(
-                None, 'Nothing found', '', '', 'no', 'images/icon.png')]
-        return self.str(items)
 
 
 class JsonWriter(FormatWriter):

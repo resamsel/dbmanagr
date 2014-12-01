@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import logging
+
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
 from os.path import isfile
 
 from dbnav.sources import Source
 from .databaseconnection import MySQLConnection
+
+logger = logging.getLogger(__name__)
 
 
 class MypassSource(Source):
@@ -42,7 +46,9 @@ class DBExplorerMySQLSource(Source):
         if not self.connections:
             try:
                 tree = ET.parse(self.file)
-            except IOError:
+            except Exception as e:
+                logger.warn(
+                    'Error parsing dbExplorer config file: %s', e.message)
                 return []
             root = tree.getroot()
             for c in root.iter('connection'):

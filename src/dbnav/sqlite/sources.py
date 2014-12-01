@@ -27,7 +27,9 @@ class DBExplorerSQLiteSource(Source):
         if not self.connections:
             try:
                 tree = ET.parse(self.file)
-            except IOError:
+            except Exception as e:
+                logger.warn(
+                    'Error parsing dbExplorer config file: %s', e.message)
                 return []
             root = tree.getroot()
             for c in root.iter('connection'):

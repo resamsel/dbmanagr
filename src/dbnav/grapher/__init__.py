@@ -13,6 +13,7 @@ from dbnav.logger import LogWith
 from dbnav.utils import prefixes, remove_prefix
 from dbnav.node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.writer import Writer
+from dbnav.exception import UnknownTableException
 
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
@@ -139,8 +140,7 @@ class DatabaseGrapher:
             connection.connect(opts.database)
             tables = connection.tables()
             if opts.table not in tables:
-                raise Exception(
-                    "Could not find table '{0}'".format(opts.table))
+                raise UnknownTableException(opts.table, tables.keys())
             table = tables[opts.table]
             nodes = []
             indent = 0

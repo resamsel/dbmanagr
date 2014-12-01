@@ -1,2 +1,13 @@
 Title	Autocomplete
-Could not find table 'blog' on me@xyz.com.sqlite/ (sqlite)	
+Z_ENT	me@xyz.com.sqlite/ZSUBTASK?Z_ENT
+Z_OPT	me@xyz.com.sqlite/ZSUBTASK?Z_OPT
+Z_PK	me@xyz.com.sqlite/ZSUBTASK?Z_PK
+ZCREATOR	me@xyz.com.sqlite/ZSUBTASK?ZCREATOR
+ZDONE	me@xyz.com.sqlite/ZSUBTASK?ZDONE
+ZID_SUBTASK	me@xyz.com.sqlite/ZSUBTASK?ZID_SUBTASK
+ZISDELETING	me@xyz.com.sqlite/ZSUBTASK?ZISDELETING
+ZPOSITION	me@xyz.com.sqlite/ZSUBTASK?ZPOSITION
+ZTASK	me@xyz.com.sqlite/ZSUBTASK?ZTASK
+ZTIME_CREATED	me@xyz.com.sqlite/ZSUBTASK?ZTIME_CREATED
+ZTIME_LASTCHANGE	me@xyz.com.sqlite/ZSUBTASK?ZTIME_LASTCHANGE
+ZTITLE	me@xyz.com.sqlite/ZSUBTASK?ZTITLE

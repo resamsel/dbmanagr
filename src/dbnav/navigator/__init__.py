@@ -7,7 +7,6 @@ import sys
 from dbnav.logger import LogWith
 from dbnav import decorator
 from dbnav.config import Config
-from dbnav.item import Item
 from dbnav.writer import Writer
 from dbnav.sources import Source
 from .args import parser
@@ -38,8 +37,8 @@ class DatabaseNavigator:
 
         # print all connections
         return sorted(
-                [c for c in cons if c.filter(options)],
-                key=lambda c: c.title().lower())
+            [c for c in cons if c.filter(options)],
+            key=lambda c: c.title().lower())
 
 
 @decorator
@@ -57,11 +56,8 @@ def run(argv):
 
     try:
         return DatabaseNavigator.navigate(options)
-    except BaseException, e:
-        if Writer.writer.__class__.__name__ in ['XmlWriter', 'TestWriter']:
-            return [Item('', unicode(e), e.__class__, '', False, '')]
-        else:
-            raise
+    except BaseException:
+        raise
 
 if __name__ == "__main__":
     main()

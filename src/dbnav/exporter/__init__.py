@@ -15,7 +15,7 @@ from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
 from dbnav.formatter import Formatter
 from dbnav.writer import Writer
-from dbnav.exception import UnknownColumnException
+from dbnav.exception import UnknownColumnException, UnknownTableException
 
 from .args import parser, SqlInsertWriter
 
@@ -92,7 +92,7 @@ def create_items(connection, items, include, exclude):
                 connection,
                 connection.rows(
                     fk.b.table,
-                    [QueryFilter(fk.b.name, 'in', includes[fk])],
+                    QueryFilter(fk.b.name, 'in', includes[fk]),
                     limit=-1,
                     simplify=False),
                 remove_prefix(fk.a.name, include),
@@ -103,7 +103,7 @@ def create_items(connection, items, include, exclude):
                 connection,
                 connection.rows(
                     fk.a.table,
-                    [QueryFilter(fk.a.name, 'in', includes[fk])],
+                    QueryFilter(fk.a.name, 'in', includes[fk]),
                     limit=-1,
                     simplify=False),
                 remove_prefix(fk.a.table.name, include),
@@ -136,8 +136,7 @@ class DatabaseExporter:
                     connection.connect(opts.database)
                     tables = connection.tables()
                     if opts.table not in tables:
-                        raise Exception(
-                            "Could not find table '{0}'".format(opts.table))
+                        raise UnknownTableException(opts.table, tables.keys())
                     table = tables[opts.table]
                     items = create_items(
                         connection,

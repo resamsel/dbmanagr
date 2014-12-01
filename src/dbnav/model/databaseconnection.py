@@ -11,6 +11,7 @@ from dbnav.logger import logduration, LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
 from dbnav.utils import tostring
+from dbnav.exception import UnknownTableException
 from dbnav.model import DEFAULT_LIMIT
 from dbnav.model.column import create_column
 from dbnav.model.baseitem import BaseItem
@@ -196,18 +197,17 @@ class DatabaseConnection(BaseItem):
 
             tables = self.tables()
             if options.table not in tables:
-                raise Exception(
-                    "Could not find table '{0}' on {1} ({2})".format(
-                        options.table, self, self.dbms))
+                raise UnknownTableException(options.table, tables.keys())
 
             table = tables[options.table]
             if options.show == 'columns':
                 logger.debug('columns, check filter=%s', options.filter)
                 if not options.filter:
                     raise Exception("No filter given")
-                if len(options.filter) > 0 and options.filter[-1].rhs is None:
+                if (len(options.filter) > 0
+                        and options.filter.last().rhs is None):
                     return sorted(
-                        table.columns(options.filter[-1].lhs),
+                        table.columns(options.filter.last().lhs),
                         key=lambda c: c.name.lower())
                 else:
                     return sorted(

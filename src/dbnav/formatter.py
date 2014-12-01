@@ -61,7 +61,7 @@ class SimplifiedFormatter(DefaultFormatter):
             autocomplete=self.escape(item.autocomplete),
             uid=self.escape(item.uid),
             validity=self.escape(
-                {True: 'yes', False: 'no'}.get(item.valid, 'yes')),
+                {True: 'yes', False: 'no'}.get(item.validity, 'yes')),
             icon=self.escape(item.icon),
             value=self.escape(item.value))
 
