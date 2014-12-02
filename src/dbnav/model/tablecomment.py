@@ -41,7 +41,7 @@ accurate information"""
         if COMMENT_ID in d:
             self.id = d[COMMENT_ID]
         if COMMENT_TITLE in d and self.id:
-            d[COMMENT_TITLE] = '{0}.%s' % self.id
+            d[COMMENT_TITLE] = u'{0}.%s' % self.id
         if COMMENT_TITLE in d:
             self.title = d[COMMENT_TITLE]
         if COMMENT_SUBTITLE in d:

@@ -28,13 +28,11 @@ def main(wf):
 
 if __name__ == '__main__':
     wf = Workflow(
-        libraries=['dbnav-0.16-py2.7.egg'],
+        libraries=["dbnav-{}-py2.7.egg".format(__version__)],
         update_settings={
             # Your username and the workflow's repo's name
             'github_slug': 'resamsel/dbnavigator',
             # The version (i.e. release/tag) of the installed workflow
-            'version': __version__,
-            # Optional number of days between checks for updates
-            'frequency': 1
+            'version': __version__
         })
     sys.exit(wf.run(main))

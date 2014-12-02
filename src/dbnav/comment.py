@@ -37,9 +37,9 @@ def update_aliases(tablename, counter, aliases, foreign_keys):
             # We already know this alias
             continue
         if fktable.name in counter:
-            alias_format = '_{0}{1}'
+            alias_format = u'_{0}{1}'
         else:
-            alias_format = '_{0}'
+            alias_format = u'_{0}'
         counter[fktable.name] += 1
         aliases[fktable.name] = alias_format.format(
             fktable.name, counter[fktable.name])
@@ -49,7 +49,7 @@ def update_aliases(tablename, counter, aliases, foreign_keys):
 @LogWith(logger)
 def column_aliases(columns, alias):
     return dict(map(
-        lambda col: (col.name, '{{{0}_{1}}}'.format(alias, col.name)),
+        lambda col: (col.name, u'{{{0}_{1}}}'.format(alias, col.name)),
         columns))
 
 
@@ -66,7 +66,7 @@ def create_comment(table, comment, counter, aliases, alias):
         if alias:
             aliases[table.name] = alias
         else:
-            aliases[table.name] = '_{}'.format(table.name)
+            aliases[table.name] = u'_{}'.format(table.name)
 
     alias = aliases[table.name]
 
@@ -102,7 +102,7 @@ def create_comment(table, comment, counter, aliases, alias):
         id = comment.id.format(**caliases)
     else:
         if primary_key:
-            id = '{{{0}_{1}}}'.format(alias, primary_key)
+            id = u'{{{0}_{1}}}'.format(alias, primary_key)
         else:
             id = "-"
 
@@ -124,13 +124,13 @@ def create_comment(table, comment, counter, aliases, alias):
             d = dict(map(lambda k: (k.name, k.name), table.columns()))
             search.append(subtitle.format(**d))
 
-            subtitle = '{0} (id={1})'.format(subtitle.format(**caliases), id)
+            subtitle = u'{0} (id={1})'.format(subtitle.format(**caliases), id)
 
         if not subtitle:
             if name == primary_key:
-                subtitle = "'%s'" % name
+                subtitle = u"'%s'" % name
             else:
-                subtitle = "%s (id=%s)" % (caliases[name], id)
+                subtitle = u"%s (id=%s)" % (caliases[name], id)
 
     if comment.order:
         order = comment.order
@@ -138,10 +138,10 @@ def create_comment(table, comment, counter, aliases, alias):
         order = []
 
     if display:
-        display = map(lambda d: '{0}_{1}'.format(alias, d), display)
+        display = map(lambda d: u'{0}_{1}'.format(alias, d), display)
     else:
         for column in table.columns():
-            display.append('{0}_{1}'.format(alias, column.name))
+            display.append(u'{0}_{1}'.format(alias, column.name))
 
     if primary_key in [c.name for c in table.columns()]:
         columns[primary_key] = id
