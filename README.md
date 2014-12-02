@@ -41,7 +41,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ## Database Navigation
 
-Documentation: [Navigator](wiki/Navigator)
+Documentation: [Navigator](https://github.com/resamsel/dbnavigator/wiki/Navigator)
 
 ### Features
 
@@ -59,7 +59,7 @@ Documentation: [Navigator](wiki/Navigator)
 
 Visualises the dependencies of a table using its foreign key references (forward and back references).
 
-Documentation: [Grapher](wiki/Grapher)
+Documentation: [Grapher](https://github.com/resamsel/dbnavigator/wiki/Grapher)
 
 ### Features
 * Optionally display columns as well as references
@@ -73,7 +73,7 @@ Documentation: [Grapher](wiki/Grapher)
 
 Exports specific rows from the database along with their references rows from other tables.
 
-Documentation: [Exporter](wiki/Exporter)
+Documentation: [Exporter](https://github.com/resamsel/dbnavigator/wiki/Exporter)
 
 ### Features
 * Exports the rows matching the given URI as SQL insert statements
@@ -86,13 +86,13 @@ Documentation: [Exporter](wiki/Exporter)
 
 Executes the SQL statements from the given file on the database specified by the given URI.
 
-Documentation: [Executer](wiki/Executer)
+Documentation: [Executer](https://github.com/resamsel/dbnavigator/wiki/Executer)
 
 ## Database Differ
 
 A diff tool that compares the structure of two database tables with each other.
 
-Documentation: [Differ](wiki/Differ)
+Documentation: [Differ](https://github.com/resamsel/dbnavigator/wiki/Differ)
 
 ## Installation
 
@@ -102,7 +102,7 @@ Installation using PIP is recommended, as it also upgrades to the latest version
 pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=dbnav
 ```
 
-More information and installation options can be found on the [Installation Wiki Page](wiki/Installation).
+More information and installation options can be found on the [Installation Wiki Page](https://github.com/resamsel/dbnavigator/wiki/Installation).
 
 ### Alfred Workflow
 
