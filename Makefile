@@ -16,7 +16,8 @@ SETUPTOOLS = $(PYTHON) setup.py
 DIST = dist
 PIP_DEPS = flake8 pep8-naming flake8-todo
 ACTUAL = $(TARGET)/testfiles/actual
-RESOURCES = resources/alfred/*
+ALFRED_RESOURCES = resources/alfred
+RESOURCES = $(ALFRED_RESOURCES)/*
 BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
 ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
@@ -64,7 +65,7 @@ README.md: develop resources/README.md.sh
 	$(PYTHON) scripts/toc.py $@
 
 release-%:
-	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION)
+	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
 	$(MAKE) README.md
 	$(GIT) rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg

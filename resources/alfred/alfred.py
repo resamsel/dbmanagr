@@ -1,6 +1,8 @@
 import sys
 from workflow import Workflow
 
+__version__ = "0.17.0"
+
 def main(wf):
     from dbnav import navigator
 
@@ -25,5 +27,14 @@ def main(wf):
     wf.send_feedback()
 
 if __name__ == '__main__':
-    wf = Workflow(libraries=['dbnav-0.16-py2.7.egg'])
+    wf = Workflow(
+        libraries=['dbnav-0.16-py2.7.egg'],
+        update_settings={
+            # Your username and the workflow's repo's name
+            'github_slug': 'resamsel/dbnavigator',
+            # The version (i.e. release/tag) of the installed workflow
+            'version': __version__,
+            # Optional number of days between checks for updates
+            'frequency': 1
+        })
     sys.exit(wf.run(main))
