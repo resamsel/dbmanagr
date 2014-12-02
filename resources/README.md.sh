@@ -30,7 +30,7 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ## Database Navigation
 
-Documentation: [Navigator](https://github.com/resamsel/dbnavigator/wiki/Navigator)
+Documentation: [Navigator wiki page](https://github.com/resamsel/dbnavigator/wiki/Navigator)
 
 ### Features
 
@@ -48,7 +48,7 @@ Documentation: [Navigator](https://github.com/resamsel/dbnavigator/wiki/Navigato
 
 Visualises the dependencies of a table using its foreign key references (forward and back references).
 
-Documentation: [Grapher](https://github.com/resamsel/dbnavigator/wiki/Grapher)
+Documentation: [Grapher wiki page](https://github.com/resamsel/dbnavigator/wiki/Grapher)
 
 ### Features
 * Optionally display columns as well as references
@@ -62,7 +62,7 @@ Documentation: [Grapher](https://github.com/resamsel/dbnavigator/wiki/Grapher)
 
 Exports specific rows from the database along with their references rows from other tables.
 
-Documentation: [Exporter](https://github.com/resamsel/dbnavigator/wiki/Exporter)
+Documentation: [Exporter wiki page](https://github.com/resamsel/dbnavigator/wiki/Exporter)
 
 ### Features
 * Exports the rows matching the given URI as SQL insert statements
@@ -75,13 +75,13 @@ Documentation: [Exporter](https://github.com/resamsel/dbnavigator/wiki/Exporter)
 
 Executes the SQL statements from the given file on the database specified by the given URI.
 
-Documentation: [Executer](https://github.com/resamsel/dbnavigator/wiki/Executer)
+Documentation: [Executer wiki page](https://github.com/resamsel/dbnavigator/wiki/Executer)
 
 ## Database Differ
 
 A diff tool that compares the structure of two database tables with each other.
 
-Documentation: [Differ](https://github.com/resamsel/dbnavigator/wiki/Differ)
+Documentation: [Differ wiki page](https://github.com/resamsel/dbnavigator/wiki/Differ)
 
 ## Installation
 
@@ -91,7 +91,7 @@ Installation using PIP is recommended, as it also upgrades to the latest version
 pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=dbnav
 \`\`\`
 
-More information and installation options can be found on the [Installation Wiki Page](https://github.com/resamsel/dbnavigator/wiki/Installation).
+More information and installation options can be found on the [Installation wiki page](https://github.com/resamsel/dbnavigator/wiki/Installation).
 
 ### Alfred Workflow
 
