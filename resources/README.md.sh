@@ -30,7 +30,10 @@ Allows you to explore, visualise and export your database. Additionally allows t
 
 ## Database Navigation
 
+Documentation: [Navigator](wiki/Navigator)
+
 ### Features
+
 * Shows databases of configured connections
 * Shows tables of databases
 * Shows columns of tables for restricting rows
@@ -41,76 +44,11 @@ Allows you to explore, visualise and export your database. Additionally allows t
 * Shows foreign keys that point to the current table row (back references)
 * Configuration of what is shown based on table comments (currently PostgreSQL only)
 
-### Usage
-\`\`\`
-`dbnav -h`
-\`\`\`
-
-In Alfred the keyword is *dbnav*. The query after the keyword is the URI to your data. No options may be given.
-
-### Examples
-
-#### Show Available Connections
-\`dbnav\`
-
-#### Show Databases of Connection
-\`dbnav myuser@myhost/\`
-
-#### Show Tables of Database
-\`dbnav dbnav.sqlite/\`
-
-$THEAD
-`dbnav dbnav.sqlite/ | sed 's/	/ | /g'`
-
-#### Show Columns of Table
-\`dbnav dbnav.sqlite/user?\`
-
-$THEAD
-`dbnav dbnav.sqlite/user? | sed 's/	/ | /g'`
-
-#### Show Rows where Column equals Value
-\`dbnav dbnav.sqlite/user?first_name=Joshua\`
-
-$THEAD
-`dbnav dbnav.sqlite/user?first_name=Joshua | sed 's/	/ | /g'`
-
-#### Show Rows where multiple Columns equals Value
-When using the ampersand (&) in a shell make sure to escape it (prepend it with a backslash (\) in Bash), since it has a special meaning there.
-
-\`dbnav dbnav.sqlite/user?first_name=Joshua&last_name=Alexander\`
-
-$THEAD
-`dbnav dbnav.sqlite/user?first_name=Joshua\&last_name=Alexander | sed 's/	/ | /g'`
-
-#### Show Rows where Column matches Pattern
-The tilde (~) will be translated to the *like* operator in SQL. Use the percent wildcard (%) to match arbitrary strings.
-
-\`dbnav dbnav.sqlite/user?first_name~%osh%\`
-
-$THEAD
-`dbnav dbnav.sqlite/user?first_name~%osh% | sed 's/	/ | /g'`
-
-#### Show Rows where Column is in List
-The colon (:) will be translated to the *in* operator in SQL.
-
-\`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin\`
-
-$THEAD
-`dbnav dbnav.sqlite/user?first_name:Herbert,Josh,Martin | sed 's/	/ | /g'`
-
-#### Show Rows where any (Search) Column matches Pattern
-\`dbnav myuser@myhost/mydatabase/mytable?~%erber%\`
-
-**Warning: this is a potentially slow query! See configuration for options to resolve this problem.**
-
-#### Show Values of selected Row
-\`dbnav dbnav.sqlite/user/?id=2\`
-
-$THEAD
-`dbnav dbnav.sqlite/user/?id=2 | sed 's/	/ | /g'`
-
 ## Database Visualisation
+
 Visualises the dependencies of a table using its foreign key references (forward and back references).
+
+Documentation: [Grapher](wiki/Grapher)
 
 ### Features
 * Optionally display columns as well as references
@@ -120,57 +58,11 @@ Visualises the dependencies of a table using its foreign key references (forward
 * Ouput formats include hierarchical text and a Graphviz directed graph
 * Uses the same configuration and URI patterns as the Database Navigator
 
-### Usage
-\`\`\`
-`dbgraph -h`
-\`\`\`
-
-### Examples
-
-#### Show references of table
-\`dbgraph dbnav.sqlite/article\`
-
-\`\`\`
-`dbgraph dbnav.sqlite/article`
-\`\`\`
-
-#### Show References and Columns
-\`dbgraph -c dbnav.sqlite/article\`
-
-\`\`\`
-`dbgraph -c dbnav.sqlite/article`
-\`\`\`
-
-#### Show all References recursively
-\`dbgraph -r dbnav.sqlite/article\`
-
-\`\`\`
-`dbgraph -r dbnav.sqlite/article`
-\`\`\`
-
-#### Show specific References
-\`dbgraph -i user_id.blog_user dbnav.sqlite/article\`
-
-\`\`\`
-`dbgraph -i user_id.blog_user dbnav.sqlite/article`
-\`\`\`
-
-#### Show specific References and exclude others
-\`dbgraph -i user_id.blog_user -x user_id.blog_user.user_id dbnav.sqlite/article\`
-
-\`\`\`
-`dbgraph -i user_id.blog_user -x user_id.blog_user.user_id dbnav.sqlite/article`
-\`\`\`
-
-#### Show specific References as Graphviz Graph
-\`dbgraph -G -i user_id dbnav.sqlite/article\`
-
-\`\`\`
-`dbgraph -G -i user_id dbnav.sqlite/article`
-\`\`\`
-
 ## Database Exporter
+
 Exports specific rows from the database along with their references rows from other tables.
+
+Documentation: [Exporter](wiki/Exporter)
 
 ### Features
 * Exports the rows matching the given URI as SQL insert statements
@@ -179,146 +71,34 @@ Exports specific rows from the database along with their references rows from ot
 * Takes into account the ordering of the statements (when table A references table B, then the referenced row from B must be inserted first)
 * Limits the number of returned rows of the main query (does not limit referenced rows)
 
-### Usage
-\`\`\`
-`dbexport -h`
-\`\`\`
-
-### Examples
-
-#### Export Contents of Table
-\`dbexport dbnav.sqlite/article?id=2\`
-
-\`\`\`
-`dbexport dbnav.sqlite/article?id=2`
-\`\`\`
-
-#### Export limited Contents of Table
-\`dbexport -m 1 dbnav.sqlite/article?*\`
-
-\`\`\`
-`dbexport -m 1 dbnav.sqlite/article?*`
-\`\`\`
-
-#### Export Contents of Table with Specific References
-\`dbexport -i user_id dbnav.sqlite/article?id=2\`
-
-\`\`\`
-`dbexport -i user_id dbnav.sqlite/article?id=2`
-\`\`\`
-
-#### Export Contents of Table with Specific References and exclude columns
-\`dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2\`
-
-\`\`\`
-`dbexport -i user_id -x user_id.url,text dbnav.sqlite/article?id=2`
-\`\`\`
-
-#### Export Contents of Table as Update Statements
-\`dbexport -U dbnav.sqlite/article?id=2\`
-
-\`\`\`
-`dbexport -U dbnav.sqlite/article?id=2`
-\`\`\`
-
-#### Export Contents of Table as Delete Statements
-\`dbexport -D dbnav.sqlite/article?id=2\`
-
-\`\`\`
-`dbexport -D dbnav.sqlite/article?id=2`
-\`\`\`
-
-#### Export Contents of Table as YAML
-\`dbexport -Y dbnav.sqlite/article?id=2 -p my.models\`
-
-\`\`\`
-`dbexport -Y dbnav.sqlite/article?id=2 -p my.models`
-\`\`\`
-
 ## Database Executer
+
 Executes the SQL statements from the given file on the database specified by the given URI.
 
-### Usage
-\`\`\`
-`dbexec -h`
-\`\`\`
+Documentation: [Executer](wiki/Executer)
 
 ## Database Differ
+
 A diff tool that compares the structure of two database tables with each other.
 
-### Usage
-\`\`\`
-`dbdiff -h`
-\`\`\`
-
-### Examples
-
-#### Diff two Tables
-\`dbdiff dbnav.sqlite/user dbnav.sqlite/user2\`
-
-\`\`\`
-`dbdiff dbnav.sqlite/user dbnav.sqlite/user2`
-\`\`\`
-
-#### Diff two Tables Side-by-Side
-\`dbdiff -S dbnav.sqlite/user dbnav.sqlite/user2\`
-
-\`\`\`
-`dbdiff -S dbnav.sqlite/user dbnav.sqlite/user2`
-\`\`\`
-
-#### Diff two Tables Side-by-Side using Column Definitions
-\`dbdiff -Sc dbnav.sqlite/user dbnav.sqlite/user2\`
-
-\`\`\`
-`dbdiff -Sc dbnav.sqlite/user dbnav.sqlite/user2`
-\`\`\`
+Documentation: [Differ](wiki/Differ)
 
 ## Installation
-Install using PIP (recommended, as it also upgrades to the latest version):
+
+Installation using PIP is recommended, as it also upgrades to the latest version:
 
 \`\`\`
 pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=dbnav
 \`\`\`
 
-As an alternative you may also install the [latest egg-file](dist/dbnav-`python src/dbnav/version.py`-py2.7.egg?raw=true) from the dist directory (deprecated):
-
-\`\`\`
-easy_install dbnav-`python src/dbnav/version.py`-py2.7.egg
-\`\`\`
-
-### Install Dependencies
-
-You need PostgreSQL and MySQL installed to access those databases. [Homebrew](http://brew.sh/) can help you with that:
-
-#### PostgreSQL
-
-\`\`\`
-#- Homebrew on Mac OS X
-brew install postgresql9
-#- For Debian based systems
-#apt-get install postgresql
-#- For Redhat based systems
-#yum install postgresql
-pip install psycopg2
-\`\`\`
-
-#### MySQL
-
-\`\`\`
-#- Homebrew on Mac OS X
-brew install mysql
-#- For Debian based systems
-#apt-get install mysql
-#- For Redhat based systems
-#yum install mysql
-pip install mysql-python
-\`\`\`
+More information and installation options can be found on the [Installation Wiki Page](wiki/Installation).
 
 ### Alfred Workflow
+
 To install the Alfred workflow open the [Database Navigator.alfredworkflow](dist/Database Navigator.alfredworkflow?raw=true) file from the dist directory.
 
 ## Connection Configuration
+
 To be able to connect to a certain database you’ll need the credentials for that database. Such a connection may be added with PGAdmin (which puts it into the ~/.pgpass file) or added directly into the ~/.pgpass file.
 
 ### Sample ~/.pgpass
