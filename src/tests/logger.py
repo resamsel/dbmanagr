@@ -21,29 +21,29 @@ class LoggerTestCase(ParentTestCase):
             None,
             dbnav.logger.encode(None))
         self.assertEqual(
-            u'a',
+            "u'a'",
             dbnav.logger.encode(u'a'))
         self.assertEqual(
-            u'a',
+            "u'a'",
             dbnav.logger.encode('a'))
         self.assertEqual(
-            [u'a.b'],
+            ["u'a.b'"],
             dbnav.logger.encode(['a.b']))
         self.assertEqual(
-            u'7',
+            "u'7'",
             dbnav.logger.encode(7))
 
     def test_argtostring(self):
         """Tests the logger.argtostring function"""
 
         self.assertEqual(
-            "k=v",
+            "k=u'v'",
             dbnav.logger.argtostring('k', 'v'))
         self.assertEqual(
             "self",
             dbnav.logger.argtostring('self', 'v'))
         self.assertEqual(
-            "k=[u'v1', u'v2']",
+            "k=[\"u'v1'\", \"u'v2'\"]",
             dbnav.logger.argtostring('k', ['v1', 'v2']))
         self.assertEqual(
             "k=None",

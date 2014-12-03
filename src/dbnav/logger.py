@@ -16,12 +16,12 @@ def encode(v):
     if v is None:
         return None
     if type(v) is unicode:
-        return v
+        return repr(v)
     if type(v) is str:
-        return unicode(v, 'UTF-8')
+        return encode(unicode(v, 'UTF-8'))
     if type(v) is list:
         return map(encode, v)
-    return unicode(v)
+    return encode(unicode(v))
 
 
 def argtostring(k, v):

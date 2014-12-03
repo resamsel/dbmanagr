@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 import logging
 
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.engine import reflection
 
-from dbnav.logger import logduration, LogWith
+from dbnav.logger import LogWith
 from dbnav.model import DEFAULT_LIMIT
 from dbnav.model.column import create_column
 from dbnav.model.baseitem import BaseItem
@@ -24,10 +23,10 @@ class DatabaseConnection(BaseItem):
         self.dbms = kwargs.get('dbms', None)
         self.database = kwargs.get('database', None)
         self.uri = kwargs.get('uri', None)
+        self._tables = kwargs.get('tables', None)
+        self._comments = kwargs.get('comments', None)
         self._inspector = None
         self._meta = None
-        self._tables = kwargs.get('tbls', None)
-        self._comments = kwargs.get('comments', None)
 
     def title(self):
         return self.__repr__()
@@ -84,24 +83,16 @@ class DatabaseConnection(BaseItem):
 
     @LogWith(logger, log_args=False, log_result=False)
     def execute(self, query, name='Unnamed'):
-        logger.info('Query %s: %s', name, query)
-
         cur = self.cursor()
+
         if not cur:
             raise Exception('Database is not connected')
-        start = time.time()
-        result = cur.execute(query)
-        logduration('Query %s' % name, start)
 
-        return result
+        return cur.execute(query)
 
     @LogWith(logger, log_args=False, log_result=False)
     def queryall(self, query, name='Unnamed', mapper=None):
-        logger.info('Query all %s: %s', name, query)
-
-        start = time.time()
         result = query.all()
-        logduration('Query all %s' % name, start)
 
         if mapper:
             for row in result:
@@ -111,11 +102,7 @@ class DatabaseConnection(BaseItem):
 
     @LogWith(logger, log_args=False, log_result=False)
     def queryone(self, query, name='Unnamed', mapper=None):
-        logger.info('Query one %s: %s', name, query)
-
-        start = time.time()
         result = query.one()
-        logduration('Query one %s' % name, start)
 
         if mapper:
             mapper.map(result)
