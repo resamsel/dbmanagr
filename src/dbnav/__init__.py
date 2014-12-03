@@ -6,8 +6,6 @@ import os
 import logging
 import pdb
 
-from functools import wraps
-
 from dbnav.writer import Writer
 from dbnav.logger import logger as log
 
@@ -17,14 +15,29 @@ __all__ = (
 )
 __drivers__ = []
 
+KIND_VALUE = 'value'
+KIND_FOREIGN_KEY = 'foreign-key'
+KIND_FOREIGN_VALUE = 'foreign-value'
 
-def decorator(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
+IMAGE_VALUE = 'images/value.png'
+IMAGE_FOREIGN_KEY = 'images/foreign-key.png'
+IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
+
+OPTION_URI_SINGLE_ROW_FORMAT = u'%s%s/?%s'
+OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
+
+
+class Wrapper:
+    def write(self):
         try:
-            print Writer.write(f(*args, **kwargs))
-        except (SystemExit, KeyboardInterrupt) as e:
-            sys.exit(-1)
+            sys.stdout.write(Writer.write(self.run()))
+        except:
+            return -1
+        return 0
+
+    def run(self):
+        try:
+            return self.execute()
         except BaseException as e:
             log.exception(e)
             if log.getEffectiveLevel() <= logging.DEBUG:
@@ -38,4 +51,3 @@ def decorator(f):
                 # Show the error message if log level is INFO or higher
                 sys.stderr.write(
                     '{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
-    return wrapper

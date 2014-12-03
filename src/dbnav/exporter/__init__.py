@@ -7,7 +7,7 @@ import logging
 
 from collections import OrderedDict
 
-from dbnav import decorator
+from dbnav import Wrapper
 from dbnav.logger import LogWith
 from dbnav.config import Config
 from dbnav.sources import Source
@@ -117,12 +117,19 @@ def prefix(s):
     return re.sub('([^\\.]*)\\..*', '\\1', s)
 
 
-class DatabaseExporter:
+class DatabaseExporter(Wrapper):
     """The main class"""
+    def __init__(self, options):
+        self.options = options
 
-    @staticmethod
-    def export(options):
+        if options.formatter:
+            Writer.set(options.formatter(options))
+        else:
+            Writer.set(SqlInsertWriter(options))
+
+    def execute(self):
         """The main method that splits the arguments and starts the magic"""
+        options = self.options
 
         cons = Source.connections()
 
@@ -155,20 +162,11 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 
-@decorator
+def run(args):
+    exporter = DatabaseExporter(Config.init(args, parser))
+    return exporter.run()
+
+
 def main():
-    return run(sys.argv[1:])
-
-
-def run(argv):
-    options = Config.init(argv, parser)
-
-    if options.formatter:
-        Writer.set(options.formatter(options))
-    else:
-        Writer.set(SqlInsertWriter(options))
-
-    return DatabaseExporter.export(options)
-
-if __name__ == "__main__":
-    main()
+    exporter = DatabaseExporter(Config.init(sys.argv[1:], parser))
+    return exporter.write()

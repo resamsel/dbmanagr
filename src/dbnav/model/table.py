@@ -72,7 +72,7 @@ class Table(BaseItem):
 
         return None
 
-    @LogWith(logger, log_result=False)
+    @LogWith(logger, log_result=False, log_args=False)
     def rows(
             self, connection, filter=None, limit=DEFAULT_LIMIT, simplify=None):
         """Retrieves rows from the table with the given filter applied"""

@@ -2,14 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from .baseitem import BaseItem
-
-KIND_VALUE = 'value'
-KIND_FOREIGN_KEY = 'foreign-key'
-KIND_FOREIGN_VALUE = 'foreign-value'
-
-IMAGE_VALUE = 'images/value.png'
-IMAGE_FOREIGN_KEY = 'images/foreign-key.png'
-IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
+from dbnav import KIND_FOREIGN_VALUE, KIND_FOREIGN_KEY, KIND_VALUE
+from dbnav import IMAGE_FOREIGN_VALUE, IMAGE_FOREIGN_KEY, IMAGE_VALUE
 
 TITLES = {
     KIND_FOREIGN_VALUE: u'← %s',

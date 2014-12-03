@@ -6,7 +6,7 @@ import sys
 import sqlparse
 import re
 
-from dbnav import decorator
+from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
@@ -62,12 +62,19 @@ def read_statements(opts):
     return stmts
 
 
-class DatabaseExecuter:
+class DatabaseExecuter(Wrapper):
     """The main class"""
+    def __init__(self, options):
+        self.options = options
 
-    @staticmethod
-    def execute(options):
+        if options.formatter:
+            Writer.set(options.formatter(options))
+        else:
+            Writer.set(ExecuteWriter())
+
+    def execute(self):
         """The main method that splits the arguments and starts the magic"""
+        options = self.options
 
         cons = Source.connections()
 
@@ -137,20 +144,11 @@ class DatabaseExecuter:
         raise Exception('Specify the complete URI to a database')
 
 
-@decorator
+def run(args):
+    executer = DatabaseExecuter(Config.init(args, parser))
+    return executer.run()
+
+
 def main():
-    return run(sys.argv[1:])
-
-
-def run(argv):
-    options = Config.init(argv, parser)
-
-    if options.formatter:
-        Writer.set(options.formatter(options))
-    else:
-        Writer.set(ExecuteWriter())
-
-    return DatabaseExecuter.execute(options)
-
-if __name__ == "__main__":
-    main()
+    executer = DatabaseExecuter(Config.init(sys.argv[1:], parser))
+    return executer.write()

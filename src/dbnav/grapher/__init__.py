@@ -6,7 +6,7 @@ import logging
 
 from collections import deque
 
-from dbnav import decorator
+from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.logger import LogWith
@@ -114,13 +114,20 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
     return head
 
 
-class DatabaseGrapher:
+class DatabaseGrapher(Wrapper):
     """The main class"""
+    def __init__(self, options):
+        self.options = options
 
-    @staticmethod
+        if options.formatter:
+            Writer.set(options.formatter(options))
+        else:
+            Writer.set(GraphWriter(options))
+
     @LogWith(logger)
-    def graph(options):
+    def execute(self):
         """The main method that splits the arguments and starts the magic"""
+        options = self.options
 
         cons = Source.connections()
 
@@ -129,13 +136,12 @@ class DatabaseGrapher:
             opts = options.get(connection.dbms)
             if connection.matches(opts) and opts.show in [
                     'tables', 'columns', 'values']:
-                return DatabaseGrapher.build(connection, opts)
+                return self.build(connection, opts)
 
         raise Exception('Specify the complete URI to a table')
 
-    @staticmethod
     @LogWith(logger)
-    def build(connection, opts):
+    def build(self, connection, opts):
         try:
             connection.connect(opts.database)
             tables = connection.tables()
@@ -178,20 +184,11 @@ class DatabaseGrapher:
             connection.close()
 
 
-@decorator
+def run(args):
+    grapher = DatabaseGrapher(Config.init(args, parser))
+    return grapher.run()
+
+
 def main():
-    return run(sys.argv[1:])
-
-
-def run(argv):
-    options = Config.init(argv, parser)
-
-    if options.formatter:
-        Writer.set(options.formatter(options))
-    else:
-        Writer.set(GraphWriter(options))
-
-    return DatabaseGrapher.graph(options)
-
-if __name__ == "__main__":
-    main()
+    grapher = DatabaseGrapher(Config.init(sys.argv[1:], parser))
+    return grapher.write()

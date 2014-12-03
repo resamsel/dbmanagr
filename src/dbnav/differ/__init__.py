@@ -5,7 +5,7 @@ import sys
 
 from dbnav.writer import Writer
 
-from dbnav import decorator
+from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.exception import UnknownTableException
@@ -21,12 +21,20 @@ def column_name(c):
     return c.name
 
 
-class DatabaseDiffer:
+class DatabaseDiffer(Wrapper):
     """The main class"""
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
 
-    @staticmethod
-    def diff(left, right):
+        if left.formatter:
+            Writer.set(left.formatter(left, right))
+        else:
+            Writer.set(DiffWriter(left, right))
+
+    def execute(self):
         """The main method that splits the arguments and starts the magic"""
+        left, right = self.left, self.right
 
         lcon = Source.connection(left)
         if not lcon:
@@ -79,25 +87,21 @@ class DatabaseDiffer:
             rcon.close()
 
 
-@decorator
-def main():
-    return run(sys.argv[1:])
-
-
-def run(argv):
+def init(argv, parser):
     left = Config.init(argv, parser)
     left.uri = left.left
     left.update_parsers()
     right = Config.init(argv, parser)
     right.uri = right.right
     right.update_parsers()
+    return (left, right)
 
-    if left.formatter:
-        Writer.set(left.formatter(left, right))
-    else:
-        Writer.set(DiffWriter(left, right))
 
-    return DatabaseDiffer.diff(left, right)
+def run(args):
+    differ = DatabaseDiffer(*init(args, parser))
+    return differ.run()
 
-if __name__ == "__main__":
-    main()
+
+def main():
+    differ = DatabaseDiffer(*init(sys.argv[1:], parser))
+    return differ.write()

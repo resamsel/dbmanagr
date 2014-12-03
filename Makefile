@@ -35,8 +35,6 @@ assemble-alfred: assemble-main $(RESOURCES)
 	mkdir -p $(ALFRED)
 	cp -r $(RESOURCES) $(ALFRED)
 	cp dist/dbnav*-py2.7.egg $(ALFRED)
-	sh $(ALFRED)/info.plist.sh
-	rm $(ALFRED)/info.plist.sh
 	rm -f $(ARCHIVE)
 	cd $(ALFRED); $(ZIP) -rq ../../$(ARCHIVE) . \
 		--exclude images/.DS_Store "images/dbnavigator.sketch/*"

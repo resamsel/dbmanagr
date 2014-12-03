@@ -3,7 +3,7 @@
 
 import unittest
 
-from tests.testcase import ParentTestCase
+from tests.testcase import DbTestCase
 from dbnav import utils
 from dbnav.model.column import Column
 from dbnav.comment import Comment
@@ -15,7 +15,7 @@ def load_suite():
     return suite
 
 
-class UtilsTestCase(ParentTestCase):
+class UtilsTestCase(DbTestCase):
     def test_prefixes(self):
         """Tests the utils.prefixes function"""
 
@@ -116,3 +116,20 @@ class UtilsTestCase(ParentTestCase):
                     '_id', 'title', 'subtitle', 'order', 'search', 'display',
                     'columns', 'aliases'),
                 [Column(None, 'asdf', type=str)]))
+
+    def test_foreign_key_or_column(self):
+        """Tests the utils.foreign_key_or_column function"""
+
+        con = DbTestCase.connection
+        user = con.table('user')
+        article = con.table('article')
+
+        self.assertEqual(
+            user.column('id'),
+            utils.foreign_key_or_column(user, 'id'))
+        self.assertEqual(
+            article.foreign_key('user_id'),
+            utils.foreign_key_or_column(article, 'user_id'))
+        self.assertEqual(
+            None,
+            utils.foreign_key_or_column(article, 'foo'))

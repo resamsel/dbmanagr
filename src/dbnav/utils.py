@@ -96,6 +96,14 @@ def create_title(comment, columns, exclude=None):
     return None
 
 
+@LogWith(logger)
+def foreign_key_or_column(table, column):
+    fk = table.foreign_key(column)
+    if fk:
+        return fk
+    return table.column(column)
+
+
 def hash(s):
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 

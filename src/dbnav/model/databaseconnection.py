@@ -8,139 +8,15 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.engine import reflection
 
 from dbnav.logger import logduration, LogWith
-from dbnav.querybuilder import QueryBuilder, SimplifyMapper
-from dbnav.comment import create_comment
-from dbnav.utils import tostring
-from dbnav.exception import UnknownTableException
 from dbnav.model import DEFAULT_LIMIT
 from dbnav.model.column import create_column
 from dbnav.model.baseitem import BaseItem
 from dbnav.model.foreignkey import ForeignKey
 from dbnav.model.database import Database
-from dbnav.model.row import Row
 from dbnav.model.table import Table
-from dbnav.model.tablecomment import TableComment, COMMENT_TITLE
-from dbnav.model.value import Value
-from dbnav.model.value import KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
+from dbnav.model.tablecomment import TableComment
 
 logger = logging.getLogger(__name__)
-
-OPTION_URI_SINGLE_ROW_FORMAT = u'%s%s/?%s'
-OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
-
-
-@LogWith(logger)
-def foreign_key_or_column(table, column):
-    fk = table.foreign_key(column)
-    if fk:
-        return fk
-    return table.column(column)
-
-
-@LogWith(logger)
-def val(row, column):
-    return row[tostring(column)]
-
-
-def forward_references(row, table, keys, aliases):
-    foreign_keys = table.foreign_keys()
-    alias = aliases[table.name]
-
-    refs = []
-    for key in keys:
-        k = key.replace('{0}_'.format(alias), '', 1)
-        if key in foreign_keys:
-            # Key is a foreign key column
-            fk = foreign_keys[key]
-            autocomplete = fk.b.table.autocomplete(
-                fk.b.name, row[tostring(key)])
-        elif table.column(k).primary_key:
-            # Key is a simple column, but primary key
-            autocomplete = table.autocomplete(
-                k, row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
-        else:
-            # Key is a simple column
-            autocomplete = table.autocomplete(
-                k, row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
-        f = foreign_key_or_column(table, k)
-        kind = KIND_VALUE
-        if f.__class__.__name__ == 'ForeignKey':
-            kind = KIND_FOREIGN_KEY
-        refs.append(Value(row[tostring(key)], f, autocomplete, True, kind))
-
-    return refs
-
-
-def back_references(row, table, aliases):
-    foreign_keys = table.foreign_keys()
-
-    refs = []
-    for key in sorted(
-            foreign_keys,
-            key=lambda k: foreign_keys[k].a.table.name):
-        fk = foreign_keys[key]
-        if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(
-                fk.a.name, row['{0}_{1}'.format(
-                    aliases[fk.b.table.name], fk.b.name)],
-                OPTION_URI_MULTIPLE_ROWS_FORMAT)
-            logger.debug(
-                'table.name=%s, fk=%s, autocomplete=%s',
-                table.name, fk, autocomplete)
-            refs.append(
-                Value(
-                    fk.a,
-                    foreign_key_or_column(fk.a.table, fk.a.name),
-                    autocomplete,
-                    False,
-                    KIND_FOREIGN_VALUE))
-
-    return refs
-
-
-@LogWith(logger)
-def values(connection, table, filter):
-    """Creates row values according to the given filter"""
-
-    builder = QueryBuilder(
-        connection,
-        table,
-        filter=filter.filter,
-        limit=1,
-        simplify=filter.simplify)
-
-    mapper = None
-    keys = None
-    if filter.simplify:
-        comment = create_comment(
-            table,
-            connection.comment(table.name),
-            builder.counter,
-            builder.aliases,
-            None)
-
-        keys = comment.display
-
-        mapper = SimplifyMapper(
-            table,
-            comment=comment)
-
-    result = connection.queryone(
-        builder.build(),
-        'Values',
-        mapper)
-
-    row = Row(table, result)
-
-    if keys is None:
-        keys = sorted(
-            row.row.keys(),
-            key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
-
-    values = forward_references(row, table, keys, builder.aliases)
-    values += back_references(row, table, builder.aliases)
-
-    return values
 
 
 class DatabaseConnection(BaseItem):
@@ -170,58 +46,6 @@ class DatabaseConnection(BaseItem):
 
     def matches(self, options):
         return options.arg in self.title()
-
-    def proceed(self, options):
-        if options.show == 'connections':
-            # print this connection
-            return [self]
-
-        try:
-            self.connect(options.database)
-
-            if options.show == 'databases':
-                dbs = self.databases()
-                if options.database:
-                    dbs = filter(lambda db: options.database in db.name, dbs)
-
-                return sorted(dbs, key=lambda db: db.name.lower())
-
-            if options.show == 'tables':
-                tables = map(lambda (k, t): t, self.tables().iteritems())
-                if options.table:
-                    tables = filter(
-                        lambda t: t.name.startswith(options.table),
-                        tables)
-
-                return sorted(tables, key=lambda t: t.name.lower())
-
-            tables = self.tables()
-            if options.table not in tables:
-                raise UnknownTableException(options.table, tables.keys())
-
-            table = tables[options.table]
-            if options.show == 'columns':
-                logger.debug('columns, check filter=%s', options.filter)
-                if not options.filter:
-                    raise Exception("No filter given")
-                if (len(options.filter) > 0
-                        and options.filter.last().rhs is None):
-                    return sorted(
-                        table.columns(options.filter.last().lhs),
-                        key=lambda c: c.name.lower())
-                else:
-                    return sorted(
-                        self.rows(
-                            table,
-                            options.filter,
-                            limit=options.limit,
-                            simplify=options.simplify),
-                        key=lambda r: r[0])
-
-            if options.show == 'values':
-                return values(self, table, options)
-        finally:
-            self.close()
 
     def connect(self, database):
         pass
