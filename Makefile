@@ -7,6 +7,7 @@ GIT ?= git
 ZIP ?= zip
 UNZIP ?= unzip
 PIP ?= pip
+FIND ?= find
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
@@ -50,6 +51,9 @@ install-bash-completion:
 
 install: assemble install-bash-completion
 	$(SETUPTOOLS) install
+
+missing-copyright:
+	$(FIND) . -name "*.py" -exec grep -L 'Copyright' {} \;
 
 test: init
 	$(FLAKE8) src
