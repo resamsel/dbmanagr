@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -23,16 +22,28 @@ import unittest
 import os
 
 from tests.mock.sources import MockSource
+from tests.generator import generator, params
+
+__test__ = False
+
+
+def create_test(pkg, command, dir, tc, parameters=None):
+    test_name = 'test_%s_%s' % (command, tc.replace('-', '_'))
+    test = generator(pkg, command, dir, tc, parameters)
+    test.__doc__ = 'Params: "%s"' % params(dir, tc)
+    test.__name__ = test_name
+    test.name = test_name
+    return test
 
 
 class ParentTestCase(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):  # noqa
+    def setup_class(cls):
         os.environ['UNITTEST'] = 'True'
         cls.set_up_class()
 
     @classmethod
-    def tearDownClass(cls):  # noqa
+    def teardown_class(cls):
         cls.tear_down_class()
         del os.environ['UNITTEST']
 
@@ -44,7 +55,8 @@ class ParentTestCase(unittest.TestCase):
     def tear_down_class(cls):
         pass
 
-    def setUp(self):  # noqa
+    @classmethod
+    def setup(self):  # noqa
         self.maxDiff = None
 
 

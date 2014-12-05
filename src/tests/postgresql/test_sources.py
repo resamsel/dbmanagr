@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -24,7 +23,7 @@ import unittest
 from os import path
 
 from tests.testcase import ParentTestCase
-from dbnav.sqlite import sources
+from dbnav.postgresql import sources
 
 DIR = path.dirname(__file__)
 RESOURCES = path.join(DIR, '../resources')
@@ -43,29 +42,29 @@ def load_suite():
 
 class SourcesTestCase(ParentTestCase):
     def test_dbexplorer_list(self):
-        """Tests the sqlite.DBExplorerSQLiteSource.list class"""
+        """Tests the postgresql.DBExplorerPostgreSQLSource.list class"""
 
         self.assertEqual(
-            ['Rene.Samselnig@gmail.com.sqlite/'],
-            map(str, sources.DBExplorerSQLiteSource(
+            [],
+            map(str, sources.DBExplorerPostgreSQLSource(
                 '', DBEXPLORER_CONFIG).list()))
         self.assertEqual(
             [],
-            map(str, sources.DBExplorerSQLiteSource(
+            map(str, sources.DBExplorerPostgreSQLSource(
                 '', DBEXPLORER_CONFIG_BROKEN).list()))
         self.assertEqual(
             [],
-            map(str, sources.DBExplorerSQLiteSource(
+            map(str, sources.DBExplorerPostgreSQLSource(
                 '', DBEXPLORER_CONFIG_404).list()))
 
     def test_navicat_list(self):
-        """Tests the sqlite.NavicatSQLiteSource.list class"""
+        """Tests the postgresql.NavicatSQLiteSource.list class"""
 
         self.assertEqual(
-            ['me@xyz.com.sqlite/', 'dbnav.sqlite/', 'dbnav-c.sqlite/'],
-            map(str, sources.NavicatSQLiteSource(
+            [],
+            map(str, sources.NavicatPostgreSQLSource(
                 '', NAVICAT_CONFIG).list()))
         self.assertEqual(
             [],
-            map(str, sources.NavicatSQLiteSource(
+            map(str, sources.NavicatPostgreSQLSource(
                 '', NAVICAT_CONFIG_404).list()))

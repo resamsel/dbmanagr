@@ -18,32 +18,13 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import logging
+import os
 
-logger = logging.getLogger(__name__)
+from tests.differ import load
 
 
-class Source:
-    sources = []
-
-    def __init__(self):
-        self.connections = []
-
-    def list(self):
-        return self.connections
-
-    @staticmethod
-    def connections():
-        cons = []
-        for source in Source.sources:
-            cons += source.list()
-        return set(cons)
-
-    @staticmethod
-    def connection(options):
-        # search exact match of connection
-        for connection in Source.connections():
-            opts = options.get(connection.dbms)
-            if connection.matches(opts):
-                return connection
-        return None
+def test_differ():
+    os.environ['UNITTEST'] = 'True'
+    for test in load():
+        yield test
+    del os.environ['UNITTEST']

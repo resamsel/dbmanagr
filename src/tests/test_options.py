@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -19,16 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import unittest
-
 from tests.testcase import DbTestCase
 from dbnav import options
-
-
-def load_suite():
-    loader = unittest.TestLoader()
-    suite = loader.loadTestsFromTestCase(OptionsTestCase)
-    return suite
 
 
 class OptionsTestCase(DbTestCase):

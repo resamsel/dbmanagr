@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -75,6 +74,16 @@ class UtilsTestCase(DbTestCase):
         self.assertEqual(
             {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e'},
             utils.dictplus({'a': 'b', 'b': 'c', 'c': 'd'}, 'd', 'e'))
+
+    def test_dictsplus(self):
+        """Tests the utils.dictsplus function"""
+
+        self.assertEqual(
+            [{'a': 'b', 'b': 'b', 'c': 'd'}],
+            utils.dictsplus([{'a': 'b', 'b': 'c', 'c': 'd'}], 'b', 'b'))
+        self.assertEqual(
+            [{'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e'}],
+            utils.dictsplus([{'a': 'b', 'b': 'c', 'c': 'd'}], 'd', 'e'))
 
     def test_dictminus(self):
         """Tests the utils.dictminus function"""

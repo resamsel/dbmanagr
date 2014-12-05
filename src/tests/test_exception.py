@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -21,49 +20,33 @@
 
 import unittest
 
-from collections import OrderedDict
-
 from tests.testcase import DbTestCase
-from dbnav.model import row
+from dbnav import exception
 
 
 def load_suite():
     loader = unittest.TestLoader()
-    suite = loader.loadTestsFromTestCase(RowTestCase)
+    suite = loader.loadTestsFromTestCase(ExceptionTestCase)
     return suite
 
 
-class ResultRow:
-    def __init__(self, d):
-        self.__dict__ = d
-
-    def keys(self):
-        return self.__dict__.keys() + range(len(self.__dict__.keys()))
-
-    def __getitem__(self, i):
-        if type(i) is int:
-            return self.__dict__[self.__dict__.keys()[i]]
-        return self.__dict__[i]
-
-
-class RowTestCase(DbTestCase):
-    def test_val(self):
-        """Tests the row.foreign_key_or_column function"""
+class ExceptionTestCase(DbTestCase):
+    def test_prefixes(self):
+        """Tests the exception.unknown_column_message function"""
 
         con = DbTestCase.connection
         user = con.table('user')
-        r = row.Row(
-            user, ResultRow(OrderedDict([('id', 1), ('foo', 'Bar')])))
+        blog = con.table('blog')
 
         self.assertEqual(
-            None, row.val(r, 'bar'))
+            'Column "name" was not found on table "user" '
+            '(close matches: username, last_name)',
+            exception.unknown_column_message(user, 'name'))
         self.assertEqual(
-            1, row.val(r, 'id'))
+            'Column "me" was not found on table "blog" '
+            '(close matches: name)',
+            exception.unknown_column_message(blog, 'me'))
         self.assertEqual(
-            'Bar', row.val(r, 'foo'))
-        self.assertEqual(
-            'Bar', r['foo'])
-        self.assertEqual(
-            None, r['bar'])
-        self.assertEqual(
-            'Bar', row.val(r, 1))
+            'Column "foo" was not found on table "blog" '
+            '(no close matches in: id, name, url)',
+            exception.unknown_column_message(blog, 'foo'))

@@ -12,11 +12,10 @@ ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpr
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
 VERSION = src/dbnav/version.py
-TARGET = target
+TARGET = $(PWD)/target
 SETUPTOOLS = $(PYTHON) setup.py
 DIST = dist
 PIP_DEPS = flake8 pep8-naming flake8-todo
-ACTUAL = $(TARGET)/testfiles/actual
 ALFRED_RESOURCES = resources/alfred
 RESOURCES = $(ALFRED_RESOURCES)/*
 BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
@@ -24,7 +23,7 @@ ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
 
 init:
-	mkdir -p $(TARGET) $(TARGET)/test $(ACTUAL) $(TARGET)/files
+	mkdir -p $(TARGET)
 
 assemble: init assemble-main assemble-alfred
 
@@ -57,7 +56,7 @@ missing-copyright:
 
 test: init
 	$(FLAKE8) src
-	$(SETUPTOOLS) test
+	$(SETUPTOOLS) nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=$(TARGET)/coverage
 
 develop:
 	$(SETUPTOOLS) develop
@@ -65,6 +64,9 @@ develop:
 README.md: develop resources/README.md.sh
 	sh $(word 2, $^)
 	$(PYTHON) scripts/toc.py $@
+
+debug:
+	echo $(PWD)
 
 release-%:
 	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION) $(ALFRED_RESOURCES)/alfred.py

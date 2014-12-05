@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -53,6 +52,9 @@ class QueryBuilderTestCase(DbTestCase):
         self.assertEqual(
             True,
             querybuilder.allowed(user.columns.id, ':', [1, 2, 3]))
+        self.assertEqual(
+            False,
+            querybuilder.allowed(user.columns.id, '=', 'd'))
 
     def test_add_references(self):
         """Tests the querybuilder.add_references function"""
@@ -105,3 +107,14 @@ class QueryBuilderTestCase(DbTestCase):
             '_user_id',
             querybuilder.create_label(
                 '_{col.table.name}_{col.name}')(column).name)
+
+    def test_operation(self):
+        """Tests the querybuilder.operation function"""
+
+        con = DbTestCase.connection
+        column = con.entity('user').columns.id
+        v = 1
+
+        self.assertEqual(
+            str(column == v),
+            str(querybuilder.operation(column, '=', v)))

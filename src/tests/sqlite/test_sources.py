@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -24,15 +23,15 @@ import unittest
 from os import path
 
 from tests.testcase import ParentTestCase
-from dbnav.mysql import sources
+from dbnav.sqlite import sources
 
 DIR = path.dirname(__file__)
 RESOURCES = path.join(DIR, '../resources')
 DBEXPLORER_CONFIG = path.join(RESOURCES, 'dbexplorer.cfg')
 DBEXPLORER_CONFIG_BROKEN = path.join(RESOURCES, 'dbexplorer-broken.cfg')
 DBEXPLORER_CONFIG_404 = path.join(RESOURCES, 'dbexplorer-404.cfg')
-MYPASS_CONFIG = path.join(RESOURCES, 'mypass')
-MYPASS_CONFIG_404 = path.join(RESOURCES, 'mypass-404')
+NAVICAT_CONFIG = path.join(RESOURCES, 'navicat.plist')
+NAVICAT_CONFIG_404 = path.join(RESOURCES, 'navicat-404.plist')
 
 
 def load_suite():
@@ -43,29 +42,29 @@ def load_suite():
 
 class SourcesTestCase(ParentTestCase):
     def test_dbexplorer_list(self):
-        """Tests the mysql.DBExplorerMySQLSource.list class"""
+        """Tests the sqlite.DBExplorerSQLiteSource.list class"""
 
         self.assertEqual(
-            [],
-            map(str, sources.DBExplorerMySQLSource(
+            ['Rene.Samselnig@gmail.com.sqlite/'],
+            map(str, sources.DBExplorerSQLiteSource(
                 '', DBEXPLORER_CONFIG).list()))
         self.assertEqual(
             [],
-            map(str, sources.DBExplorerMySQLSource(
+            map(str, sources.DBExplorerSQLiteSource(
                 '', DBEXPLORER_CONFIG_BROKEN).list()))
         self.assertEqual(
             [],
-            map(str, sources.DBExplorerMySQLSource(
+            map(str, sources.DBExplorerSQLiteSource(
                 '', DBEXPLORER_CONFIG_404).list()))
 
-    def test_mypass_list(self):
-        """Tests the mysql.MypassSource.list class"""
+    def test_navicat_list(self):
+        """Tests the sqlite.NavicatSQLiteSource.list class"""
 
         self.assertEqual(
-            [],
-            map(str, sources.MypassSource(
-                '', MYPASS_CONFIG).list()))
+            ['me@xyz.com.sqlite/', 'dbnav.sqlite/', 'dbnav-c.sqlite/'],
+            map(str, sources.NavicatSQLiteSource(
+                '', NAVICAT_CONFIG).list()))
         self.assertEqual(
             [],
-            map(str, sources.MypassSource(
-                '', MYPASS_CONFIG_404).list()))
+            map(str, sources.NavicatSQLiteSource(
+                '', NAVICAT_CONFIG_404).list()))

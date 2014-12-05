@@ -44,7 +44,7 @@ setup(
         'src', exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
     package_dir={'': 'src'},
 
-    test_suite='tests.load_suite',
+    test_suite='tests',
 
     # dependencies
     install_requires=[
@@ -57,7 +57,8 @@ setup(
     tests_require=[
         'flake8>=2.2.5',
         'pep8-naming>=0.2.2',
-        'flake8-todo>=0.3'
+        'flake8-todo>=0.3',
+        'nose>=1.3.4'
     ],
 
     entry_points={

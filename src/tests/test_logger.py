@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -20,15 +19,26 @@
 #
 
 import unittest
+import logging
 
 from tests.testcase import ParentTestCase
 import dbnav
+from dbnav.logger import LogWith
+
+logger = logging.getLogger(__name__)
 
 
 def load_suite():
     loader = unittest.TestLoader()
     suite = loader.loadTestsFromTestCase(LoggerTestCase)
     return suite
+
+
+def test_no_debug():
+    @LogWith(logger)
+    def foo():
+        return 'bar'
+    assert foo() == 'bar'
 
 
 class LoggerTestCase(ParentTestCase):

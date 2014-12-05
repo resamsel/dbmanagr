@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -24,15 +23,15 @@ import unittest
 from os import path
 
 from tests.testcase import ParentTestCase
-from dbnav.postgresql import sources
+from dbnav.mysql import sources
 
 DIR = path.dirname(__file__)
 RESOURCES = path.join(DIR, '../resources')
 DBEXPLORER_CONFIG = path.join(RESOURCES, 'dbexplorer.cfg')
 DBEXPLORER_CONFIG_BROKEN = path.join(RESOURCES, 'dbexplorer-broken.cfg')
 DBEXPLORER_CONFIG_404 = path.join(RESOURCES, 'dbexplorer-404.cfg')
-NAVICAT_CONFIG = path.join(RESOURCES, 'navicat.plist')
-NAVICAT_CONFIG_404 = path.join(RESOURCES, 'navicat-404.plist')
+MYPASS_CONFIG = path.join(RESOURCES, 'mypass')
+MYPASS_CONFIG_404 = path.join(RESOURCES, 'mypass-404')
 
 
 def load_suite():
@@ -43,29 +42,29 @@ def load_suite():
 
 class SourcesTestCase(ParentTestCase):
     def test_dbexplorer_list(self):
-        """Tests the postgresql.DBExplorerPostgreSQLSource.list class"""
+        """Tests the mysql.DBExplorerMySQLSource.list class"""
 
         self.assertEqual(
             [],
-            map(str, sources.DBExplorerPostgreSQLSource(
+            map(str, sources.DBExplorerMySQLSource(
                 '', DBEXPLORER_CONFIG).list()))
         self.assertEqual(
             [],
-            map(str, sources.DBExplorerPostgreSQLSource(
+            map(str, sources.DBExplorerMySQLSource(
                 '', DBEXPLORER_CONFIG_BROKEN).list()))
         self.assertEqual(
             [],
-            map(str, sources.DBExplorerPostgreSQLSource(
+            map(str, sources.DBExplorerMySQLSource(
                 '', DBEXPLORER_CONFIG_404).list()))
 
-    def test_navicat_list(self):
-        """Tests the postgresql.NavicatSQLiteSource.list class"""
+    def test_mypass_list(self):
+        """Tests the mysql.MypassSource.list class"""
 
         self.assertEqual(
             [],
-            map(str, sources.NavicatPostgreSQLSource(
-                '', NAVICAT_CONFIG).list()))
+            map(str, sources.MypassSource(
+                '', MYPASS_CONFIG).list()))
         self.assertEqual(
             [],
-            map(str, sources.NavicatPostgreSQLSource(
-                '', NAVICAT_CONFIG_404).list()))
+            map(str, sources.MypassSource(
+                '', MYPASS_CONFIG_404).list()))
