@@ -20,9 +20,9 @@
 
 import os
 
+from dbnav import navigator
 from tests.testcase import DbTestCase
 from tests.navigator import load
-from dbnav import navigator
 from dbnav.config import Config
 from dbnav.exception import UnknownTableException
 

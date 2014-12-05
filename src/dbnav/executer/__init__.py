@@ -166,6 +166,8 @@ def run(args):
     return executer.run()
 
 
-def main():
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
     executer = DatabaseExecuter(Config.init(sys.argv[1:], parser))
     return executer.write()

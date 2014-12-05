@@ -143,12 +143,6 @@ def create_comment(table, comment, counter, aliases, alias):
 
             subtitle = u'{0} (id={1})'.format(subtitle.format(**caliases), id)
 
-        if not subtitle:
-            if name == primary_key:
-                subtitle = u"'%s'" % name
-            else:
-                subtitle = u"%s (id=%s)" % (caliases[name], id)
-
     if comment.order:
         order = comment.order
     else:

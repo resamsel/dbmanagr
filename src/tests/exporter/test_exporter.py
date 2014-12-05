@@ -21,6 +21,10 @@
 import os
 
 from tests.exporter import load
+from tests.testcase import DbTestCase
+from tests.mock.sources import MockSource
+from dbnav import exporter
+from dbnav.exception import UnknownTableException
 
 
 def test_exporter():
@@ -28,3 +32,49 @@ def test_exporter():
     for test in load():
         yield test,
     del os.environ['UNITTEST']
+
+
+class DifferTestCase(DbTestCase):
+    def test_yaml_value(self):
+        """Tests the exporter.writer.yaml_value function"""
+
+        DbTestCase.connection.close()
+        DbTestCase.connection = MockSource().list()[0]
+        DbTestCase.connection.connect()
+        con = DbTestCase.connection
+        user = con.table('user2')
+
+        self.assertEqual(
+            '!!null null',
+            exporter.writer.yaml_value(user.column('id'), None))
+        self.assertEqual(
+            '!!float 3.141500',
+            exporter.writer.yaml_value(user.column('score'), 3.141500))
+        self.assertEqual(
+            '!!bool true',
+            exporter.writer.yaml_value(user.column('deleted'), True))
+
+    def test_unknown_table(self):
+        """Tests unknown tables"""
+
+        self.assertRaises(
+            Exception,
+            exporter.run,
+            ['dbnav.sqlite'])
+        self.assertRaises(
+            UnknownTableException,
+            exporter.run,
+            ['dbnav.sqlite/unknown?'])
+
+    def test_writer(self):
+        """Tests the writer"""
+
+        import sys
+        sys.argv = ['']
+
+        self.assertRaises(
+            SystemExit,
+            exporter.main)
+        self.assertEqual(
+            0,
+            exporter.main(['dbnav.sqlite/user?id=1']))

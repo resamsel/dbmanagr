@@ -234,6 +234,8 @@ def run(args):
     return navigator.run()
 
 
-def main():
-    navigator = DatabaseNavigator(Config.init(sys.argv[1:], parser))
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    navigator = DatabaseNavigator(Config.init(args, parser))
     return navigator.write()

@@ -3,4 +3,6 @@ first_name TEXT(255) not null              | first_name TEXT(127) not null
                                            > title TEXT(127)
 url TEXT(255)                              <
 company TEXT(255)                          <
+                                           > deleted BOOLEAN
+                                           > score REAL
                                            > company_name TEXT(255)

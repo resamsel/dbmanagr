@@ -1,4 +1,6 @@
+                                           > user2.title
 user.url                                   <
 user.company                               <
+                                           > user2.deleted
+                                           > user2.score
                                            > user2.company_name
-                                           > user2.title

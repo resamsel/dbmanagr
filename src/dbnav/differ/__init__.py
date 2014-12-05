@@ -119,6 +119,8 @@ def run(args):
     return differ.run()
 
 
-def main():
-    differ = DatabaseDiffer(*init(sys.argv[1:], parser))
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    differ = DatabaseDiffer(*init(args, parser))
     return differ.write()

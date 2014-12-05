@@ -21,6 +21,9 @@
 import os
 
 from tests.grapher import load
+from tests.testcase import DbTestCase
+from dbnav import grapher
+from dbnav.exception import UnknownTableException
 
 
 def test_grapher():
@@ -28,3 +31,30 @@ def test_grapher():
     for test in load():
         yield test,
     del os.environ['UNITTEST']
+
+
+class GrapherTestCase(DbTestCase):
+    def test_unknown_table(self):
+        """Tests unknown tables"""
+
+        self.assertRaises(
+            Exception,
+            grapher.run,
+            ['dbnav.sqlite'])
+        self.assertRaises(
+            UnknownTableException,
+            grapher.run,
+            ['dbnav.sqlite/unknown?'])
+
+    def test_writer(self):
+        """Tests the writer"""
+
+        import sys
+        sys.argv = ['']
+
+        self.assertRaises(
+            SystemExit,
+            grapher.main)
+        self.assertEqual(
+            0,
+            grapher.main(['dbnav.sqlite/user?id=1']))

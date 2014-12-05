@@ -206,6 +206,8 @@ def run(args):
     return grapher.run()
 
 
-def main():
-    grapher = DatabaseGrapher(Config.init(sys.argv[1:], parser))
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    grapher = DatabaseGrapher(Config.init(args, parser))
     return grapher.write()

@@ -36,7 +36,7 @@ def load_suite():
 
 class CommentTestCase(DbTestCase):
     def test_update_aliases(self):
-        """Tests the utils.update_aliases function"""
+        """Tests the comment.update_aliases function"""
 
         con = DbTestCase.connection
         user = con.table('user')
@@ -61,7 +61,7 @@ class CommentTestCase(DbTestCase):
                 't3', c, {}, user.foreign_keys()))
 
     def test_column_aliases(self):
-        """Tests the utils.column_aliases function"""
+        """Tests the comment.column_aliases function"""
 
         self.assertEqual(
             {},
@@ -84,6 +84,39 @@ class CommentTestCase(DbTestCase):
                 '_alias'))
 
     def test_create_comment(self):
-        """Tests the utils.create_comment function"""
+        """Tests the comment.create_comment function"""
 
-        pass
+        con = DbTestCase.connection
+        user = con.table('user')
+        user_comment = con.comment('user')
+        c = Counter()
+
+        self.assertEqual(
+            '{_user_id}',  # comment.Comment('id', ),
+            comment.create_comment(
+                user,
+                user_comment,
+                c,
+                {},
+                '_user').id)
+
+        pk, user.primary_key = user.primary_key, False
+        self.assertEqual(
+            '-',  # comment.Comment('id', ),
+            comment.create_comment(
+                user,
+                user_comment,
+                c,
+                {},
+                '_user').id)
+        user.primary_key = pk
+
+        user_comment.id = '{id}'
+        self.assertEqual(
+            '{_user_id}',  # comment.Comment('id', ),
+            comment.create_comment(
+                user,
+                user_comment,
+                c,
+                {},
+                '_user').id)

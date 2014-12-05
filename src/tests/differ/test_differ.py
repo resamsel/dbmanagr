@@ -21,6 +21,8 @@
 import os
 
 from tests.differ import load
+from tests.testcase import DbTestCase
+from dbnav import differ
 
 
 def test_differ():
@@ -28,3 +30,38 @@ def test_differ():
     for test in load():
         yield test
     del os.environ['UNITTEST']
+
+
+class DifferTestCase(DbTestCase):
+    def test_unknown_connection(self):
+        """Tests unknown connections"""
+
+        self.assertRaises(
+            Exception,
+            differ.run,
+            ['a', 'b'])
+        self.assertRaises(
+            Exception,
+            differ.run,
+            ['dbnav.sqlite/user', 'b'])
+        self.assertRaises(
+            Exception,
+            differ.run,
+            ['dbnav.sqlite/unknown', 'dbnav-c.sqlite/unknown'])
+        self.assertRaises(
+            Exception,
+            differ.run,
+            ['dbnav.sqlite/user', 'dbnav-c.sqlite/unknown'])
+
+    def test_writer(self):
+        """Tests the writer"""
+
+        import sys
+        sys.argv = ['']
+
+        self.assertRaises(
+            SystemExit,
+            differ.main)
+        self.assertEqual(
+            0,
+            differ.main(['dbnav.sqlite/user', 'dbnav.sqlite/user2']))

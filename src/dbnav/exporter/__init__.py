@@ -184,6 +184,8 @@ def run(args):
     return exporter.run()
 
 
-def main():
-    exporter = DatabaseExporter(Config.init(sys.argv[1:], parser))
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    exporter = DatabaseExporter(Config.init(args, parser))
     return exporter.write()
