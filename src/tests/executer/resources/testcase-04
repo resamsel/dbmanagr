@@ -1,0 +1,4 @@
+dbnav.sqlite/user?id=1
+-s
+select * from "user" where id = 1;
+-p 1

@@ -169,5 +169,5 @@ def run(args):
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    executer = DatabaseExecuter(Config.init(sys.argv[1:], parser))
+    executer = DatabaseExecuter(Config.init(args, parser))
     return executer.write()

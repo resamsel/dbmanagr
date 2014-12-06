@@ -169,7 +169,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
     def databases(self):
         # does not yet work with sqlalchemy...
-        if not self._databases:
+        if self._databases is None:
             self._databases = map(
                 lambda row: PostgreSQLDatabase(self, row[0]),
                 self.execute(DATABASES_QUERY % self.user, 'Databases'))

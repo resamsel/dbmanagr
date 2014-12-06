@@ -20,10 +20,52 @@
 
 from urlparse import urlparse
 
+from sqlalchemy.types import Integer
+
+from dbnav.logger import LogWith
 from dbnav.logger import logger
-from dbnav.options import parse_filter
+from dbnav.options import parse_filter, format_value
 
 OPTION_URI_FORMAT = '%s@%s/%s'
+
+
+@LogWith(logger)
+def restriction(
+        alias, column, operator, value, map_null_operator=True):
+    if operator in ['~', 'like'] and isinstance(column.type, Integer):
+        try:
+            int(value)
+            # LIKE not allowed on integer columns, change operator to
+            # equals
+            operator = '='
+        except ValueError:
+            pass
+
+    if alias:
+        alias = '{0}.'.format(alias)
+    else:
+        alias = ''
+    lhs = column.name
+    if column.table:
+        lhs = '{0}{1}'.format(alias, column.name)
+    if (value
+            and isinstance(column.type, Integer)
+            and type(value) is not list):
+        try:
+            int(value)
+        except ValueError:
+            # column type is integer, but value is not
+            lhs = 'cast({0}{1} as char)'.format(alias, column.name)
+    if operator in ['=', '!='] and (value == 'null' or value is None):
+        if map_null_operator:
+            operator = {
+                '=': 'is',
+                '!=': 'is not'
+            }.get(operator)
+        value = None
+    rhs = format_value(column, value)
+
+    return ' '.join([lhs, operator, rhs])
 
 
 class MySQLOptions:
@@ -34,6 +76,10 @@ class MySQLOptions:
 
     def get(self, driver):
         return self
+
+    def restriction(
+            self, alias, column, operator, value, map_null_operator=True):
+        return restriction(alias, column, operator, value, map_null_operator)
 
     def __repr__(self):
         return str(self.__dict__)

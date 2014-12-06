@@ -21,9 +21,7 @@
 import logging
 
 from sqlalchemy.exc import OperationalError
-from sqlalchemy.types import Integer
 
-from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 
@@ -129,42 +127,3 @@ class MySQLConnection(DatabaseConnection):
                     password=self.password,
                     host=self.host,
                     database=''))
-
-    @LogWith(logger)
-    def restriction(
-            self, alias, column, operator, value, map_null_operator=True):
-
-        if operator in ['~', 'like'] and isinstance(column.type, Integer):
-            try:
-                int(value)
-                # LIKE not allowed on integer columns, change operator to
-                # equals
-                operator = '='
-            except ValueError:
-                pass
-
-        if alias:
-            alias = '{0}.'.format(alias)
-        else:
-            alias = ''
-        lhs = column.name
-        if column.table:
-            lhs = '{0}{1}'.format(alias, column.name)
-        if (value
-                and isinstance(column.type, Integer)
-                and type(value) is not list):
-            try:
-                int(value)
-            except ValueError:
-                # column type is integer, but value is not
-                lhs = 'cast({0}{1} as char)'.format(alias, column.name)
-        if operator in ['=', '!='] and (value == 'null' or value is None):
-            if map_null_operator:
-                operator = {
-                    '=': 'is',
-                    '!=': 'is not'
-                }.get(operator)
-            value = None
-        rhs = self.format_value(column, value)
-
-        return ' '.join([lhs, operator, rhs])
