@@ -140,7 +140,7 @@ class PostgreSQLConnection(DatabaseConnection):
         return matches
 
     def connect(self, database):
-        logger.debug('Connecting to database %s' % database)
+        logger.debug('Connecting to database %s', database)
 
         if database:
             try:

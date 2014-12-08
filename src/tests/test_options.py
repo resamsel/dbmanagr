@@ -18,7 +18,10 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from datetime import datetime
+
 from tests.testcase import DbTestCase
+from tests.mock.sources import MockSource
 from dbnav import options
 
 
@@ -39,12 +42,24 @@ class OptionsTestCase(DbTestCase):
     def test_format_value(self):
         """Tests the options.format_value function"""
 
+        DbTestCase.connection.close()
+        DbTestCase.connection = MockSource().list()[0]
+        DbTestCase.connection.connect()
         con = DbTestCase.connection
         user = con.table('user')
+        user2 = con.table('user2')
+        article = con.table('article')
+        now = datetime.now()
 
         self.assertEqual(
             u'null',
             options.format_value(None, None))
+        self.assertEqual(
+            '1',
+            options.format_value(None, 1))
+        self.assertEqual(
+            "'d'",
+            options.format_value(None, 'd'))
         self.assertEqual(
             u'7',
             options.format_value(user.column('id'), 7))
@@ -54,6 +69,18 @@ class OptionsTestCase(DbTestCase):
         self.assertEqual(
             'null',
             options.format_value(user.column('id'), None))
+        self.assertEqual(
+            'true',
+            options.format_value(user2.column('deleted'), True))
+        self.assertEqual(
+            '3.141500',
+            options.format_value(user2.column('score'), 3.1415))
+        self.assertEqual(
+            "'3.14.15'",
+            options.format_value(user2.column('score'), '3.14.15'))
+        self.assertEqual(
+            "'{}'".format(str(now)),
+            options.format_value(article.column('created'), now))
 
     def test_restriction(self):
         """Tests the options.restriction function"""

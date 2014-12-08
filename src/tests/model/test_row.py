@@ -18,18 +18,10 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import unittest
-
 from collections import OrderedDict
 
 from tests.testcase import DbTestCase
 from dbnav.model import row
-
-
-def load_suite():
-    loader = unittest.TestLoader()
-    suite = loader.loadTestsFromTestCase(RowTestCase)
-    return suite
 
 
 class ResultRow:

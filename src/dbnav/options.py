@@ -23,7 +23,6 @@ import math
 import datetime
 
 from sqlalchemy import Boolean, Float, Integer
-from sqlalchemy.types import TIMESTAMP
 
 from dbnav.queryfilter import QueryFilter, OrOp, AndOp
 
@@ -87,11 +86,6 @@ def format_value(column, value):
         except ValueError:
             pass
     if isinstance(column.type, Integer):
-        try:
-            return '%d' % int(value)
-        except ValueError:
-            pass
-    if isinstance(column.type, TIMESTAMP):
         try:
             return '%d' % int(value)
         except ValueError:

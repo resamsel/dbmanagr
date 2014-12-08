@@ -18,6 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import logging
 import json
 
 COMMENT_ID = 'id'
@@ -26,6 +27,8 @@ COMMENT_SUBTITLE = 'subtitle'
 COMMENT_ORDER_BY = 'order'
 COMMENT_SEARCH = 'search'
 COMMENT_DISPLAY = 'display'
+
+logger = logging.getLogger(__name__)
 
 
 class TableComment:
@@ -52,7 +55,8 @@ accurate information"""
         if json_string:
             try:
                 d.update(json.loads(json_string))
-            except TypeError:
+            except BaseException as e:
+                logger.warn('Error parsing JSON comment: %s', e)
                 pass
 
         if COMMENT_ID in d:

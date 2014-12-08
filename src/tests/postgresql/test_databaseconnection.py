@@ -18,12 +18,18 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from os import path
+
 from sqlalchemy.exc import OperationalError
 
 from tests.testcase import DbTestCase
 from dbnav.postgresql import databaseconnection as dbc
 from dbnav.config import Config
 from dbnav import navigator
+from tests.mock.sources import DIR as MOCK_DIR
+from tests.mock.sources import URI as MOCK_URI
+
+MOCK_URI2 = MOCK_URI.replace('dbnav.sqlite', '{{database}}/dbnav.sqlite')
 
 
 class DatabaseConnectionTestCase(DbTestCase):
@@ -78,6 +84,36 @@ class DatabaseConnectionTestCase(DbTestCase):
                 'host', '3333', 'db', 'user', 'password'
             ).connect,
             [None])
+        self.assertEqual(
+            None,
+            dbc.PostgreSQLConnection(
+                MOCK_URI.format(
+                    file=path.join(MOCK_DIR, '../resources/dbnav.sqlite')),
+                'host', '3333', 'db', 'user', 'password'
+            ).connect(None))
+        self.assertEqual(
+            None,
+            dbc.PostgreSQLConnection(
+                MOCK_URI.format(
+                    file=path.join(MOCK_DIR, '../resources/dbnav.sqlite')),
+                'host', '3333', 'db', 'user', 'password'
+            ).connect(None))
+        self.assertEqual(
+            None,
+            dbc.PostgreSQLConnection(
+                MOCK_URI.format(
+                    file=path.join(
+                        MOCK_DIR, '../resources/dbnav.sqlite')),
+                'host', '3333', 'db', 'user', 'password'
+            ).connect('db'))
+        self.assertEqual(
+            None,
+            dbc.PostgreSQLConnection(
+                MOCK_URI2.format(
+                    file=path.join(
+                        MOCK_DIR, '../resources/dbnav.sqlite')),
+                'host', '3333', 'db', 'user', 'password'
+            ).connect('db'))
 
     def test_databases(self):
         """Tests the databases function"""
@@ -106,3 +142,15 @@ class DatabaseConnectionTestCase(DbTestCase):
                 'host', '3333', 'db', 'user', 'password'
             ).init_tables,
             [None])
+
+    def test_postgresql_database(self):
+        """Tests instantiating the PostgreSQLDatabase"""
+
+        con = dbc.PostgreSQLConnection(
+            'postgresql://{user}:{password}@{host}/{database}',
+            'host', '3333', 'db', 'user', 'password'
+        )
+
+        self.assertEqual(
+            'user@host/db/',
+            dbc.PostgreSQLDatabase(con, 'db').autocomplete())

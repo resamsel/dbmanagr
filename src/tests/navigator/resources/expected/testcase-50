@@ -1,0 +1,47 @@
+<items>
+   <item
+            uid="4e00901e-88f1-3969-b4f8-c043d1059cb2"
+            arg="1 Utah Crossing"
+            autocomplete="dbnav.sqlite/address/?id=2"
+            valid="True">
+        <title>1 Utah Crossing</title>
+        <subtitle>Ash Shāmīyah (id=2)</subtitle>
+        <icon>images/row.png</icon>
+    </item>
+   <item
+            uid="581793a2-0c8b-3b9e-a06b-806675c87202"
+            arg="44 Duke Place"
+            autocomplete="dbnav.sqlite/address/?id=3"
+            valid="True">
+        <title>44 Duke Place</title>
+        <subtitle>Zhamao (id=3)</subtitle>
+        <icon>images/row.png</icon>
+    </item>
+   <item
+            uid="6bfa73fd-fca8-33d6-9dbe-b0e0a1ce8b2d"
+            arg="3 Brentwood Street"
+            autocomplete="dbnav.sqlite/address/?id=7"
+            valid="True">
+        <title>3 Brentwood Street</title>
+        <subtitle>Sumisip (id=7)</subtitle>
+        <icon>images/row.png</icon>
+    </item>
+   <item
+            uid="ced0ae8c-dbb8-3949-b722-1cf61a3dacc0"
+            arg="64 Rieder Way"
+            autocomplete="dbnav.sqlite/address/?id=8"
+            valid="True">
+        <title>64 Rieder Way</title>
+        <subtitle>Burgeo (id=8)</subtitle>
+        <icon>images/row.png</icon>
+    </item>
+   <item
+            uid="a3c49d26-2bfc-328f-b7e1-e536cabb56bd"
+            arg="06775 Spohn Parkway"
+            autocomplete="dbnav.sqlite/address/?id=9"
+            valid="True">
+        <title>06775 Spohn Parkway</title>
+        <subtitle>Xiaosanjiang (id=9)</subtitle>
+        <icon>images/row.png</icon>
+    </item>
+</items>
