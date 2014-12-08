@@ -24,7 +24,7 @@ from tests.exporter import load
 from tests.testcase import DbTestCase
 from tests.mock.sources import MockSource
 from dbnav import exporter
-from dbnav.exception import UnknownTableException
+from dbnav.exception import UnknownTableException, UnknownColumnException
 
 
 def test_exporter():
@@ -65,6 +65,23 @@ class DifferTestCase(DbTestCase):
             UnknownTableException,
             exporter.run,
             ['dbnav.sqlite/unknown?'])
+
+    def test_unknown_column(self):
+        """Tests unknown columns"""
+
+        self.assertRaises(
+            UnknownColumnException,
+            exporter.run,
+            ['dbnav.sqlite/user2?', '-i', 'unknown'])
+        self.assertRaises(
+            UnknownColumnException,
+            exporter.run,
+            ['dbnav.sqlite/user2?', '-x', 'unknown'])
+
+    def test_foreign_keys(self):
+        """Tests foreign keys"""
+
+        pass
 
     def test_writer(self):
         """Tests the writer"""
