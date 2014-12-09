@@ -129,14 +129,14 @@ class Table(BaseItem):
                 name='Rows',
                 mapper=mapper)
         except (DataError, ProgrammingError, UnknownColumnException,
-                UnicodeEncodeError):
+                UnicodeEncodeError):  # pragma: no cover
             raise
-        except BaseException as e:
-            logger.error(e, exc_info=1)
-            import sys
+        except BaseException as e:  # pragma: no cover
+            logger.error(e, exc_info=1)  # pragma: no cover
+            import sys  # pragma: no cover
             raise type(e), type(e)(
                 u'{} (check comment on table {})'.format(e.message, self.name)
-            ), sys.exc_info()[2]
+            ), sys.exc_info()[2]  # pragma: no cover
 
         return map(lambda row: Row(self, row), result)
 

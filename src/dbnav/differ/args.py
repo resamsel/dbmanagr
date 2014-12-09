@@ -18,9 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import argparse
-
-from dbnav.args import parent_parser, format_group
+from dbnav.args import parent_parser, format_group, create_parser
 
 from .writer import DiffWriter, DiffColumnWriter, DiffTestWriter
 
@@ -43,7 +41,7 @@ group.add_argument(
     action='store_const',
     const=DiffColumnWriter)
 
-parser = argparse.ArgumentParser(
+parser = create_parser(
     prog='dbdiff',
     description='A diff tool that compares the structure of two database '
                 'tables with each other.',

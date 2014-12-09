@@ -18,9 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import argparse
-
-from dbnav.args import parent_parser, format_group
+from dbnav.args import parent_parser, format_group, create_parser
 
 from .writer import SqlInsertWriter, SqlUpdateWriter, SqlDeleteWriter
 from .writer import YamlWriter, FormattedWriter
@@ -67,7 +65,7 @@ group.add_argument(
     action='store_const',
     const=FormattedWriter)
 
-parser = argparse.ArgumentParser(
+parser = create_parser(
     prog='dbexport',
     description='An export tool that exports database rows in different '
                 'formats.',

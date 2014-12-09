@@ -26,6 +26,13 @@ from dbnav.writer import TestWriter
 from dbnav.version import __version__
 from dbnav import __drivers__
 
+PARSER_ARGS = {
+    'formatter_class': argparse.RawDescriptionHelpFormatter,
+    'epilog': """Contact:
+  If you experience bugs or want to request new features please visit
+  <https://github.com/resamsel/dbnavigator/issues>"""
+}
+
 
 class LogLevel(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -84,3 +91,8 @@ def format_group(parser, test_writer=TestWriter):
         action='store_const',
         const=test_writer)
     return group
+
+
+def create_parser(**kwargs):
+    kwargs.update(PARSER_ARGS)
+    return argparse.ArgumentParser(**kwargs)

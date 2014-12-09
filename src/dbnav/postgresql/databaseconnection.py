@@ -180,17 +180,17 @@ class PostgreSQLConnection(DatabaseConnection):
     def init_tables(self, database):
         # sqlalchemy does not yet provide reflecting comments
 
-        result = self.execute(TABLES_QUERY, 'Tables')
-
         self._tables = {}
         self._comments = {}
-        for row in result:
-            self._tables[row[0]] = Table(
+
+        result = self.execute(TABLES_QUERY, 'Tables')
+        for row in result:  # pragma: no cover
+            self._tables[row[0]] = Table(  # pragma: no cover
                 database,
                 self.entity(row[0]),
                 self.autocomplete(),
                 row[2],
                 row[3])
-            self._comments[row[0]] = TableComment(row[1])
+            self._comments[row[0]] = TableComment(row[1])  # pragma: no cover
 
-        self.init_foreign_keys()
+        self.init_foreign_keys()  # pragma: no cover

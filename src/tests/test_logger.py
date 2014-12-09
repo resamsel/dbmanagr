@@ -35,7 +35,10 @@ def load_suite():
 
 
 def test_no_debug():
-    @LogWith(logger)
+    logger2 = logging.getLogger('nodebug')
+    logger2.setLevel(logging.WARNING)
+
+    @LogWith(logger2)
     def foo():
         return 'bar'
     assert foo() == 'bar'

@@ -23,6 +23,7 @@ import os
 from tests.grapher import load
 from tests.testcase import DbTestCase
 from dbnav import grapher
+from dbnav.config import Config
 from dbnav.exception import UnknownTableException
 
 
@@ -54,7 +55,20 @@ class GrapherTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            grapher.main)
+            self.mute_stderr(grapher.main))
+
         self.assertEqual(
             0,
             grapher.main(['dbnav.sqlite/user?id=1']))
+
+    def test_options(self):
+        """Tests options"""
+
+        config = Config.init(
+            ['-r', '--database', 'dbnav.sqlite/article'],
+            grapher.args.parser)
+        config.database = 'db'
+
+        self.assertEqual(
+            12,
+            len(grapher.DatabaseGrapher(config).run()))

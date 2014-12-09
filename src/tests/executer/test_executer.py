@@ -51,7 +51,8 @@ class ExecuterTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            executer.main)
+            self.mute_stderr(executer.main))
+
         self.assertEqual(
             0,
             executer.main(['dbnav.sqlite/user?id=1', '-s', 'select 1']))

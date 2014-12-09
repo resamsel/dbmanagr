@@ -91,7 +91,8 @@ class DifferTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            exporter.main)
+            self.mute_stderr(exporter.main))
+
         self.assertEqual(
             0,
             exporter.main(['dbnav.sqlite/user?id=1']))

@@ -199,10 +199,6 @@ class Formatter:
         return Formatter.formatter.format(item)
 
     @staticmethod
-    def format_item(item):
-        return Formatter.formatter.format_item(item)
-
-    @staticmethod
     def format_row(item):
         return Formatter.formatter.format_row(item)
 

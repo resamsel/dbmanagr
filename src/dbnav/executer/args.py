@@ -20,7 +20,7 @@
 
 import argparse
 
-from dbnav.args import parent_parser, format_group
+from dbnav.args import parent_parser, format_group, create_parser
 
 from .writer import ExecuteWriter, SqlInsertWriter, ExecuteTestWriter
 
@@ -42,7 +42,7 @@ group.add_argument(
     action='store_const',
     const=SqlInsertWriter)
 
-parser = argparse.ArgumentParser(
+parser = create_parser(
     prog='dbexec',
     description='Executes the SQL statements from the given file on the '
                 'database specified by the given URI',

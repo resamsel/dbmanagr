@@ -32,6 +32,14 @@ from tests.mock.sources import URI as MOCK_URI
 MOCK_URI2 = MOCK_URI.replace('dbnav.sqlite', '{{database}}/dbnav.sqlite')
 
 
+class Opts:
+    def __init__(self, user=None, password=None, host=None, gen=None):
+        self.user = user
+        self.password = password
+        self.host = host
+        self.gen = gen
+
+
 class DatabaseConnectionTestCase(DbTestCase):
     def test_autocomplete(self):
         """Tests the autocomplete function"""
@@ -73,6 +81,12 @@ class DatabaseConnectionTestCase(DbTestCase):
             dbc.PostgreSQLConnection(
                 'uri', 'host', '3333', 'db', 'user', 'password'
             ).filter(Config.init(['user@host/db/'], navigator.args.parser)))
+        self.assertEqual(
+            False,
+            dbc.PostgreSQLConnection(
+                'postgresql://{user}:{password}@{host}/{database}',
+                'host', '3333', 'db', 'user', 'password'
+            ).filter({'postgresql': Opts(user='foo', host=None)}))
 
     def test_connect(self):
         """Tests the connect function"""
@@ -133,7 +147,7 @@ class DatabaseConnectionTestCase(DbTestCase):
             con.databases())
 
     def test_init_tables(self):
-        """Tests the init_tables function"""
+        """Tests the init_tables method"""
 
         self.assertRaises(
             Exception,
@@ -142,6 +156,16 @@ class DatabaseConnectionTestCase(DbTestCase):
                 'host', '3333', 'db', 'user', 'password'
             ).init_tables,
             [None])
+
+    def test_matches(self):
+        """Tests the matches method"""
+
+        self.assertEqual(
+            False,
+            dbc.PostgreSQLConnection(
+                'postgresql://{user}:{password}@{host}/{database}',
+                'host', '3333', 'db', 'user', 'password'
+            ).matches({'postgresql': Opts(gen='foo@bar')}))
 
     def test_postgresql_database(self):
         """Tests instantiating the PostgreSQLDatabase"""

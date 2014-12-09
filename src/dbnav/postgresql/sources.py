@@ -100,7 +100,7 @@ class NavicatPostgreSQLSource(Source):
                 for k, v in plist['PostgreSQL']['servers'].items():
                     # The key is a big problem here: it is encrypted
                     connection = PostgreSQLConnection(
-                        v['host'], v['port'],
+                        self.driver, v['host'], v['port'],
                         v['defaultdatabase'], v['username'], v['key'])
                     self.connections.append(connection)
 

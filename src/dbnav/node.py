@@ -82,11 +82,7 @@ class ForeignKeyNode(BaseNode):
             self.__dict__.iteritems()))
 
     def __getattr__(self, name):
-        if self.fk:
-            return getattr(self.fk, name)
-        if name in self.__dict__:
-            return self.__dict__[name]
-        return None
+        return getattr(self.fk, name)
 
     def __hash__(self):
         return hash(str(self.fk))

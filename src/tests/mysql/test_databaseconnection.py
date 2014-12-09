@@ -18,12 +18,18 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from os import path
+
 from sqlalchemy.exc import OperationalError
 
 from tests.testcase import DbTestCase
 from dbnav.mysql import databaseconnection as dbc
 from dbnav.config import Config
 from dbnav import navigator
+from tests.mock.sources import DIR as MOCK_DIR
+from tests.mock.sources import URI as MOCK_URI
+
+MOCK_URI2 = MOCK_URI.replace('dbnav.sqlite', '{{database}}/dbnav.sqlite')
 
 
 class DatabaseConnectionTestCase(DbTestCase):
@@ -78,3 +84,33 @@ class DatabaseConnectionTestCase(DbTestCase):
                 'host', '3333', 'db', 'user', 'password'
             ).connect,
             [None])
+        self.assertEqual(
+            None,
+            dbc.MySQLConnection(
+                MOCK_URI.format(
+                    file=path.join(MOCK_DIR, '../resources/dbnav.sqlite')),
+                'host', '3333', 'db', 'user', 'password'
+            ).connect(None))
+        self.assertEqual(
+            None,
+            dbc.MySQLConnection(
+                MOCK_URI.format(
+                    file=path.join(MOCK_DIR, '../resources/dbnav.sqlite')),
+                'host', '3333', 'db', 'user', 'password'
+            ).connect(None))
+        self.assertEqual(
+            None,
+            dbc.MySQLConnection(
+                MOCK_URI.format(
+                    file=path.join(
+                        MOCK_DIR, '../resources/dbnav.sqlite')),
+                'host', '3333', 'db', 'user', 'password'
+            ).connect('db'))
+        self.assertEqual(
+            None,
+            dbc.MySQLConnection(
+                MOCK_URI2.format(
+                    file=path.join(
+                        MOCK_DIR, '../resources/dbnav.sqlite')),
+                'host', '3333', 'db', 'user', 'password'
+            ).connect('db'))

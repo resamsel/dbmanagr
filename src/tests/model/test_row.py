@@ -58,3 +58,16 @@ class RowTestCase(DbTestCase):
             None, r['bar'])
         self.assertEqual(
             'Bar', row.val(r, 1))
+
+    def test_getitem(self):
+        """Tests the row.__getitem__ method"""
+
+        con = DbTestCase.connection
+        user = con.table('user')
+        r = row.Row(
+            user, ResultRow(OrderedDict([('id', 1), ('foo', 'Bar')])))
+
+        self.assertEqual(
+            None, r[None])
+        self.assertEqual(
+            1, r[u'id'])

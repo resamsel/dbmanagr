@@ -1,0 +1,37 @@
+article
+- id INTEGER not null
+→ user_id → user.id
+  - id INTEGER not null
+  - first_name TEXT(255) not null
+  - last_name TEXT(255) not null
+  - company TEXT(255)
+  - username TEXT(31)
+  - email TEXT(255)
+  - phone TEXT(63)
+  - gender TEXT(6)
+  - url TEXT(255)
+  ↑ article (user_id → user.id)
+  ↑ user_address (user_id → user.id)
+    - id INTEGER not null
+    → user_id → user.id
+    → address_id → address.id
+      - id INTEGER not null
+      - street TEXT(255)
+      - zip_code TEXT(10)
+      - city TEXT(255)
+      - country TEXT(2)
+      ↑ user_address (address_id → address.id)
+    - type TEXT(10) not null
+  ↑ blog_user (user_id → user.id)
+    - id INTEGER not null
+    → blog_id → blog.id
+      - id INTEGER not null
+      - name TEXT(255) not null
+      - url TEXT(255) not null
+      ↑ blog_user (blog_id → blog.id)
+    → user_id → user.id
+    - role TEXT(15) not null
+- created TIMESTAMP not null
+- title TEXT(255) not null
+- text TEXT(10000) not null
+- tags TEXT(255)

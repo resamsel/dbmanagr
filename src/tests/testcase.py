@@ -20,6 +20,7 @@
 
 import unittest
 import os
+import sys
 
 from tests.mock.sources import MockSource
 from tests.generator import generator, params
@@ -58,6 +59,18 @@ class ParentTestCase(unittest.TestCase):
     @classmethod
     def setup(self):  # noqa
         self.maxDiff = None
+
+    def mute_stderr(self, f):
+        def wrapper(*args, **kwargs):
+            devnull = open(os.devnull, 'w')
+            stderr, sys.stderr = sys.stderr, devnull
+            try:
+                return f(*args, **kwargs)
+            finally:
+                sys.stderr.close()
+                sys.stderr = stderr
+
+        return wrapper
 
 
 class DbTestCase(ParentTestCase):

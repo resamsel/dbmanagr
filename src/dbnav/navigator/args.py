@@ -18,9 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import argparse
-
-from dbnav.args import parent_parser, format_group
+from dbnav.args import parent_parser, format_group, create_parser
 
 from .writer import SimplifiedWriter, SimpleWriter, JsonWriter, XmlWriter
 from .writer import AutocompleteWriter
@@ -63,7 +61,7 @@ group.add_argument(
     dest='formatter',
     action='store_const',
     const=AutocompleteWriter)
-parser = argparse.ArgumentParser(
+parser = create_parser(
     prog='dbnav',
     description='A database navigation tool that shows database structure and'
                 ' content',

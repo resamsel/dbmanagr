@@ -61,10 +61,10 @@ class Wrapper:
                 # Start post mortem debugging only when debugging is enabled
                 if os.getenv('UNITTEST', 'False') == 'True':
                     raise
-                type, value, tb = sys.exc_info()
+                type, value, tb = sys.exc_info()  # pragma: no cover
                 # traceback.print_exc()
-                pdb.post_mortem(tb)
+                pdb.post_mortem(tb)  # pragma: no cover
             else:
                 # Show the error message if log level is INFO or higher
-                sys.stderr.write(
-                    '{0}: {1}\n'.format(sys.argv[0].split('/')[-1], e))
+                sys.stderr.write('{0}: {1}\n'.format(
+                    sys.argv[0].split('/')[-1], e))  # pragma: no cover

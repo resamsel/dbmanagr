@@ -30,7 +30,7 @@ RESOURCES = path.join(DIR, '../resources')
 DBEXPLORER_CONFIG = path.join(RESOURCES, 'dbexplorer.cfg')
 DBEXPLORER_CONFIG_BROKEN = path.join(RESOURCES, 'dbexplorer-broken.cfg')
 DBEXPLORER_CONFIG_404 = path.join(RESOURCES, 'dbexplorer-404.cfg')
-NAVICAT_CONFIG = path.join(RESOURCES, 'navicat.plist')
+NAVICAT_CONFIG = path.join(RESOURCES, 'navicat-postgresql.plist')
 NAVICAT_CONFIG_404 = path.join(RESOURCES, 'navicat-404.plist')
 
 
@@ -61,7 +61,7 @@ class SourcesTestCase(ParentTestCase):
         """Tests the postgresql.NavicatSQLiteSource.list class"""
 
         self.assertEqual(
-            [],
+            ['postgres@localhost/postgres'],
             map(str, sources.NavicatPostgreSQLSource(
                 '', NAVICAT_CONFIG).list()))
         self.assertEqual(

@@ -23,9 +23,9 @@ from dbnav.formatter import Formatter
 
 
 def val(row, column):
-    colname = '%s_title' % column
-    if colname in row.row:
-        return '%s (%s)' % (row.row[colname], row.row[column])
+    # colname = '%s_title' % column
+    # if colname in row.row:
+    #     return '%s (%s)' % (row.row[colname], row.row[column])
     return row[column]
 
 

@@ -72,15 +72,8 @@ class StdoutWriter(DefaultWriter):
         return items
 
     def itemtostring(self, item):
-        if hasattr(item, '__dict__'):
-            try:
-                return self.item_format.format(
-                    item=unicode(item), **item.__dict__)
-            except:
-                raise
-                return self.format_error_format.format(
-                    item=item, **item.__dict__)
-        return self.item_format.format(item=item)
+        return self.item_format.format(
+            item=unicode(item), **item.__dict__)
 
 
 class FormatWriter(StdoutWriter):
