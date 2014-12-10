@@ -48,6 +48,13 @@ OPERATORS = {
 logger = logging.getLogger(__name__)
 
 
+def column_or_raise(table, columnname):
+    column = table.column(columnname)
+    if not column:
+        raise UnknownColumnException(table, 'id')
+    return column
+
+
 @LogWith(logger)
 def allowed(column, operator, value):
     if operator in ['~', '*']:
@@ -106,9 +113,7 @@ def replace_filter(f, table, entity, comment, search_fields):
                 lambda s: s in entity.columns,
                 search_fields)))
         if 'id' in comment.columns:
-            col = table.column('id')
-            if not col:
-                raise UnknownColumnException(table, 'id')
+            col = column_or_raise(table, 'id')
             ors.append(QueryFilter(col.name, f.operator, rhs))
         logger.debug('Searches: %s', ors)
         return ors
@@ -179,6 +184,16 @@ def create_label(alias_format):
     return lambda column: column.label(alias_format.format(col=column))
 
 
+def simplify(table, comment, key, d):
+    if comment:
+        d[key] = comment.__dict__[key].format(table.name, **d)
+        d['id'] = d['{0}_{1}'.format(
+            comment.aliases[table.name], table.primary_key)]
+    else:
+        d[key] = create_title(
+            comment, table.columns()).format(table.name, **d)[1]
+
+
 class SimplifyMapper:
     def __init__(self, table, comment=None):
         self.table = table
@@ -187,16 +202,7 @@ class SimplifyMapper:
     def map(self, row):
         d = row.__dict__
         for k in filter(lambda k: k not in d, ['title', 'subtitle']):
-            if self.comment:
-                d[k] = self.comment.__dict__[k].format(
-                    self.table.name, **d)
-                d['id'] = d['{0}_{1}'.format(
-                    self.comment.aliases[self.table.name],
-                    self.table.primary_key)]
-            else:
-                d[k] = create_title(
-                    self.comment, self.table.columns()).format(
-                        self.table.name, **d)[1]
+            simplify(self.table, self.comment, k, d)
         return row
 
 
@@ -229,6 +235,7 @@ class QueryBuilder:
 
         projection = map(lambda x: x, entity.columns)
         joins = {self.table.name: entity}
+
         if self.simplify:
             # Add referenced tables from comment to be linked
             comment = create_comment(

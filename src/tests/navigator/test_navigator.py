@@ -43,6 +43,8 @@ class NavigatorTestCase(DbTestCase):
             Config.init(['-l', 'trace'], navigator.args.parser).trace)
 
     def test_non_existent_table(self):
+        """Tests non existent tables"""
+
         self.assertRaises(
             UnknownTableException,
             navigator.run, ['me@xyz.com.sqlite/blog?'])
@@ -74,3 +76,44 @@ class NavigatorTestCase(DbTestCase):
             ['article.user_id', 'blog_user.user_id', 'user_address.user_id'],
             map(lambda v: str(v.value()),
                 navigator.back_references(row, user, aliases)))
+
+    def test_create(self):
+        """Tests the navigator.create function"""
+
+        con = DbTestCase.connection
+        options = Config.init(['dbnav-c.sqlite/user'], navigator.args.parser)
+
+        options.show = 'connections'
+        self.assertEqual(
+            [None],
+            navigator.create(None, options))
+
+        options.show = 'databases'
+        self.assertEqual(
+            ['dbnav-c.sqlite//'],
+            map(str, navigator.create(con, options)))
+
+        options.database = 'db'
+        self.assertEqual(
+            [],
+            map(str, navigator.create(con, options)))
+
+        options = Config.init(['dbnav-c.sqlite/user?'], navigator.args.parser)
+        self.assertEqual(
+            ['dbnav-c.sqlite/'],
+            map(str, navigator.create(con, options)))
+
+    def test_writer(self):
+        """Tests the writer"""
+
+        import sys
+        sys.argv = ['']
+
+        self.assertRaises(
+            SystemExit,
+            self.mute_stderr(navigator.main),
+            ['-K'])
+
+        self.assertEqual(
+            0,
+            navigator.main())

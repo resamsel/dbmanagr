@@ -35,11 +35,12 @@ logger = logging.getLogger(__name__)
 
 
 class SQLiteDatabase(Database):
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, connection):
+        self.connection = connection
+        self.name = ''
 
     def __repr__(self):
-        return AUTOCOMPLETE_FORMAT % self.filename
+        return AUTOCOMPLETE_FORMAT % self.connection
 
 
 class SQLiteConnection(DatabaseConnection):
@@ -60,9 +61,6 @@ class SQLiteConnection(DatabaseConnection):
 
     def subtitle(self):
         return 'SQLite Connection'
-
-    def uri(self, table):
-        return '%s%s' % (self.autocomplete(), table)
 
     def matches(self, options):
         options = options.get(self.dbms)

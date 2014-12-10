@@ -25,6 +25,8 @@ from collections import OrderedDict
 from tests.testcase import DbTestCase
 
 from dbnav import querybuilder
+from dbnav import queryfilter
+from dbnav.exception import UnknownColumnException
 
 
 def load_suite():
@@ -90,6 +92,31 @@ class QueryBuilderTestCase(DbTestCase):
         self.assertEqual(
             ['user_address', 'user', 'address'],
             querybuilder.add_join(con.entity('address'), joins).keys())
+
+    def test_add_filter(self):
+        """Tests the querybuilder.add_filter function"""
+
+        con = DbTestCase.connection
+        user = con.table('user')
+
+        self.assertEqual(
+            None,
+            querybuilder.add_filter(
+                queryfilter.QueryFilter(None, None, None), None, None, None))
+        self.assertRaises(
+            UnknownColumnException,
+            querybuilder.add_filter,
+            queryfilter.QueryFilter('unknown', '=', 7), [], user, {})
+        self.assertRaises(
+            UnknownColumnException,
+            querybuilder.add_filter,
+            queryfilter.QueryFilter('unknown.id', '=', 7), [], user, {})
+
+    def test_replace_filter(self):
+        """Tests the querybuilder.replace_filter function"""
+
+        # Line 111 of querybuilder needs to be tested
+        pass
 
     def test_create_label(self):
         """Tests the querybuilder.create_label function"""

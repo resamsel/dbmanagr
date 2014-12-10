@@ -122,6 +122,4 @@ class MySQLOptionsParser:
                 opts.user, opts.host, opts.table if opts.table else ''
             )
 
-        logger.debug('Parsed options: %s', opts.__dict__)
-
         return opts

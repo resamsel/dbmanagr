@@ -61,7 +61,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                 # consume node
                 table = node.table
                 if opts.recursive and table.name in consumed:
-                    continue
+                    continue  # pragma: no cover
                 if opts.formatter is GraphvizWriter:
                     # Keep node as we need to display its columns in the graph
                     head.append(node)

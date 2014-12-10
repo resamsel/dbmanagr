@@ -18,8 +18,12 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import logging
+
 from dbnav.model.baseitem import BaseItem
 from dbnav.formatter import Formatter
+
+logger = logging.getLogger(__name__)
 
 
 def val(row, column):
@@ -27,6 +31,13 @@ def val(row, column):
     # if colname in row.row:
     #     return '%s (%s)' % (row.row[colname], row.row[column])
     return row[column]
+
+
+def primary_key_or_first_column(table):
+    column = table.primary_key
+    if not column:
+        column = table.column(0).name
+    return column
 
 
 class Row(BaseItem):
@@ -55,17 +66,16 @@ class Row(BaseItem):
         return str(self.row)
 
     def title(self):
-        return val(self, 'title')
+        if 'title' in self.row.__dict__:
+            return val(self, 'title')
+        return val(self, primary_key_or_first_column(self.table))
 
     def subtitle(self):
         return val(self, 'subtitle')
 
     def autocomplete(self):
-        column = self.table.primary_key
-        if not column:
-            column = self.table.column(0).name
-        value = self[column]
-        return self.table.autocomplete(column, value)
+        column = primary_key_or_first_column(self.table)
+        return self.table.autocomplete(column, self[column])
 
     def icon(self):
         return 'images/row.png'

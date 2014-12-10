@@ -103,7 +103,16 @@ def back_references(row, table, aliases):
 
 
 @LogWith(logger)
-def values(connection, table, filter):
+def create_databases(connection, options):
+    databases = connection.databases()
+    if options.database:
+        databases = filter(lambda db: options.database in db.name, databases)
+
+    return sorted(databases, key=lambda db: db.name.lower())
+
+
+@LogWith(logger)
+def create_values(connection, table, filter):
     """Creates row values according to the given filter"""
 
     builder = QueryBuilder(
@@ -136,10 +145,12 @@ def values(connection, table, filter):
 
     row = Row(table, result)
 
+    logger.debug('Keys: %s', keys)
     if keys is None:
         keys = sorted(
             row.row.keys(),
             key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
+    logger.debug('Keys: %s', keys)
 
     values = forward_references(row, table, keys, builder.aliases)
     values += back_references(row, table, builder.aliases)
@@ -147,7 +158,42 @@ def values(connection, table, filter):
     return values
 
 
-def proceed(connection, options):
+@LogWith(logger)
+def create_tables(connection, options):
+    tables = map(lambda (k, t): t, connection.tables().iteritems())
+    if options.table:
+        tables = filter(
+            lambda t: t.name.startswith(options.table),
+            tables)
+
+    return sorted(tables, key=lambda t: t.name.lower())
+
+
+def filter_complete(f):
+    if not f:
+        raise Exception("No filter given")
+    return len(f) > 0 and f.last().rhs is not None
+
+
+@LogWith(logger)
+def create_rows(connection, table, options):
+    return sorted(
+        connection.rows(
+            table,
+            options.filter,
+            limit=options.limit,
+            simplify=options.simplify),
+        key=lambda r: r[0])
+
+
+@LogWith(logger)
+def create_columns(table, options):
+    return sorted(
+        table.columns(options.filter.last().lhs),
+        key=lambda c: c.name.lower())
+
+
+def create(connection, options):
     if options.show == 'connections':
         # print this connection
         return [connection]
@@ -156,20 +202,10 @@ def proceed(connection, options):
         connection.connect(options.database)
 
         if options.show == 'databases':
-            dbs = connection.databases()
-            if options.database:
-                dbs = filter(lambda db: options.database in db.name, dbs)
-
-            return sorted(dbs, key=lambda db: db.name.lower())
+            return create_databases(connection, options)
 
         if options.show == 'tables':
-            tables = map(lambda (k, t): t, connection.tables().iteritems())
-            if options.table:
-                tables = filter(
-                    lambda t: t.name.startswith(options.table),
-                    tables)
-
-            return sorted(tables, key=lambda t: t.name.lower())
+            return create_tables(connection, options)
 
         tables = connection.tables()
         if options.table not in tables:
@@ -177,25 +213,12 @@ def proceed(connection, options):
 
         table = tables[options.table]
         if options.show == 'columns':
-            logger.debug('columns, check filter=%s', options.filter)
-            if not options.filter:
-                raise Exception("No filter given")
-            if (len(options.filter) > 0
-                    and options.filter.last().rhs is None):
-                return sorted(
-                    table.columns(options.filter.last().lhs),
-                    key=lambda c: c.name.lower())
-            else:
-                return sorted(
-                    connection.rows(
-                        table,
-                        options.filter,
-                        limit=options.limit,
-                        simplify=options.simplify),
-                    key=lambda r: r[0])
+            if filter_complete(options.filter):
+                return create_rows(connection, table, options)
+            return create_columns(table, options)
 
         if options.show == 'values':
-            return values(connection, table, options)
+            return create_values(connection, table, options)
     finally:
         connection.close()
 
@@ -221,7 +244,7 @@ class DatabaseNavigator(Wrapper):
         for connection in cons:
             opts = options.get(connection.dbms)
             if opts.show != 'connections' and connection.matches(opts):
-                return proceed(connection, opts)
+                return create(connection, opts)
 
         # print all connections
         return sorted(

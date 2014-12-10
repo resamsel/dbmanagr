@@ -29,8 +29,6 @@ from dbnav import navigator
 from tests.mock.sources import DIR as MOCK_DIR
 from tests.mock.sources import URI as MOCK_URI
 
-MOCK_URI2 = MOCK_URI.replace('dbnav.sqlite', '{{database}}/dbnav.sqlite')
-
 
 class DatabaseConnectionTestCase(DbTestCase):
     def test_autocomplete(self):
@@ -109,8 +107,8 @@ class DatabaseConnectionTestCase(DbTestCase):
         self.assertEqual(
             None,
             dbc.MySQLConnection(
-                MOCK_URI2.format(
+                MOCK_URI.format(
                     file=path.join(
-                        MOCK_DIR, '../resources/dbnav.sqlite')),
+                        MOCK_DIR, '../resources/{database}/dbnav.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
             ).connect('db'))
