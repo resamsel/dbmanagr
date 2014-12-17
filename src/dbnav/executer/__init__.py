@@ -27,7 +27,7 @@ from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
-from dbnav.logger import logger, logduration
+from dbnav.logger import logger, logduration, log_error
 
 from .args import parser
 from .writer import ExecuteWriter
@@ -89,6 +89,13 @@ class DatabaseExecuter(Wrapper):
         else:
             Writer.set(ExecuteWriter())
 
+    def write(self):
+        try:
+            self.run()
+        except:
+            return -1
+        return 0
+
     def execute(self):
         """The main method that splits the arguments and starts the magic"""
         options = self.options
@@ -124,18 +131,29 @@ class DatabaseExecuter(Wrapper):
 
                     start = time.time()
                     for stmt in stmts:
-                        result = connection.execute(stmt, '%d' % counter)
-                        if result.cursor:
-                            results.extend(map(
-                                lambda row: Item(connection, row), result))
-                        else:
-                            # increase changes based on the returned result
-                            # info
-                            changes += result.rowcount
-                        if opts.progress > 0 and counter % opts.progress == 0:
-                            sys.stdout.write('.')
-                            sys.stdout.flush()
-                        counter += 1
+                        try:
+                            result = connection.execute(stmt, '%d' % counter)
+                            if result.cursor:
+                                items = map(
+                                    lambda row: Item(connection, row), result)
+                                results.extend(items)
+                                print Writer.write(items)
+                            else:
+                                # increase changes based on the returned result
+                                # info
+                                changes += result.rowcount
+                            if (opts.progress > 0
+                                    and counter % opts.progress == 0):
+                                sys.stdout.write('.')
+                                sys.stdout.flush()
+                            counter += 1
+                        except BaseException as e:
+                            if opts.ignore_errors:
+                                trans.rollback()
+                                log_error(e)
+                                trans = connection.begin()
+                            else:
+                                raise
                     if opts.progress > 0 and counter >= opts.progress:
                         sys.stdout.write('\n')
                     if opts.dry_run:

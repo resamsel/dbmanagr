@@ -117,3 +117,6 @@ class NavigatorTestCase(DbTestCase):
         self.assertEqual(
             0,
             navigator.main())
+        self.assertEqual(
+            -1,
+            navigator.main(['dbnav.sqlite/unknown?']))

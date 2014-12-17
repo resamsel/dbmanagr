@@ -24,7 +24,7 @@ import logging
 import pdb
 
 from dbnav.writer import Writer
-from dbnav.logger import logger as log
+from dbnav import logger as log
 
 __all__ = (
     'navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger',
@@ -43,6 +43,19 @@ IMAGE_FOREIGN_VALUE = 'images/foreign-value.png'
 OPTION_URI_SINGLE_ROW_FORMAT = u'%s%s/?%s'
 OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
+OPERATORS = {
+    '=': lambda c, v: c == v,
+    '!=': lambda c, v: c != v,
+    '~': lambda c, v: c.like(v),
+    '*': lambda c, v: c.like(v),
+    '>': lambda c, v: c > v,
+    '>=': lambda c, v: c >= v,
+    '<=': lambda c, v: c <= v,
+    '<': lambda c, v: c < v,
+    'in': lambda c, v: c.in_(v),
+    ':': lambda c, v: c.in_(v)
+}
+
 
 class Wrapper:
     def write(self):
@@ -56,8 +69,8 @@ class Wrapper:
         try:
             return self.execute()
         except BaseException as e:
-            log.exception(e)
-            if log.getEffectiveLevel() <= logging.DEBUG:
+            log.logger.exception(e)
+            if log.logger.getEffectiveLevel() <= logging.DEBUG:
                 # Start post mortem debugging only when debugging is enabled
                 if os.getenv('UNITTEST', 'False') == 'True':
                     raise
@@ -66,5 +79,4 @@ class Wrapper:
                 pdb.post_mortem(tb)  # pragma: no cover
             else:
                 # Show the error message if log level is INFO or higher
-                sys.stderr.write('{0}: {1}\n'.format(
-                    sys.argv[0].split('/')[-1], e))  # pragma: no cover
+                log.log_error(e)  # pragma: no cover

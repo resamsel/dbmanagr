@@ -33,6 +33,13 @@ def load_suite():
 
 
 class UtilsTestCase(DbTestCase):
+    def test_module_installed(self):
+        """Tests the utils.module_installed function"""
+
+        self.assertEqual(
+            None,
+            utils.module_installed('foobar'))
+
     def test_prefixes(self):
         """Tests the utils.prefixes function"""
 

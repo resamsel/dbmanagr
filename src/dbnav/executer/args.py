@@ -80,3 +80,8 @@ parser.add_argument(
     action='store_true',
     default=False,
     help='Do a rollback after execution')
+parser.add_argument(
+    '--ignore-errors',
+    action='store_true',
+    default=False,
+    help='Continue execution even if an SQL statement fails')

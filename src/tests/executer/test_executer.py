@@ -56,6 +56,10 @@ class ExecuterTestCase(DbTestCase):
         self.assertEqual(
             0,
             executer.main(['dbnav.sqlite/user?id=1', '-s', 'select 1']))
+        self.assertEqual(
+            -1,
+            executer.main(
+                ['dbnav.sqlite/user?id=1', '-s', 'select * from unknown']))
 
     def test_exception(self):
         """Tests exceptions"""

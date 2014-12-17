@@ -26,6 +26,7 @@ import uuid
 from sqlalchemy.types import Integer
 
 from dbnav.logger import LogWith
+from dbnav import OPERATORS
 
 NAMES = [
     'name', 'title', 'key', 'text', 'first_name', 'username', 'user_name',
@@ -123,6 +124,10 @@ def foreign_key_or_column(table, column):
 
 def hash(s):
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
+
+
+def operation(column, operator, value):
+    return OPERATORS.get(operator)(column, value)
 
 
 def unicode_decode(arg):

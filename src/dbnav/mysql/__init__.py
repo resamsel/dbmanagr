@@ -29,7 +29,7 @@ from dbnav.utils import module_installed
 from dbnav.sources import Source
 from dbnav.mysql.sources import DBExplorerMySQLSource, MypassSource
 from dbnav.options import Options
-from dbnav.mysql.options import MySQLOptionsParser
+from dbnav.mysql.driver import MySQLOptionsParser
 
 DRIVERS = OrderedDict([
     ('MySQLdb', 'mysql+mysqldb://{user}:{password}@{host}/{database}'

@@ -26,24 +26,10 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import Session
 
 from dbnav.logger import LogWith
-from dbnav.utils import create_title
+from dbnav.utils import create_title, operation
 from dbnav.comment import create_comment
 from dbnav.exception import UnknownColumnException
 from dbnav.queryfilter import QueryFilter, OrOp, BitOp
-
-OPERATORS = {
-    '=': lambda c, v: c == v,
-    '!=': lambda c, v: c != v,
-    '~': lambda c, v: c.like(v),
-    '*': lambda c, v: c.like(v),
-    '>': lambda c, v: c > v,
-    '>=': lambda c, v: c >= v,
-    '<=': lambda c, v: c <= v,
-    '<': lambda c, v: c < v,
-    'in': lambda c, v: c.in_(v),
-    ':': lambda c, v: c.in_(v)
-}
-
 
 logger = logging.getLogger(__name__)
 
@@ -66,10 +52,6 @@ def allowed(column, operator, value):
         except:
             return False
     return True
-
-
-def operation(column, operator, value):
-    return OPERATORS.get(operator)(column, value)
 
 
 def add_references(tablename, foreign_keys, joins, comment):

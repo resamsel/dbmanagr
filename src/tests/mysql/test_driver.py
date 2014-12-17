@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.mysql import options
+from dbnav.mysql import driver
 
 
 class OptionsTestCase(DbTestCase):
@@ -31,28 +31,28 @@ class OptionsTestCase(DbTestCase):
 
         self.assertEqual(
             '_article.id = 1',
-            options.restriction(
+            driver.restriction(
                 '_article', article.column('id'), '~', 1))
         self.assertEqual(
             "cast(_article.id as char) ~ 's'",
-            options.restriction(
+            driver.restriction(
                 '_article', article.column('id'), '~', 's'))
         self.assertEqual(
             '_article.id is null',
-            options.restriction(
+            driver.restriction(
                 '_article', article.column('id'), '=', None))
         self.assertEqual(
             'id is null',
-            options.restriction(
+            driver.restriction(
                 None, article.column('id'), '=', None))
 
-    def test_options_restriction(self):
-        """Tests the mysql options restriction function"""
+    def test_driver_restriction(self):
+        """Tests the mysql driver restriction function"""
 
         con = DbTestCase.connection
         article = con.table('article')
 
         self.assertEqual(
             '_article.id = 1',
-            options.MySQLOptions().restriction(
+            driver.MySQLDriver().restriction(
                 '_article', article.column('id'), '~', 1))

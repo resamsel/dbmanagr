@@ -18,6 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import sys
 import logging
 import time
 import functools
@@ -45,6 +46,11 @@ def argtostring(k, v):
     if k == 'self':
         return k
     return '{0}={1}'.format(k, encode(v))
+
+
+def log_error(e):
+    sys.stderr.write('{0}: {1}\n'.format(
+        sys.argv[0].split('/')[-1], e))
 
 
 class LogWith(object):

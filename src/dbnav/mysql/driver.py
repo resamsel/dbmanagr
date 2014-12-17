@@ -68,7 +68,7 @@ def restriction(
     return ' '.join([lhs, operator, rhs])
 
 
-class MySQLOptions:
+class MySQLDriver:
     def __init__(self):
         self.user = None
         self.host = None
@@ -87,10 +87,10 @@ class MySQLOptions:
 
 class MySQLOptionsParser:
     def parse(self, source):
-        opts = MySQLOptions()
-        opts.__dict__.update(source.__dict__)
-        if opts.uri:
-            uri = opts.uri
+        driver = MySQLDriver()
+        driver.__dict__.update(source.__dict__)
+        if driver.uri:
+            uri = driver.uri
             if '@' not in uri:
                 uri += '@'
             url = urlparse('mysql://%s' % uri)
@@ -98,18 +98,18 @@ class MySQLOptionsParser:
             paths = url.path.split('/')
 
             if len(locs) > 0:
-                opts.user = locs[0]
-            if len(locs) > 1 and '@' in opts.uri:
-                opts.host = locs[1]
+                driver.user = locs[0]
+            if len(locs) > 1 and '@' in driver.uri:
+                driver.host = locs[1]
             if len(paths) > 1:
-                opts.database = paths[1]
+                driver.database = paths[1]
             if len(paths) > 2:
-                opts.table = paths[2]
+                driver.table = paths[2]
             if '?' in uri:
-                opts.filter = parse_filter(url.query)
+                driver.filter = parse_filter(url.query)
                 paths.append(url.query)
 
-            opts.show = {
+            driver.show = {
                 1: 'connections',
                 2: 'databases',
                 3: 'tables',
@@ -117,9 +117,9 @@ class MySQLOptionsParser:
                 5: 'values'
             }.get(len(paths), 'connections')
 
-        if opts.user and opts.host:
-            opts.gen = OPTION_URI_FORMAT % (
-                opts.user, opts.host, opts.table if opts.table else ''
+        if driver.user and driver.host:
+            driver.gen = OPTION_URI_FORMAT % (
+                driver.user, driver.host, driver.table if driver.table else ''
             )
 
-        return opts
+        return driver
