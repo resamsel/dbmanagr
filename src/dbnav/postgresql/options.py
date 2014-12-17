@@ -1,13 +1,67 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 from urlparse import urlparse
 from sqlalchemy import Integer
 
 from dbnav.logger import logger, LogWith
-from dbnav.options import parse_filter
+from dbnav.options import parse_filter, format_value
 
 OPTION_URI_FORMAT = '%s@%s/%s'
+
+
+def restriction(alias, column, operator, value, map_null_operator=True):
+    if operator in ['~', 'like'] and isinstance(column.type, Integer):
+        try:
+            int(value)
+            # LIKE not allowed on integer columns, change operator to
+            # equals
+            operator = '='
+        except ValueError:
+            pass
+
+    if alias:
+        alias = '{0}.'.format(alias)
+    else:
+        alias = ''
+    lhs = column.name
+    if column.table:
+        lhs = '{0}{1}'.format(alias, column.name)
+    if (value
+            and isinstance(column.type, Integer)
+            and type(value) is not list):
+        try:
+            int(value)
+        except ValueError:
+            # column type is integer, but value is not
+            lhs = 'cast({0}{1} as text)'.format(alias, column.name)
+    if operator in ['=', '!='] and (value == 'null' or value is None):
+        if map_null_operator:
+            operator = {
+                '=': 'is',
+                '!=': 'is not'
+            }.get(operator)
+        value = None
+    rhs = format_value(column, value)
+
+    return ' '.join([lhs, operator, rhs])
 
 
 class PostgreSQLOptions:
@@ -22,40 +76,7 @@ class PostgreSQLOptions:
     @LogWith(logger)
     def restriction(
             self, alias, column, operator, value, map_null_operator=True):
-        if operator in ['~', 'like'] and isinstance(column.type, Integer):
-            try:
-                int(value)
-                # LIKE not allowed on integer columns, change operator to
-                # equals
-                operator = '='
-            except ValueError:
-                pass
-
-        if alias:
-            alias = '{0}.'.format(alias)
-        else:
-            alias = ''
-        lhs = column.name
-        if column.table:
-            lhs = '{0}{1}'.format(alias, column.name)
-        if (value
-                and isinstance(column.type, Integer)
-                and type(value) is not list):
-            try:
-                int(value)
-            except ValueError:
-                # column type is integer, but value is not
-                lhs = 'cast({0}{1} as text)'.format(alias, column.name)
-        if operator in ['=', '!='] and (value == 'null' or value is None):
-            if map_null_operator:
-                operator = {
-                    '=': 'is',
-                    '!=': 'is not'
-                }.get(operator)
-            value = None
-        rhs = self.format_value(column, value)
-
-        return ' '.join([lhs, operator, rhs])
+        return restriction(alias, column, operator, value, map_null_operator)
 
     def __repr__(self):
         return str(self.__dict__)
@@ -96,7 +117,5 @@ class PostgreSQLOptionsParser:
         if opts.user and opts.host:
             opts.gen = OPTION_URI_FORMAT % (
                 opts.user, opts.host, opts.table if opts.table else '')
-
-        logger.debug('Parsed options: %s', opts.__dict__)
 
         return opts

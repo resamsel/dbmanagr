@@ -1,9 +1,26 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import unittest
 
-from tests.testcase import ParentTestCase
+from tests.testcase import DbTestCase
 from dbnav import utils
 from dbnav.model.column import Column
 from dbnav.comment import Comment
@@ -15,7 +32,14 @@ def load_suite():
     return suite
 
 
-class UtilsTestCase(ParentTestCase):
+class UtilsTestCase(DbTestCase):
+    def test_module_installed(self):
+        """Tests the utils.module_installed function"""
+
+        self.assertEqual(
+            None,
+            utils.module_installed('foobar'))
+
     def test_prefixes(self):
         """Tests the utils.prefixes function"""
 
@@ -57,6 +81,16 @@ class UtilsTestCase(ParentTestCase):
         self.assertEqual(
             {'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e'},
             utils.dictplus({'a': 'b', 'b': 'c', 'c': 'd'}, 'd', 'e'))
+
+    def test_dictsplus(self):
+        """Tests the utils.dictsplus function"""
+
+        self.assertEqual(
+            [{'a': 'b', 'b': 'b', 'c': 'd'}],
+            utils.dictsplus([{'a': 'b', 'b': 'c', 'c': 'd'}], 'b', 'b'))
+        self.assertEqual(
+            [{'a': 'b', 'b': 'c', 'c': 'd', 'd': 'e'}],
+            utils.dictsplus([{'a': 'b', 'b': 'c', 'c': 'd'}], 'd', 'e'))
 
     def test_dictminus(self):
         """Tests the utils.dictminus function"""
@@ -116,3 +150,20 @@ class UtilsTestCase(ParentTestCase):
                     '_id', 'title', 'subtitle', 'order', 'search', 'display',
                     'columns', 'aliases'),
                 [Column(None, 'asdf', type=str)]))
+
+    def test_foreign_key_or_column(self):
+        """Tests the utils.foreign_key_or_column function"""
+
+        con = DbTestCase.connection
+        user = con.table('user')
+        article = con.table('article')
+
+        self.assertEqual(
+            user.column('id'),
+            utils.foreign_key_or_column(user, 'id'))
+        self.assertEqual(
+            article.foreign_key('user_id'),
+            utils.foreign_key_or_column(article, 'user_id'))
+        self.assertEqual(
+            None,
+            utils.foreign_key_or_column(article, 'foo'))

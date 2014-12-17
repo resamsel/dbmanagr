@@ -1,12 +1,29 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import sys
 import logging
 
 from collections import deque
 
-from dbnav import decorator
+from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.logger import LogWith
@@ -44,7 +61,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                 # consume node
                 table = node.table
                 if opts.recursive and table.name in consumed:
-                    continue
+                    continue  # pragma: no cover
                 if opts.formatter is GraphvizWriter:
                     # Keep node as we need to display its columns in the graph
                     head.append(node)
@@ -114,13 +131,20 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
     return head
 
 
-class DatabaseGrapher:
+class DatabaseGrapher(Wrapper):
     """The main class"""
+    def __init__(self, options):
+        self.options = options
 
-    @staticmethod
+        if options.formatter:
+            Writer.set(options.formatter(options))
+        else:
+            Writer.set(GraphWriter(options))
+
     @LogWith(logger)
-    def graph(options):
+    def execute(self):
         """The main method that splits the arguments and starts the magic"""
+        options = self.options
 
         cons = Source.connections()
 
@@ -129,13 +153,12 @@ class DatabaseGrapher:
             opts = options.get(connection.dbms)
             if connection.matches(opts) and opts.show in [
                     'tables', 'columns', 'values']:
-                return DatabaseGrapher.build(connection, opts)
+                return self.build(connection, opts)
 
         raise Exception('Specify the complete URI to a table')
 
-    @staticmethod
     @LogWith(logger)
-    def build(connection, opts):
+    def build(self, connection, opts):
         try:
             connection.connect(opts.database)
             tables = connection.tables()
@@ -178,20 +201,13 @@ class DatabaseGrapher:
             connection.close()
 
 
-@decorator
-def main():
-    return run(sys.argv[1:])
+def run(args):
+    grapher = DatabaseGrapher(Config.init(args, parser))
+    return grapher.run()
 
 
-def run(argv):
-    options = Config.init(argv, parser)
-
-    if options.formatter:
-        Writer.set(options.formatter(options))
-    else:
-        Writer.set(GraphWriter(options))
-
-    return DatabaseGrapher.graph(options)
-
-if __name__ == "__main__":
-    main()
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    grapher = DatabaseGrapher(Config.init(args, parser))
+    return grapher.write()

@@ -1,16 +1,28 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
-import unittest
+from datetime import datetime
 
 from tests.testcase import DbTestCase
+from tests.mock.sources import MockSource
 from dbnav import options
-
-
-def load_suite():
-    loader = unittest.TestLoader()
-    suite = loader.loadTestsFromTestCase(OptionsTestCase)
-    return suite
 
 
 class OptionsTestCase(DbTestCase):
@@ -30,12 +42,24 @@ class OptionsTestCase(DbTestCase):
     def test_format_value(self):
         """Tests the options.format_value function"""
 
+        DbTestCase.connection.close()
+        DbTestCase.connection = MockSource().list()[0]
+        DbTestCase.connection.connect()
         con = DbTestCase.connection
         user = con.table('user')
+        user2 = con.table('user2')
+        article = con.table('article')
+        now = datetime.now()
 
         self.assertEqual(
             u'null',
             options.format_value(None, None))
+        self.assertEqual(
+            '1',
+            options.format_value(None, 1))
+        self.assertEqual(
+            "'d'",
+            options.format_value(None, 'd'))
         self.assertEqual(
             u'7',
             options.format_value(user.column('id'), 7))
@@ -45,6 +69,18 @@ class OptionsTestCase(DbTestCase):
         self.assertEqual(
             'null',
             options.format_value(user.column('id'), None))
+        self.assertEqual(
+            'true',
+            options.format_value(user2.column('deleted'), True))
+        self.assertEqual(
+            '3.141500',
+            options.format_value(user2.column('score'), 3.1415))
+        self.assertEqual(
+            "'3.14.15'",
+            options.format_value(user2.column('score'), '3.14.15'))
+        self.assertEqual(
+            "'{}'".format(str(now)),
+            options.format_value(article.column('created'), now))
 
     def test_restriction(self):
         """Tests the options.restriction function"""

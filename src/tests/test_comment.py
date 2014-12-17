@@ -1,5 +1,22 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import unittest
 
@@ -19,7 +36,7 @@ def load_suite():
 
 class CommentTestCase(DbTestCase):
     def test_update_aliases(self):
-        """Tests the utils.update_aliases function"""
+        """Tests the comment.update_aliases function"""
 
         con = DbTestCase.connection
         user = con.table('user')
@@ -44,7 +61,7 @@ class CommentTestCase(DbTestCase):
                 't3', c, {}, user.foreign_keys()))
 
     def test_column_aliases(self):
-        """Tests the utils.column_aliases function"""
+        """Tests the comment.column_aliases function"""
 
         self.assertEqual(
             {},
@@ -67,6 +84,39 @@ class CommentTestCase(DbTestCase):
                 '_alias'))
 
     def test_create_comment(self):
-        """Tests the utils.create_comment function"""
+        """Tests the comment.create_comment function"""
 
-        pass
+        con = DbTestCase.connection
+        user = con.table('user')
+        user_comment = con.comment('user')
+        c = Counter()
+
+        self.assertEqual(
+            '{_user_id}',  # comment.Comment('id', ),
+            comment.create_comment(
+                user,
+                user_comment,
+                c,
+                {},
+                '_user').id)
+
+        pk, user.primary_key = user.primary_key, False
+        self.assertEqual(
+            '-',  # comment.Comment('id', ),
+            comment.create_comment(
+                user,
+                user_comment,
+                c,
+                {},
+                '_user').id)
+        user.primary_key = pk
+
+        user_comment.id = '{id}'
+        self.assertEqual(
+            '{_user_id}',  # comment.Comment('id', ),
+            comment.create_comment(
+                user,
+                user_comment,
+                c,
+                {},
+                '_user').id)

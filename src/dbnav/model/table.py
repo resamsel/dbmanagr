@@ -1,5 +1,22 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import logging
 
@@ -72,7 +89,7 @@ class Table(BaseItem):
 
         return None
 
-    @LogWith(logger, log_result=False)
+    @LogWith(logger, log_result=False, log_args=False)
     def rows(
             self, connection, filter=None, limit=DEFAULT_LIMIT, simplify=None):
         """Retrieves rows from the table with the given filter applied"""
@@ -111,18 +128,15 @@ class Table(BaseItem):
                 builder.build(),
                 name='Rows',
                 mapper=mapper)
-        except DataError as e:
+        except (DataError, ProgrammingError, UnknownColumnException,
+                UnicodeEncodeError):  # pragma: no cover
             raise
-        except ProgrammingError as e:
-            raise
-        except UnknownColumnException as e:
-            raise
-        except BaseException as e:
-            logger.error(e, exc_info=1)
-            import sys
+        except BaseException as e:  # pragma: no cover
+            logger.error(e, exc_info=1)  # pragma: no cover
+            import sys  # pragma: no cover
             raise type(e), type(e)(
-                '{} (check comment on table {})'.format(e.message, self.name)
-            ), sys.exc_info()[2]
+                u'{} (check comment on table {})'.format(e.message, self.name)
+            ), sys.exc_info()[2]  # pragma: no cover
 
         return map(lambda row: Row(self, row), result)
 

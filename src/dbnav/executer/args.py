@@ -1,9 +1,26 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import argparse
 
-from dbnav.args import parent_parser, format_group
+from dbnav.args import parent_parser, format_group, create_parser
 
 from .writer import ExecuteWriter, SqlInsertWriter, ExecuteTestWriter
 
@@ -25,7 +42,7 @@ group.add_argument(
     action='store_const',
     const=SqlInsertWriter)
 
-parser = argparse.ArgumentParser(
+parser = create_parser(
     prog='dbexec',
     description='Executes the SQL statements from the given file on the '
                 'database specified by the given URI',
@@ -63,3 +80,8 @@ parser.add_argument(
     action='store_true',
     default=False,
     help='Do a rollback after execution')
+parser.add_argument(
+    '--ignore-errors',
+    action='store_true',
+    default=False,
+    help='Continue execution even if an SQL statement fails')

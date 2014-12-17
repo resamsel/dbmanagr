@@ -1,5 +1,22 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import logging
 
@@ -9,26 +26,19 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.orm.session import Session
 
 from dbnav.logger import LogWith
-from dbnav.utils import create_title
+from dbnav.utils import create_title, operation
 from dbnav.comment import create_comment
 from dbnav.exception import UnknownColumnException
 from dbnav.queryfilter import QueryFilter, OrOp, BitOp
 
-OPERATORS = {
-    '=': lambda c, v: c == v,
-    '!=': lambda c, v: c != v,
-    '~': lambda c, v: c.like(v),
-    '*': lambda c, v: c.like(v),
-    '>': lambda c, v: c > v,
-    '>=': lambda c, v: c >= v,
-    '<=': lambda c, v: c <= v,
-    '<': lambda c, v: c < v,
-    'in': lambda c, v: c.in_(v),
-    ':': lambda c, v: c.in_(v)
-}
-
-
 logger = logging.getLogger(__name__)
+
+
+def column_or_raise(table, columnname):
+    column = table.column(columnname)
+    if not column:
+        raise UnknownColumnException(table, 'id')
+    return column
 
 
 @LogWith(logger)
@@ -42,10 +52,6 @@ def allowed(column, operator, value):
         except:
             return False
     return True
-
-
-def operation(column, operator, value):
-    return OPERATORS.get(operator)(column, value)
 
 
 def add_references(tablename, foreign_keys, joins, comment):
@@ -89,9 +95,7 @@ def replace_filter(f, table, entity, comment, search_fields):
                 lambda s: s in entity.columns,
                 search_fields)))
         if 'id' in comment.columns:
-            col = table.column('id')
-            if not col:
-                raise UnknownColumnException(table, 'id')
+            col = column_or_raise(table, 'id')
             ors.append(QueryFilter(col.name, f.operator, rhs))
         logger.debug('Searches: %s', ors)
         return ors
@@ -162,6 +166,16 @@ def create_label(alias_format):
     return lambda column: column.label(alias_format.format(col=column))
 
 
+def simplify(table, comment, key, d):
+    if comment:
+        d[key] = comment.__dict__[key].format(table.name, **d)
+        d['id'] = d['{0}_{1}'.format(
+            comment.aliases[table.name], table.primary_key)]
+    else:
+        d[key] = create_title(
+            comment, table.columns()).format(table.name, **d)[1]
+
+
 class SimplifyMapper:
     def __init__(self, table, comment=None):
         self.table = table
@@ -170,16 +184,7 @@ class SimplifyMapper:
     def map(self, row):
         d = row.__dict__
         for k in filter(lambda k: k not in d, ['title', 'subtitle']):
-            if self.comment:
-                d[k] = self.comment.__dict__[k].format(
-                    self.table.name, **d)
-                d['id'] = d['{0}_{1}'.format(
-                    self.comment.aliases[self.table.name],
-                    self.table.primary_key)]
-            else:
-                d[k] = create_title(
-                    self.comment, self.table.columns()).format(
-                        self.table.name, **d)[1]
+            simplify(self.table, self.comment, k, d)
         return row
 
 
@@ -212,6 +217,7 @@ class QueryBuilder:
 
         projection = map(lambda x: x, entity.columns)
         joins = {self.table.name: entity}
+
         if self.simplify:
             # Add referenced tables from comment to be linked
             comment = create_comment(

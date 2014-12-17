@@ -1,10 +1,31 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 from os import path, makedirs
+from nose.tools import assert_equal
 import codecs
 
 from dbnav.writer import Writer
+
+LOGFILE = '{}/target/dbnavigator.log'.format(
+    path.join(path.dirname(__file__), '../../'))
 
 
 def params(dir, testcase):
@@ -45,15 +66,15 @@ def update_expected(dir, testcase, content):
     return content
 
 
-def test_generator(f, command, dir, tc, parameters=None):
+def generator(f, command, dir, tc, parameters=None):
     if parameters is None:
         parameters = []
 
-    def test(self):
+    def test():
         p, e = params(dir, tc), expected(dir, tc)
         items = f.run([
             '-l', 'debug',
-            '-L', 'target/dbnavigator.log'] + parameters + p)
+            '-L', LOGFILE] + parameters + p)
         actual = Writer.write(items)
         write_actual(command, tc, actual)
 
@@ -61,5 +82,5 @@ def test_generator(f, command, dir, tc, parameters=None):
         # uncomment when in need!
         # e = update_expected(dir, tc, actual)
 
-        self.assertEqual(e, actual)
+        assert_equal(e, actual)
     return test

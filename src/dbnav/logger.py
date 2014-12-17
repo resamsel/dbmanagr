@@ -1,6 +1,24 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
+import sys
 import logging
 import time
 import functools
@@ -16,18 +34,23 @@ def encode(v):
     if v is None:
         return None
     if type(v) is unicode:
-        return v
+        return repr(v)
     if type(v) is str:
-        return unicode(v, 'UTF-8')
+        return encode(unicode(v, 'UTF-8'))
     if type(v) is list:
         return map(encode, v)
-    return unicode(v)
+    return encode(unicode(v))
 
 
 def argtostring(k, v):
     if k == 'self':
         return k
     return '{0}={1}'.format(k, encode(v))
+
+
+def log_error(e):
+    sys.stderr.write('{0}: {1}\n'.format(
+        sys.argv[0].split('/')[-1], e))
 
 
 class LogWith(object):

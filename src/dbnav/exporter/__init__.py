@@ -1,5 +1,22 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import sys
 import re
@@ -7,7 +24,7 @@ import logging
 
 from collections import OrderedDict
 
-from dbnav import decorator
+from dbnav import Wrapper
 from dbnav.logger import LogWith
 from dbnav.config import Config
 from dbnav.sources import Source
@@ -117,12 +134,19 @@ def prefix(s):
     return re.sub('([^\\.]*)\\..*', '\\1', s)
 
 
-class DatabaseExporter:
+class DatabaseExporter(Wrapper):
     """The main class"""
+    def __init__(self, options):
+        self.options = options
 
-    @staticmethod
-    def export(options):
+        if options.formatter:
+            Writer.set(options.formatter(options))
+        else:
+            Writer.set(SqlInsertWriter(options))
+
+    def execute(self):
         """The main method that splits the arguments and starts the magic"""
+        options = self.options
 
         cons = Source.connections()
 
@@ -155,20 +179,13 @@ class DatabaseExporter:
         raise Exception('Specify the complete URI to a table')
 
 
-@decorator
-def main():
-    return run(sys.argv[1:])
+def run(args):
+    exporter = DatabaseExporter(Config.init(args, parser))
+    return exporter.run()
 
 
-def run(argv):
-    options = Config.init(argv, parser)
-
-    if options.formatter:
-        Writer.set(options.formatter(options))
-    else:
-        Writer.set(SqlInsertWriter(options))
-
-    return DatabaseExporter.export(options)
-
-if __name__ == "__main__":
-    main()
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    exporter = DatabaseExporter(Config.init(args, parser))
+    return exporter.write()

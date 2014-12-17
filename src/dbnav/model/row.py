@@ -1,15 +1,43 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import logging
 
 from dbnav.model.baseitem import BaseItem
 from dbnav.formatter import Formatter
 
+logger = logging.getLogger(__name__)
+
 
 def val(row, column):
-    colname = '%s_title' % column
-    if colname in row.row:
-        return '%s (%s)' % (row.row[colname], row.row[column])
+    # colname = '%s_title' % column
+    # if colname in row.row:
+    #     return '%s (%s)' % (row.row[colname], row.row[column])
     return row[column]
+
+
+def primary_key_or_first_column(table):
+    column = table.primary_key
+    if not column:
+        column = table.column(0).name
+    return column
 
 
 class Row(BaseItem):
@@ -38,17 +66,16 @@ class Row(BaseItem):
         return str(self.row)
 
     def title(self):
-        return val(self, 'title')
+        if 'title' in self.row.__dict__:
+            return val(self, 'title')
+        return val(self, primary_key_or_first_column(self.table))
 
     def subtitle(self):
         return val(self, 'subtitle')
 
     def autocomplete(self):
-        column = self.table.primary_key
-        if not column:
-            column = self.table.column(0).name
-        value = self[column]
-        return self.table.autocomplete(column, value)
+        column = primary_key_or_first_column(self.table)
+        return self.table.autocomplete(column, self[column])
 
     def icon(self):
         return 'images/row.png'

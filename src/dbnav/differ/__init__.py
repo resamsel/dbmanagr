@@ -1,11 +1,28 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import sys
 
 from dbnav.writer import Writer
 
-from dbnav import decorator
+from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.exception import UnknownTableException
@@ -21,12 +38,20 @@ def column_name(c):
     return c.name
 
 
-class DatabaseDiffer:
+class DatabaseDiffer(Wrapper):
     """The main class"""
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
 
-    @staticmethod
-    def diff(left, right):
+        if left.formatter:
+            Writer.set(left.formatter(left, right))
+        else:
+            Writer.set(DiffWriter(left, right))
+
+    def execute(self):
         """The main method that splits the arguments and starts the magic"""
+        left, right = self.left, self.right
 
         lcon = Source.connection(left)
         if not lcon:
@@ -79,25 +104,23 @@ class DatabaseDiffer:
             rcon.close()
 
 
-@decorator
-def main():
-    return run(sys.argv[1:])
-
-
-def run(argv):
+def init(argv, parser):
     left = Config.init(argv, parser)
     left.uri = left.left
     left.update_parsers()
     right = Config.init(argv, parser)
     right.uri = right.right
     right.update_parsers()
+    return (left, right)
 
-    if left.formatter:
-        Writer.set(left.formatter(left, right))
-    else:
-        Writer.set(DiffWriter(left, right))
 
-    return DatabaseDiffer.diff(left, right)
+def run(args):
+    differ = DatabaseDiffer(*init(args, parser))
+    return differ.run()
 
-if __name__ == "__main__":
-    main()
+
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    differ = DatabaseDiffer(*init(args, parser))
+    return differ.write()

@@ -1,5 +1,22 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 # import shelve
 import logging
@@ -123,7 +140,7 @@ class PostgreSQLConnection(DatabaseConnection):
         return matches
 
     def connect(self, database):
-        logger.debug('Connecting to database %s' % database)
+        logger.debug('Connecting to database %s', database)
 
         if database:
             try:
@@ -152,7 +169,7 @@ class PostgreSQLConnection(DatabaseConnection):
 
     def databases(self):
         # does not yet work with sqlalchemy...
-        if not self._databases:
+        if self._databases is None:
             self._databases = map(
                 lambda row: PostgreSQLDatabase(self, row[0]),
                 self.execute(DATABASES_QUERY % self.user, 'Databases'))
@@ -163,17 +180,17 @@ class PostgreSQLConnection(DatabaseConnection):
     def init_tables(self, database):
         # sqlalchemy does not yet provide reflecting comments
 
-        result = self.execute(TABLES_QUERY, 'Tables')
-
         self._tables = {}
         self._comments = {}
-        for row in result:
-            self._tables[row[0]] = Table(
+
+        result = self.execute(TABLES_QUERY, 'Tables')
+        for row in result:  # pragma: no cover
+            self._tables[row[0]] = Table(  # pragma: no cover
                 database,
                 self.entity(row[0]),
                 self.autocomplete(),
                 row[2],
                 row[3])
-            self._comments[row[0]] = TableComment(row[1])
+            self._comments[row[0]] = TableComment(row[1])  # pragma: no cover
 
-        self.init_foreign_keys()
+        self.init_foreign_keys()  # pragma: no cover

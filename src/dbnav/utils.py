@@ -1,5 +1,22 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import logging
 import re
@@ -9,6 +26,7 @@ import uuid
 from sqlalchemy.types import Integer
 
 from dbnav.logger import LogWith
+from dbnav import OPERATORS
 
 NAMES = [
     'name', 'title', 'key', 'text', 'first_name', 'username', 'user_name',
@@ -96,8 +114,20 @@ def create_title(comment, columns, exclude=None):
     return None
 
 
+@LogWith(logger)
+def foreign_key_or_column(table, column):
+    fk = table.foreign_key(column)
+    if fk:
+        return fk
+    return table.column(column)
+
+
 def hash(s):
     return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
+
+
+def operation(column, operator, value):
+    return OPERATORS.get(operator)(column, value)
 
 
 def unicode_decode(arg):

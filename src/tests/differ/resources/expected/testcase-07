@@ -1,4 +1,6 @@
+                                           > dbnav.sqlite/user2?title TEXT(127)
 dbnav.sqlite/user?url TEXT(255)            <
 dbnav.sqlite/user?company TEXT(255)        <
+                                           > dbnav.sqlite/user2?deleted BOOLEAN
+                                           > dbnav.sqlite/user2?score REAL
                                            > dbnav.sqlite/user2?company_name TEXT(255)
-                                           > dbnav.sqlite/user2?title TEXT(127)

@@ -5,3 +5,4 @@ build
 target
 src/main/dbnav.egg-info
 dbnav.egg-info
+.coverage

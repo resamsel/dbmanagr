@@ -1,4 +1,6 @@
+                                           > dbnav.sqlite/user2?title
 dbnav.sqlite/user?url                      <
 dbnav.sqlite/user?company                  <
+                                           > dbnav.sqlite/user2?deleted
+                                           > dbnav.sqlite/user2?score
                                            > dbnav.sqlite/user2?company_name
-                                           > dbnav.sqlite/user2?title

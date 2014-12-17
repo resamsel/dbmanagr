@@ -1,12 +1,28 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import logging
 import math
 import datetime
 
 from sqlalchemy import Boolean, Float, Integer
-from sqlalchemy.types import TIMESTAMP
 
 from dbnav.queryfilter import QueryFilter, OrOp, AndOp
 
@@ -70,11 +86,6 @@ def format_value(column, value):
         except ValueError:
             pass
     if isinstance(column.type, Integer):
-        try:
-            return '%d' % int(value)
-        except ValueError:
-            pass
-    if isinstance(column.type, TIMESTAMP):
         try:
             return '%d' % int(value)
         except ValueError:

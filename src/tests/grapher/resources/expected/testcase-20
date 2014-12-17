@@ -1,0 +1,14 @@
+digraph dbgraph {
+  root=user;
+  user [shape="record" label="user| <id> id| <first_name> first_name| <last_name> last_name| <company> company| <username> username| <email> email| <phone> phone| <gender> gender| <url> url"];
+  article:user_id -> user:id [];
+  article [shape="record" label="article| <id> id| <user_id> user_id| <created> created| <title> title| <text> text| <tags> tags"];
+  user_address:user_id -> user:id [];
+  user_address [shape="record" label="user_address| <id> id| <user_id> user_id| <address_id> address_id| <type> type"];
+  user_address:address_id -> address:id [];
+  address [shape="record" label="address| <id> id| <street> street| <zip_code> zip_code| <city> city| <country> country"];
+  blog_user:user_id -> user:id [];
+  blog_user [shape="record" label="blog_user| <id> id| <blog_id> blog_id| <user_id> user_id| <role> role"];
+  blog_user:blog_id -> blog:id [];
+  blog [shape="record" label="blog| <id> id| <name> name| <url> url"];
+}

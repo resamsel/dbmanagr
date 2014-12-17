@@ -1,5 +1,22 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import unittest
 
@@ -8,6 +25,8 @@ from collections import OrderedDict
 from tests.testcase import DbTestCase
 
 from dbnav import querybuilder
+from dbnav import queryfilter
+from dbnav.exception import UnknownColumnException
 
 
 def load_suite():
@@ -35,6 +54,9 @@ class QueryBuilderTestCase(DbTestCase):
         self.assertEqual(
             True,
             querybuilder.allowed(user.columns.id, ':', [1, 2, 3]))
+        self.assertEqual(
+            False,
+            querybuilder.allowed(user.columns.id, '=', 'd'))
 
     def test_add_references(self):
         """Tests the querybuilder.add_references function"""
@@ -71,6 +93,31 @@ class QueryBuilderTestCase(DbTestCase):
             ['user_address', 'user', 'address'],
             querybuilder.add_join(con.entity('address'), joins).keys())
 
+    def test_add_filter(self):
+        """Tests the querybuilder.add_filter function"""
+
+        con = DbTestCase.connection
+        user = con.table('user')
+
+        self.assertEqual(
+            None,
+            querybuilder.add_filter(
+                queryfilter.QueryFilter(None, None, None), None, None, None))
+        self.assertRaises(
+            UnknownColumnException,
+            querybuilder.add_filter,
+            queryfilter.QueryFilter('unknown', '=', 7), [], user, {})
+        self.assertRaises(
+            UnknownColumnException,
+            querybuilder.add_filter,
+            queryfilter.QueryFilter('unknown.id', '=', 7), [], user, {})
+
+    def test_replace_filter(self):
+        """Tests the querybuilder.replace_filter function"""
+
+        # Line 111 of querybuilder needs to be tested
+        pass
+
     def test_create_label(self):
         """Tests the querybuilder.create_label function"""
 
@@ -87,3 +134,14 @@ class QueryBuilderTestCase(DbTestCase):
             '_user_id',
             querybuilder.create_label(
                 '_{col.table.name}_{col.name}')(column).name)
+
+    def test_operation(self):
+        """Tests the querybuilder.operation function"""
+
+        con = DbTestCase.connection
+        column = con.entity('user').columns.id
+        v = 1
+
+        self.assertEqual(
+            str(column == v),
+            str(querybuilder.operation(column, '=', v)))

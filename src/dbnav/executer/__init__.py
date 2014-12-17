@@ -1,16 +1,33 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright © 2014 René Samselnig
+#
+# This file is part of Database Navigator.
+#
+# Database Navigator is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Database Navigator is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
+#
 
 import time
 import sys
 import sqlparse
 import re
 
-from dbnav import decorator
+from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
-from dbnav.logger import logger, logduration
+from dbnav.logger import logger, logduration, log_error
 
 from .args import parser
 from .writer import ExecuteWriter
@@ -62,12 +79,26 @@ def read_statements(opts):
     return stmts
 
 
-class DatabaseExecuter:
+class DatabaseExecuter(Wrapper):
     """The main class"""
+    def __init__(self, options):
+        self.options = options
 
-    @staticmethod
-    def execute(options):
+        if options.formatter:
+            Writer.set(options.formatter(options))
+        else:
+            Writer.set(ExecuteWriter())
+
+    def write(self):
+        try:
+            self.run()
+        except:
+            return -1
+        return 0
+
+    def execute(self):
         """The main method that splits the arguments and starts the magic"""
+        options = self.options
 
         cons = Source.connections()
 
@@ -100,18 +131,29 @@ class DatabaseExecuter:
 
                     start = time.time()
                     for stmt in stmts:
-                        result = connection.execute(stmt, '%d' % counter)
-                        if result.cursor:
-                            results.extend(map(
-                                lambda row: Item(connection, row), result))
-                        else:
-                            # increase changes based on the returned result
-                            # info
-                            changes += result.rowcount
-                        if opts.progress > 0 and counter % opts.progress == 0:
-                            sys.stdout.write('.')
-                            sys.stdout.flush()
-                        counter += 1
+                        try:
+                            result = connection.execute(stmt, '%d' % counter)
+                            if result.cursor:
+                                items = map(
+                                    lambda row: Item(connection, row), result)
+                                results.extend(items)
+                                print Writer.write(items)
+                            else:
+                                # increase changes based on the returned result
+                                # info
+                                changes += result.rowcount
+                            if (opts.progress > 0
+                                    and counter % opts.progress == 0):
+                                sys.stdout.write('.')
+                                sys.stdout.flush()
+                            counter += 1
+                        except BaseException as e:
+                            if opts.ignore_errors:
+                                trans.rollback()
+                                log_error(e)
+                                trans = connection.begin()
+                            else:
+                                raise
                     if opts.progress > 0 and counter >= opts.progress:
                         sys.stdout.write('\n')
                     if opts.dry_run:
@@ -137,20 +179,13 @@ class DatabaseExecuter:
         raise Exception('Specify the complete URI to a database')
 
 
-@decorator
-def main():
-    return run(sys.argv[1:])
+def run(args):
+    executer = DatabaseExecuter(Config.init(args, parser))
+    return executer.run()
 
 
-def run(argv):
-    options = Config.init(argv, parser)
-
-    if options.formatter:
-        Writer.set(options.formatter(options))
-    else:
-        Writer.set(ExecuteWriter())
-
-    return DatabaseExecuter.execute(options)
-
-if __name__ == "__main__":
-    main()
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    executer = DatabaseExecuter(Config.init(args, parser))
+    return executer.write()
