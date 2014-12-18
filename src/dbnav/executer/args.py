@@ -84,7 +84,7 @@ parser.add_argument(
     '--isolate-statements',
     action='store_true',
     default=False,
-    help='Wrap each statement in a separate transaction - this allows'
+    help='Wrap each statement in a separate transaction - this allows '
          'continuing execution even if an SQL statement fails')
 parser.add_argument(
     '--mute-errors',
