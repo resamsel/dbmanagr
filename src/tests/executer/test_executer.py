@@ -41,7 +41,8 @@ class ExecuterTestCase(DbTestCase):
         self.assertRaises(
             Exception,
             executer.run,
-            ['dbnav.sqlite', '-s', 'select 1'])
+            ['dbnav.sqlite', '-s', 'select 1']
+        )
 
     def test_writer(self):
         """Tests the writer"""
@@ -51,15 +52,18 @@ class ExecuterTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            self.mute_stderr(executer.main))
+            self.mute_stderr(executer.main)
+        )
 
         self.assertEqual(
             0,
-            executer.main(['dbnav.sqlite/user?id=1', '-s', 'select 1']))
+            executer.main(['dbnav.sqlite/user?id=1', '-s', 'select 1'])
+        )
         self.assertEqual(
             -1,
             executer.main(
-                ['dbnav.sqlite/user?id=1', '-s', 'select * from unknown']))
+                ['dbnav.sqlite/user?id=1', '-s', 'select * from unknown'])
+        )
 
     def test_exception(self):
         """Tests exceptions"""
@@ -67,4 +71,31 @@ class ExecuterTestCase(DbTestCase):
         self.assertRaises(
             OperationalError,
             executer.run,
-            ['dbnav.sqlite/', '-s', 'select * from unkown'])
+            ['dbnav.sqlite/', '-s', 'select * from unkown']
+        )
+
+    def test_isolation(self):
+        """Tests the --isolate-statements option"""
+
+        self.assertEqual(
+            0,
+            executer.main([
+                'dbnav.sqlite/user',
+                '--isolate-statements',
+                '--mute-errors',
+                '-s',
+                'select blub; select 1;'
+            ])
+        )
+
+    def test_empty_statements(self):
+        """Tests empty statements"""
+
+        self.assertEqual(
+            0,
+            executer.main([
+                'dbnav.sqlite/user',
+                '-s',
+                '      '
+            ])
+        )

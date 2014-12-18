@@ -81,7 +81,13 @@ parser.add_argument(
     default=False,
     help='Do a rollback after execution')
 parser.add_argument(
-    '--ignore-errors',
+    '--isolate-statements',
     action='store_true',
     default=False,
-    help='Continue execution even if an SQL statement fails')
+    help='Wrap each statement in a separate transaction - this allows '
+         'continuing execution even if an SQL statement fails')
+parser.add_argument(
+    '--mute-errors',
+    action='store_true',
+    default=False,
+    help='Don\'t display error message for failing statements')
