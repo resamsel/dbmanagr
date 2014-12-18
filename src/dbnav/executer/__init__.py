@@ -79,6 +79,102 @@ def read_statements(opts):
     return stmts
 
 
+class BaseExecuter:
+    def begin(self):
+        pass
+
+    def commit(self):
+        pass
+
+    def rollback(self):
+        pass
+
+    def execute(self, stmt):
+        pass
+
+    def write(self, items):
+        sys.stdout.write(Writer.write(items))
+        sys.stdout.write('\n')
+
+
+class DefaultExecuter(BaseExecuter):
+    """Execute in wrapped transaction"""
+
+    def __init__(self, connection, opts):
+        self.connection = connection
+        self.opts = opts
+        self.trans = None
+
+    def begin(self):
+        self.trans = self.connection.begin()
+
+    def commit(self):
+        if self.trans:
+            self.trans.commit()
+
+    def rollback(self):
+        if self.trans:
+            self.trans.rollback()
+
+    def execute(self, stmt):
+        changes = 0
+        results = []
+
+        result = self.connection.execute(stmt)
+        if result.cursor:
+            items = map(lambda row: Item(self.connection, row), result)
+            results.extend(items)
+            self.write(items)
+        else:
+            # increase changes based on the returned result
+            # info
+            changes += result.rowcount
+
+        return (results, changes, 0)
+
+
+class IsolationExecuter(BaseExecuter):
+    """Execute in wrapped transaction"""
+
+    def __init__(self, connection, opts):
+        self.connection = connection
+        self.opts = opts
+
+    def execute(self, stmt):
+        results = []
+        changes = 0
+        errors = 0
+
+        try:
+            # If we're about to ignore errors we need to
+            # use a separate transaction for each
+            # statement - otherwise previously successful
+            # executions would get lost
+            trans = self.connection.begin()
+
+            result = self.connection.execute(stmt)
+            if result.cursor:
+                items = map(lambda row: Item(self.connection, row), result)
+                results.extend(items)
+                self.write(items)
+            else:
+                # increase changes based on the returned result
+                # info
+                changes = result.rowcount
+
+            if self.opts.dry_run:
+                trans.rollback()
+            else:
+                trans.commit()
+        except BaseException as e:
+            trans.rollback()
+            if not self.opts.mute_errors:
+                log_error(e)
+            errors += 1
+
+        return (results, changes, errors)
+
+
 class DatabaseExecuter(Wrapper):
     """The main class"""
     def __init__(self, options):
@@ -119,51 +215,50 @@ class DatabaseExecuter(Wrapper):
                 results = []
                 # Counts the changes (inserts, updates)
                 changes = 0
+                # Counts the errors (useful with option --ignore-errors)
+                errors = 0
                 # Counts the statements
                 counter = 0
 
                 start = None
-                trans = None
+                executer = None
                 try:
                     # Connects to the database and starts a transaction
                     connection.connect(opts.database)
-                    trans = connection.begin()
 
                     start = time.time()
+                    if opts.isolate_statements:
+                        executer = IsolationExecuter(connection, opts)
+                    else:
+                        executer = DefaultExecuter(connection, opts)
+
+                    executer.begin()
+
                     for stmt in stmts:
-                        try:
-                            result = connection.execute(stmt, '%d' % counter)
-                            if result.cursor:
-                                items = map(
-                                    lambda row: Item(connection, row), result)
-                                results.extend(items)
-                                print Writer.write(items)
-                            else:
-                                # increase changes based on the returned result
-                                # info
-                                changes += result.rowcount
-                            if (opts.progress > 0
-                                    and counter % opts.progress == 0):
-                                sys.stdout.write('.')
-                                sys.stdout.flush()
-                            counter += 1
-                        except BaseException as e:
-                            if opts.ignore_errors:
-                                trans.rollback()
-                                log_error(e)
-                                trans = connection.begin()
-                            else:
-                                raise
+                        res, changed, failed = executer.execute(stmt)
+                        results.extend(res)
+                        changes += changed
+                        errors += failed
+                        counter += 1
+
+                        if (opts.progress > 0
+                                and counter % opts.progress == 0):
+                            sys.stdout.write('.')
+                            sys.stdout.flush()
+
+                    if opts.dry_run:
+                        executer.rollback()
+                    else:
+                        executer.commit()
+
                     if opts.progress > 0 and counter >= opts.progress:
                         sys.stdout.write('\n')
-                    if opts.dry_run:
-                        trans.rollback()
-                    else:
-                        trans.commit()
                 except:
-                    if trans:
-                        trans.rollback()
-                    raise
+                    errors += 1
+                    if executer:
+                        executer.rollback()
+                    if not opts.mute_errors:
+                        raise
                 finally:
                     connection.close()
                     if start:
@@ -173,7 +268,11 @@ class DatabaseExecuter(Wrapper):
                     dry_run = ''
                     if opts.dry_run:
                         dry_run = ' (dry run)'
-                    print 'Changed rows: {0}{1}'.format(changes, dry_run)
+                    sys.stdout.write(
+                        'Changed rows: {0}{1}\n'.format(changes, dry_run))
+                if errors:
+                    sys.stdout.write('Errors: {0}'.format(errors))
+
                 return results
 
         raise Exception('Specify the complete URI to a database')
