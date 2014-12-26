@@ -26,9 +26,6 @@ from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 
-COLUMNS_QUERY = """
-pragma table_info({0})
-"""
 AUTOCOMPLETE_FORMAT = "%s/"
 
 logger = logging.getLogger(__name__)

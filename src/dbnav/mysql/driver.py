@@ -18,20 +18,16 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from urlparse import urlparse
+from sqlalchemy import Integer
 
-from sqlalchemy.types import Integer
-
-from dbnav.logger import LogWith
-from dbnav.logger import logger
-from dbnav.options import parse_filter, format_value
-
-OPTION_URI_FORMAT = '%s@%s/%s'
+from dbnav.logger import logger, LogWith
+from dbnav.options import format_value, UrlOptionsParser
 
 
 @LogWith(logger)
-def restriction(
-        alias, column, operator, value, map_null_operator=True):
+def restriction(alias, column, operator, value, map_null_operator=True):
+    if not column:
+        raise Exception('Parameter column may not be None!')
     if operator in ['~', 'like'] and isinstance(column.type, Integer):
         try:
             int(value)
@@ -77,49 +73,14 @@ class MySQLDriver:
     def get(self, driver):
         return self
 
-    def restriction(
-            self, alias, column, operator, value, map_null_operator=True):
-        return restriction(alias, column, operator, value, map_null_operator)
+    @LogWith(logger)
+    def restriction(self, *args):
+        return restriction(*args)
 
     def __repr__(self):
         return str(self.__dict__)
 
 
-class MySQLOptionsParser:
-    def parse(self, source):
-        driver = MySQLDriver()
-        driver.__dict__.update(source.__dict__)
-        if driver.uri:
-            uri = driver.uri
-            if '@' not in uri:
-                uri += '@'
-            url = urlparse('mysql://%s' % uri)
-            locs = url.netloc.split('@')
-            paths = url.path.split('/')
-
-            if len(locs) > 0:
-                driver.user = locs[0]
-            if len(locs) > 1 and '@' in driver.uri:
-                driver.host = locs[1]
-            if len(paths) > 1:
-                driver.database = paths[1]
-            if len(paths) > 2:
-                driver.table = paths[2]
-            if '?' in uri:
-                driver.filter = parse_filter(url.query)
-                paths.append(url.query)
-
-            driver.show = {
-                1: 'connections',
-                2: 'databases',
-                3: 'tables',
-                4: 'columns',
-                5: 'values'
-            }.get(len(paths), 'connections')
-
-        if driver.user and driver.host:
-            driver.gen = OPTION_URI_FORMAT % (
-                driver.user, driver.host, driver.table if driver.table else ''
-            )
-
-        return driver
+class MySQLOptionsParser(UrlOptionsParser):
+    def create_driver(self):
+        return MySQLDriver()

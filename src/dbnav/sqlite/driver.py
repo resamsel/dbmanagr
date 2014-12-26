@@ -20,10 +20,8 @@
 
 import logging
 
-from urlparse import urlparse
-
 from dbnav.logger import LogWith
-from dbnav.options import parse_filter, restriction
+from dbnav.options import restriction, FileOptionsParser
 
 logger = logging.getLogger(__name__)
 
@@ -40,26 +38,6 @@ class SQLiteDriver:
         return str(self.__dict__)
 
 
-class SQLiteOptionsParser:
-    def parse(self, source):
-        driver = SQLiteDriver()
-        driver.__dict__.update(source.__dict__)
-        if driver.uri:
-            uri = driver.uri
-            url = urlparse('sqlite://%s' % uri)
-            paths = url.path.split('/')
-
-            if len(paths) > 1:
-                driver.table = paths[1]
-            if '?' in uri:
-                driver.filter = parse_filter(url.query)
-                paths.append(url.query)
-
-            driver.show = {
-                1: 'connections',
-                2: 'tables',
-                3: 'columns',
-                4: 'values'
-            }.get(len(paths), 'connections')
-
-        return driver
+class SQLiteOptionsParser(FileOptionsParser):
+    def create_driver(self):
+        return SQLiteDriver()
