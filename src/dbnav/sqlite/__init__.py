@@ -29,7 +29,7 @@ from dbnav.utils import module_installed
 from dbnav.sources import Source
 from .sources import DBExplorerSQLiteSource, NavicatSQLiteSource
 from dbnav.options import Options
-from .options import SQLiteOptionsParser
+from .driver import SQLiteOptionsParser
 
 DRIVERS = OrderedDict([
     ('sqlite3', 'sqlite+pysqlite:///{file}')

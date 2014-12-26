@@ -29,7 +29,7 @@ from dbnav.utils import module_installed
 from dbnav.sources import Source
 from .sources import PgpassSource, DBExplorerPostgreSQLSource
 from dbnav.options import Options
-from .options import PostgreSQLOptionsParser
+from .driver import PostgreSQLOptionsParser
 
 DRIVERS = OrderedDict([
     ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}'),

@@ -64,7 +64,7 @@ def restriction(alias, column, operator, value, map_null_operator=True):
     return ' '.join([lhs, operator, rhs])
 
 
-class PostgreSQLOptions:
+class PostgreSQLDriver:
     def __init__(self):
         self.user = None
         self.host = None
@@ -74,9 +74,8 @@ class PostgreSQLOptions:
         return self
 
     @LogWith(logger)
-    def restriction(
-            self, alias, column, operator, value, map_null_operator=True):
-        return restriction(alias, column, operator, value, map_null_operator)
+    def restriction(self, *args):
+        return restriction(*args)
 
     def __repr__(self):
         return str(self.__dict__)
@@ -84,10 +83,10 @@ class PostgreSQLOptions:
 
 class PostgreSQLOptionsParser:
     def parse(self, source):
-        opts = PostgreSQLOptions()
-        opts.__dict__.update(source.__dict__)
-        if opts.uri:
-            uri = opts.uri
+        driver = PostgreSQLDriver()
+        driver.__dict__.update(source.__dict__)
+        if driver.uri:
+            uri = driver.uri
             if '@' not in uri:
                 uri += '@'
             url = urlparse('postgres://%s' % uri)
@@ -95,18 +94,18 @@ class PostgreSQLOptionsParser:
             paths = url.path.split('/')
 
             if len(locs) > 0:
-                opts.user = locs[0]
-            if len(locs) > 1 and '@' in opts.uri:
-                opts.host = locs[1]
+                driver.user = locs[0]
+            if len(locs) > 1 and '@' in driver.uri:
+                driver.host = locs[1]
             if len(paths) > 1:
-                opts.database = paths[1]
+                driver.database = paths[1]
             if len(paths) > 2:
-                opts.table = paths[2]
+                driver.table = paths[2]
             if '?' in uri:
-                opts.filter = parse_filter(url.query)
+                driver.filter = parse_filter(url.query)
                 paths.append(url.query)
 
-            opts.show = {
+            driver.show = {
                 1: 'connections',
                 2: 'databases',
                 3: 'tables',
@@ -114,8 +113,8 @@ class PostgreSQLOptionsParser:
                 5: 'values'
             }.get(len(paths), 'connections')
 
-        if opts.user and opts.host:
-            opts.gen = OPTION_URI_FORMAT % (
-                opts.user, opts.host, opts.table if opts.table else '')
+        if driver.user and driver.host:
+            driver.gen = OPTION_URI_FORMAT % (
+                driver.user, driver.host, driver.table if driver.table else '')
 
-        return opts
+        return driver

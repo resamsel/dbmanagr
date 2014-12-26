@@ -122,12 +122,10 @@ class DefaultExecuter(BaseExecuter):
 
         result = self.connection.execute(stmt)
         if result.cursor:
-            items = map(lambda row: Item(self.connection, row), result)
-            results.extend(items)
-            self.write(items)
+            results = map(lambda row: Item(self.connection, row), result)
+            self.write(results)
         else:
-            # increase changes based on the returned result
-            # info
+            # increase changes based on the returned result info
             changes += result.rowcount
 
         return (results, changes, 0)
@@ -154,9 +152,8 @@ class IsolationExecuter(BaseExecuter):
 
             result = self.connection.execute(stmt)
             if result.cursor:
-                items = map(lambda row: Item(self.connection, row), result)
-                results.extend(items)
-                self.write(items)
+                results = map(lambda row: Item(self.connection, row), result)
+                self.write(results)
             else:
                 # increase changes based on the returned result
                 # info
