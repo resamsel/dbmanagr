@@ -27,7 +27,9 @@ from collections import OrderedDict
 from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
-from dbnav.mysql.sources import DBExplorerMySQLSource, MypassSource
+from dbnav.sources.anypass import AnyPassSource
+from dbnav.sources.dbexplorer import DBExplorerSource
+from dbnav.mysql.databaseconnection import MySQLConnection
 from dbnav.options import Options
 from dbnav.mysql.driver import MySQLOptionsParser
 
@@ -40,8 +42,10 @@ DRIVERS = OrderedDict([
 
 
 def init_mysql(driver, dbexplorer_config, mypass_config):
-    Source.sources.append(DBExplorerMySQLSource(driver, dbexplorer_config))
-    Source.sources.append(MypassSource(driver, mypass_config))
+    Source.sources.append(
+        DBExplorerSource(driver, dbexplorer_config, 'mysql', MySQLConnection))
+    Source.sources.append(
+        AnyPassSource(driver, mypass_config, MySQLConnection))
 
 
 def init():

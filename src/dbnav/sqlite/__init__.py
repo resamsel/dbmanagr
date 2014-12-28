@@ -27,7 +27,9 @@ from collections import OrderedDict
 from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
-from .sources import DBExplorerSQLiteSource, NavicatSQLiteSource
+from dbnav.sources.dbexplorer import DBExplorerSource
+from dbnav.sqlite.databaseconnection import SQLiteConnection
+from .sources import NavicatSQLiteSource
 from dbnav.options import Options
 from .driver import SQLiteOptionsParser
 
@@ -37,7 +39,8 @@ DRIVERS = OrderedDict([
 
 
 def init_sqlite(uri, dbexplorer_config, navicat_config1, navicat_config2=None):
-    Source.sources.append(DBExplorerSQLiteSource(uri, dbexplorer_config))
+    Source.sources.append(
+        DBExplorerSource(uri, dbexplorer_config, 'sqlite', SQLiteConnection))
     Source.sources.append(NavicatSQLiteSource(uri, navicat_config1))
     if navicat_config2:
         Source.sources.append(NavicatSQLiteSource(uri, navicat_config2))

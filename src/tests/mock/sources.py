@@ -32,12 +32,27 @@ class MockSource(Source):
         if not self.connections:
             self.connections.append(
                 SQLiteConnection(
-                    URI, path.join(DIR, '../resources/dbnav.sqlite')))
+                    URI,
+                    None,
+                    None,
+                    path.join(DIR, '../resources/dbnav.sqlite'),
+                    None,
+                    None))
             self.connections.append(
                 SQLiteConnection(
-                    URI, path.join(DIR, '../resources/dbnav-c.sqlite')))
+                    URI,
+                    None,
+                    None,
+                    path.join(DIR, '../resources/dbnav-c.sqlite'),
+                    None,
+                    None))
             self.connections.append(
                 SQLiteConnection(
-                    URI, path.join(DIR, '../resources/me@xyz.com.sqlite')))
+                    URI,
+                    None,
+                    None,
+                    path.join(DIR, '../resources/me@xyz.com.sqlite'),
+                    None,
+                    None))
 
         return self.connections

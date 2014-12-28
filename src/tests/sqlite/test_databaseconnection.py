@@ -38,5 +38,11 @@ class DatabaseConnectionTestCase(DbTestCase):
 
         self.assertEqual(
             False,
-            dbc.SQLiteConnection('sqlite:////kkdkjfkdjk', '').matches(
-                {'sqlite': Opts()}))
+            dbc.SQLiteConnection(
+                'sqlite:////kkdkjfkdjk',
+                None,
+                None,
+                '',
+                None,
+                None).matches(
+                    {'sqlite': Opts()}))

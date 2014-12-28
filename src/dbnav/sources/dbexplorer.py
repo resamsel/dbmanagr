@@ -25,37 +25,17 @@ from urlparse import urlparse
 from os.path import isfile
 
 from dbnav.sources import Source
-from .databaseconnection import MySQLConnection
 
 logger = logging.getLogger(__name__)
 
 
-class MypassSource(Source):
-    def __init__(self, driver, file):
+class DBExplorerSource(Source):
+    def __init__(self, driver, file, scheme, con_creator):
         Source.__init__(self)
         self.driver = driver
         self.file = file
-
-    def list(self):
-        if not isfile(self.file):
-            return self.connections
-        if not self.connections:
-            with open(self.file) as f:
-                mypass = f.readlines()
-
-            for line in mypass:
-                connection = MySQLConnection(
-                    self.driver, *line.strip().split(':'))
-                self.connections.append(connection)
-
-        return self.connections
-
-
-class DBExplorerMySQLSource(Source):
-    def __init__(self, driver, file):
-        Source.__init__(self)
-        self.driver = driver
-        self.file = file
+        self.scheme = scheme
+        self.con_creator = con_creator
 
     def list(self):
         if not isfile(self.file):
@@ -70,13 +50,21 @@ class DBExplorerMySQLSource(Source):
             root = tree.getroot()
             for c in root.iter('connection'):
                 url = urlparse(c.find('url').text.replace('jdbc:', ''))
-                if url.scheme == 'mysql':
+                if url.scheme == self.scheme:
                     host = url.netloc.split(':')[0]
                     port = 3306
                     database = '*'
-                    user = c.find('user').text
-                    password = c.find('password').text
-                    connection = MySQLConnection(
+                    usernode = c.find('user')
+                    if usernode is not None:
+                        user = usernode.text
+                    else:
+                        user = None
+                    passwordnode = c.find('password')
+                    if passwordnode is not None:
+                        password = passwordnode.text
+                    else:
+                        password = None
+                    connection = self.con_creator(
                         self.driver, host, port, database, user, password)
                     self.connections.append(connection)
 

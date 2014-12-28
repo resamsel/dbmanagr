@@ -43,7 +43,7 @@ class SQLiteDatabase(Database):
 class SQLiteConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, uri, path):
+    def __init__(self, uri, host, port, path, user, password):
         DatabaseConnection.__init__(
             self,
             dbms='sqlite',

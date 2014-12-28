@@ -86,11 +86,11 @@ class PostgreSQLDatabase(Database):
 class PostgreSQLConnection(DatabaseConnection):
     """A database connection"""
 
-    def __init__(self, uri, host, port, database, user, password):
+    def __init__(self, uri, host, port, path, user, password):
         DatabaseConnection.__init__(
             self,
             dbms='postgresql',
-            database=database,
+            database=path,
             uri=uri)
         self.host = host
         self.port = port

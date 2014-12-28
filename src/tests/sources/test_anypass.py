@@ -21,23 +21,23 @@
 from os import path
 
 from tests.testcase import ParentTestCase
-from dbnav.sqlite import sources
+from dbnav.sources import anypass
 
 DIR = path.dirname(__file__)
 RESOURCES = path.join(DIR, '../resources')
-NAVICAT_CONFIG = path.join(RESOURCES, 'navicat.plist')
-NAVICAT_CONFIG_404 = path.join(RESOURCES, 'navicat-404.plist')
+MYPASS_CONFIG = path.join(RESOURCES, 'mypass')
+MYPASS_CONFIG_404 = path.join(RESOURCES, 'mypass-404')
 
 
-class SourcesTestCase(ParentTestCase):
-    def test_navicat_list(self):
-        """Tests the sqlite.NavicatSQLiteSource.list class"""
+class OptionsTestCase(ParentTestCase):
+    def test_anypass_list(self):
+        """Tests the anypass.AnyPassSource.list method"""
 
-        self.assertEqual(
-            ['me@xyz.com.sqlite/', 'dbnav.sqlite/', 'dbnav-c.sqlite/'],
-            map(str, sources.NavicatSQLiteSource(
-                '', NAVICAT_CONFIG).list()))
         self.assertEqual(
             [],
-            map(str, sources.NavicatSQLiteSource(
-                '', NAVICAT_CONFIG_404).list()))
+            map(str, anypass.AnyPassSource(
+                '', MYPASS_CONFIG, None).list()))
+        self.assertEqual(
+            [],
+            map(str, anypass.AnyPassSource(
+                '', MYPASS_CONFIG_404, None).list()))
