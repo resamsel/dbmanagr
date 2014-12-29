@@ -18,41 +18,40 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from os import path
+import logging
+
+from plistlib import readPlist
+from os.path import isfile
 
 from dbnav.sources import Source
-from dbnav.driver.sqlite.databaseconnection import SQLiteConnection
 
-DIR = path.dirname(__file__)
-URI = 'sqlite+pysqlite:///{file}'
+logger = logging.getLogger(__name__)
 
 
-class MockSource(Source):
+class NavicatSource(Source):
+    def __init__(self, uri, file, key, con_creator):
+        Source.__init__(self)
+        self.uri = uri
+        self.file = file
+        self.key = key
+        self.con_creator = con_creator
+
     def list(self):
+        if not isfile(self.file):
+            return self.connections
         if not self.connections:
-            self.connections.append(
-                SQLiteConnection(
-                    URI,
+            plist = readPlist(self.file)
+
+            # Note: only works with SQLite ATM - passwords are encrypted within
+            # Navicat config files
+            for k, v in plist[self.key]['servers'].items():
+                connection = self.con_creator(
+                    self.uri,
                     None,
                     None,
-                    path.join(DIR, '../resources/dbnav.sqlite'),
+                    v['dbfilename'],
                     None,
-                    None))
-            self.connections.append(
-                SQLiteConnection(
-                    URI,
-                    None,
-                    None,
-                    path.join(DIR, '../resources/dbnav-c.sqlite'),
-                    None,
-                    None))
-            self.connections.append(
-                SQLiteConnection(
-                    URI,
-                    None,
-                    None,
-                    path.join(DIR, '../resources/me@xyz.com.sqlite'),
-                    None,
-                    None))
+                    None)
+                self.connections.append(connection)
 
         return self.connections

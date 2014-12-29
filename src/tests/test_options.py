@@ -103,3 +103,11 @@ class OptionsTestCase(DbTestCase):
         self.assertEqual(
             u"id = 'a'",
             options.restriction(None, user.column('id'), '=', 'a'))
+
+    def test_options_parser(self):
+        """Tests the options OptionsParser class"""
+
+        self.assertEqual(
+            None,
+            options.OptionsParser().parse(None)
+        )

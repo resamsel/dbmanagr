@@ -18,26 +18,26 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from os import path
+
 from tests.testcase import ParentTestCase
-from dbnav.model import database
-from dbnav.model.databaseconnection import UriDatabaseConnection
+from dbnav.sources import anypass
+
+DIR = path.dirname(__file__)
+RESOURCES = path.join(DIR, '../resources')
+MYPASS_CONFIG = path.join(RESOURCES, 'mypass')
+MYPASS_CONFIG_404 = path.join(RESOURCES, 'mypass-404')
 
 
-class DatabaseTestCase(ParentTestCase):
-    def test_init(self):
-        """Tests the Database init method"""
-
-        self.assertEqual(
-            'db',
-            database.Database(None, 'db').name
-        )
-
-    def test_autocomplete(self):
-        """Tests the Database autocomplete method"""
+class OptionsTestCase(ParentTestCase):
+    def test_anypass_list(self):
+        """Tests the anypass.AnyPassSource.list method"""
 
         self.assertEqual(
-            'user@host/db/',
-            database.Database(
-                UriDatabaseConnection(user='user', host='host'),
-                'db').autocomplete()
-        )
+            [],
+            map(str, anypass.AnyPassSource(
+                '', MYPASS_CONFIG, None).list()))
+        self.assertEqual(
+            [],
+            map(str, anypass.AnyPassSource(
+                '', MYPASS_CONFIG_404, None).list()))

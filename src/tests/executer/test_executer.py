@@ -26,6 +26,10 @@ from tests.executer import load
 from tests.testcase import DbTestCase
 from dbnav import executer
 
+DIR = os.path.dirname(__file__)
+RESOURCES = os.path.join(DIR, '../resources')
+SELECT_1 = os.path.join(RESOURCES, 'select-1.sql')
+
 
 def test_executer():
     os.environ['UNITTEST'] = 'True'
@@ -97,5 +101,16 @@ class ExecuterTestCase(DbTestCase):
                 'dbnav.sqlite/user',
                 '-s',
                 '      '
+            ])
+        )
+
+    def test_infile(self):
+        """Tests reading statements from file"""
+
+        self.assertEqual(
+            0,
+            executer.main([
+                'dbnav.sqlite/user',
+                SELECT_1
             ])
         )

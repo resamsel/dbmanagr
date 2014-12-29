@@ -27,21 +27,25 @@ from collections import OrderedDict
 from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
-from dbnav.mysql.sources import DBExplorerMySQLSource, MypassSource
+from dbnav.sources.dbexplorer import DBExplorerSource
+from dbnav.sources.navicat import NavicatSource
 from dbnav.options import Options
-from dbnav.mysql.driver import MySQLOptionsParser
+from .databaseconnection import SQLiteConnection
+from .driver import SQLiteOptionsParser
 
 DRIVERS = OrderedDict([
-    ('MySQLdb', 'mysql+mysqldb://{user}:{password}@{host}/{database}'
-                '?charset=utf8&use_unicode=0'),
-    ('oursql', 'mysql+oursql://{user}:{password}@{host}/{database}'),
-    ('pymysql', 'mysql+pymysql://{user}:{password}@{host}/{database}'),
+    ('sqlite3', 'sqlite+pysqlite:///{file}')
 ])
 
 
-def init_mysql(driver, dbexplorer_config, mypass_config):
-    Source.sources.append(DBExplorerMySQLSource(driver, dbexplorer_config))
-    Source.sources.append(MypassSource(driver, mypass_config))
+def init_sqlite(uri, dbexplorer_config, navicat_config1, navicat_config2=None):
+    Source.sources.append(
+        DBExplorerSource(uri, dbexplorer_config, 'sqlite', SQLiteConnection))
+    Source.sources.append(
+        NavicatSource(uri, navicat_config1, 'SQLite', SQLiteConnection))
+    if navicat_config2:
+        Source.sources.append(
+            NavicatSource(uri, navicat_config2, 'SQLite', SQLiteConnection))
 
 
 def init():
@@ -50,14 +54,21 @@ def init():
         return
 
     __drivers__.append(module)
-    init_mysql(
+    init_sqlite(
         DRIVERS[module],
         getenv(
             'DBEXPLORER_CFG',
             expanduser('~/.dbexplorer/dbexplorer.cfg')),
         getenv(
-            'PGPASS_CFG',
-            expanduser('~/.mypass'))
+            'NAVICAT_CFG',
+            expanduser('~/Library/Application Support/PremiumSoft CyberTech'
+                       '/preference.plist')),
+        getenv(
+            'NAVICAT_CFG',
+            expanduser('~/Library/Containers/com.prect.'
+                       'NavicatEssentialsForSQLite/Data/Library/'
+                       'Application Support/PremiumSoft CyberTech/'
+                       'preference.plist'))
     )
 
-    Options.parser['mysql'] = MySQLOptionsParser()
+    Options.parser['sqlite'] = SQLiteOptionsParser()

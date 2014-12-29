@@ -19,40 +19,28 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.mysql import driver
+from dbnav.driver.sqlite import driver
 
 
 class OptionsTestCase(DbTestCase):
     def test_restriction(self):
-        """Tests the mysql restriction function"""
+        """Tests the sqlite restriction function"""
 
         con = DbTestCase.connection
         article = con.table('article')
 
         self.assertEqual(
-            '_article.id = 1',
+            '_article.id ~ 1',
             driver.restriction(
                 '_article', article.column('id'), '~', 1))
-        self.assertEqual(
-            "cast(_article.id as char) ~ 's'",
-            driver.restriction(
-                '_article', article.column('id'), '~', 's'))
-        self.assertEqual(
-            '_article.id is null',
-            driver.restriction(
-                '_article', article.column('id'), '=', None))
-        self.assertEqual(
-            'id is null',
-            driver.restriction(
-                None, article.column('id'), '=', None))
 
     def test_driver_restriction(self):
-        """Tests the mysql driver restriction function"""
+        """Tests the sqlite driver restriction function"""
 
         con = DbTestCase.connection
         article = con.table('article')
 
         self.assertEqual(
-            '_article.id = 1',
-            driver.MySQLDriver().restriction(
+            '_article.id ~ 1',
+            driver.SQLiteDriver().restriction(
                 '_article', article.column('id'), '~', 1))

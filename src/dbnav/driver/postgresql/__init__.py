@@ -27,9 +27,11 @@ from collections import OrderedDict
 from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
-from .sources import PgpassSource, DBExplorerPostgreSQLSource
+from dbnav.sources.anypass import AnyPassSource
+from dbnav.sources.dbexplorer import DBExplorerSource
 from dbnav.options import Options
-from .options import PostgreSQLOptionsParser
+from .databaseconnection import PostgreSQLConnection
+from .driver import PostgreSQLOptionsParser
 
 DRIVERS = OrderedDict([
     ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}'),
@@ -42,9 +44,11 @@ DRIVERS = OrderedDict([
 
 def init_postgresql(driver, dbexplorer_config, pgpass_config, navicat_config):
     Source.sources.append(
-        DBExplorerPostgreSQLSource(driver, dbexplorer_config))
+        DBExplorerSource(
+            driver, dbexplorer_config, 'postgresql', PostgreSQLConnection))
     Source.sources.append(
-        PgpassSource(driver, pgpass_config))
+        AnyPassSource(
+            driver, pgpass_config, PostgreSQLConnection))
     # Doesn't make much sense at the moment - passwords are encrypted in the
     # plist file
     # Source.sources.append(NavicatPostgreSQLSource(navicat_config))

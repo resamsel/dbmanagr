@@ -20,6 +20,12 @@
 #
 
 import sys
+import os
+import sqlparse
 
-for line in sys.stdin:
-    print line,
+#newin = os.fdopen(sys.stdin.fileno(), 'r', 1)
+
+s = sqlparse.parsestream(sys.stdin)
+
+for i in s:
+    print i

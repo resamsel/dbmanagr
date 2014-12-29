@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.postgresql import options
+from dbnav.driver.postgresql import driver
 
 
 class OptionsTestCase(DbTestCase):
@@ -31,28 +31,36 @@ class OptionsTestCase(DbTestCase):
 
         self.assertEqual(
             '_article.id = 1',
-            options.restriction(
+            driver.restriction(
                 '_article', article.column('id'), '~', 1))
         self.assertEqual(
             "cast(_article.id as text) ~ 's'",
-            options.restriction(
+            driver.restriction(
                 '_article', article.column('id'), '~', 's'))
         self.assertEqual(
             '_article.id is null',
-            options.restriction(
+            driver.restriction(
                 '_article', article.column('id'), '=', None))
         self.assertEqual(
             'id is null',
-            options.restriction(
+            driver.restriction(
                 None, article.column('id'), '=', None))
+        self.assertRaises(
+            Exception,
+            driver.restriction,
+            None,
+            None,
+            None,
+            None
+        )
 
-    def test_options_restriction(self):
-        """Tests the postgresql options restriction function"""
+    def test_driver_restriction(self):
+        """Tests the postgresql driver restriction function"""
 
         con = DbTestCase.connection
         article = con.table('article')
 
         self.assertEqual(
             '_article.id = 1',
-            options.PostgreSQLOptions().restriction(
+            driver.PostgreSQLDriver().restriction(
                 '_article', article.column('id'), '~', 1))

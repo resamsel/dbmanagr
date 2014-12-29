@@ -19,25 +19,13 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.model import database
-from dbnav.model.databaseconnection import UriDatabaseConnection
+from dbnav import sources
 
 
-class DatabaseTestCase(ParentTestCase):
-    def test_init(self):
-        """Tests the Database init method"""
-
-        self.assertEqual(
-            'db',
-            database.Database(None, 'db').name
-        )
-
-    def test_autocomplete(self):
-        """Tests the Database autocomplete method"""
+class OptionsTestCase(ParentTestCase):
+    def test_list(self):
+        """Tests the sources.Source.list function"""
 
         self.assertEqual(
-            'user@host/db/',
-            database.Database(
-                UriDatabaseConnection(user='user', host='host'),
-                'db').autocomplete()
-        )
+            [],
+            sources.Source().list())

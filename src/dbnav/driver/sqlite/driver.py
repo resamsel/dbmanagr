@@ -18,39 +18,26 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from urlparse import urlparse
+import logging
 
-from dbnav.options import parse_filter
+from dbnav.logger import LogWith
+from dbnav.options import restriction, FileOptionsParser
+
+logger = logging.getLogger(__name__)
 
 
-class SQLiteOptions:
+class SQLiteDriver:
     def get(self, driver):
         return self
+
+    @LogWith(logger)
+    def restriction(self, *args):
+        return restriction(*args)
 
     def __repr__(self):
         return str(self.__dict__)
 
 
-class SQLiteOptionsParser:
-    def parse(self, source):
-        opts = SQLiteOptions()
-        opts.__dict__.update(source.__dict__)
-        if opts.uri:
-            uri = opts.uri
-            url = urlparse('sqlite://%s' % uri)
-            paths = url.path.split('/')
-
-            if len(paths) > 1:
-                opts.table = paths[1]
-            if '?' in uri:
-                opts.filter = parse_filter(url.query)
-                paths.append(url.query)
-
-            opts.show = {
-                1: 'connections',
-                2: 'tables',
-                3: 'columns',
-                4: 'values'
-            }.get(len(paths), 'connections')
-
-        return opts
+class SQLiteOptionsParser(FileOptionsParser):
+    def create_driver(self):
+        return SQLiteDriver()

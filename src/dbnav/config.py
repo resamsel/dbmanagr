@@ -25,13 +25,10 @@ from dbnav.options import Options
 from dbnav.utils import unicode_decode
 
 # load sources
-import dbnav.sqlite as sqlite
-import dbnav.postgresql as postgresql
-import dbnav.mysql as mysql
-
-sqlite.init()
-postgresql.init()
-mysql.init()
+from importlib import import_module
+import dbnav.driver as driver
+for mod in driver.__all__:
+    import_module('dbnav.driver.{0}'.format(mod)).init()
 
 
 class Config:

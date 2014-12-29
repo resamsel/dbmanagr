@@ -22,13 +22,17 @@ import logging
 import math
 import datetime
 
+from urlparse import urlparse
 from sqlalchemy import Boolean, Float, Integer
 
+from dbnav.logger import LogWith
 from dbnav.queryfilter import QueryFilter, OrOp, AndOp
 
 OR_OPERATOR = '|'
 AND_OPERATOR = '&'
 OPERATORS = ['>=', '<=', '!=', '=', '~', '*', '>', '<', ':']
+
+OPTION_URI_FORMAT = '%s@%s/%s'
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +43,8 @@ def escape_keyword(keyword):
     return keyword
 
 
-def restriction(
-        alias, column, operator, value, map_null_operator=True):
+@LogWith(logger)
+def restriction(alias, column, operator, value, map_null_operator=True):
     if not column:
         raise Exception('Parameter column may not be None!')
     if operator in ['=', '!='] and (value is None or value == 'null'):
@@ -177,3 +181,78 @@ class Options:
 
     def __repr__(self):
         return self.__dict__.__repr__()
+
+
+class OptionsParser:
+    def create_driver(self):
+        pass
+
+    def parse(self, source):
+        pass
+
+
+class FileOptionsParser(OptionsParser):
+    def parse(self, source):
+        driver = self.create_driver()
+        driver.__dict__.update(source.__dict__)
+        if driver.uri:
+            uri = driver.uri
+            url = urlparse('url://%s' % uri)
+            paths = url.path.split('/')
+
+            if len(paths) > 1:
+                driver.table = paths[1]
+            if '?' in uri:
+                driver.filter = parse_filter(url.query)
+                paths.append(url.query)
+
+            driver.show = {
+                1: 'connections',
+                2: 'tables',
+                3: 'columns',
+                4: 'values'
+            }.get(len(paths), 'connections')
+
+        return driver
+
+
+class UriOptionsParser(OptionsParser):
+    def parse(self, source):
+        driver = self.create_driver()
+        driver.__dict__.update(source.__dict__)
+        if driver.uri:
+            uri = driver.uri
+            if '@' not in uri:
+                uri += '@'
+            url = urlparse('url://%s' % uri)
+            locs = url.netloc.split('@')
+            paths = url.path.split('/')
+
+            if len(locs) > 0:
+                driver.user = locs[0]
+            if len(locs) > 1 and '@' in driver.uri:
+                driver.host = locs[1]
+            if len(paths) > 1:
+                driver.database = paths[1]
+            if len(paths) > 2:
+                driver.table = paths[2]
+            if '?' in uri:
+                driver.filter = parse_filter(url.query)
+                paths.append(url.query)
+
+            driver.show = {
+                1: 'connections',
+                2: 'databases',
+                3: 'tables',
+                4: 'columns',
+                5: 'values'
+            }.get(len(paths), 'connections')
+
+        if driver.user and driver.host:
+            driver.gen = OPTION_URI_FORMAT % (
+                driver.user,
+                driver.host,
+                driver.table if driver.table else ''
+            )
+
+        return driver

@@ -23,14 +23,32 @@ from os import path
 from sqlalchemy.exc import OperationalError
 
 from tests.testcase import DbTestCase
-from dbnav.mysql import databaseconnection as dbc
+from dbnav.driver import mysql
+from dbnav.driver.mysql import databaseconnection as dbc
 from dbnav.config import Config
 from dbnav import navigator
 from tests.mock.sources import DIR as MOCK_DIR
 from tests.mock.sources import URI as MOCK_URI
 
 
+class Opts:
+    def __init__(self, user=None, password=None, host=None, gen=None):
+        self.user = user
+        self.password = password
+        self.host = host
+        self.gen = gen
+
+
 class DatabaseConnectionTestCase(DbTestCase):
+    def test_init(self):
+        """Tests the init function"""
+
+        driver, mysql.DRIVERS = mysql.DRIVERS, {}
+        self.assertIsNone(
+            mysql.init()
+        )
+        mysql.DRIVERS = driver
+
     def test_autocomplete(self):
         """Tests the autocomplete function"""
 
@@ -38,12 +56,14 @@ class DatabaseConnectionTestCase(DbTestCase):
             'user@host/db/',
             dbc.MySQLConnection(
                 'uri', 'host', '3333', 'db', 'user', 'password'
-            ).autocomplete())
+            ).autocomplete()
+        )
         self.assertEqual(
             'user@host/',
             dbc.MySQLConnection(
                 'uri', 'host', '3333', None, 'user', 'password'
-            ).autocomplete())
+            ).autocomplete()
+        )
 
     def test_title(self):
         """Tests the title function"""
@@ -52,7 +72,8 @@ class DatabaseConnectionTestCase(DbTestCase):
             'user@host/db/',
             dbc.MySQLConnection(
                 'uri', 'host', '3333', 'db', 'user', 'password'
-            ).title())
+            ).title()
+        )
 
     def test_subtitle(self):
         """Tests the subtitle function"""
@@ -61,7 +82,8 @@ class DatabaseConnectionTestCase(DbTestCase):
             'MySQL Connection',
             dbc.MySQLConnection(
                 'uri', 'host', '3333', 'db', 'user', 'password'
-            ).subtitle())
+            ).subtitle()
+        )
 
     def test_filter(self):
         """Tests the filter function"""
@@ -70,7 +92,15 @@ class DatabaseConnectionTestCase(DbTestCase):
             True,
             dbc.MySQLConnection(
                 'uri', 'host', '3333', 'db', 'user', 'password'
-            ).filter(Config.init(['user@host/db/'], navigator.args.parser)))
+            ).filter(Config.init(['user@host/db/'], navigator.args.parser))
+        )
+        self.assertEqual(
+            False,
+            dbc.MySQLConnection(
+                'mysql://{user}:{password}@{host}/{database}',
+                'host', '3333', 'db', 'user', 'password'
+            ).filter({'mysql': Opts(user='foo', host=None)})
+        )
 
     def test_connect(self):
         """Tests the connect function"""
@@ -81,21 +111,24 @@ class DatabaseConnectionTestCase(DbTestCase):
                 'mysql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).connect,
-            [None])
+            [None]
+        )
         self.assertEqual(
             None,
             dbc.MySQLConnection(
                 MOCK_URI.format(
                     file=path.join(MOCK_DIR, '../resources/dbnav.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
-            ).connect(None))
+            ).connect(None)
+        )
         self.assertEqual(
             None,
             dbc.MySQLConnection(
                 MOCK_URI.format(
                     file=path.join(MOCK_DIR, '../resources/dbnav.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
-            ).connect(None))
+            ).connect(None)
+        )
         self.assertEqual(
             None,
             dbc.MySQLConnection(
@@ -103,7 +136,8 @@ class DatabaseConnectionTestCase(DbTestCase):
                     file=path.join(
                         MOCK_DIR, '../resources/dbnav.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
-            ).connect('db'))
+            ).connect('db')
+        )
         self.assertEqual(
             None,
             dbc.MySQLConnection(
@@ -111,4 +145,16 @@ class DatabaseConnectionTestCase(DbTestCase):
                     file=path.join(
                         MOCK_DIR, '../resources/{database}/dbnav.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
-            ).connect('db'))
+            ).connect('db')
+        )
+
+    def test_matches(self):
+        """Tests the matches method"""
+
+        self.assertEqual(
+            False,
+            dbc.MySQLConnection(
+                'mysql://{user}:{password}@{host}/{database}',
+                'host', '3333', 'db', 'user', 'password'
+            ).matches({'mysql': Opts(gen='foo@bar')})
+        )

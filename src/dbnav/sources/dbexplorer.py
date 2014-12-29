@@ -22,21 +22,20 @@ import logging
 
 import xml.etree.ElementTree as ET
 from urlparse import urlparse
-from plistlib import readPlist
 from os.path import isfile
 
 from dbnav.sources import Source
-from .databaseconnection import SQLiteConnection
 
 logger = logging.getLogger(__name__)
 
 
-class DBExplorerSQLiteSource(Source):
-    def __init__(self, uri, file):
-        logger.debug("DBExplorerSQLiteSource.__init__(%s)", file)
+class DBExplorerSource(Source):
+    def __init__(self, driver, file, scheme, con_creator):
         Source.__init__(self)
-        self.uri = uri
+        self.driver = driver
         self.file = file
+        self.scheme = scheme
+        self.con_creator = con_creator
 
     def list(self):
         if not isfile(self.file):
@@ -51,28 +50,22 @@ class DBExplorerSQLiteSource(Source):
             root = tree.getroot()
             for c in root.iter('connection'):
                 url = urlparse(c.find('url').text.replace('jdbc:', ''))
-                if url.scheme == 'sqlite':
-                    logger.debug("Found connection: %s", url)
-                    connection = SQLiteConnection(self.uri, url.path)
+                if url.scheme == self.scheme:
+                    host = url.netloc.split(':')[0]
+                    port = 3306
+                    database = '*'
+                    usernode = c.find('user')
+                    if usernode is not None:
+                        user = usernode.text
+                    else:
+                        user = None
+                    passwordnode = c.find('password')
+                    if passwordnode is not None:
+                        password = passwordnode.text
+                    else:
+                        password = None
+                    connection = self.con_creator(
+                        self.driver, host, port, database, user, password)
                     self.connections.append(connection)
-
-        return self.connections
-
-
-class NavicatSQLiteSource(Source):
-    def __init__(self, uri, file):
-        Source.__init__(self)
-        self.uri = uri
-        self.file = file
-
-    def list(self):
-        if not isfile(self.file):
-            return self.connections
-        if not self.connections:
-            plist = readPlist(self.file)
-
-            for k, v in plist['SQLite']['servers'].items():
-                connection = SQLiteConnection(self.uri, v['dbfilename'])
-                self.connections.append(connection)
 
         return self.connections

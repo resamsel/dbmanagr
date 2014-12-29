@@ -18,26 +18,29 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from tests.testcase import ParentTestCase
-from dbnav.model import database
 from dbnav.model.databaseconnection import UriDatabaseConnection
 
+AUTOCOMPLETE_FORMAT = '{user}@{host}/{database}'
 
-class DatabaseTestCase(ParentTestCase):
-    def test_init(self):
-        """Tests the Database init method"""
 
-        self.assertEqual(
-            'db',
-            database.Database(None, 'db').name
+class MySQLConnection(UriDatabaseConnection):
+    def __init__(self, uri, host, port, path, user, password):
+        UriDatabaseConnection.__init__(
+            self,
+            dbms='mysql',
+            database=path,
+            uri=uri,
+            host=host,
+            port=port,
+            user=user,
+            password=password)
+
+    def __repr__(self):
+        return AUTOCOMPLETE_FORMAT.format(
+            user=self.user,
+            host=self.host,
+            database=self.database if self.database != '*' else ''
         )
 
-    def test_autocomplete(self):
-        """Tests the Database autocomplete method"""
-
-        self.assertEqual(
-            'user@host/db/',
-            database.Database(
-                UriDatabaseConnection(user='user', host='host'),
-                'db').autocomplete()
-        )
+    def subtitle(self):
+        return 'MySQL Connection'

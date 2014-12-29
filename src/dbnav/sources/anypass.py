@@ -18,25 +18,28 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from tests.testcase import DbTestCase
-from dbnav.sqlite import databaseconnection as dbc
+from os.path import isfile
+
+from dbnav.sources import Source
 
 
-class Opts:
-    def __init__(
-            self, uri=None, user=None, password=None, host=None, gen=None):
-        self.uri = uri
-        self.user = user
-        self.password = password
-        self.host = host
-        self.gen = gen
+class AnyPassSource(Source):
+    def __init__(self, driver, file, con_creator):
+        Source.__init__(self)
+        self.driver = driver
+        self.file = file
+        self.con_creator = con_creator
 
+    def list(self):
+        if not isfile(self.file):
+            return self.connections
+        if not self.connections:
+            with open(self.file) as f:
+                anypass = f.readlines()
 
-class DatabaseConnectionTestCase(DbTestCase):
-    def test_matches(self):
-        """Tests the matches method"""
+            for line in anypass:
+                connection = self.con_creator(
+                    self.driver, *line.strip().split(':'))
+                self.connections.append(connection)
 
-        self.assertEqual(
-            False,
-            dbc.SQLiteConnection('sqlite:////kkdkjfkdjk', '').matches(
-                {'sqlite': Opts()}))
+        return self.connections

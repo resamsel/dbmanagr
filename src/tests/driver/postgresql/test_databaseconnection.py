@@ -23,7 +23,8 @@ from os import path
 from sqlalchemy.exc import OperationalError
 
 from tests.testcase import DbTestCase
-from dbnav.postgresql import databaseconnection as dbc
+from dbnav.driver import postgresql
+from dbnav.driver.postgresql import databaseconnection as dbc
 from dbnav.config import Config
 from dbnav import navigator
 from tests.mock.sources import DIR as MOCK_DIR
@@ -39,6 +40,15 @@ class Opts:
 
 
 class DatabaseConnectionTestCase(DbTestCase):
+    def test_init(self):
+        """Tests the init function"""
+
+        driver, postgresql.DRIVERS = postgresql.DRIVERS, {}
+        self.assertIsNone(
+            postgresql.init()
+        )
+        postgresql.DRIVERS = driver
+
     def test_autocomplete(self):
         """Tests the autocomplete function"""
 
@@ -164,15 +174,3 @@ class DatabaseConnectionTestCase(DbTestCase):
                 'postgresql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).matches({'postgresql': Opts(gen='foo@bar')}))
-
-    def test_postgresql_database(self):
-        """Tests instantiating the PostgreSQLDatabase"""
-
-        con = dbc.PostgreSQLConnection(
-            'postgresql://{user}:{password}@{host}/{database}',
-            'host', '3333', 'db', 'user', 'password'
-        )
-
-        self.assertEqual(
-            'user@host/db/',
-            dbc.PostgreSQLDatabase(con, 'db').autocomplete())
