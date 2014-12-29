@@ -22,11 +22,14 @@ from os import path
 
 from tests.testcase import ParentTestCase
 from dbnav.sources import anypass
+from dbnav.driver.sqlite.databaseconnection import SQLiteConnection
 
 DIR = path.dirname(__file__)
 RESOURCES = path.join(DIR, '../resources')
 MYPASS_CONFIG = path.join(RESOURCES, 'mypass')
 MYPASS_CONFIG_404 = path.join(RESOURCES, 'mypass-404')
+SQLITEPASS_CONFIG = path.join(RESOURCES, 'sqlitepass')
+SQLITEPASS_CONFIG_404 = path.join(RESOURCES, 'sqlitepass-404')
 
 
 class OptionsTestCase(ParentTestCase):
@@ -41,3 +44,15 @@ class OptionsTestCase(ParentTestCase):
             [],
             map(str, anypass.AnyPassSource(
                 '', MYPASS_CONFIG_404, None).list()))
+
+    def test_anyfilepass_list(self):
+        """Tests the anypass.AnyFilePassSource.list method"""
+
+        self.assertEqual(
+            ['dbnav.sqlite/'],
+            map(str, anypass.AnyFilePassSource(
+                '', SQLITEPASS_CONFIG, SQLiteConnection).list()))
+        self.assertEqual(
+            [],
+            map(str, anypass.AnyFilePassSource(
+                '', SQLITEPASS_CONFIG_404, SQLiteConnection).list()))

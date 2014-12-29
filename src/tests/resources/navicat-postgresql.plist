@@ -48,8 +48,6 @@
 				<string>5432</string>
 				<key>savepassword</key>
 				<integer>1</integer>
-				<key>savepath</key>
-				<string>/Users/resamsel/Library/Application Support/PremiumSoft CyberTech/Navicat for PostgreSQL/Localhost Postgres</string>
 				<key>socketfile</key>
 				<string></string>
 				<key>ssl_param</key>

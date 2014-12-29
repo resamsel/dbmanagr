@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from os.path import isfile
+from os.path import isfile, abspath
 
 from dbnav.sources import Source
 
@@ -41,5 +41,23 @@ class AnyPassSource(Source):
                 connection = self.con_creator(
                     self.driver, *line.strip().split(':'))
                 self.connections.append(connection)
+
+        return self.connections
+
+
+class AnyFilePassSource(AnyPassSource):
+    def list(self):
+        if not isfile(self.file):
+            return self.connections
+        if not self.connections:
+            with open(self.file) as f:
+                anypass = f.readlines()
+
+            for line in anypass:
+                filepath = abspath(line.strip())
+                if isfile(filepath):
+                    connection = self.con_creator(
+                        self.driver, None, None, filepath, None, None)
+                    self.connections.append(connection)
 
         return self.connections
