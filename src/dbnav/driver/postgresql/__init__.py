@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ["databaseconnection", "sources"]
+__all__ = ["databaseconnection", "sources", "options"]
 
 from os.path import expanduser
 from os import getenv
@@ -29,23 +29,29 @@ from dbnav.utils import module_installed
 from dbnav.sources import Source
 from dbnav.sources.anypass import AnyPassSource
 from dbnav.sources.dbexplorer import DBExplorerSource
-from dbnav.mysql.databaseconnection import MySQLConnection
 from dbnav.options import Options
-from dbnav.mysql.driver import MySQLOptionsParser
+from .databaseconnection import PostgreSQLConnection
+from .driver import PostgreSQLOptionsParser
 
 DRIVERS = OrderedDict([
-    ('MySQLdb', 'mysql+mysqldb://{user}:{password}@{host}/{database}'
-                '?charset=utf8&use_unicode=0'),
-    ('oursql', 'mysql+oursql://{user}:{password}@{host}/{database}'),
-    ('pymysql', 'mysql+pymysql://{user}:{password}@{host}/{database}'),
+    ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}'),
+    ('postgresql',
+        'postgresql+pypostgresql://{user}:{password}@{host}/{database}'),
+    ('pg8000', 'postgresql+pg8000://{user}:{password}@{host}/{database}'),
+    # ('zxjdbc', 'postgresql+zxjdbc://{user}:{password}@{host}/{database}')
 ])
 
 
-def init_mysql(driver, dbexplorer_config, mypass_config):
+def init_postgresql(driver, dbexplorer_config, pgpass_config, navicat_config):
     Source.sources.append(
-        DBExplorerSource(driver, dbexplorer_config, 'mysql', MySQLConnection))
+        DBExplorerSource(
+            driver, dbexplorer_config, 'postgresql', PostgreSQLConnection))
     Source.sources.append(
-        AnyPassSource(driver, mypass_config, MySQLConnection))
+        AnyPassSource(
+            driver, pgpass_config, PostgreSQLConnection))
+    # Doesn't make much sense at the moment - passwords are encrypted in the
+    # plist file
+    # Source.sources.append(NavicatPostgreSQLSource(navicat_config))
 
 
 def init():
@@ -54,14 +60,18 @@ def init():
         return
 
     __drivers__.append(module)
-    init_mysql(
+    init_postgresql(
         DRIVERS[module],
         getenv(
             'DBEXPLORER_CFG',
             expanduser('~/.dbexplorer/dbexplorer.cfg')),
         getenv(
             'PGPASS_CFG',
-            expanduser('~/.mypass'))
+            expanduser('~/.pgpass')),
+        getenv(
+            'NAVICAT_CFG',
+            expanduser('~/Library/Application Support/PremiumSoft CyberTech/'
+                       'preference.plist'))
     )
 
-    Options.parser['mysql'] = MySQLOptionsParser()
+    Options.parser['postgresql'] = PostgreSQLOptionsParser()

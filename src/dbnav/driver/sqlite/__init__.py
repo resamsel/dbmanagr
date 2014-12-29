@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ["databaseconnection", "sources", "options"]
+__all__ = ["databaseconnection", "sources"]
 
 from os.path import expanduser
 from os import getenv
@@ -27,31 +27,25 @@ from collections import OrderedDict
 from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
-from dbnav.sources.anypass import AnyPassSource
 from dbnav.sources.dbexplorer import DBExplorerSource
-from dbnav.postgresql.databaseconnection import PostgreSQLConnection
+from dbnav.sources.navicat import NavicatSource
 from dbnav.options import Options
-from .driver import PostgreSQLOptionsParser
+from .databaseconnection import SQLiteConnection
+from .driver import SQLiteOptionsParser
 
 DRIVERS = OrderedDict([
-    ('psycopg2', 'postgresql+psycopg2://{user}:{password}@{host}/{database}'),
-    ('postgresql',
-        'postgresql+pypostgresql://{user}:{password}@{host}/{database}'),
-    ('pg8000', 'postgresql+pg8000://{user}:{password}@{host}/{database}'),
-    # ('zxjdbc', 'postgresql+zxjdbc://{user}:{password}@{host}/{database}')
+    ('sqlite3', 'sqlite+pysqlite:///{file}')
 ])
 
 
-def init_postgresql(driver, dbexplorer_config, pgpass_config, navicat_config):
+def init_sqlite(uri, dbexplorer_config, navicat_config1, navicat_config2=None):
     Source.sources.append(
-        DBExplorerSource(
-            driver, dbexplorer_config, 'postgresql', PostgreSQLConnection))
+        DBExplorerSource(uri, dbexplorer_config, 'sqlite', SQLiteConnection))
     Source.sources.append(
-        AnyPassSource(
-            driver, pgpass_config, PostgreSQLConnection))
-    # Doesn't make much sense at the moment - passwords are encrypted in the
-    # plist file
-    # Source.sources.append(NavicatPostgreSQLSource(navicat_config))
+        NavicatSource(uri, navicat_config1, 'SQLite', SQLiteConnection))
+    if navicat_config2:
+        Source.sources.append(
+            NavicatSource(uri, navicat_config2, 'SQLite', SQLiteConnection))
 
 
 def init():
@@ -60,18 +54,21 @@ def init():
         return
 
     __drivers__.append(module)
-    init_postgresql(
+    init_sqlite(
         DRIVERS[module],
         getenv(
             'DBEXPLORER_CFG',
             expanduser('~/.dbexplorer/dbexplorer.cfg')),
         getenv(
-            'PGPASS_CFG',
-            expanduser('~/.pgpass')),
+            'NAVICAT_CFG',
+            expanduser('~/Library/Application Support/PremiumSoft CyberTech'
+                       '/preference.plist')),
         getenv(
             'NAVICAT_CFG',
-            expanduser('~/Library/Application Support/PremiumSoft CyberTech/'
+            expanduser('~/Library/Containers/com.prect.'
+                       'NavicatEssentialsForSQLite/Data/Library/'
+                       'Application Support/PremiumSoft CyberTech/'
                        'preference.plist'))
     )
 
-    Options.parser['postgresql'] = PostgreSQLOptionsParser()
+    Options.parser['sqlite'] = SQLiteOptionsParser()

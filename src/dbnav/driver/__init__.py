@@ -18,26 +18,4 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from os import path
-
-from tests.testcase import ParentTestCase
-from dbnav.sqlite import sources
-
-DIR = path.dirname(__file__)
-RESOURCES = path.join(DIR, '../resources')
-NAVICAT_CONFIG = path.join(RESOURCES, 'navicat.plist')
-NAVICAT_CONFIG_404 = path.join(RESOURCES, 'navicat-404.plist')
-
-
-class SourcesTestCase(ParentTestCase):
-    def test_navicat_list(self):
-        """Tests the sqlite.NavicatSQLiteSource.list class"""
-
-        self.assertEqual(
-            ['me@xyz.com.sqlite/', 'dbnav.sqlite/', 'dbnav-c.sqlite/'],
-            map(str, sources.NavicatSQLiteSource(
-                '', NAVICAT_CONFIG).list()))
-        self.assertEqual(
-            [],
-            map(str, sources.NavicatSQLiteSource(
-                '', NAVICAT_CONFIG_404).list()))
+__all__ = ('sqlite', 'postgresql', 'mysql')

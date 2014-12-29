@@ -24,16 +24,17 @@ from plistlib import readPlist
 from os.path import isfile
 
 from dbnav.sources import Source
-from .databaseconnection import SQLiteConnection
 
 logger = logging.getLogger(__name__)
 
 
-class NavicatSQLiteSource(Source):
-    def __init__(self, uri, file):
+class NavicatSource(Source):
+    def __init__(self, uri, file, key, con_creator):
         Source.__init__(self)
         self.uri = uri
         self.file = file
+        self.key = key
+        self.con_creator = con_creator
 
     def list(self):
         if not isfile(self.file):
@@ -41,8 +42,10 @@ class NavicatSQLiteSource(Source):
         if not self.connections:
             plist = readPlist(self.file)
 
-            for k, v in plist['SQLite']['servers'].items():
-                connection = SQLiteConnection(
+            # Note: only works with SQLite ATM - passwords are encrypted within
+            # Navicat config files
+            for k, v in plist[self.key]['servers'].items():
+                connection = self.con_creator(
                     self.uri,
                     None,
                     None,

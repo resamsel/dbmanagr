@@ -21,7 +21,7 @@
 from os import path
 
 from dbnav.sources import Source
-from dbnav.sqlite.databaseconnection import SQLiteConnection
+from dbnav.driver.sqlite.databaseconnection import SQLiteConnection
 
 DIR = path.dirname(__file__)
 URI = 'sqlite+pysqlite:///{file}'

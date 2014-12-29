@@ -19,28 +19,48 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.sqlite import driver
+from dbnav.driver.postgresql import driver
 
 
 class OptionsTestCase(DbTestCase):
     def test_restriction(self):
-        """Tests the sqlite restriction function"""
+        """Tests the postgresql restriction function"""
 
         con = DbTestCase.connection
         article = con.table('article')
 
         self.assertEqual(
-            '_article.id ~ 1',
+            '_article.id = 1',
             driver.restriction(
                 '_article', article.column('id'), '~', 1))
+        self.assertEqual(
+            "cast(_article.id as text) ~ 's'",
+            driver.restriction(
+                '_article', article.column('id'), '~', 's'))
+        self.assertEqual(
+            '_article.id is null',
+            driver.restriction(
+                '_article', article.column('id'), '=', None))
+        self.assertEqual(
+            'id is null',
+            driver.restriction(
+                None, article.column('id'), '=', None))
+        self.assertRaises(
+            Exception,
+            driver.restriction,
+            None,
+            None,
+            None,
+            None
+        )
 
     def test_driver_restriction(self):
-        """Tests the sqlite driver restriction function"""
+        """Tests the postgresql driver restriction function"""
 
         con = DbTestCase.connection
         article = con.table('article')
 
         self.assertEqual(
-            '_article.id ~ 1',
-            driver.SQLiteDriver().restriction(
+            '_article.id = 1',
+            driver.PostgreSQLDriver().restriction(
                 '_article', article.column('id'), '~', 1))

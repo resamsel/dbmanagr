@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.mysql import driver
+from dbnav.driver.mysql import driver
 
 
 class OptionsTestCase(DbTestCase):
@@ -45,6 +45,14 @@ class OptionsTestCase(DbTestCase):
             'id is null',
             driver.restriction(
                 None, article.column('id'), '=', None))
+        self.assertRaises(
+            Exception,
+            driver.restriction,
+            None,
+            None,
+            None,
+            None
+        )
 
     def test_driver_restriction(self):
         """Tests the mysql driver restriction function"""

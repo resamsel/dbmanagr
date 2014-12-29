@@ -22,7 +22,7 @@ from os import path
 
 from tests.testcase import ParentTestCase
 from dbnav.sources import dbexplorer
-from dbnav.mysql.databaseconnection import MySQLConnection
+from dbnav.driver.mysql.databaseconnection import MySQLConnection
 
 DIR = path.dirname(__file__)
 RESOURCES = path.join(DIR, '../resources')

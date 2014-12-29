@@ -18,31 +18,4 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from tests.testcase import DbTestCase
-from dbnav.sqlite import databaseconnection as dbc
-
-
-class Opts:
-    def __init__(
-            self, uri=None, user=None, password=None, host=None, gen=None):
-        self.uri = uri
-        self.user = user
-        self.password = password
-        self.host = host
-        self.gen = gen
-
-
-class DatabaseConnectionTestCase(DbTestCase):
-    def test_matches(self):
-        """Tests the matches method"""
-
-        self.assertEqual(
-            False,
-            dbc.SQLiteConnection(
-                'sqlite:////kkdkjfkdjk',
-                None,
-                None,
-                '',
-                None,
-                None).matches(
-                    {'sqlite': Opts()}))
+__all__ = ('sqlite', 'postgresql', 'mysql')
