@@ -118,5 +118,16 @@ entry and exit points of the function with logging.DEBUG level.
         return wrapper
 
 
-def logduration(subject, start):
-    logger.info('%s took: %0.6fs', subject, time.time() - start)
+class LogTimer:
+    def __init__(self, logger, subject, prolog=None, *pargs):
+        self.logger = logger
+        self.subject = subject
+        self.start = time.time()
+        if prolog is not None:
+            self.logger.info(prolog, *pargs)
+
+    def stop(self):
+        self.logger.info(
+            '%s took: %0.6fs',
+            self.subject,
+            time.time() - self.start)

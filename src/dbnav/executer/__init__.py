@@ -18,7 +18,6 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import time
 import sys
 import sqlparse
 import re
@@ -27,7 +26,7 @@ from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
-from dbnav.logger import logger, logduration, log_error
+from dbnav.logger import logger, LogTimer, log_error
 
 from .args import parser
 from .writer import ExecuteWriter
@@ -43,7 +42,7 @@ class Item:
 
 
 def read_sql(file):
-    start = time.time()
+    timer = LogTimer(logger, 'Reading input statements')
 
     try:
         sql = file.read()
@@ -52,7 +51,7 @@ def read_sql(file):
     finally:
         file.close()
 
-    logduration('Reading input statements', start)
+    timer.stop()
 
     return sql
 
@@ -66,14 +65,15 @@ def read_statements(opts):
     if not sql:
         return None
 
-    start = time.time()
+    timer = LogTimer(logger, 'Splitting SQL statements')
 
     # Removes the shebang, if any
     sql = re.sub(r'^#!.*\n', '', sql)
 
     stmts = filter(lambda s: len(s.strip()) > 0, sqlparse.split(sql))
 
-    logduration('Splitting SQL statements', start)
+    timer.stop()
+
     logger.info('Number of SQL statements: %d', len(stmts))
 
     return stmts
@@ -217,13 +217,14 @@ class DatabaseExecuter(Wrapper):
                 # Counts the statements
                 counter = 0
 
-                start = None
+                timer = None
                 executer = None
                 try:
                     # Connects to the database and starts a transaction
                     connection.connect(opts.database)
 
-                    start = time.time()
+                    timer = LogTimer(logger, 'Executing SQL statements')
+
                     if opts.isolate_statements:
                         executer = IsolationExecuter(connection, opts)
                     else:
@@ -258,8 +259,8 @@ class DatabaseExecuter(Wrapper):
                         raise
                 finally:
                     connection.close()
-                    if start:
-                        logduration('Executing SQL statements', start)
+                    if timer:
+                        timer.stop()
 
                 if not results:
                     dry_run = ''

@@ -29,8 +29,7 @@ from dbnav.model.database import Database
 from dbnav.model.table import Table
 from dbnav.model.tablecomment import TableComment
 
-DATABASES_QUERY = """
-select
+DATABASES_QUERY = """select
         db.datname as database_name
     from
         pg_database db,
@@ -43,8 +42,7 @@ select
             or pg_catalog.pg_get_userbyid(db.datdba) = r.rolname
         )
     order by 1"""
-TABLES_QUERY = """
-select
+TABLES_QUERY = """select
         t.table_name as tbl,
         obj_description(c.oid) as comment,
         pg_catalog.pg_get_userbyid(c.relowner) as owner,
@@ -59,8 +57,7 @@ select
         and io.relname = t.table_name
         and c.relkind = 'r'
     order by t.table_name"""
-COLUMNS_QUERY = """
-select
+COLUMNS_QUERY = """select
         column_name
     from
         information_schema.columns

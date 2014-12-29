@@ -19,6 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
+from dbnav.model import databaseconnection
 
 
 class DatabaseConnectionTestCase(DbTestCase):
@@ -35,3 +36,13 @@ class DatabaseConnectionTestCase(DbTestCase):
         con = DbTestCase.connection
 
         self.assertIsNotNone(con.__getstate__())
+
+    def test_filter(self):
+        """Tests the DatabaseConnection filter method"""
+
+        con = databaseconnection.DatabaseConnection()
+
+        self.assertEquals(
+            True,
+            con.filter(None)
+        )

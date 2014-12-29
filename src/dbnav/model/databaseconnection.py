@@ -23,7 +23,7 @@ import logging
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.engine import reflection
 
-from dbnav.logger import LogWith
+from dbnav.logger import LogWith, LogTimer
 from dbnav.model import DEFAULT_LIMIT
 from dbnav.model.column import create_column
 from dbnav.model.baseitem import BaseItem
@@ -100,7 +100,9 @@ class DatabaseConnection(BaseItem):
 
     @LogWith(logger, log_args=False, log_result=False)
     def execute(self, query, name='Unnamed'):
+        timer = LogTimer(logger, 'Execution', 'Executing:\n%s', query)
         cur = self.cursor()
+        timer.stop()
 
         if not cur:
             raise Exception('Database is not connected')
@@ -109,7 +111,9 @@ class DatabaseConnection(BaseItem):
 
     @LogWith(logger, log_args=False, log_result=False)
     def queryall(self, query, name='Unnamed', mapper=None):
+        timer = LogTimer(logger, 'Query all', 'Querying all:\n%s', query)
         result = query.all()
+        timer.stop()
 
         if mapper:
             for row in result:
@@ -119,7 +123,9 @@ class DatabaseConnection(BaseItem):
 
     @LogWith(logger, log_args=False, log_result=False)
     def queryone(self, query, name='Unnamed', mapper=None):
+        timer = LogTimer(logger, 'Query one', 'Querying one:\n%s', query)
         result = query.one()
+        timer.stop()
 
         if mapper:
             mapper.map(result)
