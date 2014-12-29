@@ -174,15 +174,3 @@ class DatabaseConnectionTestCase(DbTestCase):
                 'postgresql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).matches({'postgresql': Opts(gen='foo@bar')}))
-
-    def test_postgresql_database(self):
-        """Tests instantiating the PostgreSQLDatabase"""
-
-        con = dbc.PostgreSQLConnection(
-            'postgresql://{user}:{password}@{host}/{database}',
-            'host', '3333', 'db', 'user', 'password'
-        )
-
-        self.assertEqual(
-            'user@host/db/',
-            dbc.PostgreSQLDatabase(con, 'db').autocomplete())

@@ -49,17 +49,6 @@ class DatabaseConnectionTestCase(DbTestCase):
         )
         mysql.DRIVERS = driver
 
-    def test_mysql_database(self):
-        """Tests the MySQLDatabase class"""
-
-        self.assertEqual(
-            'user@host/db',
-            repr(dbc.MySQLDatabase(
-                dbc.MySQLConnection(
-                    'uri', 'host', '3333', 'db', 'user', 'password'),
-                'db'))
-        )
-
     def test_autocomplete(self):
         """Tests the autocomplete function"""
 

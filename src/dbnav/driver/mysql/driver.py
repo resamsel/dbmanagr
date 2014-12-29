@@ -21,7 +21,7 @@
 from sqlalchemy import Integer
 
 from dbnav.logger import logger, LogWith
-from dbnav.options import format_value, UrlOptionsParser
+from dbnav.options import format_value, UriOptionsParser
 
 
 @LogWith(logger)
@@ -81,6 +81,6 @@ class MySQLDriver:
         return str(self.__dict__)
 
 
-class MySQLOptionsParser(UrlOptionsParser):
+class MySQLOptionsParser(UriOptionsParser):
     def create_driver(self):
         return MySQLDriver()

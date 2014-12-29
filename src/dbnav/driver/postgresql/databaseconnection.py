@@ -21,10 +21,8 @@
 # import shelve
 import logging
 
-from sqlalchemy.exc import OperationalError
-
 from dbnav.logger import LogWith
-from dbnav.model.databaseconnection import DatabaseConnection
+from dbnav.model.databaseconnection import UriDatabaseConnection
 from dbnav.model.database import Database
 from dbnav.model.table import Table
 from dbnav.model.tablecomment import TableComment
@@ -57,43 +55,21 @@ TABLES_QUERY = """select
         and io.relname = t.table_name
         and c.relkind = 'r'
     order by t.table_name"""
-COLUMNS_QUERY = """select
-        column_name
-    from
-        information_schema.columns
-    where
-        table_name = '{0}'
-"""
-AUTOCOMPLETE_FORMAT = '%s@%s/%s'
 
 logger = logging.getLogger(__name__)
 
 
-class PostgreSQLDatabase(Database):
-    def __init__(self, connection, name):
-        self.connection = connection
-        self.name = name
-
-    def __repr__(self):
-        return AUTOCOMPLETE_FORMAT % (
-            self.connection.user, self.connection.host, self.name
-        )
-
-
-class PostgreSQLConnection(DatabaseConnection):
-    """A database connection"""
-
+class PostgreSQLConnection(UriDatabaseConnection):
     def __init__(self, uri, host, port, path, user, password):
-        DatabaseConnection.__init__(
+        UriDatabaseConnection.__init__(
             self,
             dbms='postgresql',
             database=path,
-            uri=uri)
-        self.host = host
-        self.port = port
-        self.user = user
-        self.password = password
-        self.con = None
+            uri=uri,
+            host=host,
+            port=port,
+            user=user,
+            password=password)
         self._databases = None
 
     def __repr__(self):
@@ -101,74 +77,14 @@ class PostgreSQLConnection(DatabaseConnection):
             self.user, self.host, self.database if self.database != '*' else ''
         )
 
-    def autocomplete(self):
-        """Retrieves the autocomplete string"""
-
-        if self.database and self.database != '*':
-            return '%s@%s/%s/' % (self.user, self.host, self.database)
-
-        return '%s@%s/' % (self.user, self.host)
-
-    def title(self):
-        return self.autocomplete()
-
     def subtitle(self):
         return 'PostgreSQL Connection'
-
-    def matches(self, options):
-        options = options.get(self.dbms)
-        if options.gen:
-            return options.gen.startswith("%s@%s" % (self.user, self.host))
-        return False
-
-    def filter(self, options):
-        options = options.get(self.dbms)
-        matches = True
-
-        if options.user:
-            filter = options.user
-            if options.host is not None:
-                matches = filter in self.user
-            else:
-                matches = filter in self.user or filter in self.host
-        if options.host is not None:
-            matches = matches and options.host in self.host
-
-        return matches
-
-    def connect(self, database):
-        logger.debug('Connecting to database %s', database)
-
-        if database:
-            try:
-                self.connect_to(
-                    self.uri.format(
-                        user=self.user,
-                        password=self.password,
-                        host=self.host,
-                        database=database))
-                self.database = database
-            except OperationalError:
-                self.connect_to(
-                    self.uri.format(
-                        user=self.user,
-                        password=self.password,
-                        host=self.host,
-                        database=''))
-                database = None
-        else:
-            self.connect_to(
-                self.uri.format(
-                    user=self.user,
-                    password=self.password,
-                    host=self.host,
-                    database=''))
 
     def databases(self):
         # does not yet work with sqlalchemy...
         if self._databases is None:
             self._databases = map(
-                lambda row: PostgreSQLDatabase(self, row[0]),
+                lambda row: Database(self, row[0]),
                 self.execute(DATABASES_QUERY % self.user, 'Databases'))
 
         return self._databases

@@ -21,7 +21,7 @@
 from sqlalchemy import Integer
 
 from dbnav.logger import logger, LogWith
-from dbnav.options import format_value, UrlOptionsParser
+from dbnav.options import format_value, UriOptionsParser
 
 
 @LogWith(logger)
@@ -81,6 +81,6 @@ class PostgreSQLDriver:
         return str(self.__dict__)
 
 
-class PostgreSQLOptionsParser(UrlOptionsParser):
+class PostgreSQLOptionsParser(UriOptionsParser):
     def create_driver(self):
         return PostgreSQLDriver()

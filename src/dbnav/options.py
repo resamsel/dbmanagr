@@ -216,7 +216,7 @@ class FileOptionsParser(OptionsParser):
         return driver
 
 
-class UrlOptionsParser(OptionsParser):
+class UriOptionsParser(OptionsParser):
     def parse(self, source):
         driver = self.create_driver()
         driver.__dict__.update(source.__dict__)

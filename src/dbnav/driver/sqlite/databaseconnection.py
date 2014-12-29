@@ -26,23 +26,17 @@ from dbnav.logger import LogWith
 from dbnav.model.databaseconnection import DatabaseConnection
 from dbnav.model.database import Database
 
-AUTOCOMPLETE_FORMAT = "%s/"
+AUTOCOMPLETE_FORMAT = "{connection}/"
 
 logger = logging.getLogger(__name__)
 
 
 class SQLiteDatabase(Database):
     def __init__(self, connection):
-        self.connection = connection
-        self.name = ''
-
-    def __repr__(self):
-        return AUTOCOMPLETE_FORMAT % self.connection
+        Database.__init__(self, connection, '', AUTOCOMPLETE_FORMAT)
 
 
 class SQLiteConnection(DatabaseConnection):
-    """A database connection"""
-
     def __init__(self, uri, host, port, path, user, password):
         DatabaseConnection.__init__(
             self,
@@ -51,10 +45,9 @@ class SQLiteConnection(DatabaseConnection):
             uri=uri)
         self.path = path
         self.filename = basename(self.path)
-        self.con = None
 
     def __repr__(self):
-        return AUTOCOMPLETE_FORMAT % self.filename
+        return AUTOCOMPLETE_FORMAT.format(connection=self.filename)
 
     def subtitle(self):
         return 'SQLite Connection'

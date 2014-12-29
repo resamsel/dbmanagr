@@ -21,6 +21,7 @@
 import logging
 
 from sqlalchemy import create_engine, MetaData
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.engine import reflection
 
 from dbnav.logger import LogWith, LogTimer
@@ -44,6 +45,7 @@ class DatabaseConnection(BaseItem):
         self._comments = kwargs.get('comments', None)
         self._inspector = None
         self._meta = None
+        self._con = None
 
     def title(self):
         return self.__repr__()
@@ -69,7 +71,7 @@ class DatabaseConnection(BaseItem):
     @LogWith(logger)
     def connect_to(self, source):
         self.engine = create_engine(source)
-        self.con = self.engine.connect()
+        self._con = self.engine.connect()
 
     def meta(self):
         if self._meta is None:
@@ -85,18 +87,18 @@ class DatabaseConnection(BaseItem):
         return self._inspector
 
     def connected(self):
-        return self.con
+        return self._con
 
     def close(self):
-        if self.con:
-            self.con.close()
-            self.con = None
+        if self._con:
+            self._con.close()
+            self._con = None
 
     def cursor(self):
-        return self.con
+        return self._con
 
     def begin(self):
-        return self.con.begin()
+        return self._con.begin()
 
     @LogWith(logger, log_args=False, log_result=False)
     def execute(self, query, name='Unnamed'):
@@ -213,3 +215,71 @@ class DatabaseConnection(BaseItem):
         if 'con' in state:
             del state['con']
         return state
+
+
+class UriDatabaseConnection(DatabaseConnection):
+    def __init__(self, **kwargs):
+        DatabaseConnection.__init__(self, **kwargs)
+        self.user = kwargs.get('user', None)
+        self.password = kwargs.get('password', None)
+        self.host = kwargs.get('host', None)
+        self.database = kwargs.get('database', None)
+
+    @LogWith(logger)
+    def connect(self, database):
+        if database:
+            try:
+                self.connect_to(
+                    self.uri.format(
+                        user=self.user,
+                        password=self.password,
+                        host=self.host,
+                        database=database))
+                self.database = database
+            except OperationalError:
+                self.connect_to(
+                    self.uri.format(
+                        user=self.user,
+                        password=self.password,
+                        host=self.host,
+                        database=''))
+                database = None
+        else:
+            self.connect_to(
+                self.uri.format(
+                    user=self.user,
+                    password=self.password,
+                    host=self.host,
+                    database=''))
+
+    def title(self):
+        return self.autocomplete()
+
+    def autocomplete(self):
+        """Retrieves the autocomplete string"""
+
+        if self.database and self.database != '*':
+            return '%s@%s/%s/' % (self.user, self.host, self.database)
+
+        return '%s@%s/' % (self.user, self.host)
+
+    def matches(self, options):
+        options = options.get(self.dbms)
+        if options.gen:
+            return options.gen.startswith("%s@%s" % (self.user, self.host))
+        return False
+
+    def filter(self, options):
+        options = options.get(self.dbms)
+        matches = True
+
+        if options.user:
+            filter = options.user
+            if options.host is not None:
+                matches = filter in self.user
+            else:
+                matches = filter in self.user or filter in self.host
+        if options.host is not None:
+            matches = matches and options.host in self.host
+
+        return matches

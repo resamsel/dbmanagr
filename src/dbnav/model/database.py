@@ -21,19 +21,24 @@
 from .baseitem import BaseItem
 
 OPTION_URI_DATABASE_FORMAT = '%s/'
+AUTOCOMPLETE_FORMAT = '{connection.user}@{connection.host}/{database}'
 
 
 class Database(BaseItem):
     """The database used with the given connection"""
 
-    def __init__(self, connection, name):
+    def __init__(
+            self,
+            connection,
+            name,
+            autocomplete_format=AUTOCOMPLETE_FORMAT):
         self.connection = connection
         self.name = name
+        self.autocomplete_format = autocomplete_format
 
     def __repr__(self):
-        return '{user}@{host}/{database}'.format(
-            user=self.connection.user,
-            host=self.connection.host,
+        return self.autocomplete_format.format(
+            connection=self.connection,
             database=self.name)
 
     def title(self):

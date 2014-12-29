@@ -20,6 +20,7 @@
 
 from tests.testcase import ParentTestCase
 from dbnav.model import database
+from dbnav.model.databaseconnection import UriDatabaseConnection
 
 
 class DatabaseTestCase(ParentTestCase):
@@ -28,4 +29,15 @@ class DatabaseTestCase(ParentTestCase):
 
         self.assertEqual(
             'db',
-            database.Database(None, 'db').name)
+            database.Database(None, 'db').name
+        )
+
+    def test_autocomplete(self):
+        """Tests the Database autocomplete method"""
+
+        self.assertEqual(
+            'user@host/db/',
+            database.Database(
+                UriDatabaseConnection(user='user', host='host'),
+                'db').autocomplete()
+        )
