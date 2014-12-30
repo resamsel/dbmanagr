@@ -91,6 +91,15 @@ class ExecuterTestCase(DbTestCase):
                 'select blub; select 1;'
             ])
         )
+        self.assertEqual(
+            0,
+            self.mute_stderr(executer.main)([
+                'dbnav.sqlite/user',
+                '--isolate-statements',
+                '-s',
+                'select blub; select 1;'
+            ])
+        )
 
     def test_empty_statements(self):
         """Tests empty statements"""
@@ -101,6 +110,15 @@ class ExecuterTestCase(DbTestCase):
                 'dbnav.sqlite/user',
                 '-s',
                 '      '
+            ])
+        )
+        self.assertEqual(
+            0,
+            executer.main([
+                'dbnav.sqlite/user',
+                '-s',
+                '',
+                '-n'
             ])
         )
 

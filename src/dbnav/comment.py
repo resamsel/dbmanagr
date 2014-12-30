@@ -53,14 +53,18 @@ def update_aliases(tablename, counter, aliases, foreign_keys):
         if fktable.name in aliases:
             # We already know this alias
             continue
-        if fktable.name in counter:
-            alias_format = u'_{0}{1}'
-        else:
-            alias_format = u'_{0}'
-        counter[fktable.name] += 1
-        aliases[fktable.name] = alias_format.format(
-            fktable.name, counter[fktable.name])
+        aliases[fktable.name] = create_alias(fktable.name, counter)
     return aliases
+
+
+@LogWith(logger)
+def create_alias(tablename, counter):
+    if tablename in counter:
+        alias_format = u'_{0}{1}'
+    else:
+        alias_format = u'_{0}'
+    counter[tablename] += 1
+    return alias_format.format(tablename, counter[tablename])
 
 
 @LogWith(logger)
@@ -74,10 +78,10 @@ def column_aliases(columns, alias):
 def create_comment(table, comment, counter, aliases, alias):
     columns = {}
     display = []
-    search = []
+    search = set(comment.search)
 
+    logger.debug('search = set(%s)', comment.search)
     display.extend(comment.display)
-    search.extend(comment.search)
 
     if table.name not in aliases:
         if alias:
@@ -129,7 +133,8 @@ def create_comment(table, comment, counter, aliases, alias):
     else:
         name, title = create_title(comment, table.columns())
         d = dict(map(lambda k: (k.name, k.name), table.columns()))
-        search.append(title.format(**d))
+        logger.debug('search.add(title.format(**d)=%s)', title.format(**d))
+        search.add(title.format(**d))
 
         title = title.format(**caliases)
 
@@ -139,7 +144,9 @@ def create_comment(table, comment, counter, aliases, alias):
         else:
             sname, subtitle = create_title(comment, table.columns(), [name])
             d = dict(map(lambda k: (k.name, k.name), table.columns()))
-            search.append(subtitle.format(**d))
+            logger.debug(
+                'search.add(subtitle.format(**d)=%s)', subtitle.format(**d))
+            search.add(subtitle.format(**d))
 
             subtitle = u'{0} (id={1})'.format(subtitle.format(**caliases), id)
 

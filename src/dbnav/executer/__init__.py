@@ -46,7 +46,7 @@ def read_sql(file):
 
     try:
         sql = file.read()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:  # pragma: no cover
         sql = None
     finally:
         file.close()
@@ -57,7 +57,7 @@ def read_sql(file):
 
 
 def read_statements(opts):
-    if opts.statements:
+    if opts.statements is not None:
         sql = opts.statements
     else:
         sql = read_sql(opts.infile)
@@ -80,16 +80,16 @@ def read_statements(opts):
 
 
 class BaseExecuter:
-    def begin(self):
+    def begin(self):  # pragma: no cover
         pass
 
-    def commit(self):
+    def commit(self):  # pragma: no cover
         pass
 
-    def rollback(self):
+    def rollback(self):  # pragma: no cover
         pass
 
-    def execute(self, stmt):
+    def execute(self, stmt):  # pragma: no cover
         pass
 
     def write(self, items):

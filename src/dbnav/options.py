@@ -71,7 +71,7 @@ def format_value(column, value):
         return 'null'
     if type(value) is list:
         return '({0})'.format(
-            ','.join([format_value(column, v) for v in value]))
+            ', '.join([format_value(column, v) for v in value]))
     if type(value) in [datetime.datetime, datetime.date, datetime.time]:
         return "'%s'" % value
     if type(value) is buffer:
@@ -117,13 +117,6 @@ def parse_filter(s):
                 _and.append(QueryFilter(term))
         _or.append(_and)
     return _or
-
-
-class Filter:
-    def __init__(self, lhs, operator, rhs=None):
-        self.lhs = lhs
-        self.operator = operator
-        self.rhs = rhs
 
 
 class Options:
@@ -184,10 +177,10 @@ class Options:
 
 
 class OptionsParser:
-    def create_driver(self):
+    def create_driver(self):  # pragma: no cover
         pass
 
-    def parse(self, source):
+    def parse(self, source):  # pragma: no cover
         pass
 
 

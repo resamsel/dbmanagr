@@ -41,16 +41,7 @@ class Database(BaseItem):
             connection=self.connection,
             database=self.name)
 
-    def title(self):
-        return self.autocomplete()
-
-    def subtitle(self):
-        return 'Database'
-
     def autocomplete(self):
         """Retrieves the autocomplete string"""
 
         return OPTION_URI_DATABASE_FORMAT % (self.__repr__())
-
-    def icon(self):
-        return 'images/database.png'

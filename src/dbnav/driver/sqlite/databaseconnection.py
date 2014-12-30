@@ -42,15 +42,13 @@ class SQLiteConnection(DatabaseConnection):
             self,
             dbms='sqlite',
             database=self.databases()[0],
-            uri=uri)
+            uri=uri,
+            subtitle='SQLite Connection')
         self.path = path
         self.filename = basename(self.path)
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT.format(connection=self.filename)
-
-    def subtitle(self):
-        return 'SQLite Connection'
 
     def matches(self, options):
         options = options.get(self.dbms)

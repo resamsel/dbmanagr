@@ -32,9 +32,6 @@ NULLABLE_OPTIONS = {
 
 
 class BaseNode:
-    def __hash__(self):
-        return hash(self.__dict__)
-
     def __eq__(self, o):
         return hash(self) == hash(o)
 
@@ -76,19 +73,11 @@ class ForeignKeyNode(BaseNode):
         self.parent = parent
         self.indent = indent
 
-    def escaped(self, f):
-        return dict(map(
-            lambda (k, v): (k.encode('ascii', 'ignore'), f(v)),
-            self.__dict__.iteritems()))
-
     def __getattr__(self, name):
         return getattr(self.fk, name)
 
     def __hash__(self):
         return hash(str(self.fk))
-
-    def __repr__(self):
-        return self.__str__()
 
     def __str__(self):
         indent = '  ' * self.indent

@@ -45,8 +45,10 @@ class LogLevel(argparse.Action):
             getattr(logging, str(values.upper()), None))
 
 
-def default_log_file():
-    for d in ['/var/log', '/usr/local/var/log', '/tmp']:
+def default_log_file(dirs=None):
+    if dirs is None:
+        dirs = ['/var/log', '/usr/local/var/log', '/tmp']
+    for d in dirs:
         if os.access(d, os.W_OK):
             return os.path.join(d, 'dbnav.log')
     return os.path.expanduser('~/dbnav.log')

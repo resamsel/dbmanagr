@@ -69,16 +69,14 @@ class PostgreSQLConnection(UriDatabaseConnection):
             host=host,
             port=port,
             user=user,
-            password=password)
+            password=password,
+            subtitle='PostgreSQL Connection')
         self._databases = None
 
     def __repr__(self):
         return '%s@%s/%s' % (
             self.user, self.host, self.database if self.database != '*' else ''
         )
-
-    def subtitle(self):
-        return 'PostgreSQL Connection'
 
     def databases(self):
         # does not yet work with sqlalchemy...

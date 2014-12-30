@@ -33,7 +33,8 @@ class MySQLConnection(UriDatabaseConnection):
             host=host,
             port=port,
             user=user,
-            password=password)
+            password=password,
+            subtitle='MySQL Connection')
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT.format(
@@ -41,6 +42,3 @@ class MySQLConnection(UriDatabaseConnection):
             host=self.host,
             database=self.database if self.database != '*' else ''
         )
-
-    def subtitle(self):
-        return 'MySQL Connection'

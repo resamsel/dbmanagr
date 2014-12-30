@@ -173,7 +173,7 @@ def simplify(table, comment, key, d):
             comment.aliases[table.name], table.primary_key)]
     else:
         d[key] = create_title(
-            comment, table.columns()).format(table.name, **d)[1]
+            comment, table.columns())[1].format(table.name, **d)
 
 
 class SimplifyMapper:
@@ -261,7 +261,7 @@ class QueryBuilder:
                 orders.append(entity.columns[order])
 
         # Create a session
-        session = Session(self.connection.engine)
+        session = Session(self.connection._engine)
 
         # Create query
         if self.simplify:

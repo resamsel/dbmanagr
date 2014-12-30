@@ -48,7 +48,7 @@ IMAGE_TABLE = 'images/table.png'
 
 def forward_references(row, table, keys, aliases):
     foreign_keys = table.foreign_keys()
-    alias = aliases[table.name]
+    alias = aliases.get(table.name, table.name)
 
     refs = []
     for key in keys:
@@ -86,7 +86,7 @@ def back_references(row, table, aliases):
         if fk.b.table.name == table.name:
             autocomplete = fk.a.table.autocomplete(
                 fk.a.name, row['{0}_{1}'.format(
-                    aliases[fk.b.table.name], fk.b.name)],
+                    aliases.get(fk.b.table.name, fk.b.table.name), fk.b.name)],
                 OPTION_URI_MULTIPLE_ROWS_FORMAT)
             logger.debug(
                 'table.name=%s, fk=%s, autocomplete=%s',

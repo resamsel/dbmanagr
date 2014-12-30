@@ -46,19 +46,34 @@ class CommentTestCase(DbTestCase):
 
         self.assertEqual(
             {},
-            comment.update_aliases(None, None, {}, {}))
+            comment.update_aliases(None, None, {}, {})
+        )
         self.assertEqual(
             OrderedDict([('user', '_user')]),
             comment.update_aliases(
-                'user_address', c, aliases, user.foreign_keys()))
+                'user_address', c, aliases, user.foreign_keys())
+        )
         self.assertEqual(
             OrderedDict([('user', '_user'), ('blog', '_blog')]),
             comment.update_aliases(
-                'blog_user', c, aliases, blog_user.foreign_keys()))
+                'blog_user', c, aliases, blog_user.foreign_keys())
+        )
         self.assertEqual(
             {},
             comment.update_aliases(
-                't3', c, {}, user.foreign_keys()))
+                't3', c, {}, user.foreign_keys())
+        )
+
+    def test_create_alias(self):
+        """Tests the comment.create_alias function"""
+
+        c = Counter()
+        comment.create_alias('a', c)
+
+        self.assertEqual(
+            '_a2',
+            comment.create_alias('a', c)
+        )
 
     def test_column_aliases(self):
         """Tests the comment.column_aliases function"""
@@ -98,7 +113,8 @@ class CommentTestCase(DbTestCase):
                 user_comment,
                 c,
                 {},
-                '_user').id)
+                '_user').id
+        )
 
         pk, user.primary_key = user.primary_key, False
         self.assertEqual(
@@ -108,7 +124,8 @@ class CommentTestCase(DbTestCase):
                 user_comment,
                 c,
                 {},
-                '_user').id)
+                '_user').id
+        )
         user.primary_key = pk
 
         user_comment.id = '{id}'
@@ -119,4 +136,5 @@ class CommentTestCase(DbTestCase):
                 user_comment,
                 c,
                 {},
-                '_user').id)
+                '_user').id
+        )

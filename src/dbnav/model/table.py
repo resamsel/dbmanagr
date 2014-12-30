@@ -155,12 +155,3 @@ class Table(BaseItem):
         if self.owner and self.size:
             return u'Owner: %s (%s)' % (self.owner, self.size)
         return u'Table'
-
-    def icon(self):
-        return 'images/table.png'
-
-    def escaped(self, f):
-        return dict(
-            map(
-                lambda (k, v): (k.encode('ascii', 'ignore'), f(v)),
-                self.__dict__.iteritems()))

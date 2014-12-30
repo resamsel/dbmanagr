@@ -30,7 +30,6 @@ from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
-from dbnav.formatter import Formatter
 from dbnav.writer import Writer
 from dbnav.exception import UnknownColumnException, UnknownTableException
 
@@ -49,9 +48,6 @@ class RowItem():
 
     def __eq__(self, o):
         return hash(self.row.autocomplete()) == hash(o.row.autocomplete())
-
-    def format(self):
-        Formatter.formatter.format_row(self.row)
 
 
 def fk_by_a_table_name(fks):
@@ -128,10 +124,6 @@ def create_items(connection, items, include, exclude):
 
     return results_pre + map(
         lambda i: RowItem(i, exclude), items) + results_post
-
-
-def prefix(s):
-    return re.sub('([^\\.]*)\\..*', '\\1', s)
 
 
 class DatabaseExporter(Wrapper):

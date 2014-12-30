@@ -38,3 +38,12 @@ class TableCommentTestCase(DbTestCase):
             "{'search': [], 'subtitle': None, 'title': None, "
             "'display': [], 'id': u'id', 'order': []}",
             repr(tablecomment.TableComment('{"id":"id"}')))
+
+    def test_parse(self):
+        """Tests the TableComment.parse method"""
+
+        self.assertEqual(
+            "{'search': [], 'subtitle': None, 'title': u'{0}.id', "
+            "'display': [], 'id': u'id', 'order': []}",
+            repr(tablecomment.TableComment('{"title":"a", "id":"id"}'))
+        )

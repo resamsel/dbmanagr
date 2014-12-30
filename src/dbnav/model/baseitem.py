@@ -23,19 +23,19 @@ from dbnav.utils import hash
 
 
 class BaseItem:
-    def title(self):
+    def title(self):  # pragma: no cover
         return 'Title'
 
-    def subtitle(self):
+    def subtitle(self):  # pragma: no cover
         return 'Subtitle'
 
-    def autocomplete(self):
+    def autocomplete(self):  # pragma: no cover
         return 'Autocomplete'
 
     def validity(self):
         return True
 
-    def icon(self):
+    def icon(self):  # pragma: no cover
         return 'images/icon.png'
 
     def value(self):
