@@ -44,14 +44,14 @@ OPTION_URI_SINGLE_ROW_FORMAT = u'%s%s/?%s'
 OPTION_URI_MULTIPLE_ROWS_FORMAT = u'%s%s?%s'
 
 OPERATORS = {
-    '=': lambda c, v: c == v,
-    '!=': lambda c, v: c != v,
+    '=': lambda c, v: c.__eq__(v),
+    '!=': lambda c, v: c.__ne__(v),
     '~': lambda c, v: c.like(v),
     '*': lambda c, v: c.like(v),
-    '>': lambda c, v: c > v,
-    '>=': lambda c, v: c >= v,
-    '<=': lambda c, v: c <= v,
-    '<': lambda c, v: c < v,
+    '>': lambda c, v: c.__gt__(v),
+    '>=': lambda c, v: c.__ge__(v),
+    '<=': lambda c, v: c.__le__(v),
+    '<': lambda c, v: c.__lt__(v),
     'in': lambda c, v: c.in_(v),
     ':': lambda c, v: c.in_(v)
 }

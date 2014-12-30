@@ -16,9 +16,9 @@ VERSION = src/dbnav/version.py
 TARGET = $(PWD)/target
 SETUPTOOLS = $(PYTHON) setup.py
 TEST_NOSE = nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=$(TARGET)/coverage
-TEST_INSTRUMENTAL = $(INSTRUMENTAL) -rS -t dbnav setup.py $(TEST_NOSE)
+TEST_INSTRUMENTAL = $(INSTRUMENTAL) -S -t dbnav setup.py $(TEST_NOSE)
 TEST = $(SETUPTOOLS) $(TEST_NOSE)
-INSTRUMENTAL_REPORT = $(INSTRUMENTAL) -r --html
+INSTRUMENTAL_REPORT = $(INSTRUMENTAL) -r --xml
 DIST = dist
 PIP_DEPS = flake8 pep8-naming flake8-todo
 ALFRED_RESOURCES = resources/alfred
@@ -90,4 +90,4 @@ clean:
 	rm -rf $(TARGET)
 	rm -rf $(DIST)
 	rm -f .dbnavigator.cache*
-	rm -f .coverage
+	rm -f .coverage .instrumental.cov
