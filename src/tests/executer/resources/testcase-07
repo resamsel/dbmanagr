@@ -1,0 +1,4 @@
+dbnav.sqlite/
+-s
+select 1, 2;
+-v

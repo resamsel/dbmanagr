@@ -22,6 +22,8 @@ import sys
 import sqlparse
 import re
 
+from datetime import datetime
+
 from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer
@@ -30,6 +32,16 @@ from dbnav.logger import logger, LogTimer, log_error
 
 from .args import parser
 from .writer import ExecuteWriter
+
+EXECUTION_START = {
+    1: '{statement}\n',
+    2: '{time:%H:%M:%S.%f}: executing: {statement}\n',
+    3: '{time:%Y-%m-%d %H:%M:%S.%f}: executing: {statement}\n'
+}
+EXECUTION_END = {
+    2: '{time:%H:%M:%S.%f}: execution took: {duration}s\n',
+    3: '{time:%Y-%m-%d %H:%M:%S.%f}: execution took: {duration}s\n'
+}
 
 
 class Item:
@@ -77,6 +89,10 @@ def read_statements(opts):
     logger.info('Number of SQL statements: %d', len(stmts))
 
     return stmts
+
+
+def trim_space(stmt):
+    return re.sub(r'\s+', ' ', unicode(stmt))
 
 
 class BaseExecuter:
@@ -233,6 +249,12 @@ class DatabaseExecuter(Wrapper):
                     executer.begin()
 
                     for stmt in stmts:
+                        start = datetime.now()
+                        sys.stdout.write(
+                            EXECUTION_START.get(opts.verbose, '').format(
+                                time=start,
+                                statement=stmt))
+
                         res, changed, failed = executer.execute(stmt)
                         results.extend(res)
                         changes += changed
@@ -244,12 +266,21 @@ class DatabaseExecuter(Wrapper):
                             sys.stdout.write('.')
                             sys.stdout.flush()
 
+                        end = datetime.now()
+                        sys.stdout.write(
+                            EXECUTION_END.get(opts.verbose, '').format(
+                                time=end,
+                                statement=trim_space(stmt),
+                                duration=(end - start).total_seconds()))
+
                     if opts.dry_run:
                         executer.rollback()
                     else:
                         executer.commit()
 
                     if opts.progress > 0 and counter >= opts.progress:
+                        # Write a new line after progress indicator dots have
+                        # been written
                         sys.stdout.write('\n')
                 except:
                     errors += 1
