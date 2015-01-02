@@ -2,6 +2,7 @@
 MAKE ?= make
 PYTHON ?= python
 FLAKE8 ?= flake8
+INSTRUMENTAL ?= instrumental
 SED ?= gsed
 GIT ?= git
 ZIP ?= zip
@@ -14,6 +15,10 @@ BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 VERSION = src/dbnav/version.py
 TARGET = $(PWD)/target
 SETUPTOOLS = $(PYTHON) setup.py
+TEST_NOSE = nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=$(TARGET)/coverage
+TEST_INSTRUMENTAL = $(INSTRUMENTAL) -S -t dbnav setup.py $(TEST_NOSE)
+TEST = $(SETUPTOOLS) $(TEST_NOSE)
+INSTRUMENTAL_REPORT = $(INSTRUMENTAL) -r --xml
 DIST = dist
 PIP_DEPS = flake8 pep8-naming flake8-todo
 ALFRED_RESOURCES = resources/alfred
@@ -56,7 +61,12 @@ missing-copyright:
 
 test: init
 	$(FLAKE8) src
-	$(SETUPTOOLS) nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=$(TARGET)/coverage
+	$(TEST)
+
+instrumental: init
+	$(FLAKE8) src
+	$(TEST_INSTRUMENTAL)
+	$(INSTRUMENTAL_REPORT)
 
 develop:
 	$(SETUPTOOLS) develop
@@ -74,9 +84,11 @@ release-%:
 	$(GIT) rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg
 	$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
+	$(MAKE) assemble-alfred
 
 clean:
 	$(SETUPTOOLS) clean --all
 	rm -rf $(TARGET)
 	rm -rf $(DIST)
 	rm -f .dbnavigator.cache*
+	rm -f .coverage .instrumental.cov

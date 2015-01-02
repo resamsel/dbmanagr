@@ -91,3 +91,9 @@ parser.add_argument(
     action='store_true',
     default=False,
     help='Don\'t display error message for failing statements')
+parser.add_argument(
+    '-v',
+    '--verbose',
+    action='count',
+    help='specify the verbosity of the output, increase the number of '
+         'occurences of this option to increase verbosity')

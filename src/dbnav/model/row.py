@@ -59,9 +59,6 @@ class Row(BaseItem):
                 return None
         return self.row[i]
 
-    def values(self):
-        return self.row
-
     def __repr__(self):
         return str(self.row)
 

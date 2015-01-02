@@ -41,8 +41,10 @@ class DatabaseConnection(BaseItem):
         self.dbms = kwargs.get('dbms', None)
         self.database = kwargs.get('database', None)
         self.uri = kwargs.get('uri', None)
+        self._subtitle = kwargs.get('subtitle', 'Generic Connection')
         self._tables = kwargs.get('tables', None)
         self._comments = kwargs.get('comments', None)
+        self._engine = None
         self._inspector = None
         self._meta = None
         self._con = None
@@ -51,7 +53,7 @@ class DatabaseConnection(BaseItem):
         return self.__repr__()
 
     def subtitle(self):
-        return 'Generic Connection'
+        return self._subtitle
 
     def autocomplete(self):
         return self.__repr__()
@@ -59,35 +61,34 @@ class DatabaseConnection(BaseItem):
     def icon(self):
         return 'images/connection.png'
 
-    def uri(self, table):
-        return u'%s%s' % (self.autocomplete(), table)
+    def matches(self, options):  # pragma: no cover
+        return True
 
-    def matches(self, options):
-        return options.arg in self.title()
+    def connect(self, database):  # pragma: no cover
+        """Is to be implemented by subclasses"""
 
-    def connect(self, database):
         pass
 
     @LogWith(logger)
     def connect_to(self, source):
-        self.engine = create_engine(source)
-        self._con = self.engine.connect()
+        self._engine = create_engine(source)
+        self._con = self._engine.connect()
 
     def meta(self):
         if self._meta is None:
             self._meta = MetaData()
-            self._meta.reflect(bind=self.engine)
+            self._meta.reflect(bind=self._engine)
 
         return self._meta
 
     def inspector(self):
         if self._inspector is None:
-            self._inspector = reflection.Inspector.from_engine(self.engine)
+            self._inspector = reflection.Inspector.from_engine(self._engine)
 
         return self._inspector
 
     def connected(self):
-        return self._con
+        return self._con is not None
 
     def close(self):
         if self._con:
@@ -209,12 +210,6 @@ class DatabaseConnection(BaseItem):
 
     def __hash__(self):
         return hash(self.__repr__())
-
-    def __getstate__(self):
-        state = dict(self.__dict__)
-        if 'con' in state:
-            del state['con']
-        return state
 
 
 class UriDatabaseConnection(DatabaseConnection):

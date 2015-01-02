@@ -19,6 +19,7 @@
 #
 
 import unittest
+import logging
 
 from collections import OrderedDict
 
@@ -27,6 +28,8 @@ from tests.testcase import DbTestCase
 from dbnav import querybuilder
 from dbnav import queryfilter
 from dbnav.exception import UnknownColumnException
+
+logger = logging.getLogger(__name__)
 
 
 def load_suite():
@@ -145,3 +148,35 @@ class QueryBuilderTestCase(DbTestCase):
         self.assertEqual(
             str(column == v),
             str(querybuilder.operation(column, '=', v)))
+
+    def test_column_or_raise(self):
+        """Tests the querybuilder.column_or_raise function"""
+
+        con = DbTestCase.connection
+        table = con.table('user')
+
+        self.assertRaises(
+            UnknownColumnException,
+            querybuilder.column_or_raise,
+            table,
+            'unknown'
+        )
+
+    def test_simplify(self):
+        """Tests the querybuilder.simplify function"""
+
+        con = DbTestCase.connection
+        table = con.table('user')
+
+        self.assertIsNone(
+            querybuilder.simplify(table, None, 'a', {'first_name': 'John'})
+        )
+
+    def test_build(self):
+        """Tests the querybuilder.QueryBuilder.build method"""
+
+        con = DbTestCase.connection
+        blog_user = con.table('blog_user')
+        self.assertIsNotNone(
+            querybuilder.QueryBuilder(con, blog_user, limit=1).build()
+        )

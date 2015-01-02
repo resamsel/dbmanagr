@@ -38,7 +38,7 @@ class DefaultFormatter:
         return self.format(item)
 
     def format_node(self, item):
-        return self.format(item)
+        return unicode(item)
 
     def format_column_node(self, item):
         return self.format(item)
@@ -71,17 +71,6 @@ class SimplifiedFormatter(DefaultFormatter):
             icon=self.escape(item.icon()),
             value=self.escape(item.value()))
 
-    def format_item(self, item):
-        return self.item_format.format(
-            title=self.escape(item.title),
-            subtitle=self.escape(item.subtitle),
-            autocomplete=self.escape(item.autocomplete),
-            uid=self.escape(item.uid),
-            validity=self.escape(
-                {True: 'yes', False: 'no'}.get(item.validity, 'yes')),
-            icon=self.escape(item.icon),
-            value=self.escape(item.value))
-
     def format_row(self, item):
         return self.format(item)
 
@@ -94,27 +83,6 @@ class TestFormatter(SimplifiedFormatter):
         return u'{title}\t{autocomplete}'.format(
             title=item.title(),
             autocomplete=item.autocomplete())
-
-    def format_item(self, item):
-        return u'{title}\t{autocomplete}'.format(
-            title=item.title,
-            autocomplete=item.autocomplete)
-
-
-class GraphvizFormatter(DefaultFormatter):
-    def format_name_node(self, item):
-        return u'  root={0};'.format(item)
-
-    def format_table_node(self, item):
-        columns = map(
-            lambda (i, it): u'<{1}> {1}'.format(i, it.name),
-            enumerate(item.table.columns()))
-        return u'  {0} [shape="record" label="{0}| {1}"];'.format(
-            item.table.name, '| '.join(columns))
-
-    def format_foreign_key_node(self, item):
-        return u'  {fk.a.table.name}:{fk.a.name} '\
-            u'-> {fk.b.table.name}:{fk.b.name} [];'.format(fk=item)
 
 
 class XmlFormatter(SimplifiedFormatter):

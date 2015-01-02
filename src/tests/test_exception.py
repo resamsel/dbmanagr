@@ -18,16 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import unittest
-
 from tests.testcase import DbTestCase
 from dbnav import exception
-
-
-def load_suite():
-    loader = unittest.TestLoader()
-    suite = loader.loadTestsFromTestCase(ExceptionTestCase)
-    return suite
 
 
 class ExceptionTestCase(DbTestCase):
@@ -50,3 +42,11 @@ class ExceptionTestCase(DbTestCase):
             'Column "foo" was not found on table "blog" '
             '(no close matches in: id, name, url)',
             exception.unknown_column_message(blog, 'foo'))
+
+    def test_unknown_table_message(self):
+        """Tests the exception.unknown_table_message function"""
+
+        self.assertEqual(
+            'Table "a" was not found (close matches: ad, ab)',
+            exception.unknown_table_message('a', ['ab', 'bc', 'ad'])
+        )

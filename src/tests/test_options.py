@@ -53,34 +53,52 @@ class OptionsTestCase(DbTestCase):
 
         self.assertEqual(
             u'null',
-            options.format_value(None, None))
+            options.format_value(None, None)
+        )
         self.assertEqual(
             '1',
-            options.format_value(None, 1))
+            options.format_value(None, 1)
+        )
         self.assertEqual(
             "'d'",
-            options.format_value(None, 'd'))
+            options.format_value(None, 'd')
+        )
         self.assertEqual(
             u'7',
-            options.format_value(user.column('id'), 7))
+            options.format_value(user.column('id'), 7)
+        )
         self.assertEqual(
             u"'a'",
-            options.format_value(user.column('id'), 'a'))
+            options.format_value(user.column('id'), 'a')
+        )
         self.assertEqual(
             'null',
-            options.format_value(user.column('id'), None))
+            options.format_value(user.column('id'), None)
+        )
         self.assertEqual(
             'true',
-            options.format_value(user2.column('deleted'), True))
+            options.format_value(user2.column('deleted'), True)
+        )
         self.assertEqual(
             '3.141500',
-            options.format_value(user2.column('score'), 3.1415))
+            options.format_value(user2.column('score'), 3.1415)
+        )
         self.assertEqual(
             "'3.14.15'",
-            options.format_value(user2.column('score'), '3.14.15'))
+            options.format_value(user2.column('score'), '3.14.15')
+        )
         self.assertEqual(
             "'{}'".format(str(now)),
-            options.format_value(article.column('created'), now))
+            options.format_value(article.column('created'), now)
+        )
+        self.assertEqual(
+            "('a', 'b')",
+            options.format_value(article.column('id'), ['a', 'b'])
+        )
+        self.assertEqual(
+            u"'[BLOB]'",
+            options.format_value(article.column('id'), buffer('abc'))
+        )
 
     def test_restriction(self):
         """Tests the options.restriction function"""
@@ -103,6 +121,11 @@ class OptionsTestCase(DbTestCase):
         self.assertEqual(
             u"id = 'a'",
             options.restriction(None, user.column('id'), '=', 'a'))
+        self.assertRaises(
+            Exception,
+            options.restriction,
+            None, None, None, None
+        )
 
     def test_options_parser(self):
         """Tests the options OptionsParser class"""

@@ -28,6 +28,7 @@ from dbnav import __drivers__
 from dbnav.utils import module_installed
 from dbnav.sources import Source
 from dbnav.sources.dbexplorer import DBExplorerSource
+from dbnav.sources.anypass import AnyFilePassSource
 from dbnav.sources.navicat import NavicatSource
 from dbnav.options import Options
 from .databaseconnection import SQLiteConnection
@@ -38,9 +39,16 @@ DRIVERS = OrderedDict([
 ])
 
 
-def init_sqlite(uri, dbexplorer_config, navicat_config1, navicat_config2=None):
+def init_sqlite(
+        uri,
+        dbexplorer_config,
+        sqlitepass_config,
+        navicat_config1,
+        navicat_config2=None):
     Source.sources.append(
         DBExplorerSource(uri, dbexplorer_config, 'sqlite', SQLiteConnection))
+    Source.sources.append(
+        AnyFilePassSource(uri, sqlitepass_config, SQLiteConnection))
     Source.sources.append(
         NavicatSource(uri, navicat_config1, 'SQLite', SQLiteConnection))
     if navicat_config2:
@@ -59,6 +67,9 @@ def init():
         getenv(
             'DBEXPLORER_CFG',
             expanduser('~/.dbexplorer/dbexplorer.cfg')),
+        getenv(
+            'SQLITEPASS_CFG',
+            expanduser('~/.sqlitepass')),
         getenv(
             'NAVICAT_CFG',
             expanduser('~/Library/Application Support/PremiumSoft CyberTech'

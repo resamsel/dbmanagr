@@ -18,8 +18,12 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from os import path
+
 from tests.testcase import DbTestCase
 from dbnav.model import databaseconnection
+from tests.mock.sources import DIR as MOCK_DIR
+from tests.mock.sources import URI as MOCK_URI
 
 
 class DatabaseConnectionTestCase(DbTestCase):
@@ -30,13 +34,6 @@ class DatabaseConnectionTestCase(DbTestCase):
 
         self.assertIsNotNone(con.inspector())
 
-    def test_getstate(self):
-        """Tests the DatabaseConnection getstate method"""
-
-        con = DbTestCase.connection
-
-        self.assertIsNotNone(con.__getstate__())
-
     def test_filter(self):
         """Tests the DatabaseConnection filter method"""
 
@@ -46,3 +43,35 @@ class DatabaseConnectionTestCase(DbTestCase):
             True,
             con.filter(None)
         )
+
+        con.close()
+
+    def test_databases(self):
+        """Tests the DatabaseConnection databases method"""
+
+        con = databaseconnection.DatabaseConnection()
+        con.connect_to(MOCK_URI.format(
+            file=path.join(
+                MOCK_DIR, '../resources/dbnav.sqlite')))
+
+        self.assertEquals(
+            [],
+            con.databases()
+        )
+
+        con.close()
+
+    def test_connected(self):
+        """Tests the DatabaseConnection connected method"""
+
+        con = databaseconnection.DatabaseConnection()
+        con.connect_to(MOCK_URI.format(
+            file=path.join(
+                MOCK_DIR, '../resources/dbnav.sqlite')))
+
+        self.assertEquals(
+            True,
+            con.connected()
+        )
+
+        con.close()

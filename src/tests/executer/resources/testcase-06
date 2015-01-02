@@ -1,0 +1,5 @@
+dbnav.sqlite/user?id=1
+-s
+insert into user2 (first_name, last_name, username) values ('A', 'B', 'ab');
+-n
+--isolate-statements

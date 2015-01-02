@@ -103,6 +103,27 @@ class NavigatorTestCase(DbTestCase):
             ['dbnav-c.sqlite/'],
             map(str, navigator.create(con, options)))
 
+    def test_filter_complete(self):
+        """Tests the filter_complete"""
+
+        self.assertRaises(
+            Exception,
+            navigator.filter_complete,
+            None
+        )
+
+    def test_create_values(self):
+        """Tests the create_values function"""
+
+        con = DbTestCase.connection
+        user = con.table('user')
+        options = Config.init(['dbnav-c.sqlite/user?'], navigator.args.parser)
+        options.simplify = False
+
+        self.assertIsNotNone(
+            navigator.create_values(con, user, options)
+        )
+
     def test_writer(self):
         """Tests the writer"""
 

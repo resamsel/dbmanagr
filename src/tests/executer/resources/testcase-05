@@ -1,0 +1,3 @@
+dbnav.sqlite/
+-s
+select * from article where id = 2

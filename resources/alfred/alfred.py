@@ -22,7 +22,7 @@
 import sys
 from workflow import Workflow
 
-__version__ = "0.19.0"
+__version__ = "0.20.0"
 
 def main(wf):
     from dbnav import navigator
