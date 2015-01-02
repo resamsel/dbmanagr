@@ -84,6 +84,7 @@ release-%:
 	$(GIT) rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg
 	$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
+	$(MAKE) assemble-alfred
 
 clean:
 	$(SETUPTOOLS) clean --all
