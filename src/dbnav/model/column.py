@@ -51,8 +51,14 @@ class Column(BaseItem):
     def title(self):
         return self.name
 
+    def subtitle(self):
+        return self.table.title()
+
     def autocomplete(self):
         return '%s%s?%s' % (self.table.uri, self.table.name, self.name)
+
+    def icon(self):
+        return 'images/table.png'
 
     def format(self):
         return Formatter.format_column(self)

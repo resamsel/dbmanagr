@@ -38,7 +38,7 @@ class DefaultFormatter:
         return self.format(item)
 
     def format_node(self, item):
-        return self.format(item)
+        return unicode(item)
 
     def format_column_node(self, item):
         return self.format(item)
@@ -83,9 +83,6 @@ class TestFormatter(SimplifiedFormatter):
         return u'{title}\t{autocomplete}'.format(
             title=item.title(),
             autocomplete=item.autocomplete())
-
-    def format_node(self, item):
-        return unicode(item)
 
 
 class XmlFormatter(SimplifiedFormatter):
