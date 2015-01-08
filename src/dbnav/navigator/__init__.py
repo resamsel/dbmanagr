@@ -252,13 +252,18 @@ class DatabaseNavigator(Wrapper):
             key=lambda c: c.title().lower())
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseNavigator(Config.init(args, parser)).execute()
+
+
 def run(args):
-    navigator = DatabaseNavigator(Config.init(args, parser))
-    return navigator.run()
+    return DatabaseNavigator(Config.init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    navigator = DatabaseNavigator(Config.init(args, parser))
-    return navigator.write()
+    return DatabaseNavigator(Config.init(args, parser)).write()

@@ -31,6 +31,7 @@ from dbnav.sources import Source
 from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
 from dbnav.writer import Writer
+from dbnav.json import Jsonable, as_json, from_json
 from dbnav.exception import UnknownColumnException, UnknownTableException
 
 from .args import parser, SqlInsertWriter
@@ -38,7 +39,7 @@ from .args import parser, SqlInsertWriter
 logger = logging.getLogger(__name__)
 
 
-class RowItem():
+class RowItem(Jsonable):
     def __init__(self, row, exclude):
         self.row = row
         self.exclude = exclude
@@ -48,6 +49,10 @@ class RowItem():
 
     def __eq__(self, o):
         return hash(self.row.autocomplete()) == hash(o.row.autocomplete())
+
+    @staticmethod
+    def from_json(d):
+        return RowItem(from_json(d['row']), from_json(d['exclude']))
 
 
 def fk_by_a_table_name(fks):
@@ -63,7 +68,7 @@ def create_items(connection, items, include, exclude):
         for i in include:
             c = re.sub('([^\\.]*)\\..*', '\\1', i)
             fk = None
-            for key, val in item.table.fks.iteritems():
+            for key, val in item.table.foreign_keys().iteritems():
                 if val.a.table.name == c:
                     fk = val
                     break
@@ -75,8 +80,8 @@ def create_items(connection, items, include, exclude):
                 if fk not in includes:
                     includes[fk] = []
                 includes[fk].append(item[fk.b.name])
-            if col and col.name in item.table.fks:
-                fk = item.table.fks[col.name]
+            if col and col.name in item.table.foreign_keys():
+                fk = item.table.foreign_key(col.name)
                 # fk.b.table.connection = item.table.connection
                 if fk not in includes:
                     includes[fk] = []
@@ -85,7 +90,7 @@ def create_items(connection, items, include, exclude):
         for item in items:
             for x in exclude:
                 c = re.sub('([^\\.]*)\\..*', '\\1', x)
-                fks = fk_by_a_table_name(item.table.fks)
+                fks = fk_by_a_table_name(item.table.foreign_keys())
                 fk = None
                 if c in fks:
                     fk = fks[c]
@@ -171,13 +176,18 @@ class DatabaseExporter(Wrapper):
         raise Exception('Specify the complete URI to a table')
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseExporter(Config.init(args, parser)).execute()
+
+
 def run(args):
-    exporter = DatabaseExporter(Config.init(args, parser))
-    return exporter.run()
+    return DatabaseExporter(Config.init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    exporter = DatabaseExporter(Config.init(args, parser))
-    return exporter.write()
+    return DatabaseExporter(Config.init(args, parser)).write()

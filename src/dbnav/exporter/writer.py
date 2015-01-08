@@ -130,15 +130,15 @@ def yaml_format_field(name):
 
 
 def yaml_field(col):
-    if col.name in col.table.fks:
-        fk = col.table.fks[col.name]
+    if col.name in col.table.foreign_keys():
+        fk = col.table.foreign_key(col.name)
         return yaml_format_field(fk.b.table.name)
     return yaml_format_field(col.name)
 
 
 def yaml_value(col, value):
-    if col.name in col.table.fks:
-        fk = col.table.fks[col.name]
+    if col.name in col.table.foreign_keys():
+        fk = col.table.foreign_key(col.name)
         return u'*{table}_{id}'.format(
             table=fk.b.table.name.replace('_', ''),
             id=yaml_value(fk.b, value))

@@ -117,3 +117,8 @@ class Writer:
     @LogWith(logger, log_args=False, log_result=False)
     def write(items):
         return Writer.writer.write(items)
+
+    @staticmethod
+    @LogWith(logger, log_args=False, log_result=False)
+    def itemtostring(item):
+        return Writer.writer.itemtostring(item)

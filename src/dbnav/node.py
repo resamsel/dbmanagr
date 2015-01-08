@@ -19,6 +19,7 @@
 #
 
 from dbnav.formatter import Formatter
+from dbnav.json import Jsonable
 
 PRIMARY_KEY_OPTIONS = {
     True: '*',
@@ -31,7 +32,7 @@ NULLABLE_OPTIONS = {
 }
 
 
-class BaseNode:
+class BaseNode(Jsonable):
     def __eq__(self, o):
         return hash(self) == hash(o)
 
@@ -40,6 +41,13 @@ class BaseNode:
 
     def format_verbose(self, verbosity=0):
         return self.format()
+
+    def as_json(self):
+        d = {
+            '__cls__': str(self.__class__)
+        }
+        d.update(self.__dict__)
+        return d
 
 
 class ColumnNode(BaseNode):
@@ -96,6 +104,16 @@ class ForeignKeyNode(BaseNode):
 
     def format(self):
         return Formatter.format_foreign_key_node(self)
+
+    def as_json(self):
+        d = {
+            '__cls__': str(self.__class__),
+            'fk': self.fk.as_json(),
+            'indent': self.indent
+        }
+        if self.parent is not None:
+            d['parent'] = self.parent.as_json()
+        return d
 
 
 class TableNode(BaseNode):

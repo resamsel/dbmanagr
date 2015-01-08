@@ -20,9 +20,10 @@
 
 from dbnav.formatter import Formatter
 from dbnav.utils import hash
+from dbnav.json import Jsonable
 
 
-class BaseItem:
+class BaseItem(Jsonable):
     def title(self):  # pragma: no cover
         return 'Title'
 

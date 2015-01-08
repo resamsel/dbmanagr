@@ -82,14 +82,15 @@ def format_value(column, value):
         except ValueError:
             return u"'%s'" % value
     if (isinstance(column.type, Boolean)
-            and (type(value) is bool or value in ['true', 'false'])):
+            and (type(value) is bool or value in ['true', 'false'])
+            or type(value) is bool):
         return '%s' % str(value).lower()
-    if isinstance(column.type, Float):
+    if isinstance(column.type, Float) or type(value) is float:
         try:
             return '%f' % float(value)
         except ValueError:
             pass
-    if isinstance(column.type, Integer):
+    if isinstance(column.type, Integer) or type(value) is int:
         try:
             return '%d' % int(value)
         except ValueError:

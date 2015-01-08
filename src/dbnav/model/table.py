@@ -26,6 +26,7 @@ from dbnav.logger import LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
 from dbnav.exception import UnknownColumnException
+from dbnav.json import from_json
 from dbnav.model.baseitem import BaseItem
 from dbnav.model.column import create_column
 from dbnav.model.row import Row
@@ -38,20 +39,34 @@ logger = logging.getLogger(__name__)
 
 class Table(BaseItem):
     def __init__(
-            self, database, entity, uri, owner=None, size=None):
-        self.database = database
-        self.name = entity.name
-        self.entity = entity
+            self,
+            entity=None,
+            uri=None,
+            owner=None,
+            size=None,
+            name=None,
+            primary_key=None,
+            columns=None):
+        if entity is not None:
+            self.name = entity.name
+        elif name is not None:
+            self.name = name
+        self._entity = entity
         self.uri = uri
         self.owner = owner
         self.size = size
 
-        self._columns = map(
-            lambda c: create_column(self, str(c.name), c),
-            entity.columns)
-        self.fks = {}
+        if entity is not None:
+            self._columns = map(
+                lambda c: create_column(self, str(c.name), c), entity.columns)
+        elif columns is not None:
+            self._columns = map(
+                lambda c: create_column(self, c), columns)
+        else:
+            self._columns = None
+        self._fks = {}
 
-        self.primary_key = None
+        self.primary_key = primary_key
 
     def __repr__(self):
         return self.name
@@ -141,12 +156,15 @@ class Table(BaseItem):
         return map(lambda row: Row(self, row), result)
 
     def foreign_keys(self):
-        return self.fks
+        return self._fks
 
     def foreign_key(self, name):
-        if name in self.fks:
-            return self.fks[name]
+        if name in self._fks:
+            return self._fks[name]
         return None
+
+    def set_foreign_key(self, name, value):
+        self._fks[name] = value
 
     def title(self):
         return self.name
@@ -155,3 +173,18 @@ class Table(BaseItem):
         if self.owner and self.size:
             return u'Owner: %s (%s)' % (self.owner, self.size)
         return u'Table'
+
+    def as_json(self):
+        d = BaseItem.as_json(self)
+        d['columns'] = map(lambda c: c.name, self.columns())
+        return d
+
+    @staticmethod
+    def from_json(d):
+        return Table(
+            name=from_json(d.get('name')),
+            uri=from_json(d.get('uri')),
+            owner=from_json(d.get('owner')),
+            size=from_json(d.get('size')),
+            primary_key=from_json(d.get('primary_key')),
+            columns=from_json(d.get('columns')))

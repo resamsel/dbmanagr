@@ -307,13 +307,18 @@ class DatabaseExecuter(Wrapper):
         raise Exception('Specify the complete URI to a database')
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseExecuter(Config.init(args, parser)).execute()
+
+
 def run(args):
-    executer = DatabaseExecuter(Config.init(args, parser))
-    return executer.run()
+    return DatabaseExecuter(Config.init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    executer = DatabaseExecuter(Config.init(args, parser))
-    return executer.write()
+    return DatabaseExecuter(Config.init(args, parser)).write()

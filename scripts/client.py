@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -18,23 +19,22 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.model.baseitem import Jsonable
+import json
+import dbnav
 
+from dbnav.config import Config
+from dbnav.exporter import parser
+from dbnav.exporter.writer import SqlInsertWriter
 
-class ForeignKey(Jsonable):
-    """A foreign key connection between the originating column a and the
-foreign column b"""
+with open('target/resorts.json') as f:
+    o = dbnav.json.from_json(json.load(f))
 
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
-
-    def __repr__(self):
-        return '%s -> %s' % (self.a, self.b)
-
-    def as_json(self):
-        return {
-            '__cls__': str(self.__class__),
-            'a': self.a.as_json(),
-            'b': self.b.as_json()
-        }
+    try:
+        print SqlInsertWriter(Config.init(['dbnav.sqlite/'], parser)).write(o)
+    except BaseException as e:
+        import sys
+        import pdb
+        type, value, tb = sys.exc_info()  # pragma: no cover
+        # traceback.print_exc()
+        pdb.post_mortem(tb)  # pragma: no cover
+        

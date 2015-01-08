@@ -114,13 +114,18 @@ def init(argv, parser):
     return (left, right)
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseDiffer(*init(args, parser)).execute()
+
+
 def run(args):
-    differ = DatabaseDiffer(*init(args, parser))
-    return differ.run()
+    return DatabaseDiffer(*init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    differ = DatabaseDiffer(*init(args, parser))
-    return differ.write()
+    return DatabaseDiffer(*init(args, parser)).write()

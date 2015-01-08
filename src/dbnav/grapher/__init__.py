@@ -106,7 +106,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                             lambda (key, fk): (
                                 fk.b.table.name == table.name
                                 and fk.a.table.name not in exclude),
-                            table.fks.iteritems()):
+                            table.foreign_keys().iteritems()):
                         logger.debug(
                             'adds back reference: fk=%s, include=%s',
                             fk, include)
@@ -201,13 +201,18 @@ class DatabaseGrapher(Wrapper):
             connection.close()
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseGrapher(Config.init(args, parser)).execute()
+
+
 def run(args):
-    grapher = DatabaseGrapher(Config.init(args, parser))
-    return grapher.run()
+    return DatabaseGrapher(Config.init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    grapher = DatabaseGrapher(Config.init(args, parser))
-    return grapher.write()
+    return DatabaseGrapher(Config.init(args, parser)).write()
