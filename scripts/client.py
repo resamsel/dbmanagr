@@ -21,20 +21,30 @@
 
 import json
 import dbnav
+import urllib2
+import sys
 
 from dbnav.config import Config
+from dbnav.exception import BusinessException
 from dbnav.exporter import parser
 from dbnav.exporter.writer import SqlInsertWriter
 
-with open('target/resorts.json') as f:
-    o = dbnav.json.from_json(json.load(f))
+try:
+    response = urllib2.urlopen(
+        'http://localhost:8020/exporter',
+        json.dumps(sys.argv[1:]))
 
-    try:
-        print SqlInsertWriter(Config.init(['dbnav.sqlite/'], parser)).write(o)
-    except BaseException as e:
-        import sys
-        import pdb
-        type, value, tb = sys.exc_info()  # pragma: no cover
-        # traceback.print_exc()
-        pdb.post_mortem(tb)  # pragma: no cover
+    o = dbnav.json.from_json(json.load(response))
+    print SqlInsertWriter(Config.init(sys.argv[:1], parser)).write(o)
+except urllib2.HTTPError as e:
+    print dbnav.json.from_json(json.load(e))
+except urllib2.URLError as e:
+    print 'Daemon not available', e
+except BaseException as e:
+    print e.__class__, e
+    import sys
+    import pdb
+    type, value, tb = sys.exc_info()  # pragma: no cover
+    # traceback.print_exc()
+    pdb.post_mortem(tb)  # pragma: no cover
         

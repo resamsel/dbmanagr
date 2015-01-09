@@ -25,6 +25,7 @@ from tests.testcase import DbTestCase
 from tests.navigator import load
 from dbnav.config import Config
 from dbnav.exception import UnknownTableException
+from dbnav.utils import mute_stderr
 
 
 def test_navigator():
@@ -132,7 +133,7 @@ class NavigatorTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            self.mute_stderr(navigator.main),
+            mute_stderr(navigator.main),
             ['-K'])
 
         self.assertEqual(

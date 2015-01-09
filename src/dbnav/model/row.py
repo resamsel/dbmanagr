@@ -22,7 +22,7 @@ import logging
 
 from dbnav.model.baseitem import BaseItem
 from dbnav.formatter import Formatter
-from dbnav.json import as_json, from_json
+from dbnav.jsonable import as_json, from_json
 
 logger = logging.getLogger(__name__)
 

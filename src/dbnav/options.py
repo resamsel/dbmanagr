@@ -83,7 +83,7 @@ def format_value(column, value):
             return u"'%s'" % value
     if (isinstance(column.type, Boolean)
             and (type(value) is bool or value in ['true', 'false'])
-            or type(value) is bool):
+            ) or type(value) is bool:
         return '%s' % str(value).lower()
     if isinstance(column.type, Float) or type(value) is float:
         try:
@@ -138,6 +138,7 @@ class Options:
         self.filter = None
         self.show = 'connections'
         self.simplify = False
+        self.prog = parser.prog
 
         args = parser.parse_args(argv)
 

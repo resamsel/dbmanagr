@@ -23,6 +23,8 @@ import datetime
 import sqlalchemy
 import importlib
 
+from dbnav.exception import BusinessException
+
 
 def as_json(obj):
     if isinstance(obj, datetime.datetime) or isinstance(obj, datetime.date):
@@ -64,6 +66,8 @@ def from_json(d):
     if type(d) is dict:
         if '__cls__' in d:
             classname = d['__cls__']
+            if classname.endswith('Exception'):
+                return BusinessException(d['message'])
             if classname == 'sqlalchemy.util.KeyedTuple':
                 from sqlalchemy.util import KeyedTuple
                 return KeyedTuple(

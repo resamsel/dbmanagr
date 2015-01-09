@@ -35,7 +35,7 @@ class Config:
     @staticmethod
     def init(argv, parser):
         options = Options(unicode_decode(argv), parser)
-
+        
         logging.basicConfig(
             stream=options.logfile,
             level=options.loglevel,

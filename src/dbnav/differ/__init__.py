@@ -41,6 +41,8 @@ def column_name(c):
 class DatabaseDiffer(Wrapper):
     """The main class"""
     def __init__(self, left, right):
+        Wrapper.__init__(self, left)
+
         self.left = left
         self.right = right
 

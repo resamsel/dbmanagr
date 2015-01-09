@@ -18,32 +18,16 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.formatter import Formatter
-from dbnav.utils import hash
-from dbnav.jsonable import Jsonable
+from dbnav.args import parent_parser, create_parser
 
+parent = parent_parser(daemon=True)
 
-class BaseItem(Jsonable):
-    def title(self):  # pragma: no cover
-        return 'Title'
-
-    def subtitle(self):  # pragma: no cover
-        return 'Subtitle'
-
-    def autocomplete(self):  # pragma: no cover
-        return 'Autocomplete'
-
-    def validity(self):
-        return True
-
-    def icon(self):  # pragma: no cover
-        return 'images/icon.png'
-
-    def value(self):
-        return self.title()
-
-    def uid(self):
-        return hash(self.autocomplete())
-
-    def format(self):
-        return Formatter.format(self)
+parser = create_parser(
+    prog='dbdaemon',
+    description='The daemon background process.',
+    parents=[parent])
+parser.add_argument(
+    'command',
+    choices=['start', 'stop', 'restart', 'status'],
+    help='the command to issue'
+)

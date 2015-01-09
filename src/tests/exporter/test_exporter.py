@@ -25,6 +25,7 @@ from tests.testcase import DbTestCase
 from tests.mock.sources import MockSource
 from dbnav import exporter
 from dbnav.exception import UnknownTableException, UnknownColumnException
+from dbnav.utils import mute_stderr
 
 
 def test_exporter():
@@ -91,7 +92,7 @@ class DifferTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            self.mute_stderr(exporter.main))
+            mute_stderr(exporter.main))
 
         self.assertEqual(
             0,

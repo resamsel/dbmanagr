@@ -54,7 +54,7 @@ def default_log_file(dirs=None):
     return os.path.expanduser('~/dbnav.log')
 
 
-def parent_parser():
+def parent_parser(daemon=False):
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         '--version',
@@ -80,6 +80,34 @@ def parent_parser():
         action='store_true',
         default=False,
         help='trace any exception that occurs')
+    group = parser.add_argument_group('daemon')
+    if daemon:
+        group.add_argument(
+            '--host',
+            default='',
+            help='the host of the daemon')
+        group.add_argument(
+            '--port',
+            default=8020,
+            type=int,
+            help='the port of the daemon')
+    else:
+        group.add_argument(
+            '--daemon',
+            action='store_true',
+            default=False,
+            help='use a background process to speed up requests')
+        group.add_argument(
+            '--daemon-host',
+            dest='host',
+            default='',
+            help='the host of the daemon')
+        group.add_argument(
+            '--daemon-port',
+            dest='port',
+            default=8020,
+            type=int,
+            help='the port of the daemon')
     return parser
 
 

@@ -134,7 +134,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
 class DatabaseGrapher(Wrapper):
     """The main class"""
     def __init__(self, options):
-        self.options = options
+        Wrapper.__init__(self, options)
 
         if options.formatter:
             Writer.set(options.formatter(options))

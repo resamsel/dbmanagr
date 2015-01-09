@@ -226,7 +226,7 @@ def create(connection, options):
 class DatabaseNavigator(Wrapper):
     """The main class"""
     def __init__(self, options):
-        self.options = options
+        Wrapper.__init__(self, options)
 
         if options.formatter:
             Writer.set(options.formatter())

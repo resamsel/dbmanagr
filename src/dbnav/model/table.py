@@ -26,7 +26,7 @@ from dbnav.logger import LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
 from dbnav.exception import UnknownColumnException
-from dbnav.json import from_json
+from dbnav.jsonable import from_json
 from dbnav.model.baseitem import BaseItem
 from dbnav.model.column import create_column
 from dbnav.model.row import Row

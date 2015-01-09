@@ -25,6 +25,7 @@ from tests.testcase import DbTestCase
 from dbnav import grapher
 from dbnav.config import Config
 from dbnav.exception import UnknownTableException
+from dbnav.utils import mute_stderr
 
 
 def test_grapher():
@@ -55,7 +56,7 @@ class GrapherTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            self.mute_stderr(grapher.main))
+            mute_stderr(grapher.main))
 
         self.assertEqual(
             0,

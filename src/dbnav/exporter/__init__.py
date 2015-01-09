@@ -31,7 +31,7 @@ from dbnav.sources import Source
 from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
 from dbnav.writer import Writer
-from dbnav.json import Jsonable, as_json, from_json
+from dbnav.jsonable import Jsonable, as_json, from_json
 from dbnav.exception import UnknownColumnException, UnknownTableException
 
 from .args import parser, SqlInsertWriter
@@ -134,7 +134,7 @@ def create_items(connection, items, include, exclude):
 class DatabaseExporter(Wrapper):
     """The main class"""
     def __init__(self, options):
-        self.options = options
+        Wrapper.__init__(self, options)
 
         if options.formatter:
             Writer.set(options.formatter(options))

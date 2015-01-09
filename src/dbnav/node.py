@@ -19,7 +19,7 @@
 #
 
 from dbnav.formatter import Formatter
-from dbnav.json import Jsonable
+from dbnav.jsonable import Jsonable
 
 PRIMARY_KEY_OPTIONS = {
     True: '*',

@@ -22,6 +22,8 @@ import logging
 import re
 import pkgutil
 import uuid
+import os
+import sys
 
 from sqlalchemy.types import Integer
 
@@ -135,4 +137,19 @@ def unicode_decode(arg):
         return map(unicode_decode, arg)
     if type(arg) is unicode:
         return arg
+    if type(arg) in [int, bool, float]:
+        return unicode(arg)
     return arg.decode('utf-8')
+
+
+def mute_stderr(f):
+    def wrapper(*args, **kwargs):
+        devnull = open(os.devnull, 'w')
+        stderr, sys.stderr = sys.stderr, devnull
+        try:
+            return f(*args, **kwargs)
+        finally:
+            sys.stderr.close()
+            sys.stderr = stderr
+
+    return wrapper

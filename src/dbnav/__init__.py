@@ -22,9 +22,12 @@ import sys
 import os
 import logging
 import pdb
+import urllib2
+import json
 
 from dbnav.writer import Writer
 from dbnav import logger as log
+from dbnav.jsonable import from_json
 
 __all__ = (
     'navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger',
@@ -55,9 +58,19 @@ OPERATORS = {
     'in': lambda c, v: c.in_(v),
     ':': lambda c, v: c.in_(v)
 }
+COMMANDS = {
+    'dbdiff': 'differ',
+    'dbexec': 'executer',
+    'dbexport': 'exporter',
+    'dbgraph': 'grapher',
+    'dbnav': 'navigator'
+}
 
 
 class Wrapper:
+    def __init__(self, options=None):
+        self.options = options
+
     def write(self):
         try:
             sys.stdout.write(Writer.write(self.run()))
@@ -67,6 +80,8 @@ class Wrapper:
 
     def run(self):
         try:
+            if self.options != None and self.options.daemon:
+                return self.executer(*sys.argv)
             return self.execute()
         except BaseException as e:
             log.logger.exception(e)
@@ -80,3 +95,34 @@ class Wrapper:
             else:
                 # Show the error message if log level is INFO or higher
                 log.log_error(e)  # pragma: no cover
+
+    def executer(self, *args):
+        """Execute remotely"""
+
+        options = self.options
+
+        try:
+            import dbnav.daemon
+            daemon.start_server(options)
+
+            url = 'http://{host}:{port}/{path}'.format(
+                host=options.host,
+                port=options.port,
+                path=COMMANDS[options.prog])
+            request = json.dumps(args[1:])
+
+            log.logger.debug('Request to %s:\n%s', url, request)
+
+            response = urllib2.urlopen(url, request)
+            
+            r = json.load(response)
+
+            log.logger.debug('Response:\n%s', r)
+
+            return from_json(r)
+        except urllib2.HTTPError as e:
+            raise from_json(json.load(e))
+        except urllib2.URLError as e:
+            log.logger.error('Daemon not available: %s', e)
+        except BaseException as e:
+            log.logger.exception(e)
