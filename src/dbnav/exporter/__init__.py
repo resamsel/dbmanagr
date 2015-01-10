@@ -31,7 +31,7 @@ from dbnav.sources import Source
 from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
 from dbnav.writer import Writer
-from dbnav.jsonable import Jsonable, as_json, from_json
+from dbnav.jsonable import Jsonable, from_json
 from dbnav.exception import UnknownColumnException, UnknownTableException
 
 from .args import parser, SqlInsertWriter

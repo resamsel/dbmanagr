@@ -18,10 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import json
 import datetime
 import sqlalchemy
-import importlib
 
 from dbnav.exception import BusinessException
 

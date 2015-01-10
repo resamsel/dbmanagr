@@ -27,13 +27,9 @@ import urllib2
 import logging
 import time
 
-from json import JSONEncoder
-
 from dbnav import navigator, exporter, differ, executer, grapher
 from dbnav.config import Config
-from dbnav.writer import Writer
-from dbnav.jsonable import Jsonable
-from dbnav.node import BaseNode
+from dbnav.jsonable import Jsonable, as_json
 from dbnav.utils import mute_stderr
 
 from .args import parser
@@ -67,7 +63,7 @@ class DaemonHTTPServer(BaseHTTPServer.HTTPServer):
 
 
 class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-    def do_POST(self):
+    def do_POST(self):  # noqa
         parts = self.path.split('/')
         command = parts[1]
         if command == 'server-status':
@@ -157,7 +153,7 @@ def status(config):
                 host=config.host,
                 port=config.port),
             '')
-    except BaseException as e:
+    except:
         sys.stdout.write('offline\n')
     else:
         sys.stdout.write('online\n')

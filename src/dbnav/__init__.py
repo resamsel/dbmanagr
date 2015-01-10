@@ -80,7 +80,7 @@ class Wrapper:
 
     def run(self):
         try:
-            if self.options != None and self.options.daemon:
+            if self.options is not None and self.options.daemon:
                 return self.executer(*sys.argv)
             return self.execute()
         except BaseException as e:
@@ -102,7 +102,7 @@ class Wrapper:
         options = self.options
 
         try:
-            import dbnav.daemon
+            from dbnav import daemon
             daemon.start_server(options)
 
             url = 'http://{host}:{port}/{path}'.format(
@@ -114,7 +114,7 @@ class Wrapper:
             log.logger.debug('Request to %s:\n%s', url, request)
 
             response = urllib2.urlopen(url, request)
-            
+
             r = json.load(response)
 
             log.logger.debug('Response:\n%s', r)
