@@ -45,11 +45,9 @@ class DefaultWriter:
 class StdoutWriter(DefaultWriter):
     def __init__(
             self,
-            items_format=u"""Title\tSubtitle\tAutocomplete
-{0}""",
-            item_format=u"""{title}\t{subtitle}\t{autocomplete}""",
-            item_separator=u"""
-""",
+            items_format=u"Title\tSubtitle\tAutocomplete\n{0}",
+            item_format=u"{title}\t{subtitle}\t{autocomplete}",
+            item_separator=u"\n",
             format_error_format=u'{0}'):
         self.items_format = items_format
         self.item_format = item_format

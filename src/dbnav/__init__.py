@@ -74,7 +74,8 @@ class Wrapper:
     def write(self):
         try:
             sys.stdout.write(Writer.write(self.run()))
-        except:
+        except BaseException as e:
+            log.logger.exception(e)
             return -1
         return 0
 

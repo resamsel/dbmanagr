@@ -26,7 +26,6 @@ from dbnav.logger import LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.comment import create_comment
 from dbnav.exception import UnknownColumnException
-from dbnav.jsonable import from_json
 from dbnav.model.baseitem import BaseItem
 from dbnav.model.column import create_column
 from dbnav.model.row import Row
@@ -173,18 +172,3 @@ class Table(BaseItem):
         if self.owner and self.size:
             return u'Owner: %s (%s)' % (self.owner, self.size)
         return u'Table'
-
-    def as_json(self):
-        d = BaseItem.as_json(self)
-        d['columns'] = map(lambda c: c.name, self.columns())
-        return d
-
-    @staticmethod
-    def from_json(d):
-        return Table(
-            name=from_json(d.get('name')),
-            uri=from_json(d.get('uri')),
-            owner=from_json(d.get('owner')),
-            size=from_json(d.get('size')),
-            primary_key=from_json(d.get('primary_key')),
-            columns=from_json(d.get('columns')))

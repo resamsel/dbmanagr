@@ -32,6 +32,7 @@ from dbnav.utils import remove_prefix
 from dbnav.queryfilter import QueryFilter
 from dbnav.writer import Writer
 from dbnav.jsonable import Jsonable, from_json
+from dbnav.dto.mapper import to_dto
 from dbnav.exception import UnknownColumnException, UnknownTableException
 
 from .args import parser, SqlInsertWriter
@@ -45,10 +46,10 @@ class RowItem(Jsonable):
         self.exclude = exclude
 
     def __hash__(self):
-        return hash(self.row.autocomplete())
+        return hash(self.row.row)
 
     def __eq__(self, o):
-        return hash(self.row.autocomplete()) == hash(o.row.autocomplete())
+        return hash(self) == hash(o)
 
     @staticmethod
     def from_json(d):
@@ -99,7 +100,7 @@ def create_items(connection, items, include, exclude):
                     raise UnknownColumnException(
                         item.table, x,
                         fks.keys() + map(
-                            lambda c: c.name, item.table.columns()))
+                            lambda c: c.name, item.table.columns))
             # only check first item, as we expect all items are from the same
             # table
             break
@@ -128,7 +129,7 @@ def create_items(connection, items, include, exclude):
                 remove_prefix(fk.a.table.name, exclude))
 
     return results_pre + map(
-        lambda i: RowItem(i, exclude), items) + results_post
+        lambda i: RowItem(to_dto(i), exclude), items) + results_post
 
 
 class DatabaseExporter(Wrapper):

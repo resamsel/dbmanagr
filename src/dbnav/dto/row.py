@@ -18,32 +18,27 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.formatter import Formatter
-from dbnav.utils import hash
-from dbnav.model import Model
+from dbnav.dto import Dto
+from dbnav.jsonable import from_json
 
 
-class BaseItem(Model):
-    def title(self):  # pragma: no cover
-        return 'Title'
+class Row(Dto):
+    def __init__(self, table=None, row=None):
+        self.table = table
+        self.row = row
 
-    def subtitle(self):  # pragma: no cover
-        return 'Subtitle'
+    def __getitem__(self, i):
+        if i is None:
+            return None
+        if type(i) == unicode:
+            i = i.encode('ascii')
+        if type(i) is str:
+            try:
+                return self.row.__dict__[i]
+            except:
+                return None
+        return self.row[i]
 
-    def autocomplete(self):  # pragma: no cover
-        return 'Autocomplete'
-
-    def validity(self):
-        return True
-
-    def icon(self):  # pragma: no cover
-        return 'images/icon.png'
-
-    def value(self):
-        return self.title()
-
-    def uid(self):
-        return hash(self.autocomplete())
-
-    def format(self):
-        return Formatter.format(self)
+    @staticmethod
+    def from_json(d):
+        return Row(from_json(d['table']), from_json(d['row']))

@@ -18,32 +18,19 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.formatter import Formatter
-from dbnav.utils import hash
-from dbnav.model import Model
+from dbnav.dto import Dto
+from dbnav.jsonable import from_json
 
 
-class BaseItem(Model):
-    def title(self):  # pragma: no cover
-        return 'Title'
+class Column(Dto):
+    def __init__(self, name=None, type=None, primary_key=None):
+        self.name = name
+        self.type = type
+        self.primary_key = primary_key
 
-    def subtitle(self):  # pragma: no cover
-        return 'Subtitle'
-
-    def autocomplete(self):  # pragma: no cover
-        return 'Autocomplete'
-
-    def validity(self):
-        return True
-
-    def icon(self):  # pragma: no cover
-        return 'images/icon.png'
-
-    def value(self):
-        return self.title()
-
-    def uid(self):
-        return hash(self.autocomplete())
-
-    def format(self):
-        return Formatter.format(self)
+    @staticmethod
+    def from_json(d):
+        return Column(
+            name=from_json(d.get('name')),
+            type=from_json(d.get('type')),
+            primary_key=from_json(d.get('primary_key')))

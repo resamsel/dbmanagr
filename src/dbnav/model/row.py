@@ -22,7 +22,6 @@ import logging
 
 from dbnav.model.baseitem import BaseItem
 from dbnav.formatter import Formatter
-from dbnav.jsonable import as_json, from_json
 
 logger = logging.getLogger(__name__)
 
@@ -80,14 +79,3 @@ class Row(BaseItem):
 
     def format(self):
         return Formatter.format_row(self)
-
-    def as_json(self):
-        return {
-            '__cls__': str(self.__class__),
-            'table': self.table.as_json(),
-            'row': as_json(self.row)
-        }
-
-    @staticmethod
-    def from_json(d):
-        return Row(from_json(d['table']), from_json(d['row']))

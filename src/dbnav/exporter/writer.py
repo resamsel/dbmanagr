@@ -36,9 +36,8 @@ class SqlInsertWriter(FormatWriter):
     def itemtostring(self, item):
         row = item.row
         exclude = item.exclude
-        table = row.table
         return self.item_format.format(
-            table=self.options.escape_keyword(table.name),
+            table=self.options.escape_keyword(row.table.name),
             columns=self.create_columns(row, exclude),
             values=self.create_values(row, exclude))
 
@@ -47,16 +46,14 @@ class SqlInsertWriter(FormatWriter):
             map(lambda col: self.options.escape_keyword(col.name),
                 filter(
                     lambda col: col.name not in exclude,
-                    row.table.columns())))
+                    row.table.columns)))
 
     def create_values(self, row, exclude):
-        table = row.table
         return u','.join(
-            map(
-                lambda col: self.options.format_value(col, row[col.name]),
+            map(lambda col: self.options.format_value(None, row[col.name]),
                 filter(
                     lambda col: col.name not in exclude,
-                    table.columns())))
+                    row.table.columns)))
 
 
 class SqlUpdateWriter(FormatWriter):
@@ -75,7 +72,7 @@ class SqlUpdateWriter(FormatWriter):
             values=self.create_values(row, exclude),
             restriction=self.create_restriction(
                 row,
-                filter(lambda col: col.primary_key, table.columns())))
+                filter(lambda col: col.primary_key, table.columns)))
 
     def create_values(self, row, exclude):
         return u', '.join(map(
@@ -83,7 +80,7 @@ class SqlUpdateWriter(FormatWriter):
                 None, col, '=', row[col.name], map_null_operator=False),
             filter(
                 lambda col: not col.primary_key and col.name not in exclude,
-                row.table.columns())))
+                row.table.columns)))
 
     def create_restriction(self, row, pks):
         return u' and '.join(map(
@@ -110,7 +107,7 @@ class SqlDeleteWriter(FormatWriter):
         return self.item_format.format(
             table=self.options.escape_keyword(table.name),
             restriction=self.create_restriction(
-                row, filter(lambda col: col.primary_key, table.columns())))
+                row, filter(lambda col: col.primary_key, table.columns)))
 
     def create_restriction(self, row, pks):
         return u' and '.join(
@@ -191,7 +188,7 @@ class YamlWriter(FormatWriter):
         """.join(map(
             lambda col: u'{0}: {1}'.format(
                 yaml_field(col), yaml_value(col, row[col.name])),
-            filter(lambda col: col.name not in exclude, row.table.columns())))
+            filter(lambda col: col.name not in exclude, row.table.columns)))
 
 
 class FormattedWriter(FormatWriter):
@@ -202,5 +199,5 @@ class FormattedWriter(FormatWriter):
     def itemtostring(self, item):
         d = dict(map(
             lambda col: (col.name, item.row[col.name]),
-            item.row.table.columns()))
+            item.row.table.columns))
         return self.item_format.format(**d)

@@ -18,32 +18,15 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.formatter import Formatter
-from dbnav.utils import hash
-from dbnav.model import Model
+from dbnav.jsonable import Jsonable
 
 
-class BaseItem(Model):
-    def title(self):  # pragma: no cover
-        return 'Title'
-
-    def subtitle(self):  # pragma: no cover
-        return 'Subtitle'
-
-    def autocomplete(self):  # pragma: no cover
+class Dto(Jsonable):
+    def autocomplete(self):
         return 'Autocomplete'
 
-    def validity(self):
-        return True
+    def __hash__(self):
+        return hash(frozenset(self.__dict__.items()))
 
-    def icon(self):  # pragma: no cover
-        return 'images/icon.png'
-
-    def value(self):
-        return self.title()
-
-    def uid(self):
-        return hash(self.autocomplete())
-
-    def format(self):
-        return Formatter.format(self)
+    def __eq__(self, o):
+        return hash(self) == hash(o)

@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.model.baseitem import Jsonable
+from dbnav.jsonable import Jsonable
 
 
 class ForeignKey(Jsonable):
