@@ -78,12 +78,13 @@ parser.add_argument(
 parser.add_argument(
     '-i',
     '--include',
-    help='include the specified columns and their foreign rows, if any '
-         '(multiple columns can be specified by separating them with a comma)')
+    help='include specified columns; referenced rows, if any, can be included '
+         'by adding a dot after the column name; multiple columns can be '
+         'specified by separating them with a comma')
 parser.add_argument(
     '-x',
     '--exclude',
-    help='Exclude the specified columns')
+    help='exclude specified columns')
 parser.add_argument(
     '-m',
     '--limit',

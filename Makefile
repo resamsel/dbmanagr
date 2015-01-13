@@ -88,6 +88,7 @@ release-%:
 
 clean:
 	$(SETUPTOOLS) clean --all
+	$(FIND) . -name "*.pyc" -delete
 	rm -rf $(TARGET)
 	rm -rf $(DIST)
 	rm -f .dbnavigator.cache*

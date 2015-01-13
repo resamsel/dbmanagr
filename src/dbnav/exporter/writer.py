@@ -20,8 +20,21 @@
 
 from string import capwords
 
+from dbnav.utils import matches
 from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, DefaultFormatter
+
+
+def included(name, include, exclude):
+    """Per default all columns are included"""
+
+    if matches(name, include):
+        return True
+
+    if matches(name, exclude):
+        return False
+
+    return True
 
 
 class SqlInsertWriter(FormatWriter):
@@ -36,26 +49,27 @@ class SqlInsertWriter(FormatWriter):
     def itemtostring(self, item):
         row = item.row
         exclude = item.exclude
+        include = item.include
         table = row.table
         return self.item_format.format(
             table=self.options.escape_keyword(table.name),
-            columns=self.create_columns(row, exclude),
-            values=self.create_values(row, exclude))
+            columns=self.create_columns(row, include, exclude),
+            values=self.create_values(row, include, exclude))
 
-    def create_columns(self, row, exclude):
+    def create_columns(self, row, include, exclude):
         return u','.join(
             map(lambda col: self.options.escape_keyword(col.name),
                 filter(
-                    lambda col: col.name not in exclude,
+                    lambda col: included(col.name, include, exclude),
                     row.table.columns())))
 
-    def create_values(self, row, exclude):
+    def create_values(self, row, include, exclude):
         table = row.table
         return u','.join(
             map(
                 lambda col: self.options.format_value(col, row[col.name]),
                 filter(
-                    lambda col: col.name not in exclude,
+                    lambda col: included(col.name, include, exclude),
                     table.columns())))
 
 
