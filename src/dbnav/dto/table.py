@@ -30,17 +30,19 @@ class Table(Dto):
             owner=None,
             size=None,
             primary_key=None,
-            columns=None):
+            columns=None,
+            foreign_keys=None):
         self.name = name
         self.uri = uri
         self.owner = owner
         self.size = size
         self.primary_key = primary_key
         self.columns = columns
+        self.foreign_keys = foreign_keys
 
     def as_json(self):
         d = as_json(self)
-        d['columns'] = map(lambda c: c.name, self.columns())
+        d['columns'] = map(lambda c: c.name, self.columns)
         return d
 
     @staticmethod
@@ -51,4 +53,5 @@ class Table(Dto):
             owner=from_json(d.get('owner')),
             size=from_json(d.get('size')),
             primary_key=from_json(d.get('primary_key')),
-            columns=from_json(d.get('columns')))
+            columns=from_json(d.get('columns')),
+            foreign_keys=from_json(d.get('foreign_keys')))

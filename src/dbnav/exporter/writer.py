@@ -126,19 +126,19 @@ def yaml_format_field(name):
     return s[:1].lower() + s[1:]
 
 
-def yaml_field(col):
-    if col.name in col.table.foreign_keys():
-        fk = col.table.foreign_key(col.name)
-        return yaml_format_field(fk.b.table.name)
-    return yaml_format_field(col.name)
+def yaml_field(col, table):
+    if table and col in table.foreign_keys:
+        fk = table.foreign_keys[col]
+        return yaml_format_field(fk.b['table'])
+    return yaml_format_field(col)
 
 
-def yaml_value(col, value):
-    if col.name in col.table.foreign_keys():
-        fk = col.table.foreign_key(col.name)
+def yaml_value(col, table, value):
+    if table and col in table.foreign_keys:
+        fk = table.foreign_keys[col]
         return u'*{table}_{id}'.format(
-            table=fk.b.table.name.replace('_', ''),
-            id=yaml_value(fk.b, value))
+            table=fk.b['table'].replace('_', ''),
+            id=yaml_value(fk.b['name'], None, value))  # TO-DO!!!
     if value is None:
         return u'!!null null'
     if type(value) is float:
@@ -187,7 +187,8 @@ class YamlWriter(FormatWriter):
         return u"""
         """.join(map(
             lambda col: u'{0}: {1}'.format(
-                yaml_field(col), yaml_value(col, row[col.name])),
+                yaml_field(col.name, row.table),
+                yaml_value(col.name, row.table, row[col.name])),
             filter(lambda col: col.name not in exclude, row.table.columns)))
 
 

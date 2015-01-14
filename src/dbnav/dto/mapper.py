@@ -20,12 +20,13 @@
 
 from dbnav.dto.row import Row
 from dbnav.dto.column import Column
+from dbnav.dto.foreignkey import ForeignKey
 from dbnav.dto.table import Table
 
 
 def to_dto(model):
     if type(model) is dict:
-        return dict(map(to_dto, model))
+        return dict(map(lambda (k, v): (k, to_dto(v)), model.iteritems()))
     if type(model) is list:
         return map(to_dto, model)
     if model.__class__.__name__ == 'Row':
@@ -34,7 +35,13 @@ def to_dto(model):
         return Column(
             name=model.name,
             type=model.type,
-            primary_key=model.primary_key)
+            primary_key=model.primary_key
+        )
+    if model.__class__.__name__ == 'ForeignKey':
+        return ForeignKey(
+            a={'name': model.a.name, 'table': model.a.table.name},
+            b={'name': model.b.name, 'table': model.b.table.name}
+        )
     if model.__class__.__name__ == 'Table':
         return Table(
             name=model.name,
@@ -42,5 +49,7 @@ def to_dto(model):
             owner=model.owner,
             size=model.size,
             primary_key=model.primary_key,
-            columns=to_dto(model.columns()))
+            columns=to_dto(model.columns()),
+            foreign_keys=to_dto(model.foreign_keys())
+        )
     return model

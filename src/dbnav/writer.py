@@ -67,6 +67,8 @@ class StdoutWriter(DefaultWriter):
         return self.items_format.format(s)
 
     def prepare(self, items):
+        if not items:
+            return []
         return items
 
     def itemtostring(self, item):

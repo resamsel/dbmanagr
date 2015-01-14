@@ -26,6 +26,7 @@ import json
 import urllib2
 import logging
 import time
+import traceback
 
 from dbnav import navigator, exporter, differ, executer, grapher
 from dbnav.config import Config
@@ -95,7 +96,7 @@ class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({
                 '__cls__': str(e.__class__.__name__),
-                'message': e.message
+                'message': traceback.format_exc()
             }))
 
     def log_message(self, format, *args):
