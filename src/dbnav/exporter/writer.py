@@ -57,16 +57,16 @@ class SqlInsertWriter(FormatWriter):
 
     def create_columns(self, row, include, exclude):
         return u','.join(
-            map(lambda col: self.options.escape_keyword(col),
+            map(lambda col: self.options.escape_keyword(col.name),
                 filter(
-                    lambda col: included(col, include, exclude),
+                    lambda col: included(col.name, include, exclude),
                     row.table.columns)))
 
     def create_values(self, row, include, exclude):
         return u','.join(
-            map(lambda col: self.options.format_value(None, row[col]),
+            map(lambda col: self.options.format_value(col, row[col.name]),
                 filter(
-                    lambda col: included(col, include, exclude),
+                    lambda col: included(col.name, include, exclude),
                     row.table.columns)))
 
 
@@ -91,15 +91,15 @@ class SqlUpdateWriter(FormatWriter):
     def create_values(self, row, exclude):
         return u', '.join(map(
             lambda col: self.options.restriction(
-                None, col, '=', row[col], map_null_operator=False),
+                None, col, '=', row[col.name], map_null_operator=False),
             filter(
-                lambda col: not col.primary_key and col not in exclude,
+                lambda col: not col.primary_key and col.name not in exclude,
                 row.table.columns)))
 
     def create_restriction(self, row, pks):
         return u' and '.join(map(
             lambda col: self.options.restriction(
-                None, col, '=', row[col]),
+                None, col, '=', row[col.name]),
             pks))
 
 
@@ -127,7 +127,7 @@ class SqlDeleteWriter(FormatWriter):
         return u' and '.join(
             map(
                 lambda col: self.options.restriction(
-                    None, col, '=', row[col]),
+                    None, col, '=', row[col.name]),
                 pks))
 
 
@@ -143,7 +143,7 @@ def yaml_format_field(name):
 def yaml_field(col, table):
     if table and col in table.foreign_keys:
         fk = table.foreign_keys[col]
-        return yaml_format_field(fk.b['table'])
+        return yaml_format_field(fk.b.tablename)
     return yaml_format_field(col)
 
 
@@ -151,8 +151,8 @@ def yaml_value(col, table, value):
     if table and col in table.foreign_keys:
         fk = table.foreign_keys[col]
         return u'*{table}_{id}'.format(
-            table=fk.b['table'].replace('_', ''),
-            id=yaml_value(fk.b['name'], None, value))  # TO-DO!!!
+            table=fk.b.tablename.replace('_', ''),
+            id=yaml_value(fk.b.name, None, value))  # TO-DO!!!
     if value is None:
         return u'!!null null'
     if type(value) is float:
@@ -201,9 +201,9 @@ class YamlWriter(FormatWriter):
         return u"""
         """.join(map(
             lambda col: u'{0}: {1}'.format(
-                yaml_field(col, row.table),
-                yaml_value(col, row.table, row[col])),
-            filter(lambda col: col not in exclude, row.table.columns)))
+                yaml_field(col.name, row.table),
+                yaml_value(col.name, row.table, row[col.name])),
+            filter(lambda col: col.name not in exclude, row.table.columns)))
 
 
 class FormattedWriter(FormatWriter):
@@ -213,6 +213,6 @@ class FormattedWriter(FormatWriter):
 
     def itemtostring(self, item):
         d = dict(map(
-            lambda col: (col, item.row[col]),
+            lambda col: (col.name, item.row[col.name]),
             item.row.table.columns))
         return self.item_format.format(**d)

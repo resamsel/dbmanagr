@@ -26,6 +26,7 @@ from tests.mock.sources import MockSource
 from dbnav import exporter
 from dbnav.exception import UnknownTableException, UnknownColumnException
 from dbnav.utils import mute_stderr
+from dbnav.dto.mapper import to_dto
 
 
 def test_exporter():
@@ -44,16 +45,20 @@ class DifferTestCase(DbTestCase):
         DbTestCase.connection.connect()
         con = DbTestCase.connection
         user = con.table('user2')
+        user_dto = to_dto(user)
 
         self.assertEqual(
             '!!null null',
-            exporter.writer.yaml_value(user.column('id'), None))
+            exporter.writer.yaml_value(
+                to_dto(user.column('id')), user_dto, None))
         self.assertEqual(
             '!!float 3.141500',
-            exporter.writer.yaml_value(user.column('score'), 3.141500))
+            exporter.writer.yaml_value(
+                to_dto(user.column('score')), user_dto, 3.141500))
         self.assertEqual(
             '!!bool true',
-            exporter.writer.yaml_value(user.column('deleted'), True))
+            exporter.writer.yaml_value(
+                to_dto(user.column('deleted')), user_dto, True))
 
     def test_unknown_table(self):
         """Tests unknown tables"""

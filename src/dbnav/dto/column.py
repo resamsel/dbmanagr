@@ -23,8 +23,9 @@ from dbnav.jsonable import from_json
 
 
 class Column(Dto):
-    def __init__(self, name=None, type=None, primary_key=None):
+    def __init__(self, name=None, tablename=None, type=None, primary_key=None):
         self.name = name
+        self.tablename = tablename
         self.type = type
         self.primary_key = primary_key
 
@@ -32,5 +33,7 @@ class Column(Dto):
     def from_json(d):
         return Column(
             name=from_json(d.get('name')),
+            tablename=from_json(d.get('tablename')),
             type=from_json(d.get('type')),
-            primary_key=from_json(d.get('primary_key')))
+            primary_key=from_json(d.get('primary_key'))
+        )

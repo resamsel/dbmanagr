@@ -25,7 +25,11 @@ from dbnav.exception import BusinessException
 
 
 def as_json(obj):
-    if isinstance(obj, datetime.datetime) or isinstance(obj, datetime.date):
+    if isinstance(obj, (int, long, float, bool)):
+        return obj
+    if isinstance(obj, dict):
+        return dict(map(lambda (k, v): (k, as_json(v)), obj.iteritems()))
+    if isinstance(obj, (datetime.datetime, datetime.date)):
         return {
             '__cls__': 'datetime.{}'.format(obj.__class__.__name__),
             'value': obj.isoformat()
@@ -38,8 +42,6 @@ def as_json(obj):
         return d
     if isinstance(obj, (tuple, list, set)):
         return map(as_json, obj)
-    if isinstance(obj, dict):
-        return dict(map(lambda (k, v): (k, as_json(v)), obj.iteritems()))
     if isinstance(obj, Jsonable):
         d = {
             '__cls__': str(obj.__class__)
@@ -51,7 +53,7 @@ def as_json(obj):
                 else:
                     d[key] = as_json(value)
         return d
-    return obj
+    return unicode(obj)
 
 
 def import_class(name):

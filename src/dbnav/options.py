@@ -54,7 +54,7 @@ def restriction(alias, column, operator, value, map_null_operator=True):
                 '!=': 'is not'
             }.get(operator)
         value = None
-    if column.table and alias is not None:
+    if column.tablename and alias is not None:
         return u"{0}.{1} {2} {3}".format(
             alias,
             escape_keyword(column.name),

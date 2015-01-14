@@ -31,6 +31,7 @@ class Column(BaseItem):
         self.name = name
         self.type = None
         self.__dict__.update(kwargs)
+        self.tablename = table.name
         self.uri = self.autocomplete()
 
     def __repr__(self):

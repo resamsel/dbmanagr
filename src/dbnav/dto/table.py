@@ -19,7 +19,7 @@
 #
 
 from dbnav.dto import Dto
-from dbnav.jsonable import from_json, as_json
+from dbnav.jsonable import from_json
 
 
 class Table(Dto):
@@ -39,11 +39,6 @@ class Table(Dto):
         self.primary_key = primary_key
         self.columns = columns
         self.foreign_keys = foreign_keys
-
-    def as_json(self):
-        d = as_json(self)
-        d['columns'] = map(lambda c: c.name, self.columns)
-        return d
 
     @staticmethod
     def from_json(d):
