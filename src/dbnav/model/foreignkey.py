@@ -31,10 +31,3 @@ foreign column b"""
 
     def __repr__(self):
         return '%s -> %s' % (self.a, self.b)
-
-    def as_json(self):
-        return {
-            '__cls__': str(self.__class__),
-            'a': self.a.as_json(),
-            'b': self.b.as_json()
-        }

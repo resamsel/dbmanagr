@@ -28,12 +28,13 @@ from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.logger import LogWith
 from dbnav.utils import prefixes, remove_prefix
-from dbnav.node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.writer import Writer
+from dbnav.dto.mapper import to_dto
 from dbnav.exception import UnknownTableException
 
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
+from .node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 
 logger = logging.getLogger(__name__)
 
@@ -196,7 +197,7 @@ class DatabaseGrapher(Wrapper):
                     return True
                 return not isinstance(item, TableNode)
 
-            return filter(include_node, nodes)
+            return to_dto(filter(include_node, nodes))
         finally:
             connection.close()
 

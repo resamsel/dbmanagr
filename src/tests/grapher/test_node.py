@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav import node
+from dbnav.grapher import node
 
 
 class NodeTestCase(ParentTestCase):

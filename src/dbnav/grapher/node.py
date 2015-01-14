@@ -19,7 +19,7 @@
 #
 
 from dbnav.formatter import Formatter
-from dbnav.jsonable import Jsonable
+from dbnav.jsonable import Jsonable, as_json
 
 PRIMARY_KEY_OPTIONS = {
     True: '*',
@@ -105,10 +105,10 @@ class ForeignKeyNode(BaseNode):
     def format(self):
         return Formatter.format_foreign_key_node(self)
 
-    def as_json(self):
+    def _as_json(self):
         d = {
             '__cls__': str(self.__class__),
-            'fk': self.fk.as_json(),
+            'fk': as_json(self.fk),
             'indent': self.indent
         }
         if self.parent is not None:
