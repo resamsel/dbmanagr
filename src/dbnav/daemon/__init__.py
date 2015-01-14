@@ -96,7 +96,8 @@ class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({
                 '__cls__': str(e.__class__.__name__),
-                'message': traceback.format_exc()
+                'message': e.message,
+                'traceback': as_json(traceback.extract_tb(sys.exc_info()[2]))
             }))
 
     def log_message(self, format, *args):

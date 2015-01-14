@@ -36,10 +36,10 @@ def as_json(obj):
         }
         d.update(dict(map(as_json, obj.__dict__.iteritems())))
         return d
+    if isinstance(obj, (tuple, list, set)):
+        return map(as_json, obj)
     if isinstance(obj, dict):
         return dict(map(lambda (k, v): (k, as_json(v)), obj.iteritems()))
-    if isinstance(obj, tuple):
-        return map(as_json, obj)
     if isinstance(obj, Jsonable):
         d = {
             '__cls__': str(obj.__class__)

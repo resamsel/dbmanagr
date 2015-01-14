@@ -28,7 +28,7 @@ from dbnav import Wrapper
 from dbnav.logger import LogWith
 from dbnav.config import Config
 from dbnav.sources import Source
-from dbnav.utils import remove_prefix
+from dbnav.utils import prefix, prefixes, remove_prefix, replace_wildcards
 from dbnav.queryfilter import QueryFilter
 from dbnav.writer import Writer
 from dbnav.jsonable import Jsonable, from_json
@@ -41,8 +41,9 @@ logger = logging.getLogger(__name__)
 
 
 class RowItem(Jsonable):
-    def __init__(self, row, exclude):
+    def __init__(self, row, include, exclude):
         self.row = row
+        self.include = include
         self.exclude = exclude
 
     def __hash__(self):
@@ -53,7 +54,11 @@ class RowItem(Jsonable):
 
     @staticmethod
     def from_json(d):
-        return RowItem(from_json(d['row']), from_json(d['exclude']))
+        return RowItem(
+            from_json(d['row']),
+            from_json(d['include']),
+            from_json(d['exclude'])
+        )
 
 
 def fk_by_a_table_name(fks):
@@ -67,40 +72,56 @@ def create_items(connection, items, include, exclude):
     includes = {}
     for item in items:
         for i in include:
-            c = re.sub('([^\\.]*)\\..*', '\\1', i)
-            fk = None
+            p = re.compile(replace_wildcards(prefix(i)))
+            col, fk = None, None
             for key, val in item.table.foreign_keys().iteritems():
-                if val.a.table.name == c:
+                if p.match(val.a.table.name):
                     fk = val
                     break
-            col = item.table.column(c)
+            for c in item.table.columns():
+                if p.match(c.name):
+                    col = c
+                    break
             if not col and not fk:
                 raise UnknownColumnException(item.table, i)
+            if '.' not in i:
+                # Only include column, don't include referencing rows
+                #
+                # Examples:
+                # 1) user_id - include column user_id, but no referenced rows
+                # 2) user_id. - include column user_id with referencing user
+                #    row
+                # 3) user_id.article - include column user_id with referenced
+                #    articles
+                continue
             if fk:
-                # fk.a.table.connection = item.table.connection
                 if fk not in includes:
                     includes[fk] = []
                 includes[fk].append(item[fk.b.name])
             if col and col.name in item.table.foreign_keys():
                 fk = item.table.foreign_key(col.name)
-                # fk.b.table.connection = item.table.connection
                 if fk not in includes:
                     includes[fk] = []
                 includes[fk].append(item[fk.a.name])
     if exclude:
         for item in items:
             for x in exclude:
-                c = re.sub('([^\\.]*)\\..*', '\\1', x)
+                p = re.compile(replace_wildcards(prefix(x)))
                 fks = fk_by_a_table_name(item.table.foreign_keys())
-                fk = None
-                if c in fks:
-                    fk = fks[c]
-                col = item.table.column(c)
+                col, fk = None, None
+                for k in fks.keys():
+                    if p.match(k):
+                        fk = fks[k]
+                        break
+                for c in item.table.columns():
+                    if p.match(c.name):
+                        col = c
+                        break
                 if not col and not fk:
                     raise UnknownColumnException(
                         item.table, x,
                         fks.keys() + map(
-                            lambda c: c.name, item.table.columns))
+                            lambda c: c.name, item.table.columns()))
             # only check first item, as we expect all items are from the same
             # table
             break
@@ -129,7 +150,8 @@ def create_items(connection, items, include, exclude):
                 remove_prefix(fk.a.table.name, exclude))
 
     return results_pre + map(
-        lambda i: RowItem(to_dto(i), exclude), items) + results_post
+        lambda i: RowItem(to_dto(i), prefixes(include), prefixes(exclude)),
+        items) + results_post
 
 
 class DatabaseExporter(Wrapper):

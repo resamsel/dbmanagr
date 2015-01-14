@@ -49,7 +49,7 @@ def to_dto(model):
             owner=model.owner,
             size=model.size,
             primary_key=model.primary_key,
-            columns=to_dto(model.columns()),
+            columns=map(lambda c: c.name, model.columns()),
             foreign_keys=to_dto(model.foreign_keys())
         )
     return model

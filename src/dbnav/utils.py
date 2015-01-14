@@ -47,8 +47,12 @@ def module_installed(*modules):
     return None
 
 
+def prefix(item, separator='.'):
+    return re.sub('([^\\.]*)\\..*', '\\1', item)
+
+
 def prefixes(items):
-    return set([re.sub('([^\\.]*)\\..*', '\\1', i) for i in items])
+    return set(filter(len, map(prefix, items)))
 
 
 def remove_prefix(prefix, items):
@@ -153,3 +157,19 @@ def mute_stderr(f):
             sys.stderr = stderr
 
     return wrapper
+
+
+def matches(name, patterns):
+    for pattern in patterns:
+        p = re.compile(replace_wildcards(pattern))
+        if p.match(name):
+            return True
+
+    return False
+
+
+def replace_wildcards(pattern):
+    if not pattern:
+        return pattern
+
+    return pattern.replace('*', '.*')

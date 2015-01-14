@@ -20,8 +20,21 @@
 
 from string import capwords
 
+from dbnav.utils import matches
 from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, DefaultFormatter
+
+
+def included(name, include, exclude):
+    """Per default all columns are included"""
+
+    if matches(name, include):
+        return True
+
+    if matches(name, exclude):
+        return False
+
+    return True
 
 
 class SqlInsertWriter(FormatWriter):
@@ -36,23 +49,24 @@ class SqlInsertWriter(FormatWriter):
     def itemtostring(self, item):
         row = item.row
         exclude = item.exclude
+        include = item.include
         return self.item_format.format(
             table=self.options.escape_keyword(row.table.name),
-            columns=self.create_columns(row, exclude),
-            values=self.create_values(row, exclude))
+            columns=self.create_columns(row, include, exclude),
+            values=self.create_values(row, include, exclude))
 
-    def create_columns(self, row, exclude):
+    def create_columns(self, row, include, exclude):
         return u','.join(
-            map(lambda col: self.options.escape_keyword(col.name),
+            map(lambda col: self.options.escape_keyword(col),
                 filter(
-                    lambda col: col.name not in exclude,
+                    lambda col: included(col, include, exclude),
                     row.table.columns)))
 
-    def create_values(self, row, exclude):
+    def create_values(self, row, include, exclude):
         return u','.join(
-            map(lambda col: self.options.format_value(None, row[col.name]),
+            map(lambda col: self.options.format_value(None, row[col]),
                 filter(
-                    lambda col: col.name not in exclude,
+                    lambda col: included(col, include, exclude),
                     row.table.columns)))
 
 
@@ -77,15 +91,15 @@ class SqlUpdateWriter(FormatWriter):
     def create_values(self, row, exclude):
         return u', '.join(map(
             lambda col: self.options.restriction(
-                None, col, '=', row[col.name], map_null_operator=False),
+                None, col, '=', row[col], map_null_operator=False),
             filter(
-                lambda col: not col.primary_key and col.name not in exclude,
+                lambda col: not col.primary_key and col not in exclude,
                 row.table.columns)))
 
     def create_restriction(self, row, pks):
         return u' and '.join(map(
             lambda col: self.options.restriction(
-                None, col, '=', row[col.name]),
+                None, col, '=', row[col]),
             pks))
 
 
@@ -113,7 +127,7 @@ class SqlDeleteWriter(FormatWriter):
         return u' and '.join(
             map(
                 lambda col: self.options.restriction(
-                    None, col, '=', row[col.name]),
+                    None, col, '=', row[col]),
                 pks))
 
 
@@ -187,9 +201,9 @@ class YamlWriter(FormatWriter):
         return u"""
         """.join(map(
             lambda col: u'{0}: {1}'.format(
-                yaml_field(col.name, row.table),
-                yaml_value(col.name, row.table, row[col.name])),
-            filter(lambda col: col.name not in exclude, row.table.columns)))
+                yaml_field(col, row.table),
+                yaml_value(col, row.table, row[col])),
+            filter(lambda col: col not in exclude, row.table.columns)))
 
 
 class FormattedWriter(FormatWriter):
@@ -199,6 +213,6 @@ class FormattedWriter(FormatWriter):
 
     def itemtostring(self, item):
         d = dict(map(
-            lambda col: (col.name, item.row[col.name]),
+            lambda col: (col, item.row[col]),
             item.row.table.columns))
         return self.item_format.format(**d)
