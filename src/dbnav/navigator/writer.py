@@ -19,7 +19,7 @@
 #
 
 from dbnav.writer import FormatWriter
-from dbnav.formatter import Formatter, AutocompleteFormatter, XmlFormatter
+from dbnav.formatter import Formatter, AutocompleteFormatter
 from dbnav.formatter import JsonFormatter, SimpleFormatter, SimplifiedFormatter
 
 
@@ -27,16 +27,6 @@ class SimplifiedWriter(FormatWriter):
     def __init__(self):
         FormatWriter.__init__(self, u'{0}')
         Formatter.set(SimplifiedFormatter())
-
-
-class XmlWriter(FormatWriter):
-    def __init__(self):
-        FormatWriter.__init__(
-            self,
-            u"""<items>
-{0}
-</items>""")
-        Formatter.set(XmlFormatter())
 
 
 class JsonWriter(FormatWriter):

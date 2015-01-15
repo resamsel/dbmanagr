@@ -20,7 +20,7 @@
 
 from dbnav.args import parent_parser, format_group, create_parser
 
-from .writer import SimplifiedWriter, SimpleWriter, JsonWriter, XmlWriter
+from .writer import SimplifiedWriter, SimpleWriter, JsonWriter
 from .writer import AutocompleteWriter
 
 parent = parent_parser()
@@ -47,13 +47,6 @@ group.add_argument(
     dest='formatter',
     action='store_const',
     const=JsonWriter)
-group.add_argument(
-    '-X',
-    '--xml',
-    help='output format: XML',
-    dest='formatter',
-    action='store_const',
-    const=XmlWriter)
 group.add_argument(
     '-A',
     '--autocomplete',
