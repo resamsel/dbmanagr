@@ -25,11 +25,11 @@ from dbnav.formatter import Formatter, DefaultFormatter
 def value_from_column(column, config):
     if config.verbose > 3:
         return '{0}?{1}'.format(
-            column.autocomplete().split('?')[0], column.ddl())
+            column.autocomplete.split('?')[0], column.ddl())
     if config.verbose > 2:
-        return column.autocomplete()
+        return column.autocomplete
     if config.verbose > 1:
-        return '/'.join(column.autocomplete().split('/')[1:])
+        return '/'.join(column.autocomplete.split('/')[1:])
     if config.verbose > 0:
         return unicode(column)
     return column_name(column, config)

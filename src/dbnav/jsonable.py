@@ -25,7 +25,7 @@ from dbnav.exception import BusinessException
 
 
 def as_json(obj):
-    if isinstance(obj, (int, long, float, bool)):
+    if isinstance(obj, (int, long, float, bool)) or obj is None:
         return obj
     if isinstance(obj, dict):
         return dict(map(lambda (k, v): (k, as_json(v)), obj.iteritems()))

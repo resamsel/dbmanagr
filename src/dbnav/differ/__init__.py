@@ -26,6 +26,8 @@ from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.exception import UnknownTableException
+from dbnav.dto.mapper import to_dto
+
 from .args import parser
 from .writer import DiffWriter
 
@@ -100,7 +102,7 @@ class DatabaseDiffer(Wrapper):
                 if k not in lplus:
                     r[k] = (None, v)
 
-            return map(lambda (k, v): v, r.iteritems())
+            return to_dto(map(lambda (k, v): v, r.iteritems()))
         finally:
             lcon.close()
             rcon.close()

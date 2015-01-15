@@ -40,6 +40,11 @@ class Table(Dto):
         self.columns = columns
         self.foreign_keys = foreign_keys
 
+    def __str__(self):
+        if self.uri:
+            return '{}{}'.format(self.uri, self.name)
+        return self.name
+
     @staticmethod
     def from_json(d):
         return Table(

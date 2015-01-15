@@ -82,7 +82,10 @@ class Wrapper:
     def run(self):
         try:
             if self.options is not None and self.options.daemon:
+                log.logger.debug('Executing remotely')
                 return self.executer(*sys.argv)
+
+            log.logger.debug('Executing locally')
             return self.execute()
         except BaseException as e:
             log.logger.exception(e)
@@ -90,9 +93,7 @@ class Wrapper:
                 # Start post mortem debugging only when debugging is enabled
                 if os.getenv('UNITTEST', 'False') == 'True':
                     raise
-                type, value, tb = sys.exc_info()  # pragma: no cover
-                # traceback.print_exc()
-                pdb.post_mortem(tb)  # pragma: no cover
+                pdb.post_mortem(sys.exc_info()[2])  # pragma: no cover
             else:
                 # Show the error message if log level is INFO or higher
                 log.log_error(e)  # pragma: no cover
@@ -120,7 +121,11 @@ class Wrapper:
 
             log.logger.debug('Response:\n%s', r)
 
-            return from_json(r)
+            dto = from_json(r)
+
+            # log.logger.debug('DTOs:\n%s', r)
+
+            return dto
         except urllib2.HTTPError as e:
             raise from_json(json.load(e))
         except urllib2.URLError as e:

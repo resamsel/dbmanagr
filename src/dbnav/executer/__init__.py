@@ -29,6 +29,7 @@ from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
 from dbnav.logger import logger, LogTimer, log_error
+from dbnav.dto.mapper import to_dto
 
 from .args import parser
 from .writer import ExecuteWriter
@@ -302,7 +303,7 @@ class DatabaseExecuter(Wrapper):
                 if errors:
                     sys.stdout.write('Errors: {0}'.format(errors))
 
-                return results
+                return to_dto(results)
 
         raise Exception('Specify the complete URI to a database')
 

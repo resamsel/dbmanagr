@@ -19,6 +19,15 @@
 #
 
 from dbnav.jsonable import Jsonable
+from dbnav.formatter import Formatter
+
+
+def freeze(d):
+    if isinstance(d, dict):
+        return frozenset((key, freeze(value)) for key, value in d.items())
+    elif isinstance(d, list):
+        return tuple(freeze(value) for value in d)
+    return d
 
 
 class Dto(Jsonable):
@@ -26,7 +35,10 @@ class Dto(Jsonable):
         return 'Autocomplete'
 
     def __hash__(self):
-        return hash(frozenset(self.__dict__.items()))
+        return hash(freeze(self.__dict__))
 
     def __eq__(self, o):
         return hash(self) == hash(o)
+
+    def format(self):
+        return Formatter.format(self)

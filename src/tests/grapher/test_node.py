@@ -23,20 +23,6 @@ from dbnav.grapher import node
 
 
 class NodeTestCase(ParentTestCase):
-    def test_format(self):
-        """Tests the node.BaseNode format method"""
-
-        self.assertIsNotNone(
-            node.BaseNode().format()
-        )
-
-    def test_format_verbose(self):
-        """Tests the node.BaseNode format_verbose method"""
-
-        self.assertIsNotNone(
-            node.BaseNode().format_verbose()
-        )
-
     def test_column_node_hash(self):
         """Tests the node.ColumnNode __hash__ method"""
 

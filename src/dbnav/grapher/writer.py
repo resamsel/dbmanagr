@@ -40,13 +40,13 @@ class GraphvizFormatter(DefaultFormatter):
     def format_table_node(self, item):
         columns = map(
             lambda (i, it): u'<{1}> {1}'.format(i, it.name),
-            enumerate(item.table.columns()))
+            enumerate(item.table.columns))
         return u'  {0} [shape="record" label="{0}| {1}"];'.format(
             item.table.name, '| '.join(columns))
 
     def format_foreign_key_node(self, item):
-        return u'  {fk.a.table.name}:{fk.a.name} '\
-            u'-> {fk.b.table.name}:{fk.b.name} [];'.format(fk=item)
+        return u'  {fk.a.tablename}:{fk.a.name} '\
+            u'-> {fk.b.tablename}:{fk.b.name} [];'.format(fk=item.fk)
 
 
 class GraphWriter(FormatWriter):

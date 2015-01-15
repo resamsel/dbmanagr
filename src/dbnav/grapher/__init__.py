@@ -154,7 +154,7 @@ class DatabaseGrapher(Wrapper):
             opts = options.get(connection.dbms)
             if connection.matches(opts) and opts.show in [
                     'tables', 'columns', 'values']:
-                return self.build(connection, opts)
+                return to_dto(self.build(connection, opts))
 
         raise Exception('Specify the complete URI to a table')
 
@@ -197,7 +197,7 @@ class DatabaseGrapher(Wrapper):
                     return True
                 return not isinstance(item, TableNode)
 
-            return to_dto(filter(include_node, nodes))
+            return filter(include_node, nodes)
         finally:
             connection.close()
 

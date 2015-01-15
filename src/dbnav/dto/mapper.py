@@ -22,12 +22,13 @@ from dbnav.dto.row import Row
 from dbnav.dto.column import Column
 from dbnav.dto.foreignkey import ForeignKey
 from dbnav.dto.table import Table
+from dbnav.dto.node import ColumnNode, ForeignKeyNode, TableNode, NameNode
 
 
 def to_dto(model):
     if type(model) is dict:
         return dict(map(lambda (k, v): (k, to_dto(v)), model.iteritems()))
-    if type(model) is list:
+    if type(model) in (tuple, list, set):
         return map(to_dto, model)
     if model.__class__.__name__ == 'Row':
         return Row(to_dto(model.table), to_dto(model.row))
@@ -35,7 +36,11 @@ def to_dto(model):
         return Column(
             name=model.name,
             tablename=model.table.name,
+            autocomplete=model.autocomplete(),
             type=model.type,
+            nullable=model.nullable,
+            default=model.default,
+            autoincrement=model.autoincrement,
             primary_key=model.primary_key
         )
     if model.__class__.__name__ == 'ForeignKey':
@@ -50,4 +55,13 @@ def to_dto(model):
             columns=to_dto(model.columns()),
             foreign_keys=to_dto(model.foreign_keys())
         )
+    if model.__class__.__name__ == 'ColumnNode':
+        return ColumnNode(to_dto(model.column), model.indent)
+    if model.__class__.__name__ == 'ForeignKeyNode':
+        return ForeignKeyNode(
+            to_dto(model.fk), to_dto(model.parent), model.indent)
+    if model.__class__.__name__ == 'TableNode':
+        return TableNode(to_dto(model.table), model.indent)
+    if model.__class__.__name__ == 'NameNode':
+        return NameNode(to_dto(model.name), model.indent)
     return model

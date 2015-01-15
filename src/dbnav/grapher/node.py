@@ -18,8 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from dbnav.jsonable import Jsonable
 from dbnav.formatter import Formatter
-from dbnav.jsonable import Jsonable, as_json
 
 PRIMARY_KEY_OPTIONS = {
     True: '*',
@@ -36,19 +36,6 @@ class BaseNode(Jsonable):
     def __eq__(self, o):
         return hash(self) == hash(o)
 
-    def format(self):
-        return Formatter.format_node(self)
-
-    def format_verbose(self, verbosity=0):
-        return self.format()
-
-    def as_json(self):
-        d = {
-            '__cls__': str(self.__class__)
-        }
-        d.update(self.__dict__)
-        return d
-
 
 class ColumnNode(BaseNode):
     def __init__(self, column, indent=0):
@@ -57,22 +44,6 @@ class ColumnNode(BaseNode):
 
     def __hash__(self):
         return hash(str(self.column))
-
-    def __str__(self):
-        indent = '  ' * self.indent
-        return '{0}- {1}{2}{3}'.format(
-            indent,
-            self.column.name,
-            PRIMARY_KEY_OPTIONS.get(self.column.primary_key),
-            NULLABLE_OPTIONS.get(self.column.nullable),
-            self.column.table.name)
-
-    def format(self):
-        return Formatter.format_column_node(self)
-
-    def format_verbose(self, verbosity=0):
-        indent = '  ' * self.indent
-        return '{0}- {1}'.format(indent, self.column.ddl())
 
 
 class ForeignKeyNode(BaseNode):
@@ -87,34 +58,6 @@ class ForeignKeyNode(BaseNode):
     def __hash__(self):
         return hash(str(self.fk))
 
-    def __str__(self):
-        indent = '  ' * self.indent
-        if self.fk.a.table.name == self.parent.name:
-            return u'{0}→ {1}{3} → {2}'.format(
-                indent,
-                self.fk.a.name,
-                self.fk.b,
-                NULLABLE_OPTIONS.get(self.fk.a.nullable))
-        return u'{0}↑ {1} ({2} → {3}.{4})'.format(
-            indent,
-            self.fk.a.table.name,
-            self.fk.a.name,
-            self.fk.b.table.name,
-            self.fk.b.name)
-
-    def format(self):
-        return Formatter.format_foreign_key_node(self)
-
-    def _as_json(self):
-        d = {
-            '__cls__': str(self.__class__),
-            'fk': as_json(self.fk),
-            'indent': self.indent
-        }
-        if self.parent is not None:
-            d['parent'] = self.parent.as_json()
-        return d
-
 
 class TableNode(BaseNode):
     def __init__(self, table, include=[], exclude=[], indent=0):
@@ -125,12 +68,6 @@ class TableNode(BaseNode):
 
     def __hash__(self):
         return hash(self.table.autocomplete())
-
-    def __str__(self):
-        return self.table.name
-
-    def format(self):
-        return Formatter.format_table_node(self)
 
 
 class NameNode(BaseNode):

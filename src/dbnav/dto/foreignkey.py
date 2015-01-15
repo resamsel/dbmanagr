@@ -27,6 +27,9 @@ class ForeignKey(Dto):
         self.a = a
         self.b = b
 
+    def __str__(self):
+        return '{a} -> {b}'.format(a=self.a, b=self.b)
+
     @staticmethod
     def from_json(d):
         return ForeignKey(a=from_json(d.get('a')), b=from_json(d.get('b')))
