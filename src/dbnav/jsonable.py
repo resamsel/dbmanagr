@@ -20,8 +20,11 @@
 
 import datetime
 import sqlalchemy
+import logging
 
 from dbnav.exception import BusinessException
+
+logger = logging.getLogger(__name__)
 
 
 def as_json(obj):
@@ -57,16 +60,21 @@ def as_json(obj):
 
 
 def import_class(name):
+    logger.debug('import_class(%s)', name)
     parts = name.split('.')
-    mod = __import__('.'.join(parts[:-1]), fromlist=[str(parts[-1])])
-    return getattr(mod, parts[-1])
+    if len(parts) > 1:
+        mod = __import__('.'.join(parts[:-1]), fromlist=[str(parts[-1])])
+        return getattr(mod, parts[-1])
+    return None
 
 
 def from_json(d):
     if type(d) is dict:
         if '__cls__' in d:
             classname = d['__cls__']
-            if classname.endswith('Exception') or classname.endswith('Error'):
+            if (classname.endswith('Exception')
+                    or classname.endswith('Error')
+                    or classname.endswith('Exit')):
                 return BusinessException(d['message'])
             if classname == 'sqlalchemy.util.KeyedTuple':
                 from sqlalchemy.util import KeyedTuple

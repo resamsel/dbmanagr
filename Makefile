@@ -9,13 +9,15 @@ ZIP ?= zip
 UNZIP ?= unzip
 PIP ?= pip
 FIND ?= find
+DIFF ?= diff
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
 VERSION = src/dbnav/version.py
 TARGET = $(PWD)/target
 SETUPTOOLS = $(PYTHON) setup.py
-TEST_NOSE = nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=$(TARGET)/coverage
+TEST_NOSE = nosetests --with-coverage --cover-package=dbnav --cover-html \
+	--cover-html-dir=$(TARGET)/coverage
 TEST_INSTRUMENTAL = $(INSTRUMENTAL) -S -t dbnav setup.py $(TEST_NOSE)
 TEST = $(SETUPTOOLS) $(TEST_NOSE)
 INSTRUMENTAL_REPORT = $(INSTRUMENTAL) -r --xml
@@ -26,6 +28,8 @@ RESOURCES = $(ALFRED_RESOURCES)/*
 BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
 ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
+
+include $(wildcard includes/*.mk)
 
 init:
 	mkdir -p $(TARGET)
@@ -63,6 +67,8 @@ test: init
 	$(FLAKE8) src
 	$(TEST)
 
+test-daemon: init
+
 instrumental: init
 	$(FLAKE8) src
 	$(TEST_INSTRUMENTAL)
@@ -79,7 +85,8 @@ debug:
 	echo $(PWD)
 
 release-%:
-	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
+	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' \
+		-i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
 	$(MAKE) README.md
 	$(GIT) rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg
