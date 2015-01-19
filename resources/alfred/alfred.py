@@ -30,13 +30,13 @@ def main(wf):
     wf.logger.debug('Args: %s', wf.args)
 
     items = navigator.run(wf.args)
-
+    
     for item in items:
         wf.add_item(
-            item.title(),
-            item.subtitle(),
+            unicode(item.title()),
+            unicode(item.subtitle()),
             uid=item.uid(),
-            arg=item.value(),
+            arg=unicode(item.value()),
             autocomplete=item.autocomplete(),
             valid=item.validity(),
             icon=item.icon())

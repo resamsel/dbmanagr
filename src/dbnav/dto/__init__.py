@@ -20,6 +20,7 @@
 
 from dbnav.jsonable import Jsonable
 from dbnav.formatter import Formatter
+from dbnav import utils
 
 
 def freeze(d):
@@ -68,7 +69,7 @@ class Dto(Jsonable):
     def uid(self):
         if self.uid_ is not None:
             return self.uid_
-        return hash(self.autocomplete())
+        return utils.hash(self.autocomplete())
 
     def icon(self):  # pragma: no cover
         if self.icon_ is not None:

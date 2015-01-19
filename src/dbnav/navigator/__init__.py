@@ -71,7 +71,12 @@ def forward_references(row, table, keys, aliases):
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
             kind = KIND_FOREIGN_KEY
-        refs.append(Value(row[tostring(key)], f, autocomplete, True, kind))
+        refs.append(Value(
+            row[tostring(key)],
+            str(f),
+            autocomplete,
+            True,
+            kind))
 
     return refs
 
@@ -95,7 +100,7 @@ def back_references(row, table, aliases):
             refs.append(
                 Value(
                     fk.a,
-                    foreign_key_or_column(fk.a.table, fk.a.name),
+                    str(foreign_key_or_column(fk.a.table, fk.a.name)),
                     autocomplete,
                     False,
                     KIND_FOREIGN_VALUE))

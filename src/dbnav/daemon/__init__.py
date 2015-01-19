@@ -28,20 +28,11 @@ import logging
 import time
 import traceback
 
-from dbnav import navigator, exporter, differ, executer, grapher
 from dbnav.config import Config
 from dbnav.jsonable import Jsonable, as_json
 from dbnav.utils import mute_stderr
 
 from .args import parser
-
-COMMANDS = {
-    'navigator': navigator,
-    'exporter': exporter,
-    'differ': differ,
-    'executer': executer,
-    'grapher': grapher
-}
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +56,15 @@ class DaemonHTTPServer(BaseHTTPServer.HTTPServer):
 
 class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_POST(self):  # noqa
+        from dbnav import navigator, exporter, differ, executer, grapher
+        commands = {
+            'navigator': navigator,
+            'exporter': exporter,
+            'differ': differ,
+            'executer': executer,
+            'grapher': grapher
+        }
+
         parts = self.path.split('/')
         command = parts[1]
         if command == 'server-status':
@@ -76,7 +76,7 @@ class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.end_headers()
             self.server.active = False
             return
-        if command not in COMMANDS:
+        if command not in commands:
             self.send_error(404)
             return
 
@@ -84,7 +84,7 @@ class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             int(self.headers.getheader('content-length'))))
 
         try:
-            items = mute_stderr(COMMANDS[command].execute)(args)
+            items = mute_stderr(commands[command].execute)(args)
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
