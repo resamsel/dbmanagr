@@ -104,6 +104,19 @@ class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         logger.info(format % args)
 
 
+def is_running(config):
+    try:
+        urllib2.urlopen(
+            'http://{host}:{port}/server-status'.format(
+                host=config.host,
+                port=config.port),
+            '')
+    except:
+        return False
+
+    return True
+
+
 def start_server(config):
     try:
         httpd = DaemonHTTPServer(
@@ -148,17 +161,10 @@ def restart(config):
 
 
 def status(config):
-    sys.stdout.write('Status: ')
-    try:
-        urllib2.urlopen(
-            'http://{host}:{port}/server-status'.format(
-                host=config.host,
-                port=config.port),
-            '')
-    except:
-        sys.stdout.write('offline\n')
+    if is_running(config):
+        sys.stdout.write('Status: online\n')
     else:
-        sys.stdout.write('online\n')
+        sys.stdout.write('Status: offline\n')
 
 
 def main(args=None):

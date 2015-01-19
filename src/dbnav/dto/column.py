@@ -20,6 +20,7 @@
 
 from dbnav.dto import Dto
 from dbnav.jsonable import from_json
+from dbnav.utils import filter_keys
 
 
 class Column(Dto):
@@ -27,15 +28,19 @@ class Column(Dto):
             self,
             name=None,
             tablename=None,
-            autocomplete=None,
             type=None,
             nullable=None,
             default=None,
             autoincrement=None,
-            primary_key=None):
+            primary_key=None,
+            title=None,
+            subtitle=None,
+            autocomplete=None):
+        Dto.__init__(self, title, subtitle, autocomplete)
+
         self.name = name
         self.tablename = tablename
-        self.autocomplete = autocomplete
+        self.autocomplete_ = autocomplete
         self.type = type
         self.nullable = nullable
         self.default = default
@@ -53,18 +58,21 @@ class Column(Dto):
             self.type,
             {False: ' not null'}.get(self.nullable, ''),
             {None: ''}.get(self.default, ' default {0}'.format(self.default)),
-            {None: ''}.get(self.autocomplete, ' autoincrement {0}'.format(
+            {None: ''}.get(self.autocomplete_, ' autoincrement {0}'.format(
                 self.autoincrement)))
+
+    def autocomplete(self):
+        return self.autocomplete_
 
     @staticmethod
     def from_json(d):
         return Column(
-            name=from_json(d.get('name')),
-            tablename=from_json(d.get('tablename')),
-            autocomplete=from_json(d.get('autocomplete')),
-            type=from_json(d.get('type')),
-            nullable=from_json(d.get('nullable')),
-            default=from_json(d.get('default')),
-            autoincrement=from_json(d.get('autoincrement')),
-            primary_key=from_json(d.get('primary_key'))
+            **from_json(
+                filter_keys(
+                    d,
+                    'name', 'tablename', 'type', 'nullable', 'default',
+                    'autoincrement', 'primary_key', 'title', 'subtitle',
+                    'autocomplete'
+                )
+            )
         )

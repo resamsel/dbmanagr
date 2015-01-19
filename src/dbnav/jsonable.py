@@ -21,17 +21,25 @@
 import datetime
 import sqlalchemy
 import logging
+import re
 
 from dbnav.exception import BusinessException
 
 logger = logging.getLogger(__name__)
 
 
+def to_key(key):
+    return re.sub(r"_+$", '', key)
+
+
 def as_json(obj):
     if isinstance(obj, (int, long, float, bool)) or obj is None:
         return obj
     if isinstance(obj, dict):
-        return dict(map(lambda (k, v): (k, as_json(v)), obj.iteritems()))
+        return dict(map(
+            lambda (k, v): (to_key(k), as_json(v)),
+            obj.iteritems())
+        )
     if isinstance(obj, (datetime.datetime, datetime.date)):
         return {
             '__cls__': 'datetime.{}'.format(obj.__class__.__name__),
@@ -52,9 +60,9 @@ def as_json(obj):
         for key, value in obj.__dict__.iteritems():
             if not key.startswith('_'):
                 if isinstance(value, Jsonable):
-                    d[key] = value.as_json()
+                    d[to_key(key)] = value.as_json()
                 else:
-                    d[key] = as_json(value)
+                    d[to_key(key)] = as_json(value)
         return d
     return unicode(obj)
 

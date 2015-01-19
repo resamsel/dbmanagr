@@ -14,4 +14,5 @@ target/actual-$(COMMAND)-testcase-%: $(ARGS)/testcase-% $(EXPECTED)/testcase-%
 test-daemon-$(COMMAND): clean init \
 		$(patsubst $(ARGS)/%, $(ACTUAL)-%, $(TESTS))
 
-test-daemon: test-daemon-executer
+# Disables tests for the time being
+#test-daemon: test-daemon-executer

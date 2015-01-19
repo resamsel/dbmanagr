@@ -173,3 +173,14 @@ def replace_wildcards(pattern):
         return pattern
 
     return pattern.replace('*', '.*')
+
+
+def primary_key_or_first_column(table):
+    column = table.primary_key
+    if not column:
+        column = table.column(0).name
+    return column
+
+
+def filter_keys(d, *keys):
+    return dict(filter(lambda (k, v): k in keys, d.iteritems()))

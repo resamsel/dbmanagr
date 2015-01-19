@@ -33,6 +33,7 @@ from dbnav.comment import create_comment
 from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
+from dbnav.dto.mapper import to_dto
 from dbnav.model.value import Value
 from dbnav.model.row import Row
 from dbnav.model.tablecomment import COMMENT_TITLE
@@ -238,6 +239,9 @@ class DatabaseNavigator(Wrapper):
         """The main method that splits the arguments and starts the magic"""
         options = self.options
 
+        return to_dto(self.build(options))
+
+    def build(self, options):
         cons = Source.connections()
 
         # search exact match of connection
@@ -248,7 +252,7 @@ class DatabaseNavigator(Wrapper):
 
         # print all connections
         return sorted(
-            [c for c in cons if c.filter(options)],
+            [c for c in cons if c.filter_(options)],
             key=lambda c: c.title().lower())
 
 

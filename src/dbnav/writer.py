@@ -56,14 +56,13 @@ class StdoutWriter(DefaultWriter):
 
         Formatter.set(DefaultFormatter())
 
-    def filter(self, items):
+    def filter_(self, items):
         return items
 
     def str(self, items):
         items = self.prepare(items)
-        s = self.item_separator.join(
-            map(lambda i: self.itemtostring(i),
-                self.filter(items)))
+        items = self.filter_(items)
+        s = self.item_separator.join(map(self.itemtostring, items))
         return self.items_format.format(s)
 
     def prepare(self, items):

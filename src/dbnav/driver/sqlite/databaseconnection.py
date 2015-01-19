@@ -56,7 +56,7 @@ class SQLiteConnection(DatabaseConnection):
             return options.uri.startswith(self.filename)
         return False
 
-    def filter(self, options):
+    def filter_(self, options):
         options = options.get(self.dbms)
         return not options.uri or options.uri in self.path
 

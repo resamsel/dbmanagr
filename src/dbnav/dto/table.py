@@ -20,6 +20,7 @@
 
 from dbnav.dto import Dto
 from dbnav.jsonable import from_json
+from dbnav.utils import filter_keys
 
 
 class Table(Dto):
@@ -31,7 +32,12 @@ class Table(Dto):
             size=None,
             primary_key=None,
             columns=None,
-            foreign_keys=None):
+            foreign_keys=None,
+            title=None,
+            subtitle=None,
+            autocomplete=None):
+        Dto.__init__(self, title, subtitle, autocomplete)
+
         self.name = name
         self.uri = uri
         self.owner = owner
@@ -48,10 +54,11 @@ class Table(Dto):
     @staticmethod
     def from_json(d):
         return Table(
-            name=from_json(d.get('name')),
-            uri=from_json(d.get('uri')),
-            owner=from_json(d.get('owner')),
-            size=from_json(d.get('size')),
-            primary_key=from_json(d.get('primary_key')),
-            columns=from_json(d.get('columns')),
-            foreign_keys=from_json(d.get('foreign_keys')))
+            **from_json(
+                filter_keys(
+                    d,
+                    'name', 'uri', 'owner', 'size', 'primary_key', 'columns',
+                    'foreign_keys', 'title', 'subtitle', 'autocomplete'
+                )
+            )
+        )

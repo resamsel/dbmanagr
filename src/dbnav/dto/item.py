@@ -18,40 +18,32 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.jsonable import Jsonable
-from dbnav.formatter import Formatter
+from dbnav.dto import Dto
+from dbnav.jsonable import from_json
+from dbnav.utils import filter_keys
 
 
-def freeze(d):
-    if isinstance(d, dict):
-        return frozenset((key, freeze(value)) for key, value in d.items())
-    elif isinstance(d, list):
-        return tuple(freeze(value) for value in d)
-    return d
-
-
-class Dto(Jsonable):
+class Item(Dto):
     def __init__(
             self,
             title=None,
             subtitle=None,
             autocomplete=None,
+            validity=None,
+            icon=None,
+            value=None,
             uid=None,
-            icon=None):
-        self.title_ = title
-        self.subtitle_ = subtitle
-        self.autocomplete_ = autocomplete
-        self.uid_ = uid
+            format=None):
+        Dto.__init__(self, title, subtitle, autocomplete)
+
+        self.validity_ = validity
         self.icon_ = icon
+        self.value_ = value
+        self.uid_ = uid
+        self.format_ = format
 
-    def autocomplete(self):
-        return self.autocomplete_
-
-    def __hash__(self):
-        return hash(freeze(self.__dict__))
-
-    def __eq__(self, o):
-        return hash(self) == hash(o)
+    def __str__(self):
+        return self.title()
 
     def title(self):
         return self.title_
@@ -59,21 +51,32 @@ class Dto(Jsonable):
     def subtitle(self):
         return self.subtitle_
 
-    def value(self):
-        return self.title()
+    def autocomplete(self):
+        return self.autocomplete_
 
     def validity(self):
-        return True
+        return self.validity_
+
+    def icon(self):
+        return self.icon_
+
+    def value(self):
+        return self.value_
 
     def uid(self):
-        if self.uid_ is not None:
-            return self.uid_
-        return hash(self.autocomplete())
-
-    def icon(self):  # pragma: no cover
-        if self.icon_ is not None:
-            return self.icon_
-        return 'images/icon.png'
+        return self.uid_
 
     def format(self):
-        return Formatter.format(self)
+        return self.format_
+
+    @staticmethod
+    def from_json(d):
+        return Item(
+            **from_json(
+                filter_keys(
+                    d,
+                    'title', 'subtitle', 'autocomplete', 'validity', 'icon',
+                    'value', 'uid', 'format'
+                )
+            )
+        )

@@ -66,7 +66,7 @@ class GraphvizWriter(FormatWriter):
         self.include_tables = include_tables
         Formatter.set(GraphvizFormatter())
 
-    def filter(self, items):
+    def filter_(self, items):
         # Removes duplicate items and keeps order
         return list(OrderedDict.fromkeys(items))
 

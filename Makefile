@@ -29,8 +29,6 @@ BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
 ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
 
-include $(wildcard includes/*.mk)
-
 init:
 	mkdir -p $(TARGET)
 
@@ -66,6 +64,8 @@ missing-copyright:
 test: init
 	$(FLAKE8) src
 	$(TEST)
+
+include $(wildcard includes/*.mk)
 
 test-daemon: init
 

@@ -138,7 +138,7 @@ class DatabaseConnection(BaseItem):
     def rows(self, table, filter=None, limit=DEFAULT_LIMIT, simplify=None):
         return table.rows(self, filter, limit, simplify)
 
-    def filter(self, options):
+    def filter_(self, options):
         return True
 
     def databases(self):
@@ -264,7 +264,7 @@ class UriDatabaseConnection(DatabaseConnection):
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
-    def filter(self, options):
+    def filter_(self, options):
         options = options.get(self.dbms)
         matches = True
 

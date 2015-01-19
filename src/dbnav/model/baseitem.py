@@ -18,9 +18,14 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import logging
+
 from dbnav.formatter import Formatter
 from dbnav.utils import hash
 from dbnav.model import Model
+from dbnav.logger import LogWith
+
+logger = logging.getLogger(__name__)
 
 
 class BaseItem(Model):
@@ -42,6 +47,7 @@ class BaseItem(Model):
     def value(self):
         return self.title()
 
+    @LogWith(logger)
     def uid(self):
         return hash(self.autocomplete())
 

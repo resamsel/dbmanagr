@@ -105,7 +105,8 @@ class Wrapper:
 
         try:
             from dbnav import daemon
-            daemon.start_server(options)
+            if not daemon.is_running(options):
+                daemon.start_server(options)
 
             url = 'http://{host}:{port}/{path}'.format(
                 host=options.host,

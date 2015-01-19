@@ -1,4 +1,5 @@
-navigator = dbnav --daemon
+navigator = DBEXPLORER_CFG= NAVICAT_CFG= PGPASS_CFG= \
+	SQLITEPASS_CFG=resources/sqlitepass dbnav -T --daemon
 COMMAND = navigator
 
 ARGS := src/tests/$(COMMAND)/resources
