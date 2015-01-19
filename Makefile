@@ -65,9 +65,12 @@ test: init
 	$(FLAKE8) src
 	$(TEST)
 
-include $(wildcard includes/*.mk)
+clean-daemon:
+	rm -rf $(TARGET)/actual-*
 
-test-daemon: init
+test-daemon: clean-daemon
+
+include $(wildcard includes/*.mk)
 
 instrumental: init
 	$(FLAKE8) src

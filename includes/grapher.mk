@@ -7,11 +7,14 @@ ACTUAL := target/actual-$(COMMAND)
 
 TESTS = $(wildcard $(ARGS)/testcase-*)
 
+init-daemon-$(COMMAND):
+	dbdaemon stop
+
 target/actual-$(COMMAND)-testcase-%: $(ARGS)/testcase-% $(EXPECTED)/testcase-%
 	$($(word 2, $(subst -, , $@))) $(shell scripts/args.sh $(word 1, $^)) > $@
 	$(DIFF) $(word 2, $^) $@
 
-test-daemon-$(COMMAND): clean init \
+test-daemon-$(COMMAND): init-daemon-$(COMMAND) \
 		$(patsubst $(ARGS)/%, $(ACTUAL)-%, $(TESTS))
 
 test-daemon: test-daemon-grapher
