@@ -18,4 +18,11 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from dbnav.dto.mapper import to_dto
+
 DEFAULT_LIMIT = 50
+
+
+class Model:
+    def to_dto(self):
+        return to_dto(self)

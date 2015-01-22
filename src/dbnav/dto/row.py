@@ -18,29 +18,36 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from tests.testcase import ParentTestCase
-from dbnav import node
+from dbnav.dto import Dto
+from dbnav.jsonable import from_json
+from dbnav.utils import filter_keys
 
 
-class NodeTestCase(ParentTestCase):
-    def test_format(self):
-        """Tests the node.BaseNode format method"""
+class Row(Dto):
+    def __init__(
+            self,
+            table=None,
+            row=None,
+            autocomplete=None):
+        Dto.__init__(self, autocomplete)
 
-        self.assertIsNotNone(
-            node.BaseNode().format()
-        )
+        self.table = table
+        self.row = row
 
-    def test_format_verbose(self):
-        """Tests the node.BaseNode format_verbose method"""
+    def __getitem__(self, i):
+        if i is None:
+            return None
+        if type(i) == unicode:
+            i = i.encode('ascii')
+        if type(i) is str:
+            try:
+                return self.row.__dict__[i]
+            except:
+                return None
+        return self.row[i]
 
-        self.assertIsNotNone(
-            node.BaseNode().format_verbose()
-        )
-
-    def test_column_node_hash(self):
-        """Tests the node.ColumnNode __hash__ method"""
-
-        self.assertEqual(
-            hash(str('a')),
-            node.ColumnNode('a').__hash__()
+    @staticmethod
+    def from_json(d):
+        return Row(
+            **from_json(filter_keys(d, 'table', 'row', 'autocomplete'))
         )

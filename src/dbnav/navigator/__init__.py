@@ -36,8 +36,10 @@ from dbnav.sources import Source
 from dbnav.model.value import Value
 from dbnav.model.row import Row
 from dbnav.model.tablecomment import COMMENT_TITLE
-from .args import parser
-from .writer import SimplifiedWriter
+
+from dbnav.navigator.dto import to_dto
+from dbnav.navigator.args import parser
+from dbnav.navigator.writer import SimplifiedWriter
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +72,12 @@ def forward_references(row, table, keys, aliases):
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
             kind = KIND_FOREIGN_KEY
-        refs.append(Value(row[tostring(key)], f, autocomplete, True, kind))
+        refs.append(Value(
+            row[tostring(key)],
+            str(f),
+            autocomplete,
+            True,
+            kind))
 
     return refs
 
@@ -94,7 +101,7 @@ def back_references(row, table, aliases):
             refs.append(
                 Value(
                     fk.a,
-                    foreign_key_or_column(fk.a.table, fk.a.name),
+                    str(foreign_key_or_column(fk.a.table, fk.a.name)),
                     autocomplete,
                     False,
                     KIND_FOREIGN_VALUE))
@@ -226,7 +233,7 @@ def create(connection, options):
 class DatabaseNavigator(Wrapper):
     """The main class"""
     def __init__(self, options):
-        self.options = options
+        Wrapper.__init__(self, options)
 
         if options.formatter:
             Writer.set(options.formatter())
@@ -238,6 +245,9 @@ class DatabaseNavigator(Wrapper):
         """The main method that splits the arguments and starts the magic"""
         options = self.options
 
+        return to_dto(self.build(options))
+
+    def build(self, options):
         cons = Source.connections()
 
         # search exact match of connection
@@ -248,17 +258,22 @@ class DatabaseNavigator(Wrapper):
 
         # print all connections
         return sorted(
-            [c for c in cons if c.filter(options)],
+            [c for c in cons if c.filter_(options)],
             key=lambda c: c.title().lower())
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseNavigator(Config.init(args, parser)).execute()
+
+
 def run(args):
-    navigator = DatabaseNavigator(Config.init(args, parser))
-    return navigator.run()
+    return DatabaseNavigator(Config.init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    navigator = DatabaseNavigator(Config.init(args, parser))
-    return navigator.write()
+    return DatabaseNavigator(Config.init(args, parser)).write()

@@ -42,12 +42,12 @@ class Value(BaseItem):
         self._subtitle = subtitle
         self._autocomplete = autocomplete
         self._validity = validity
-        self.kind = kind
+        self._kind = kind
 
     def title(self):
         if type(self._value) is buffer:
             return '[BLOB]'
-        return TITLES.get(self.kind, KIND_VALUE) % self._value
+        return TITLES.get(self._kind, KIND_VALUE) % self._value
 
     def subtitle(self):
         return self._subtitle
@@ -59,7 +59,14 @@ class Value(BaseItem):
         return self._validity
 
     def icon(self):
-        return ICONS.get(self.kind, KIND_VALUE)
+        return ICONS.get(self._kind, KIND_VALUE)
 
     def value(self):
         return self._value
+
+    def as_json(self):
+        return {
+            '__cls__': str(self.__class__),
+            'value': self._value,
+            'subtitle': self._subtitle.as_json()
+        }

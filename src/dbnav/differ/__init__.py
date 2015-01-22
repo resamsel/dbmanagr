@@ -26,6 +26,8 @@ from dbnav import Wrapper
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.exception import UnknownTableException
+from dbnav.dto.mapper import to_dto
+
 from .args import parser
 from .writer import DiffWriter
 
@@ -41,6 +43,8 @@ def column_name(c):
 class DatabaseDiffer(Wrapper):
     """The main class"""
     def __init__(self, left, right):
+        Wrapper.__init__(self, left)
+
         self.left = left
         self.right = right
 
@@ -98,7 +102,7 @@ class DatabaseDiffer(Wrapper):
                 if k not in lplus:
                     r[k] = (None, v)
 
-            return map(lambda (k, v): v, r.iteritems())
+            return to_dto(map(lambda (k, v): v, r.iteritems()))
         finally:
             lcon.close()
             rcon.close()
@@ -114,13 +118,18 @@ def init(argv, parser):
     return (left, right)
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseDiffer(*init(args, parser)).execute()
+
+
 def run(args):
-    differ = DatabaseDiffer(*init(args, parser))
-    return differ.run()
+    return DatabaseDiffer(*init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    differ = DatabaseDiffer(*init(args, parser))
-    return differ.write()
+    return DatabaseDiffer(*init(args, parser)).write()

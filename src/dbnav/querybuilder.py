@@ -61,7 +61,7 @@ def add_references(tablename, foreign_keys, joins, comment):
                 and (comment is None or k in comment.display)),
             foreign_keys.iteritems()):
         fktable = fk.b.table
-        fkentity = fktable.entity
+        fkentity = fktable._entity
 
         # Prevent multiple joins of the same table
         add_join(fkentity, joins)
@@ -140,7 +140,7 @@ def add_filter(f, filters, table, joins):
         if ref not in foreign_keys:
             raise UnknownColumnException(table, ref)
         t = foreign_keys[ref].b.table
-        add_join(t.entity, joins)
+        add_join(t._entity, joins)
         return add_filter(
             QueryFilter(colname, f.operator, f.rhs), filters, t, joins)
 
@@ -213,7 +213,7 @@ class QueryBuilder:
         foreign_keys = self.table.foreign_keys()
         search_fields = []
 
-        entity = aliased(self.table.entity, name=self.alias)
+        entity = aliased(self.table._entity, name=self.alias)
 
         projection = map(lambda x: x, entity.columns)
         joins = {self.table.name: entity}

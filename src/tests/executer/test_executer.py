@@ -25,6 +25,7 @@ from sqlalchemy.exc import OperationalError
 from tests.executer import load
 from tests.testcase import DbTestCase
 from dbnav import executer
+from dbnav.utils import mute_stderr
 
 DIR = os.path.dirname(__file__)
 RESOURCES = os.path.join(DIR, '../resources')
@@ -56,7 +57,7 @@ class ExecuterTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            self.mute_stderr(executer.main)
+            mute_stderr(executer.main)
         )
 
         self.assertEqual(
@@ -93,7 +94,7 @@ class ExecuterTestCase(DbTestCase):
         )
         self.assertEqual(
             0,
-            self.mute_stderr(executer.main)([
+            mute_stderr(executer.main)([
                 'dbnav.sqlite/user',
                 '--isolate-statements',
                 '-s',

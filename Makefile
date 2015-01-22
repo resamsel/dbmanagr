@@ -9,13 +9,15 @@ ZIP ?= zip
 UNZIP ?= unzip
 PIP ?= pip
 FIND ?= find
+DIFF ?= diff
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
 VERSION = src/dbnav/version.py
-TARGET = $(PWD)/target
+TARGET = target
 SETUPTOOLS = $(PYTHON) setup.py
-TEST_NOSE = nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=$(TARGET)/coverage
+TEST_NOSE = nosetests --with-coverage --cover-package=dbnav --cover-html \
+	--cover-html-dir=$(TARGET)/coverage
 TEST_INSTRUMENTAL = $(INSTRUMENTAL) -S -t dbnav setup.py $(TEST_NOSE)
 TEST = $(SETUPTOOLS) $(TEST_NOSE)
 INSTRUMENTAL_REPORT = $(INSTRUMENTAL) -r --xml
@@ -27,6 +29,8 @@ BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
 ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
 
+IJSON_URL = https://pypi.python.org/packages/source/i/ijson/ijson-2.0.tar.gz
+
 init:
 	mkdir -p $(TARGET)
 
@@ -35,14 +39,22 @@ assemble: init assemble-main assemble-alfred
 assemble-main:
 	$(SETUPTOOLS) bdist_egg
 
-assemble-alfred: assemble-main $(RESOURCES)
+assemble-alfred: assemble-main assemble-ijson $(RESOURCES)
 	rm -rf $(ALFRED)
-	mkdir -p $(ALFRED)
+	mkdir -p $(ALFRED) $(ALFRED)/lib
 	cp -r $(RESOURCES) $(ALFRED)
-	cp dist/dbnav*-py2.7.egg $(ALFRED)
+	cp dist/dbnav*-py2.7.egg $(ALFRED)/lib
+	cp $(TARGET)/ijson-2.0/dist/ijson-2.0-py2.7.egg $(ALFRED)/lib
 	rm -f $(ARCHIVE)
 	cd $(ALFRED); $(ZIP) -rq ../../$(ARCHIVE) . \
 		--exclude images/.DS_Store "images/dbnavigator.sketch/*"
+
+$(TARGET)/ijson-2.0.tar.gz: init
+	curl -o "$@" "$(IJSON_URL)"
+
+assemble-ijson: $(TARGET)/ijson-2.0.tar.gz
+	tar -C $(TARGET) -xzf "$^"
+	cd $(TARGET)/ijson-2.0; $(SETUPTOOLS) bdist_egg
 
 build: assemble test
 
@@ -63,6 +75,15 @@ test: init
 	$(FLAKE8) src
 	$(TEST)
 
+init-daemon:
+	rm -f $(TARGET)/actual-*
+	mkdir -p $(TARGET)
+
+test-daemon: init-daemon
+	@echo Ran $(shell ls -1 $(TARGET)/actual-* | wc -l) tests: OK
+
+include $(wildcard includes/*.mk)
+
 instrumental: init
 	$(FLAKE8) src
 	$(TEST_INSTRUMENTAL)
@@ -79,7 +100,8 @@ debug:
 	echo $(PWD)
 
 release-%:
-	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' -i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
+	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' \
+		-i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
 	$(MAKE) README.md
 	$(GIT) rm dist/dbnav*-py2.7.egg
 	$(SETUPTOOLS) bdist_egg

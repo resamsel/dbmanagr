@@ -124,18 +124,21 @@ class UtilsTestCase(DbTestCase):
     def test_create_title(self):
         """Tests the utils.create_title function"""
 
+        con = DbTestCase.connection
+        table = con.table('user')
+
         self.assertEqual(
             None,
             utils.create_title(None, []))
         self.assertEqual(
             ('name', '{name}'),
-            utils.create_title(None, [Column(None, 'name', type=str)]))
+            utils.create_title(None, [Column(table, 'name', type=str)]))
         self.assertEqual(
             ('my_name', '{my_name}'),
-            utils.create_title(None, [Column(None, 'my_name', type=str)]))
+            utils.create_title(None, [Column(table, 'my_name', type=str)]))
         self.assertEqual(
             ('asdf', '{asdf}'),
-            utils.create_title(None, [Column(None, 'asdf', type=str)]))
+            utils.create_title(None, [Column(table, 'asdf', type=str)]))
         self.assertEqual(
             ('id', '{_id}'),
             utils.create_title(
@@ -149,7 +152,7 @@ class UtilsTestCase(DbTestCase):
                 Comment(
                     '_id', 'title', 'subtitle', 'order', 'search', 'display',
                     'columns', 'aliases'),
-                [Column(None, 'asdf', type=str)]))
+                [Column(table, 'asdf', type=str)]))
 
     def test_foreign_key_or_column(self):
         """Tests the utils.foreign_key_or_column function"""

@@ -29,6 +29,7 @@ from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
 from dbnav.logger import logger, LogTimer, log_error
+from dbnav.dto.mapper import to_dto
 
 from .args import parser
 from .writer import ExecuteWriter
@@ -191,7 +192,7 @@ class IsolationExecuter(BaseExecuter):
 class DatabaseExecuter(Wrapper):
     """The main class"""
     def __init__(self, options):
-        self.options = options
+        Wrapper.__init__(self, options)
 
         if options.formatter:
             Writer.set(options.formatter(options))
@@ -302,18 +303,23 @@ class DatabaseExecuter(Wrapper):
                 if errors:
                     sys.stdout.write('Errors: {0}'.format(errors))
 
-                return results
+                return to_dto(results)
 
         raise Exception('Specify the complete URI to a database')
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseExecuter(Config.init(args, parser)).execute()
+
+
 def run(args):
-    executer = DatabaseExecuter(Config.init(args, parser))
-    return executer.run()
+    return DatabaseExecuter(Config.init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    executer = DatabaseExecuter(Config.init(args, parser))
-    return executer.write()
+    return DatabaseExecuter(Config.init(args, parser)).write()

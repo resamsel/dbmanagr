@@ -28,12 +28,13 @@ from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.logger import LogWith
 from dbnav.utils import prefixes, remove_prefix
-from dbnav.node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 from dbnav.writer import Writer
+from dbnav.dto.mapper import to_dto
 from dbnav.exception import UnknownTableException
 
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
+from .node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +107,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                             lambda (key, fk): (
                                 fk.b.table.name == table.name
                                 and fk.a.table.name not in exclude),
-                            table.fks.iteritems()):
+                            table.foreign_keys().iteritems()):
                         logger.debug(
                             'adds back reference: fk=%s, include=%s',
                             fk, include)
@@ -134,7 +135,7 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
 class DatabaseGrapher(Wrapper):
     """The main class"""
     def __init__(self, options):
-        self.options = options
+        Wrapper.__init__(self, options)
 
         if options.formatter:
             Writer.set(options.formatter(options))
@@ -153,7 +154,7 @@ class DatabaseGrapher(Wrapper):
             opts = options.get(connection.dbms)
             if connection.matches(opts) and opts.show in [
                     'tables', 'columns', 'values']:
-                return self.build(connection, opts)
+                return to_dto(self.build(connection, opts))
 
         raise Exception('Specify the complete URI to a table')
 
@@ -201,13 +202,18 @@ class DatabaseGrapher(Wrapper):
             connection.close()
 
 
+def execute(args):
+    """
+    Directly calls the execute method and avoids using the wrapper
+    """
+    return DatabaseGrapher(Config.init(args, parser)).execute()
+
+
 def run(args):
-    grapher = DatabaseGrapher(Config.init(args, parser))
-    return grapher.run()
+    return DatabaseGrapher(Config.init(args, parser)).run()
 
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
-    grapher = DatabaseGrapher(Config.init(args, parser))
-    return grapher.write()
+    return DatabaseGrapher(Config.init(args, parser)).write()

@@ -97,7 +97,6 @@ class PostgreSQLConnection(UriDatabaseConnection):
         result = self.execute(TABLES_QUERY, 'Tables')
         for row in result:  # pragma: no cover
             self._tables[row[0]] = Table(  # pragma: no cover
-                database,
                 self.entity(row[0]),
                 self.autocomplete(),
                 row[2],

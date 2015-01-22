@@ -78,12 +78,15 @@ class CommentTestCase(DbTestCase):
     def test_column_aliases(self):
         """Tests the comment.column_aliases function"""
 
+        con = DbTestCase.connection
+        user = con.table('user')
+
         self.assertEqual(
             {},
             comment.column_aliases([], 'alias'))
         self.assertEqual(
             {'asdf': '{alias_asdf}'},
-            comment.column_aliases([Column(None, 'asdf', type=str)], 'alias'))
+            comment.column_aliases([Column(user, 'asdf', type=str)], 'alias'))
         self.assertEqual(
             {
                 'asdf': '{_alias_asdf}',
@@ -92,9 +95,9 @@ class CommentTestCase(DbTestCase):
             },
             comment.column_aliases(
                 [
-                    Column(None, 'asdf', type=str),
-                    Column(None, 'qwer', type=str),
-                    Column(None, 'uiop', type=str)
+                    Column(user, 'asdf', type=str),
+                    Column(user, 'qwer', type=str),
+                    Column(user, 'uiop', type=str)
                 ],
                 '_alias'))
 

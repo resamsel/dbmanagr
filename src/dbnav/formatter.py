@@ -18,8 +18,6 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from xml.sax import saxutils
-
 
 class DefaultFormatter:
     def __init__(self):
@@ -83,35 +81,6 @@ class TestFormatter(SimplifiedFormatter):
         return u'{title}\t{autocomplete}'.format(
             title=item.title(),
             autocomplete=item.autocomplete())
-
-
-class XmlFormatter(SimplifiedFormatter):
-    def __init__(self):
-        SimplifiedFormatter.__init__(
-            self,
-            default_format=u"""   <item
-            uid="{uid}"
-            arg="{value}"
-            autocomplete="{autocomplete}"
-            valid="{validity}">
-        <title>{title}</title>
-        <subtitle>{subtitle}</subtitle>
-        <icon>{icon}</icon>
-    </item>""",
-            item_format=u"""   <item
-            uid="{uid}"
-            arg="{value}"
-            autocomplete="{autocomplete}"
-            valid="{validity}">
-        <title>{title}</title>
-        <subtitle>{subtitle}</subtitle>
-        <icon>{icon}</icon>
-    </item>""")
-
-    def escape(self, value):
-        if type(value) == str or type(value) == unicode:
-            return saxutils.escape(value)
-        return saxutils.escape(unicode(value))
 
 
 class JsonFormatter(SimplifiedFormatter):

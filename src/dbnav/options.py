@@ -24,6 +24,7 @@ import datetime
 
 from urlparse import urlparse
 from sqlalchemy import Boolean, Float, Integer
+from decimal import Decimal
 
 from dbnav.logger import LogWith
 from dbnav.queryfilter import QueryFilter, OrOp, AndOp
@@ -54,7 +55,7 @@ def restriction(alias, column, operator, value, map_null_operator=True):
                 '!=': 'is not'
             }.get(operator)
         value = None
-    if column.table and alias is not None:
+    if column.tablename and alias is not None:
         return u"{0}.{1} {2} {3}".format(
             alias,
             escape_keyword(column.name),
@@ -82,14 +83,15 @@ def format_value(column, value):
         except ValueError:
             return u"'%s'" % value
     if (isinstance(column.type, Boolean)
-            and (type(value) is bool or value in ['true', 'false'])):
+            and (type(value) is bool or value in ['true', 'false'])
+            or type(value) is bool):
         return '%s' % str(value).lower()
-    if isinstance(column.type, Float):
+    if isinstance(column.type, Float) or type(value) is float:
         try:
             return '%f' % float(value)
         except ValueError:
             pass
-    if isinstance(column.type, Integer):
+    if isinstance(column.type, Integer) or type(value) in (int, Decimal):
         try:
             return '%d' % int(value)
         except ValueError:
@@ -137,6 +139,8 @@ class Options:
         self.filter = None
         self.show = 'connections'
         self.simplify = False
+        self.prog = parser.prog
+        self.daemon = False
 
         args = parser.parse_args(argv)
 

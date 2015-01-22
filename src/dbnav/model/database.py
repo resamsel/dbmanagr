@@ -20,7 +20,7 @@
 
 from .baseitem import BaseItem
 
-OPTION_URI_DATABASE_FORMAT = '%s/'
+OPTION_URI_DATABASE_FORMAT = '{}/'
 AUTOCOMPLETE_FORMAT = '{connection.user}@{connection.host}/{database}'
 
 
@@ -32,16 +32,17 @@ class Database(BaseItem):
             connection,
             name,
             autocomplete_format=AUTOCOMPLETE_FORMAT):
-        self.connection = connection
+        self._connection = connection
         self.name = name
-        self.autocomplete_format = autocomplete_format
+        self._autocomplete_format = autocomplete_format
+        self.uri = repr(self)
 
     def __repr__(self):
-        return self.autocomplete_format.format(
-            connection=self.connection,
+        return self._autocomplete_format.format(
+            connection=self._connection,
             database=self.name)
 
     def autocomplete(self):
         """Retrieves the autocomplete string"""
 
-        return OPTION_URI_DATABASE_FORMAT % (self.__repr__())
+        return OPTION_URI_DATABASE_FORMAT.format(self.uri)

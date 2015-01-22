@@ -38,14 +38,14 @@ class SQLiteDatabase(Database):
 
 class SQLiteConnection(DatabaseConnection):
     def __init__(self, uri, host, port, path, user, password):
+        self.path = path
+        self.filename = basename(self.path)
         DatabaseConnection.__init__(
             self,
             dbms='sqlite',
             database=self.databases()[0],
             uri=uri,
             subtitle='SQLite Connection')
-        self.path = path
-        self.filename = basename(self.path)
 
     def __repr__(self):
         return AUTOCOMPLETE_FORMAT.format(connection=self.filename)
@@ -56,7 +56,7 @@ class SQLiteConnection(DatabaseConnection):
             return options.uri.startswith(self.filename)
         return False
 
-    def filter(self, options):
+    def filter_(self, options):
         options = options.get(self.dbms)
         return not options.uri or options.uri in self.path
 

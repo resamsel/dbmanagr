@@ -27,17 +27,21 @@ class DatabaseTestCase(ParentTestCase):
     def test_init(self):
         """Tests the Database init method"""
 
+        con = UriDatabaseConnection(user='user', host='host')
+
         self.assertEqual(
             'db',
-            database.Database(None, 'db').name
+            database.Database(con, 'db').name
         )
 
     def test_autocomplete(self):
         """Tests the Database autocomplete method"""
 
+        con = UriDatabaseConnection(user='user', host='host')
+
         self.assertEqual(
             'user@host/db/',
             database.Database(
-                UriDatabaseConnection(user='user', host='host'),
+                con,
                 'db').autocomplete()
         )
