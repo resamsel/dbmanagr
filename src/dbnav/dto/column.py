@@ -33,14 +33,11 @@ class Column(Dto):
             default=None,
             autoincrement=None,
             primary_key=None,
-            title=None,
-            subtitle=None,
             autocomplete=None):
-        Dto.__init__(self, title, subtitle, autocomplete)
+        Dto.__init__(self, autocomplete)
 
         self.name = name
         self.tablename = tablename
-        self.autocomplete_ = autocomplete
         self.type = type
         self.nullable = nullable
         self.default = default
@@ -61,9 +58,6 @@ class Column(Dto):
             {None: ''}.get(self.autocomplete_, ' autoincrement {0}'.format(
                 self.autoincrement)))
 
-    def autocomplete(self):
-        return self.autocomplete_
-
     @staticmethod
     def from_json(d):
         return Column(
@@ -71,8 +65,7 @@ class Column(Dto):
                 filter_keys(
                     d,
                     'name', 'tablename', 'type', 'nullable', 'default',
-                    'autoincrement', 'primary_key', 'title', 'subtitle',
-                    'autocomplete'
+                    'autoincrement', 'primary_key', 'autocomplete'
                 )
             )
         )

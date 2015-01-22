@@ -19,6 +19,7 @@
 #
 
 from string import capwords
+from decimal import Decimal
 
 from dbnav.utils import matches
 from dbnav.writer import FormatWriter
@@ -112,6 +113,7 @@ class SqlDeleteWriter(FormatWriter):
 
     def prepare(self, items):
         # Fixes issue #4
+        items = [i for i in items]  # resolves generator
         items.reverse()
         return items
 
@@ -152,7 +154,7 @@ def yaml_value(col, table, value):
         fk = table.foreign_keys[col]
         return u'*{table}_{id}'.format(
             table=fk.b.tablename.replace('_', ''),
-            id=yaml_value(fk.b.name, None, value))  # TO-DO!!!
+            id=value)
     if value is None:
         return u'!!null null'
     if type(value) is float:
@@ -161,6 +163,11 @@ def yaml_value(col, table, value):
         return u'!!int %d' % value
     if type(value) is bool:
         return u'!!bool %s' % unicode(value).lower()
+    if type(value) is Decimal:
+        if value % 1 == 0:
+            return u'!!int %d' % value
+        else:
+            return u'!!float %f' % value
     return value
 
 
@@ -177,17 +184,13 @@ class YamlWriter(FormatWriter):
         row = item.row
         exclude = item.exclude
         table = row.table
-        tablename = table.name.replace(
-            '_', '')
+        tablename = table.name.replace('_', '')
         prefix = ''
         if self.last_table != table:
             if self.last_table:
-                prefix = u"""
-{0}s:
-""".format(tablename)
+                prefix = u"\n{0}s:\n".format(tablename)
             else:
-                prefix = u"""{0}s:
-""".format(tablename)
+                prefix = u"{0}s:\n".format(tablename)
             self.last_table = table
         return self.item_format.format(
             table=tablename,
@@ -198,8 +201,7 @@ class YamlWriter(FormatWriter):
             tuples=self.create_tuples(row, exclude))
 
     def create_tuples(self, row, exclude):
-        return u"""
-        """.join(map(
+        return u"\n        ".join(map(
             lambda col: u'{0}: {1}'.format(
                 yaml_field(col.name, row.table),
                 yaml_value(col.name, row.table, row[col.name])),

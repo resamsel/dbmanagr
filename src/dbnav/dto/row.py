@@ -20,7 +20,7 @@
 
 from dbnav.dto import Dto
 from dbnav.jsonable import from_json
-from dbnav.utils import primary_key_or_first_column, filter_keys
+from dbnav.utils import filter_keys
 
 
 class Row(Dto):
@@ -28,12 +28,8 @@ class Row(Dto):
             self,
             table=None,
             row=None,
-            title=None,
-            subtitle=None,
-            autocomplete=None,
-            uid=None,
-            icon=None):
-        Dto.__init__(self, title, subtitle, autocomplete, uid, icon)
+            autocomplete=None):
+        Dto.__init__(self, autocomplete)
 
         self.table = table
         self.row = row
@@ -50,24 +46,8 @@ class Row(Dto):
                 return None
         return self.row[i]
 
-    def title(self):
-        if self.title_ is not None:
-            return self.title_
-        return self[primary_key_or_first_column(self.table)]
-
-    def subtitle(self):
-        if self.subtitle_ is not None:
-            return self.subtitle_
-        return self['subtitle']
-
     @staticmethod
     def from_json(d):
         return Row(
-            **from_json(
-                filter_keys(
-                    d,
-                    'table', 'row', 'title', 'subtitle', 'autocomplete', 'uid',
-                    'icon'
-                )
-            )
+            **from_json(filter_keys(d, 'table', 'row', 'autocomplete'))
         )

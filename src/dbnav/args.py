@@ -54,7 +54,7 @@ def default_log_file(dirs=None):
     return os.path.expanduser('~/dbnav.log')
 
 
-def parent_parser(daemon=False):
+def parent_parser(daemonable=True, daemon=False):
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         '--version',
@@ -63,51 +63,70 @@ def parent_parser(daemon=False):
             version=__version__, drivers=', '.join(__drivers__)))
     group = parser.add_argument_group('logging')
     group.add_argument(
+        '--trace',
+        action='store_true',
+        default=False,
+        help='set loglevel to trace')
+    group.add_argument(
+        '--debug',
+        action='store_const',
+        const=logging.DEBUG,
+        help='set loglevel to debug')
+    group.add_argument(
+        '--info',
+        action='store_const',
+        const=logging.INFO,
+        help='set loglevel to info')
+    group.add_argument(
+        '--warning',
+        action='store_const',
+        const=logging.WARNING,
+        help='set loglevel to warning')
+    group.add_argument(
+        '--error',
+        action='store_const',
+        const=logging.ERROR,
+        help='set loglevel to error')
+    group.add_argument(
+        '--critical',
+        action='store_const',
+        const=logging.CRITICAL,
+        help='set loglevel to critical')
+    group.add_argument(
         '-L',
         '--logfile',
         type=argparse.FileType('a'),
         default=default_log_file(),
         help='the file to log to')
-    group.add_argument(
-        '-l',
-        '--loglevel',
-        action=LogLevel,
-        default=logging.WARNING,
-        choices=['critical', 'error', 'warning', 'info', 'debug', 'trace'],
-        help='the minimum level to log')
-    group.add_argument(
-        '--trace',
-        action='store_true',
-        default=False,
-        help='trace any exception that occurs')
-    group = parser.add_argument_group('daemon')
-    if daemon:
-        group.add_argument(
-            '--host',
-            default='',
-            help='the host of the daemon')
-        group.add_argument(
-            '--port',
-            default=8020,
-            type=int,
-            help='the port of the daemon')
-    else:
-        group.add_argument(
-            '--daemon',
-            action='store_true',
-            default=False,
-            help='use a background process to speed up requests')
-        group.add_argument(
-            '--daemon-host',
-            dest='host',
-            default='',
-            help='the host of the daemon')
-        group.add_argument(
-            '--daemon-port',
-            dest='port',
-            default=8020,
-            type=int,
-            help='the port of the daemon')
+    if daemonable:
+        group = parser.add_argument_group('daemon')
+        if daemon:
+            group.add_argument(
+                '--host',
+                default='',
+                help='the host of the daemon')
+            group.add_argument(
+                '--port',
+                default=8020,
+                type=int,
+                help='the port of the daemon')
+        else:
+            group.add_argument(
+                '--daemon',
+                action='store_true',
+                default=False,
+                help='use a background process to speed up requests')
+            group.add_argument(
+                '--daemon-host',
+                dest='host',
+                default='',
+                help='the host of the daemon')
+            group.add_argument(
+                '--daemon-port',
+                dest='port',
+                default=8020,
+                type=int,
+                help='the port of the daemon')
     return parser
 
 

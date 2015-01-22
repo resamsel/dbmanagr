@@ -20,12 +20,11 @@
 
 import datetime
 import sqlalchemy
-import logging
 import re
 
-from dbnav.exception import BusinessException
+from decimal import Decimal
 
-logger = logging.getLogger(__name__)
+from dbnav.exception import BusinessException
 
 
 def to_key(key):
@@ -51,6 +50,8 @@ def as_json(obj):
         }
         d.update(dict(map(as_json, obj.__dict__.iteritems())))
         return d
+    if isinstance(obj, sqlalchemy.sql.sqltypes.NullType):
+        return None
     if isinstance(obj, (tuple, list, set)):
         return map(as_json, obj)
     if isinstance(obj, Jsonable):
@@ -68,7 +69,6 @@ def as_json(obj):
 
 
 def import_class(name):
-    logger.debug('import_class(%s)', name)
     parts = name.split('.')
     if len(parts) > 1:
         mod = __import__('.'.join(parts[:-1]), fromlist=[str(parts[-1])])
@@ -91,7 +91,11 @@ def from_json(d):
                     labels=d['_labels'])
             if classname == 'datetime.datetime':
                 from datetime import datetime
-                return datetime.strptime(d['value'], "%Y-%m-%dT%H:%M:%S")
+                try:
+                    return datetime.strptime(d['value'], "%Y-%m-%dT%H:%M:%S")
+                except ValueError:
+                    return datetime.strptime(
+                        d['value'], "%Y-%m-%dT%H:%M:%S.%f")
             if classname == 'datetime.date':
                 from datetime import datetime
                 return datetime.strptime(d['value'], "%Y-%m-%d").date()
@@ -101,6 +105,11 @@ def from_json(d):
         return dict(map(lambda (k, v): (k, from_json(v)), d.iteritems()))
     if type(d) is list or type(d) is tuple:
         return map(from_json, d)
+    if type(d) is Decimal:
+        if d % 1 == 0:
+            return int(d)
+        else:
+            return float(d)
     return d
 
 

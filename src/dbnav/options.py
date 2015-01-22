@@ -24,6 +24,7 @@ import datetime
 
 from urlparse import urlparse
 from sqlalchemy import Boolean, Float, Integer
+from decimal import Decimal
 
 from dbnav.logger import LogWith
 from dbnav.queryfilter import QueryFilter, OrOp, AndOp
@@ -90,7 +91,7 @@ def format_value(column, value):
             return '%f' % float(value)
         except ValueError:
             pass
-    if isinstance(column.type, Integer) or type(value) is int:
+    if isinstance(column.type, Integer) or type(value) in (int, Decimal):
         try:
             return '%d' % int(value)
         except ValueError:
@@ -139,6 +140,7 @@ class Options:
         self.show = 'connections'
         self.simplify = False
         self.prog = parser.prog
+        self.daemon = False
 
         args = parser.parse_args(argv)
 

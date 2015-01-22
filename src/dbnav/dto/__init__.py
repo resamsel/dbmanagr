@@ -20,30 +20,12 @@
 
 from dbnav.jsonable import Jsonable
 from dbnav.formatter import Formatter
-from dbnav import utils
-
-
-def freeze(d):
-    if isinstance(d, dict):
-        return frozenset((key, freeze(value)) for key, value in d.items())
-    elif isinstance(d, list):
-        return tuple(freeze(value) for value in d)
-    return d
+from dbnav.utils import freeze
 
 
 class Dto(Jsonable):
-    def __init__(
-            self,
-            title=None,
-            subtitle=None,
-            autocomplete=None,
-            uid=None,
-            icon=None):
-        self.title_ = title
-        self.subtitle_ = subtitle
+    def __init__(self, autocomplete=None):
         self.autocomplete_ = autocomplete
-        self.uid_ = uid
-        self.icon_ = icon
 
     def autocomplete(self):
         return self.autocomplete_
@@ -53,28 +35,6 @@ class Dto(Jsonable):
 
     def __eq__(self, o):
         return hash(self) == hash(o)
-
-    def title(self):
-        return self.title_
-
-    def subtitle(self):
-        return self.subtitle_
-
-    def value(self):
-        return self.title()
-
-    def validity(self):
-        return True
-
-    def uid(self):
-        if self.uid_ is not None:
-            return self.uid_
-        return utils.hash(self.autocomplete())
-
-    def icon(self):  # pragma: no cover
-        if self.icon_ is not None:
-            return self.icon_
-        return 'images/icon.png'
 
     def format(self):
         return Formatter.format(self)

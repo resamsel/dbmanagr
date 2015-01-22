@@ -49,6 +49,7 @@ class DiffWriter(FormatWriter):
         self.right = right
 
     def str(self, items):
+        items = [i for i in items]  # resolves generator
         if not items:
             return 'No differences found'
         s = self.item_separator.join(

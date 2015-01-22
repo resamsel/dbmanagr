@@ -41,7 +41,7 @@ class NavigatorTestCase(DbTestCase):
 
         self.assertEqual(
             True,
-            Config.init(['-l', 'trace'], navigator.args.parser).trace)
+            Config.init(['--trace'], navigator.args.parser).trace)
 
     def test_non_existent_table(self):
         """Tests non existent tables"""

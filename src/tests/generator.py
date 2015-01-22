@@ -70,10 +70,12 @@ def generator(f, command, dir, tc, parameters=None):
     if parameters is None:
         parameters = []
 
+    assert_equal.im_class.maxDiff = None
+
     def test():
         p, e = params(dir, tc), expected(dir, tc)
         items = f.run([
-            '-l', 'debug',
+            '--debug',
             '-L', LOGFILE] + parameters + p)
         actual = Writer.write(items)
         write_actual(command, tc, actual)

@@ -50,6 +50,7 @@ setup(
     install_requires=[
         'sqlalchemy>=0.9.8',
         'sqlparse>=0.1.13',
+        'ijson>=2.0',
         # 'psycopg2>=2.5.1',
         # 'mysql-python>=1.2.5'
     ],

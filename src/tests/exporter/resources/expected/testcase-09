@@ -1,7 +1,7 @@
 articles:
     - &article_2 !!my.models.Article
         id: !!int 2
-        user: *user_!!int 960
+        user: *user_960
         created: 2014-03-01 21:51:18
         title: duis bibendum morbi
         text: urna ut tellus nulla ut erat id mauris vulputate elementum nullam varius nulla facilisi cras non velit nec nisi vulputate nonummy maecenas tincidunt lacus at velit vivamus vel nulla eget eros elementum pellentesque quisque porta volutpat erat quisque erat eros viverra eget congue eget semper rutrum nulla nunc purus phasellus in felis donec semper sapien a libero nam dui proin leo odio porttitor id consequat in consequat ut nulla sed accumsan felis ut at

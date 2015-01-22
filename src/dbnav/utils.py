@@ -184,3 +184,11 @@ def primary_key_or_first_column(table):
 
 def filter_keys(d, *keys):
     return dict(filter(lambda (k, v): k in keys, d.iteritems()))
+
+
+def freeze(d):
+    if isinstance(d, dict):
+        return frozenset((key, freeze(value)) for key, value in d.items())
+    elif isinstance(d, list):
+        return tuple(freeze(value) for value in d)
+    return d

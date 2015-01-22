@@ -33,10 +33,8 @@ class Table(Dto):
             primary_key=None,
             columns=None,
             foreign_keys=None,
-            title=None,
-            subtitle=None,
             autocomplete=None):
-        Dto.__init__(self, title, subtitle, autocomplete)
+        Dto.__init__(self, autocomplete)
 
         self.name = name
         self.uri = uri
@@ -58,7 +56,7 @@ class Table(Dto):
                 filter_keys(
                     d,
                     'name', 'uri', 'owner', 'size', 'primary_key', 'columns',
-                    'foreign_keys', 'title', 'subtitle', 'autocomplete'
+                    'foreign_keys', 'autocomplete'
                 )
             )
         )

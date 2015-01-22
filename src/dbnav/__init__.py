@@ -24,6 +24,7 @@ import logging
 import pdb
 import urllib2
 import json
+import ijson
 
 from dbnav.writer import Writer
 from dbnav import logger as log
@@ -93,7 +94,8 @@ class Wrapper:
                 # Start post mortem debugging only when debugging is enabled
                 if os.getenv('UNITTEST', 'False') == 'True':
                     raise
-                pdb.post_mortem(sys.exc_info()[2])  # pragma: no cover
+                if self.options.trace:
+                    pdb.post_mortem(sys.exc_info()[2])  # pragma: no cover
             else:
                 # Show the error message if log level is INFO or higher
                 log.log_error(e)  # pragma: no cover
@@ -118,15 +120,8 @@ class Wrapper:
 
             response = urllib2.urlopen(url, request)
 
-            r = json.load(response)
-
-            log.logger.debug('Response:\n%s', r)
-
-            dto = from_json(r)
-
-            # log.logger.debug('DTOs:\n%s', r)
-
-            return dto
+            for i in ijson.items(response, 'item'):
+                yield from_json(i)
         except urllib2.HTTPError as e:
             raise from_json(json.load(e))
         except urllib2.URLError as e:

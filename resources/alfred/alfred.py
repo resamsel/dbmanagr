@@ -46,7 +46,10 @@ def main(wf):
 
 if __name__ == '__main__':
     wf = Workflow(
-        libraries=["dbnav-{}-py2.7.egg".format(__version__)],
+        libraries=[
+            'lib/dbnav-{}-py2.7.egg'.format(__version__),
+            'lib/ijson-2.0-py2.7.egg'
+        ],
         update_settings={
             'github_slug': 'resamsel/dbnavigator',
             'version': __version__

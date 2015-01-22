@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2014 René Samselnig
@@ -18,23 +19,13 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.dto import Dto
-from dbnav.jsonable import from_json
+import ijson
+import sys
+import os
 
+newin = os.fdopen(sys.stdin.fileno(), 'r', 1)
 
-class ForeignKey(Dto):
-    def __init__(self, a=None, b=None):
-        Dto.__init__(self)
+items = ijson.items(newin, 'item')
 
-        self.a = a
-        self.b = b
-
-    def __str__(self):
-        return '{a} -> {b}'.format(a=self.a, b=self.b)
-
-    @staticmethod
-    def from_json(d):
-        return ForeignKey(
-            a=from_json(d.get('a')),
-            b=from_json(d.get('b'))
-        )
+for item in items:
+    print type(item), '.'

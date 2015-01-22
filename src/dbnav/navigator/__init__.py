@@ -33,12 +33,13 @@ from dbnav.comment import create_comment
 from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
-from dbnav.dto.mapper import to_dto
 from dbnav.model.value import Value
 from dbnav.model.row import Row
 from dbnav.model.tablecomment import COMMENT_TITLE
-from .args import parser
-from .writer import SimplifiedWriter
+
+from dbnav.navigator.dto import to_dto
+from dbnav.navigator.args import parser
+from dbnav.navigator.writer import SimplifiedWriter
 
 logger = logging.getLogger(__name__)
 
