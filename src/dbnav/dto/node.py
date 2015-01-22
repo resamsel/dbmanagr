@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from dbnav.dto import Dto
+from dbnav.jsonable import from_json
 from dbnav.formatter import Formatter
 
 PRIMARY_KEY_OPTIONS = {
@@ -31,9 +33,12 @@ NULLABLE_OPTIONS = {
 }
 
 
-class BaseNode:
+class BaseNode(Dto):
     def __eq__(self, o):
         return hash(self) == hash(o)
+
+    def __hash__(self):
+        return hash(str(self))
 
     def format(self):
         return Formatter.format_node(self)
@@ -44,6 +49,8 @@ class BaseNode:
 
 class ColumnNode(BaseNode):
     def __init__(self, column, indent=0):
+        Dto.__init__(self)
+
         self.column = column
         self.indent = indent
 
@@ -57,7 +64,7 @@ class ColumnNode(BaseNode):
             self.column.name,
             PRIMARY_KEY_OPTIONS.get(self.column.primary_key),
             NULLABLE_OPTIONS.get(self.column.nullable),
-            self.column.table.name)
+            self.column.tablename)
 
     def format(self):
         return Formatter.format_column_node(self)
@@ -66,22 +73,22 @@ class ColumnNode(BaseNode):
         indent = '  ' * self.indent
         return '{0}- {1}'.format(indent, self.column.ddl())
 
+    @staticmethod
+    def from_json(d):
+        return ColumnNode(from_json(d['column']), from_json(d['indent']))
+
 
 class ForeignKeyNode(BaseNode):
     def __init__(self, fk, parent=None, indent=0):
+        Dto.__init__(self)
+
         self.fk = fk
         self.parent = parent
         self.indent = indent
 
-    def __getattr__(self, name):
-        return getattr(self.fk, name)
-
-    def __hash__(self):
-        return hash(str(self.fk))
-
     def __str__(self):
         indent = '  ' * self.indent
-        if self.fk.a.table.name == self.parent.name:
+        if self.fk.a.tablename == self.parent.name:
             return u'{0}→ {1}{3} → {2}'.format(
                 indent,
                 self.fk.a.name,
@@ -89,42 +96,69 @@ class ForeignKeyNode(BaseNode):
                 NULLABLE_OPTIONS.get(self.fk.a.nullable))
         return u'{0}↑ {1} ({2} → {3}.{4})'.format(
             indent,
-            self.fk.a.table.name,
+            self.fk.a.tablename,
             self.fk.a.name,
-            self.fk.b.table.name,
+            self.fk.b.tablename,
             self.fk.b.name)
+
+    def __hash__(self):
+        return hash(str(self.fk))
 
     def format(self):
         return Formatter.format_foreign_key_node(self)
 
+    @staticmethod
+    def from_json(d):
+        return ForeignKeyNode(
+            from_json(d['fk']),
+            from_json(d['parent']),
+            from_json(d['indent'])
+        )
+
 
 class TableNode(BaseNode):
-    def __init__(self, table, include=[], exclude=[], indent=0):
-        self.table = table
-        self.include = include
-        self.exclude = exclude
-        self.indent = indent
+    def __init__(self, table, indent=0):
+        Dto.__init__(self)
 
-    def __hash__(self):
-        return hash(self.table.autocomplete())
+        self.table = table
+        self.indent = indent
 
     def __str__(self):
         return self.table.name
 
+    def __hash__(self):
+        return hash(str(self.table))
+
     def format(self):
         return Formatter.format_table_node(self)
+
+    @staticmethod
+    def from_json(d):
+        return TableNode(
+            from_json(d['table']),
+            from_json(d['indent'])
+        )
 
 
 class NameNode(BaseNode):
     def __init__(self, name, indent=0):
+        Dto.__init__(self)
+
         self.name = name
         self.indent = indent
-
-    def __hash__(self):
-        return hash(self.name)
 
     def __str__(self):
         return '{0}{1}'.format('  ' * self.indent, self.name)
 
+    def __hash__(self):
+        return hash(self.name)
+
     def format(self):
         return Formatter.format_name_node(self)
+
+    @staticmethod
+    def from_json(d):
+        return NameNode(
+            from_json(d['name']),
+            from_json(d['indent'])
+        )

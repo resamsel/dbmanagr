@@ -22,6 +22,8 @@ import logging
 import re
 import pkgutil
 import uuid
+import os
+import sys
 
 from sqlalchemy.types import Integer
 
@@ -139,7 +141,22 @@ def unicode_decode(arg):
         return map(unicode_decode, arg)
     if type(arg) is unicode:
         return arg
+    if type(arg) in [int, bool, float]:
+        return unicode(arg)
     return arg.decode('utf-8')
+
+
+def mute_stderr(f):
+    def wrapper(*args, **kwargs):
+        devnull = open(os.devnull, 'w')
+        stderr, sys.stderr = sys.stderr, devnull
+        try:
+            return f(*args, **kwargs)
+        finally:
+            sys.stderr.close()
+            sys.stderr = stderr
+
+    return wrapper
 
 
 def matches(name, patterns):
@@ -156,3 +173,22 @@ def replace_wildcards(pattern):
         return pattern
 
     return pattern.replace('*', '.*')
+
+
+def primary_key_or_first_column(table):
+    column = table.primary_key
+    if not column:
+        column = table.column(0).name
+    return column
+
+
+def filter_keys(d, *keys):
+    return dict(filter(lambda (k, v): k in keys, d.iteritems()))
+
+
+def freeze(d):
+    if isinstance(d, dict):
+        return frozenset((key, freeze(value)) for key, value in d.items())
+    elif isinstance(d, list):
+        return tuple(freeze(value) for value in d)
+    return d

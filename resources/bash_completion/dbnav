@@ -4,22 +4,70 @@ _dbnav_log()
 {
 	echo $* >> /tmp/dbnav-complete.log
 }
- 
+
+_dbnav_options()
+{
+	command="$1"
+	
+	_dbnav_log "_dbnav_options: command=${command}"
+	
+	echo "$(${command} -h \
+			| grep '  -' \
+			| sed 's/^  //g' \
+			| sed 's/  .*//g' \
+			| tr ' ' '\n' \
+			| grep -E '^-' \
+			| sed 's/,//g' \
+			| tr '\n' ' ')"
+}
+
 _dbnav_completer()
 {
 	local cur prev words
 	COMPREPLY=()
 	cur="${COMP_WORDS[COMP_CWORD]}"
 	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	command="${COMP_WORDS[0]}"
 
-	_dbnav_log "cur:${cur}, prev:${prev}"
-	words="$(dbnav -A ${cur})"
+	_dbnav_log "_dbnav_completer: command=${command}, args=${COMP_WORDS[@]}, cur=${cur}, prev=${prev}"
+
+	if [[ ${cur} == -* ]]; then
+		words="$(_dbnav_options ${command})"
+	else
+		words="$(dbnav --daemon -A ${cur})"
+	fi
+
+	_dbnav_log "_dbnav_completer: command=${command}, words=${words}"
+
+	COMPREPLY=($(compgen -W "${words}" -f -- ${cur}))
+	return 0
+}
+
+_dbdaemon_completer()
+{
+	local cur prev words
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	command="${COMP_WORDS[0]}"
+
+	_dbnav_log "_dbdaemon_completer: command=${command}, args=${COMP_WORDS[@]}, cur=${cur}, prev=${prev}"
+
+	if [[ ${cur} == -* ]]; then
+		words="$(_dbnav_options ${command})"
+	else
+		words="start stop restart status"
+	fi
+
+	_dbnav_log "_dbdaemon_completer: command=${command}, words=${words}"
 
 	COMPREPLY=($(compgen -W "${words}" -- ${cur}))
 	return 0
 }
 
-complete -o nospace -F _dbnav_completer dbnav
-complete -o nospace -F _dbnav_completer dbgraph
-complete -o nospace -F _dbnav_completer dbexport
+complete -o nospace -F _dbnav_completer dbdiff
 complete -o nospace -F _dbnav_completer dbexec
+complete -o nospace -F _dbnav_completer dbexport
+complete -o nospace -F _dbnav_completer dbgraph
+complete -o nospace -F _dbnav_completer dbnav
+complete -o nospace -F _dbdaemon_completer dbdaemon

@@ -45,11 +45,9 @@ class DefaultWriter:
 class StdoutWriter(DefaultWriter):
     def __init__(
             self,
-            items_format=u"""Title\tSubtitle\tAutocomplete
-{0}""",
-            item_format=u"""{title}\t{subtitle}\t{autocomplete}""",
-            item_separator=u"""
-""",
+            items_format=u"Title\tSubtitle\tAutocomplete\n{0}",
+            item_format=u"{title}\t{subtitle}\t{autocomplete}",
+            item_separator=u"\n",
             format_error_format=u'{0}'):
         self.items_format = items_format
         self.item_format = item_format
@@ -58,17 +56,18 @@ class StdoutWriter(DefaultWriter):
 
         Formatter.set(DefaultFormatter())
 
-    def filter(self, items):
+    def filter_(self, items):
         return items
 
     def str(self, items):
         items = self.prepare(items)
-        s = self.item_separator.join(
-            map(lambda i: self.itemtostring(i),
-                self.filter(items)))
+        items = self.filter_(items)
+        s = self.item_separator.join(map(self.itemtostring, items))
         return self.items_format.format(s)
 
     def prepare(self, items):
+        if not items:
+            return []
         return items
 
     def itemtostring(self, item):
@@ -117,3 +116,8 @@ class Writer:
     @LogWith(logger, log_args=False, log_result=False)
     def write(items):
         return Writer.writer.write(items)
+
+    @staticmethod
+    @LogWith(logger, log_args=False, log_result=False)
+    def itemtostring(item):
+        return Writer.writer.itemtostring(item)

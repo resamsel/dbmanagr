@@ -30,13 +30,13 @@ def main(wf):
     wf.logger.debug('Args: %s', wf.args)
 
     items = navigator.run(wf.args)
-
+    
     for item in items:
         wf.add_item(
-            item.title(),
-            item.subtitle(),
+            unicode(item.title()),
+            unicode(item.subtitle()),
             uid=item.uid(),
-            arg=item.value(),
+            arg=unicode(item.value()),
             autocomplete=item.autocomplete(),
             valid=item.validity(),
             icon=item.icon())
@@ -46,7 +46,10 @@ def main(wf):
 
 if __name__ == '__main__':
     wf = Workflow(
-        libraries=["dbnav-{}-py2.7.egg".format(__version__)],
+        libraries=[
+            'lib/dbnav-{}-py2.7.egg'.format(__version__),
+            'lib/ijson-2.0-py2.7.egg'
+        ],
         update_settings={
             'github_slug': 'resamsel/dbnavigator',
             'version': __version__

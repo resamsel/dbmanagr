@@ -24,7 +24,7 @@ from dbnav.args import parent_parser, format_group, create_parser
 
 from .writer import ExecuteWriter, SqlInsertWriter, ExecuteTestWriter
 
-parent = parent_parser()
+parent = parent_parser(daemonable=False)
 
 group = format_group(parent, ExecuteTestWriter)
 group.add_argument(

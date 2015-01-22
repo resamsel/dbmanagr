@@ -138,7 +138,7 @@ class DatabaseConnection(BaseItem):
     def rows(self, table, filter=None, limit=DEFAULT_LIMIT, simplify=None):
         return table.rows(self, filter, limit, simplify)
 
-    def filter(self, options):
+    def filter_(self, options):
         return True
 
     def databases(self):
@@ -150,7 +150,7 @@ class DatabaseConnection(BaseItem):
     def init_tables(self, database):
         self._tables = dict(map(
             lambda table: (table, Table(
-                database, self.entity(table), self.autocomplete())),
+                self.entity(table), self.autocomplete())),
             self.meta().tables))
         logger.debug('Tables: %s' % self._tables)
         self.init_foreign_keys()
@@ -199,8 +199,8 @@ class DatabaseConnection(BaseItem):
                     str(_fk.column.key),
                     _fk.column)
                 fk = ForeignKey(a, b)
-                self._tables[a.table.name].fks[a.name] = fk
-                self._tables[b.table.name].fks[str(a)] = fk
+                self._tables[a.table.name].set_foreign_key(a.name, fk)
+                self._tables[b.table.name].set_foreign_key(str(a), fk)
 
     def __str__(self):
         return self.__repr__()
@@ -264,7 +264,7 @@ class UriDatabaseConnection(DatabaseConnection):
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
 
-    def filter(self, options):
+    def filter_(self, options):
         options = options.get(self.dbms)
         matches = True
 

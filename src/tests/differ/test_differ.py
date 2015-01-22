@@ -23,6 +23,7 @@ import os
 from tests.differ import load
 from tests.testcase import DbTestCase
 from dbnav import differ
+from dbnav.utils import mute_stderr
 
 
 def test_differ():
@@ -61,7 +62,7 @@ class DifferTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            self.mute_stderr(differ.main))
+            mute_stderr(differ.main))
 
         self.assertEqual(
             0,

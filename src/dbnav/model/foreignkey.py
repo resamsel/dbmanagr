@@ -18,8 +18,10 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from dbnav.jsonable import Jsonable
 
-class ForeignKey:
+
+class ForeignKey(Jsonable):
     """A foreign key connection between the originating column a and the
 foreign column b"""
 
@@ -28,4 +30,7 @@ foreign column b"""
         self.b = b
 
     def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
         return '%s -> %s' % (self.a, self.b)

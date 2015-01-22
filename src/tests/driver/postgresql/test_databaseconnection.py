@@ -88,13 +88,13 @@ class DatabaseConnectionTestCase(DbTestCase):
             True,
             dbc.PostgreSQLConnection(
                 'uri', 'host', '3333', 'db', 'user', 'password'
-            ).filter(Config.init(['user@host/db/'], navigator.args.parser)))
+            ).filter_(Config.init(['user@host/db/'], navigator.args.parser)))
         self.assertEqual(
             False,
             dbc.PostgreSQLConnection(
                 'postgresql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
-            ).filter({'postgresql': Opts(user='foo', host=None)}))
+            ).filter_({'postgresql': Opts(user='foo', host=None)}))
 
     def test_connect(self):
         """Tests the connect function"""

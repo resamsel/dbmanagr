@@ -92,14 +92,14 @@ class DatabaseConnectionTestCase(DbTestCase):
             True,
             dbc.MySQLConnection(
                 'uri', 'host', '3333', 'db', 'user', 'password'
-            ).filter(Config.init(['user@host/db/'], navigator.args.parser))
+            ).filter_(Config.init(['user@host/db/'], navigator.args.parser))
         )
         self.assertEqual(
             False,
             dbc.MySQLConnection(
                 'mysql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
-            ).filter({'mysql': Opts(user='foo', host=None)})
+            ).filter_({'mysql': Opts(user='foo', host=None)})
         )
 
     def test_connect(self):

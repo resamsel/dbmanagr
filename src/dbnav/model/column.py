@@ -29,7 +29,10 @@ class Column(BaseItem):
     def __init__(self, table, name, **kwargs):
         self.table = table
         self.name = name
+        self.type = None
         self.__dict__.update(kwargs)
+        self.tablename = table.name
+        self.uri = self.autocomplete()
 
     def __repr__(self):
         if self.table:
@@ -63,6 +66,20 @@ class Column(BaseItem):
     def format(self):
         return Formatter.format_column(self)
 
+    def as_json(self):
+        d = {
+            '__cls__': str(self.__class__),
+            'name': self.name,
+            'table': self.table.as_json(),
+            'type': self.type.compile(),
+            'uri': self.uri
+        }
+        if self.default is not None:
+            d['default'] = self.default
+        return d
 
-def create_column(table, name, column):
+
+def create_column(table, name, column=None):
+    if column is None:
+        return Column(table, name)
     return Column(table, name, **dictminus(column.__dict__, 'name', 'table'))

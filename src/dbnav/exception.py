@@ -55,13 +55,17 @@ def unknown_column_message(table, column, haystack=None):
         CLOSE_MATCHES.format(u', '.join(matches)))
 
 
-class UnknownTableException(Exception):
+class BusinessException(Exception):
+    pass
+
+
+class UnknownTableException(BusinessException):
     def __init__(self, tablename, haystack):
         super(UnknownTableException, self).__init__(
             unknown_table_message(tablename, haystack))
 
 
-class UnknownColumnException(Exception):
+class UnknownColumnException(BusinessException):
     def __init__(self, table, column, haystack=None):
         super(UnknownColumnException, self).__init__(
             unknown_column_message(table, column, haystack))
