@@ -162,12 +162,14 @@ def yaml_value(col, table, value):
     if type(value) is int:
         return u'!!int %d' % value
     if type(value) is bool:
-        return u'!!bool %s' % unicode(value).lower()
+        return {True: u'Yes', False: u'No'}.get(value, u'No')
     if type(value) is Decimal:
         if value % 1 == 0:
             return u'!!int %d' % value
         else:
             return u'!!float %f' % value
+    if type(value) in (str, unicode):
+        return u'!!str %s' % value
     return value
 
 

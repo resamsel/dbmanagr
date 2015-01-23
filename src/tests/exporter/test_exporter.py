@@ -48,17 +48,21 @@ class DifferTestCase(DbTestCase):
         user_dto = to_dto(user)
 
         self.assertEqual(
-            '!!null null',
+            u'!!null null',
             exporter.writer.yaml_value(
                 to_dto(user.column('id')), user_dto, None))
         self.assertEqual(
-            '!!float 3.141500',
+            u'!!float 3.141500',
             exporter.writer.yaml_value(
                 to_dto(user.column('score')), user_dto, 3.141500))
         self.assertEqual(
-            '!!bool true',
+            u'Yes',
             exporter.writer.yaml_value(
                 to_dto(user.column('deleted')), user_dto, True))
+        self.assertEqual(
+            u'!!str Yes',
+            exporter.writer.yaml_value(
+                to_dto(user.column('url')), user_dto, 'Yes'))
 
     def test_unknown_table(self):
         """Tests unknown tables"""
