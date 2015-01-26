@@ -15,9 +15,10 @@ BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
 VERSION = src/dbnav/version.py
 TARGET = target
+TARGETS = $(TARGET) $(TARGET)/coverage
 SETUPTOOLS = $(PYTHON) setup.py
 TEST_NOSE = nosetests --with-coverage --cover-package=dbnav --cover-html \
-	--cover-html-dir=$(TARGET)/coverage
+	--cover-html-dir=$(PWD)/$(TARGET)/coverage
 TEST_INSTRUMENTAL = $(INSTRUMENTAL) -S -t dbnav setup.py $(TEST_NOSE)
 TEST = $(SETUPTOOLS) $(TEST_NOSE)
 INSTRUMENTAL_REPORT = $(INSTRUMENTAL) -r --xml
@@ -32,7 +33,7 @@ ALFRED = $(TARGET)/alfred
 IJSON_URL = https://pypi.python.org/packages/source/i/ijson/ijson-2.0.tar.gz
 
 init:
-	mkdir -p $(TARGET)
+	mkdir -p $(TARGETS)
 
 assemble: init assemble-main assemble-alfred
 
