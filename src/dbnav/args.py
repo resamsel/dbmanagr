@@ -22,7 +22,6 @@ import os
 import argparse
 import logging
 
-from dbnav.writer import TestWriter
 from dbnav.version import __version__
 from dbnav import __drivers__
 
@@ -54,7 +53,7 @@ def default_log_file(dirs=None):
     return os.path.expanduser('~/dbnav.log')
 
 
-def parent_parser(daemonable=True, daemon=False):
+def parent_parser(daemonable=False, daemon=False):
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         '--version',
@@ -135,15 +134,16 @@ def parent_parser(daemonable=True, daemon=False):
     return parser
 
 
-def format_group(parser, test_writer=TestWriter):
+def format_group(parser, test_writer=None):
     group = parser.add_argument_group('formatters')
-    group.add_argument(
-        '-T',
-        '--test',
-        help='output format: test specific',
-        dest='formatter',
-        action='store_const',
-        const=test_writer)
+    if test_writer:
+        group.add_argument(
+            '-T',
+            '--test',
+            help='output format: test specific',
+            dest='formatter',
+            action='store_const',
+            const=test_writer)
     return group
 
 

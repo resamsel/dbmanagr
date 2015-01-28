@@ -22,7 +22,7 @@ from dbnav.args import parent_parser, format_group, create_parser
 
 from .writer import GraphWriter, GraphvizWriter, GraphTestWriter
 
-parent = parent_parser()
+parent = parent_parser(daemonable=True)
 
 group = format_group(
     parent,

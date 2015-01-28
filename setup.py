@@ -69,7 +69,8 @@ setup(
             'dbgraph = dbnav.command.grapher:main',
             'dbexec = dbnav.command.executer:main',
             'dbdiff = dbnav.command.differ:main',
-            'dbdaemon = dbnav.command.daemon:main'
+            'dbdaemon = dbnav.command.daemon:main',
+            'dbstat = dbnav.command.status:main'
         ]
     },
 

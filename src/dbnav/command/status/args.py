@@ -18,16 +18,31 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.args import parent_parser, create_parser
+from dbnav.args import parent_parser, format_group, create_parser
 
-parent = parent_parser(daemonable=True, daemon=True)
+from .writer import StatementActivityWriter
+
+parent = parent_parser()
+
+group = format_group(parent)
+group.add_argument(
+    '-D',
+    '--default',
+    help='output format: default',
+    dest='formatter',
+    action='store_const',
+    const=StatementActivityWriter)
 
 parser = create_parser(
-    prog='dbdaemon',
-    description='The daemon background process.',
+    prog='dbstat',
+    description='A database status tool',
     parents=[parent])
 parser.add_argument(
-    'command',
-    choices=['start', 'stop', 'restart', 'status'],
-    help='the command to issue'
-)
+    'uri',
+    help='the URI to a DBMS')
+parser.add_argument(
+    '-v',
+    '--verbose',
+    action='count',
+    help='specify the verbosity of the output, increase the number of '
+         'occurences of this option to increase verbosity')

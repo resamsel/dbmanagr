@@ -18,16 +18,24 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.args import parent_parser, create_parser
+from dbnav.writer import FormatWriter
+from dbnav.formatter import Formatter, DefaultFormatter
 
-parent = parent_parser(daemonable=True, daemon=True)
+DEFAULT_FORMAT = u'{0}'
+VERBOSE_FORMAT = u'PID\tDatabase\tUser\tClient\tQuery Start\tBlocked by\t'\
+    u'Query\n{0}'
 
-parser = create_parser(
-    prog='dbdaemon',
-    description='The daemon background process.',
-    parents=[parent])
-parser.add_argument(
-    'command',
-    choices=['start', 'stop', 'restart', 'status'],
-    help='the command to issue'
-)
+
+class StatementActivityWriter(FormatWriter):
+    def __init__(self, options):
+        FormatWriter.__init__(
+            self,
+            VERBOSE_FORMAT if options.verbose > 0 else DEFAULT_FORMAT,
+            u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
+            u'{row.query_start}\t{row.state}\t{row.blocked_by}\t{row.query}')
+        Formatter.set(DefaultFormatter())
+        self.options = options
+
+    def itemtostring(self, item):
+        row = item.row
+        return self.item_format.format(row=row)

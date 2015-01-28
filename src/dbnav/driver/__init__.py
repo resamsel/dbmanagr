@@ -19,3 +19,11 @@
 #
 
 __all__ = ('sqlite', 'postgresql', 'mysql')
+
+
+class DatabaseDriver:
+    def __init__(self):
+        pass
+
+    def statement_activity(self, con):
+        return []

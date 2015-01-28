@@ -18,16 +18,13 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.args import parent_parser, create_parser
 
-parent = parent_parser(daemonable=True, daemon=True)
+def stat_activity_query(version):
+    if version[0] == 9 and version[1] >= 2:
+        from .v92 import STAT_ACTIVITY
+        return STAT_ACTIVITY
+    elif version[:2] == (9, 1):
+        from .v91 import STAT_ACTIVITY
+        return STAT_ACTIVITY
 
-parser = create_parser(
-    prog='dbdaemon',
-    description='The daemon background process.',
-    parents=[parent])
-parser.add_argument(
-    'command',
-    choices=['start', 'stop', 'restart', 'status'],
-    help='the command to issue'
-)
+    raise Exception('Server version {} not supported'.format(version))
