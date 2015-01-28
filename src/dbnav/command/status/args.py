@@ -20,9 +20,18 @@
 
 from dbnav.args import parent_parser, format_group, create_parser
 
+from .writer import StatementActivityWriter
+
 parent = parent_parser()
 
 group = format_group(parent)
+group.add_argument(
+    '-D',
+    '--default',
+    help='output format: default',
+    dest='formatter',
+    action='store_const',
+    const=StatementActivityWriter)
 
 parser = create_parser(
     prog='dbstat',
@@ -31,3 +40,9 @@ parser = create_parser(
 parser.add_argument(
     'uri',
     help='the URI to a DBMS')
+parser.add_argument(
+    '-v',
+    '--verbose',
+    action='count',
+    help='specify the verbosity of the output, increase the number of '
+         'occurences of this option to increase verbosity')

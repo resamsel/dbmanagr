@@ -21,14 +21,18 @@
 from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, DefaultFormatter
 
+DEFAULT_FORMAT = u'{0}'
+VERBOSE_FORMAT = u'PID\tDatabase\tUser\tClient\tQuery Start\tBlocked by\t'\
+    u'Query\n{0}'
+
 
 class StatementActivityWriter(FormatWriter):
     def __init__(self, options):
         FormatWriter.__init__(
             self,
-            u'Database\tUser\tPID\tClient\tStart\tQuery\n{0}',
-            u'{row.database_name}\t{row.username}\t{row.pid}\t'
-            u'{row.client_address}\t{row.query_start}\t{row.query}')
+            VERBOSE_FORMAT if options.verbose > 0 else DEFAULT_FORMAT,
+            u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
+            u'{row.query_start}\t{row.state}\t{row.blocked_by}\t{row.query}')
         Formatter.set(DefaultFormatter())
         self.options = options
 
