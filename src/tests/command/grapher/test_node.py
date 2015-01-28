@@ -17,3 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
+
+from tests.testcase import ParentTestCase
+from dbnav.command.grapher import node
+
+
+class NodeTestCase(ParentTestCase):
+    def test_column_node_hash(self):
+        """Tests the node.ColumnNode __hash__ method"""
+
+        self.assertEqual(
+            hash(str('a')),
+            node.ColumnNode('a').__hash__()
+        )

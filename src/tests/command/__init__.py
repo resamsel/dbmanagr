@@ -17,25 +17,3 @@
 # You should have received a copy of the GNU General Public License
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-from nose.tools import assert_equal
-from datetime import date
-
-from dbnav.executer import writer
-
-
-def test_sql_escape():
-    """Tests the sql_escape function"""
-
-    assert_equal(
-        "'a'",
-        writer.sql_escape('a'))
-    assert_equal(
-        "4",
-        writer.sql_escape(4))
-    assert_equal(
-        "true",
-        writer.sql_escape(True))
-    assert_equal(
-        "'{}'".format(date.today()),
-        writer.sql_escape(date.today()))

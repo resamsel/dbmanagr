@@ -22,13 +22,13 @@ import os
 
 from sqlalchemy.exc import OperationalError
 
-from tests.executer import load
+from tests.command.executer import load
 from tests.testcase import DbTestCase
-from dbnav import executer
+from dbnav.command import executer
 from dbnav.utils import mute_stderr
 
 DIR = os.path.dirname(__file__)
-RESOURCES = os.path.join(DIR, '../resources')
+RESOURCES = os.path.join(DIR, '../../resources')
 SELECT_1 = os.path.join(RESOURCES, 'select-1.sql')
 
 

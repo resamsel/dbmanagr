@@ -26,7 +26,7 @@ from tests.testcase import DbTestCase
 from dbnav.driver import postgresql
 from dbnav.driver.postgresql import databaseconnection as dbc
 from dbnav.config import Config
-from dbnav import navigator
+from dbnav.command import navigator
 from tests.mock.sources import DIR as MOCK_DIR
 from tests.mock.sources import URI as MOCK_URI
 

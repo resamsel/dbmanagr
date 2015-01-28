@@ -20,7 +20,7 @@
 
 from tests.testcase import ParentTestCase
 from dbnav import formatter
-from dbnav.grapher.node import NameNode
+from dbnav.command.grapher.node import NameNode
 
 
 class FormatterTestCase(ParentTestCase):

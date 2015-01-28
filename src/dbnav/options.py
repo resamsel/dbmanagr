@@ -28,6 +28,7 @@ from decimal import Decimal
 
 from dbnav.logger import LogWith
 from dbnav.queryfilter import QueryFilter, OrOp, AndOp
+from dbnav.utils import escape_statement
 
 OR_OPERATOR = '|'
 AND_OPERATOR = '&'
@@ -96,7 +97,7 @@ def format_value(column, value):
             return '%d' % int(value)
         except ValueError:
             pass
-    return u"'%s'" % value.replace('%', '%%').replace("'", "''")
+    return u"'%s'" % escape_statement(value).replace("'", "''")
 
 
 def parse_filter(s):

@@ -20,10 +20,10 @@
 
 import os
 
-from tests.exporter import load
+from tests.command.exporter import load
 from tests.testcase import DbTestCase
 from tests.mock.sources import MockSource
-from dbnav import exporter
+from dbnav.command import exporter
 from dbnav.exception import UnknownTableException, UnknownColumnException
 from dbnav.utils import mute_stderr
 from dbnav.dto.mapper import to_dto

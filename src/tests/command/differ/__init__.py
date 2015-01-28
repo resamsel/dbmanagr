@@ -18,15 +18,22 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from tests.testcase import ParentTestCase
-from dbnav.grapher import node
+import glob
+
+from os import path
+
+from tests.sources import init_sources
+from tests.testcase import create_test
+from dbnav.command import differ
+
+DIR = path.dirname(__file__)
+TEST_CASES = map(
+    lambda p: path.basename(p),
+    glob.glob(path.join(DIR, 'resources/testcase-*')))
 
 
-class NodeTestCase(ParentTestCase):
-    def test_column_node_hash(self):
-        """Tests the node.ColumnNode __hash__ method"""
-
-        self.assertEqual(
-            hash(str('a')),
-            node.ColumnNode('a').__hash__()
-        )
+def load():
+    init_sources(DIR)
+    return map(
+        lambda tc: create_test(differ, 'dbdiff', DIR, tc),
+        TEST_CASES)

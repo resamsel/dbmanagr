@@ -20,33 +20,39 @@
 
 import os
 
-from tests.grapher import load
+from tests.command.differ import load
 from tests.testcase import DbTestCase
-from dbnav import grapher
-from dbnav.config import Config
-from dbnav.exception import UnknownTableException
+from dbnav.command import differ
 from dbnav.utils import mute_stderr
 
 
-def test_grapher():
+def test_differ():
     os.environ['UNITTEST'] = 'True'
     for test in load():
-        yield test,
+        yield test
     del os.environ['UNITTEST']
 
 
-class GrapherTestCase(DbTestCase):
-    def test_unknown_table(self):
-        """Tests unknown tables"""
+class DifferTestCase(DbTestCase):
+    def test_unknown_connection(self):
+        """Tests unknown connections"""
 
         self.assertRaises(
             Exception,
-            grapher.run,
-            ['dbnav.sqlite'])
+            differ.run,
+            ['a', 'b'])
         self.assertRaises(
-            UnknownTableException,
-            grapher.run,
-            ['dbnav.sqlite/unknown?'])
+            Exception,
+            differ.run,
+            ['dbnav.sqlite/user', 'b'])
+        self.assertRaises(
+            Exception,
+            differ.run,
+            ['dbnav.sqlite/unknown', 'dbnav-c.sqlite/unknown'])
+        self.assertRaises(
+            Exception,
+            differ.run,
+            ['dbnav.sqlite/user', 'dbnav-c.sqlite/unknown'])
 
     def test_writer(self):
         """Tests the writer"""
@@ -56,20 +62,8 @@ class GrapherTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            mute_stderr(grapher.main))
+            mute_stderr(differ.main))
 
         self.assertEqual(
             0,
-            grapher.main(['dbnav.sqlite/user?id=1']))
-
-    def test_options(self):
-        """Tests options"""
-
-        config = Config.init(
-            ['-r', '--database', 'dbnav.sqlite/article'],
-            grapher.args.parser)
-        config.database = 'db'
-
-        self.assertEqual(
-            12,
-            len(grapher.DatabaseGrapher(config).run()))
+            differ.main(['dbnav.sqlite/user', 'dbnav.sqlite/user2']))

@@ -23,7 +23,7 @@ import glob
 from os import path
 from tests.sources import init_sources
 from tests.testcase import create_test
-from dbnav import grapher
+from dbnav.command import grapher
 
 DIR = path.dirname(__file__)
 TEST_CASES = map(
