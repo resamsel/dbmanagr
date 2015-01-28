@@ -18,12 +18,17 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ('sqlite', 'postgresql', 'mysql')
+from dbnav.args import parent_parser, format_group, create_parser
 
+from .writer import StatusWriter
 
-class DatabaseDriver:
-    def __init__(self):
-        pass
+parent = parent_parser()
 
-    def statements(self):
-        return []
+group = format_group(
+    parent,
+    StatusWriter)
+
+parser = create_parser(
+    prog='dbstat',
+    description='A database status tool',
+    parents=[parent])

@@ -18,12 +18,12 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ('sqlite', 'postgresql', 'mysql')
+from dbnav.writer import FormatWriter
+from dbnav.formatter import Formatter, DefaultFormatter
 
 
-class DatabaseDriver:
-    def __init__(self):
-        pass
-
-    def statements(self):
-        return []
+class StatusWriter(FormatWriter):
+    def __init__(self, options):
+        FormatWriter.__init__(self)
+        Formatter.set(DefaultFormatter())
+        self.options = options

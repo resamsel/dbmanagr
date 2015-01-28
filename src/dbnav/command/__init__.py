@@ -18,12 +18,4 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ('sqlite', 'postgresql', 'mysql')
-
-
-class DatabaseDriver:
-    def __init__(self):
-        pass
-
-    def statements(self):
-        return []
+__all__ = ('status')
