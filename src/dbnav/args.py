@@ -69,26 +69,31 @@ def parent_parser(daemonable=True, daemon=False):
         help='set loglevel to trace')
     group.add_argument(
         '--debug',
+        dest='loglevel',
         action='store_const',
         const=logging.DEBUG,
         help='set loglevel to debug')
     group.add_argument(
         '--info',
+        dest='loglevel',
         action='store_const',
         const=logging.INFO,
         help='set loglevel to info')
     group.add_argument(
         '--warning',
+        dest='loglevel',
         action='store_const',
         const=logging.WARNING,
         help='set loglevel to warning')
     group.add_argument(
         '--error',
+        dest='loglevel',
         action='store_const',
         const=logging.ERROR,
         help='set loglevel to error')
     group.add_argument(
         '--critical',
+        dest='loglevel',
         action='store_const',
         const=logging.CRITICAL,
         help='set loglevel to critical')

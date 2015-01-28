@@ -20,39 +20,33 @@
 
 import os
 
-from tests.differ import load
+from tests.command.grapher import load
 from tests.testcase import DbTestCase
-from dbnav import differ
+from dbnav.command import grapher
+from dbnav.config import Config
+from dbnav.exception import UnknownTableException
 from dbnav.utils import mute_stderr
 
 
-def test_differ():
+def test_grapher():
     os.environ['UNITTEST'] = 'True'
     for test in load():
-        yield test
+        yield test,
     del os.environ['UNITTEST']
 
 
-class DifferTestCase(DbTestCase):
-    def test_unknown_connection(self):
-        """Tests unknown connections"""
+class GrapherTestCase(DbTestCase):
+    def test_unknown_table(self):
+        """Tests unknown tables"""
 
         self.assertRaises(
             Exception,
-            differ.run,
-            ['a', 'b'])
+            grapher.run,
+            ['dbnav.sqlite'])
         self.assertRaises(
-            Exception,
-            differ.run,
-            ['dbnav.sqlite/user', 'b'])
-        self.assertRaises(
-            Exception,
-            differ.run,
-            ['dbnav.sqlite/unknown', 'dbnav-c.sqlite/unknown'])
-        self.assertRaises(
-            Exception,
-            differ.run,
-            ['dbnav.sqlite/user', 'dbnav-c.sqlite/unknown'])
+            UnknownTableException,
+            grapher.run,
+            ['dbnav.sqlite/unknown?'])
 
     def test_writer(self):
         """Tests the writer"""
@@ -62,8 +56,20 @@ class DifferTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            mute_stderr(differ.main))
+            mute_stderr(grapher.main))
 
         self.assertEqual(
             0,
-            differ.main(['dbnav.sqlite/user', 'dbnav.sqlite/user2']))
+            grapher.main(['dbnav.sqlite/user?id=1']))
+
+    def test_options(self):
+        """Tests options"""
+
+        config = Config.init(
+            ['-r', '--database', 'dbnav.sqlite/article'],
+            grapher.args.parser)
+        config.database = 'db'
+
+        self.assertEqual(
+            12,
+            len(grapher.DatabaseGrapher(config).run()))

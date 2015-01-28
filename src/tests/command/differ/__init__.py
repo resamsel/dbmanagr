@@ -21,9 +21,10 @@
 import glob
 
 from os import path
+
 from tests.sources import init_sources
 from tests.testcase import create_test
-from dbnav import differ
+from dbnav.command import differ
 
 DIR = path.dirname(__file__)
 TEST_CASES = map(

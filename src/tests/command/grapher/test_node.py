@@ -19,35 +19,14 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav import formatter
-from dbnav.command.grapher.node import NameNode
+from dbnav.command.grapher import node
 
 
-class FormatterTestCase(ParentTestCase):
-    def test_default_formatter(self):
-        """Tests the formatter.DefaultFormatter class"""
+class NodeTestCase(ParentTestCase):
+    def test_column_node_hash(self):
+        """Tests the node.ColumnNode __hash__ method"""
 
         self.assertEqual(
-            'a',
-            formatter.DefaultFormatter().format_item('a')
-        )
-        self.assertEqual(
-            'a',
-            formatter.DefaultFormatter().format_row(('a'))
-        )
-        self.assertEqual(
-            'a',
-            formatter.DefaultFormatter().format_node('a')
-        )
-        self.assertEqual(
-            'a',
-            formatter.DefaultFormatter().format_table_node('a')
-        )
-
-    def test_formatter(self):
-        """Tests the formatter.Formatter class"""
-
-        self.assertEqual(
-            'a',
-            formatter.Formatter.format_node(NameNode('a'))
+            hash(str('a')),
+            node.ColumnNode('a').__hash__()
         )

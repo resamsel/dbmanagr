@@ -37,9 +37,9 @@ from dbnav.model.value import Value
 from dbnav.model.row import Row
 from dbnav.model.tablecomment import COMMENT_TITLE
 
-from dbnav.navigator.dto import to_dto
-from dbnav.navigator.args import parser
-from dbnav.navigator.writer import SimplifiedWriter
+from .dto import to_dto
+from .args import parser
+from .writer import SimplifiedWriter
 
 logger = logging.getLogger(__name__)
 

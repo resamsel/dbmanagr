@@ -32,6 +32,7 @@ from dbnav.model.foreignkey import ForeignKey
 from dbnav.model.database import Database
 from dbnav.model.table import Table
 from dbnav.model.tablecomment import TableComment
+from dbnav.utils import escape_statement
 
 logger = logging.getLogger(__name__)
 
@@ -103,14 +104,15 @@ class DatabaseConnection(BaseItem):
 
     @LogWith(logger, log_args=False, log_result=False)
     def execute(self, query, name='Unnamed'):
-        timer = LogTimer(logger, 'Execution', 'Executing:\n%s', query)
         cur = self.cursor()
-        timer.stop()
-
         if not cur:
             raise Exception('Database is not connected')
 
-        return cur.execute(query)
+        timer = LogTimer(logger, 'Execution', 'Executing:\n%s', query)
+        try:
+            return cur.execute(escape_statement(query))
+        finally:
+            timer.stop()
 
     @LogWith(logger, log_args=False, log_result=False)
     def queryall(self, query, name='Unnamed', mapper=None):

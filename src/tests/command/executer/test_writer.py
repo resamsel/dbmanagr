@@ -18,21 +18,24 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import glob
+from nose.tools import assert_equal
+from datetime import date
 
-from os import path
-from tests.sources import init_sources
-from tests.testcase import create_test
-from dbnav import navigator
-
-DIR = path.dirname(__file__)
-TEST_CASES = map(
-    lambda p: path.basename(p),
-    glob.glob(path.join(DIR, 'resources/testcase-*')))
+from dbnav.command.executer import writer
 
 
-def load():
-    init_sources(DIR)
-    return map(
-        lambda tc: create_test(navigator, 'dbnav', DIR, tc, ['-T']),
-        TEST_CASES)
+def test_sql_escape():
+    """Tests the sql_escape function"""
+
+    assert_equal(
+        "'a'",
+        writer.sql_escape('a'))
+    assert_equal(
+        "4",
+        writer.sql_escape(4))
+    assert_equal(
+        "true",
+        writer.sql_escape(True))
+    assert_equal(
+        "'{}'".format(date.today()),
+        writer.sql_escape(date.today()))
