@@ -24,6 +24,8 @@ from dbnav.logger import logger, LogWith
 from dbnav.options import format_value, UriOptionsParser
 from dbnav.driver import DatabaseDriver
 
+from .version import stat_activity_query
+
 
 @LogWith(logger)
 def restriction(alias, column, operator, value, map_null_operator=True):
@@ -80,6 +82,10 @@ class PostgreSQLDriver(DatabaseDriver):
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def statement_activity(self, con):
+        return con.execute(stat_activity_query(
+            con._engine.dialect.server_version_info))
 
 
 class PostgreSQLOptionsParser(UriOptionsParser):

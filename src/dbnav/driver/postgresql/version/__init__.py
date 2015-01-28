@@ -18,20 +18,13 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.writer import FormatWriter
-from dbnav.formatter import Formatter, DefaultFormatter
 
+def stat_activity_query(version):
+    if version[0] == 9 and version[1] >= 2:
+        from .v92 import STAT_ACTIVITY
+        return STAT_ACTIVITY
+    elif version[:2] == (9, 1):
+        from .v91 import STAT_ACTIVITY
+        return STAT_ACTIVITY
 
-class StatementActivityWriter(FormatWriter):
-    def __init__(self, options):
-        FormatWriter.__init__(
-            self,
-            u'Database\tUser\tPID\tClient\tStart\tQuery\n{0}',
-            u'{row.database_name}\t{row.username}\t{row.pid}\t'
-            u'{row.client_address}\t{row.query_start}\t{row.query}')
-        Formatter.set(DefaultFormatter())
-        self.options = options
-
-    def itemtostring(self, item):
-        row = item.row
-        return self.item_format.format(row=row)
+    raise Exception('Server version {} not supported'.format(version))

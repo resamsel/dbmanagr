@@ -23,7 +23,7 @@ from dbnav.args import parent_parser, format_group, create_parser
 from .writer import SqlInsertWriter, SqlUpdateWriter, SqlDeleteWriter
 from .writer import YamlWriter, FormattedWriter
 
-parent = parent_parser()
+parent = parent_parser(daemonable=True)
 
 group = format_group(
     parent,

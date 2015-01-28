@@ -20,15 +20,14 @@
 
 from dbnav.args import parent_parser, format_group, create_parser
 
-from .writer import StatusWriter
-
 parent = parent_parser()
 
-group = format_group(
-    parent,
-    StatusWriter)
+group = format_group(parent)
 
 parser = create_parser(
     prog='dbstat',
     description='A database status tool',
     parents=[parent])
+parser.add_argument(
+    'uri',
+    help='the URI to a DBMS')

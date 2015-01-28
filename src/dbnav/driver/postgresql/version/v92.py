@@ -18,20 +18,13 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.writer import FormatWriter
-from dbnav.formatter import Formatter, DefaultFormatter
-
-
-class StatementActivityWriter(FormatWriter):
-    def __init__(self, options):
-        FormatWriter.__init__(
-            self,
-            u'Database\tUser\tPID\tClient\tStart\tQuery\n{0}',
-            u'{row.database_name}\t{row.username}\t{row.pid}\t'
-            u'{row.client_address}\t{row.query_start}\t{row.query}')
-        Formatter.set(DefaultFormatter())
-        self.options = options
-
-    def itemtostring(self, item):
-        row = item.row
-        return self.item_format.format(row=row)
+STAT_ACTIVITY = """SELECT
+        datname database_name,
+        pg_backend_pid() pid,
+        usename username,
+        client_addr client_address,
+        query_start query_start,
+        regexp_replace(query, '\s+', ' ', 'g') query
+    FROM pg_stat_activity
+    ORDER BY datname
+"""

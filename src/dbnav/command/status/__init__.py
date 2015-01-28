@@ -19,21 +19,36 @@
 #
 
 import sys
-import re
 import logging
 
-from collections import OrderedDict
-
 from dbnav import Wrapper
-from dbnav.logger import LogWith
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.writer import Writer
+from dbnav.dto.mapper import to_dto
+from dbnav.jsonable import Jsonable, from_json
 
 from .args import parser
-from .writer import StatusWriter
+from .writer import StatementActivityWriter
 
 logger = logging.getLogger(__name__)
+
+
+class RowItem(Jsonable):
+    def __init__(self, row):
+        self.row = row
+
+    def __hash__(self):
+        return hash(self.row.row)
+
+    def __eq__(self, o):
+        return hash(self) == hash(o)
+
+    @staticmethod
+    def from_json(d):
+        return RowItem(
+            from_json(d['row'])
+        )
 
 
 class DatabaseStatus(Wrapper):
@@ -43,7 +58,7 @@ class DatabaseStatus(Wrapper):
         if options.formatter:
             Writer.set(options.formatter(options))
         else:
-            Writer.set(StatusWriter(options))
+            Writer.set(StatementActivityWriter(options))
 
     def execute(self):
         options = self.options
@@ -56,7 +71,8 @@ class DatabaseStatus(Wrapper):
             if connection.matches(opts):
                 try:
                     connection.connect(opts.database)
-                    return opts.driver.statements()
+                    return to_dto(map(
+                        RowItem, opts.statement_activity(connection)))
                 finally:
                     connection.close()
 

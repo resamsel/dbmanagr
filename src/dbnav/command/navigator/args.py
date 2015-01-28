@@ -19,13 +19,14 @@
 #
 
 from dbnav.args import parent_parser, format_group, create_parser
+from dbnav.writer import TestWriter
 
 from .writer import SimplifiedWriter, SimpleWriter, JsonWriter
 from .writer import AutocompleteWriter
 
-parent = parent_parser()
+parent = parent_parser(daemonable=True)
 
-group = format_group(parent)
+group = format_group(parent, TestWriter)
 group.add_argument(
     '-D',
     '--default',

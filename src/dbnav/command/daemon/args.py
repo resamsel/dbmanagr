@@ -20,7 +20,7 @@
 
 from dbnav.args import parent_parser, create_parser
 
-parent = parent_parser(daemon=True)
+parent = parent_parser(daemonable=True, daemon=True)
 
 parser = create_parser(
     prog='dbdaemon',
