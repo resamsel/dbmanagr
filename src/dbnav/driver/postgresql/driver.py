@@ -22,6 +22,9 @@ from sqlalchemy import Integer
 
 from dbnav.logger import logger, LogWith
 from dbnav.options import format_value, UriOptionsParser
+from dbnav.driver import DatabaseDriver
+
+from .version import stat_activity_query
 
 
 @LogWith(logger)
@@ -64,7 +67,7 @@ def restriction(alias, column, operator, value, map_null_operator=True):
     return ' '.join([lhs, operator, rhs])
 
 
-class PostgreSQLDriver:
+class PostgreSQLDriver(DatabaseDriver):
     def __init__(self):
         self.user = None
         self.host = None
@@ -79,6 +82,10 @@ class PostgreSQLDriver:
 
     def __repr__(self):
         return str(self.__dict__)
+
+    def statement_activity(self, con):
+        return con.execute(stat_activity_query(
+            con._engine.dialect.server_version_info).format(**self.__dict__))
 
 
 class PostgreSQLOptionsParser(UriOptionsParser):

@@ -28,6 +28,7 @@ from decimal import Decimal
 
 from dbnav.logger import LogWith
 from dbnav.queryfilter import QueryFilter, OrOp, AndOp
+from dbnav.utils import escape_statement
 
 OR_OPERATOR = '|'
 AND_OPERATOR = '&'
@@ -96,7 +97,7 @@ def format_value(column, value):
             return '%d' % int(value)
         except ValueError:
             pass
-    return u"'%s'" % value.replace('%', '%%').replace("'", "''")
+    return u"'%s'" % escape_statement(value).replace("'", "''")
 
 
 def parse_filter(s):
@@ -203,12 +204,13 @@ class FileOptionsParser(OptionsParser):
                 driver.filter = parse_filter(url.query)
                 paths.append(url.query)
 
+            driver.show_code = len(paths)
             driver.show = {
                 1: 'connections',
                 2: 'tables',
                 3: 'columns',
                 4: 'values'
-            }.get(len(paths), 'connections')
+            }.get(driver.show_code, 'connections')
 
         return driver
 
@@ -237,13 +239,14 @@ class UriOptionsParser(OptionsParser):
                 driver.filter = parse_filter(url.query)
                 paths.append(url.query)
 
+            driver.show_code = len(paths)
             driver.show = {
                 1: 'connections',
                 2: 'databases',
                 3: 'tables',
                 4: 'columns',
                 5: 'values'
-            }.get(len(paths), 'connections')
+            }.get(driver.show_code, 'connections')
 
         if driver.user and driver.host:
             driver.gen = OPTION_URI_FORMAT % (

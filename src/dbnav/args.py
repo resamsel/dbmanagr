@@ -22,7 +22,6 @@ import os
 import argparse
 import logging
 
-from dbnav.writer import TestWriter
 from dbnav.version import __version__
 from dbnav import __drivers__
 
@@ -34,15 +33,27 @@ PARSER_ARGS = {
 }
 
 
-class LogLevel(argparse.Action):
+class CommaSeparatedList(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        if values == 'trace':
-            values = 'debug'
-            setattr(namespace, 'trace', True)
+        setattr(namespace, self.dest, values.split(','))
+
+
+class CommaSeparatedStringList(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
         setattr(
             namespace,
             self.dest,
-            getattr(logging, str(values.upper()), None))
+            ','.join(map(lambda s: "'{0}'".format(s), values.split(',')))
+        )
+
+
+class CommaSeparatedPlainList(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(
+            namespace,
+            self.dest,
+            ','.join(values.split(','))
+        )
 
 
 def default_log_file(dirs=None):
@@ -54,7 +65,7 @@ def default_log_file(dirs=None):
     return os.path.expanduser('~/dbnav.log')
 
 
-def parent_parser(daemonable=True, daemon=False):
+def parent_parser(daemonable=False, daemon=False):
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument(
         '--version',
@@ -69,26 +80,31 @@ def parent_parser(daemonable=True, daemon=False):
         help='set loglevel to trace')
     group.add_argument(
         '--debug',
+        dest='loglevel',
         action='store_const',
         const=logging.DEBUG,
         help='set loglevel to debug')
     group.add_argument(
         '--info',
+        dest='loglevel',
         action='store_const',
         const=logging.INFO,
         help='set loglevel to info')
     group.add_argument(
         '--warning',
+        dest='loglevel',
         action='store_const',
         const=logging.WARNING,
         help='set loglevel to warning')
     group.add_argument(
         '--error',
+        dest='loglevel',
         action='store_const',
         const=logging.ERROR,
         help='set loglevel to error')
     group.add_argument(
         '--critical',
+        dest='loglevel',
         action='store_const',
         const=logging.CRITICAL,
         help='set loglevel to critical')
@@ -130,15 +146,16 @@ def parent_parser(daemonable=True, daemon=False):
     return parser
 
 
-def format_group(parser, test_writer=TestWriter):
+def format_group(parser, test_writer=None):
     group = parser.add_argument_group('formatters')
-    group.add_argument(
-        '-T',
-        '--test',
-        help='output format: test specific',
-        dest='formatter',
-        action='store_const',
-        const=test_writer)
+    if test_writer:
+        group.add_argument(
+            '-T',
+            '--test',
+            help='output format: test specific',
+            dest='formatter',
+            action='store_const',
+            const=test_writer)
     return group
 
 

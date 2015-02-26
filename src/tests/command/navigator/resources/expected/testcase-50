@@ -1,0 +1,9 @@
+_comment	Table
+address	Table
+article	Table
+blog	Table
+blog_user	Table
+sqlite_sequence	Table
+user	Table
+user2	Table
+user_address	Table

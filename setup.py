@@ -64,12 +64,13 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'dbnav = dbnav.navigator:main',
-            'dbexport = dbnav.exporter:main',
-            'dbgraph = dbnav.grapher:main',
-            'dbexec = dbnav.executer:main',
-            'dbdiff = dbnav.differ:main',
-            'dbdaemon = dbnav.daemon:main'
+            'dbnav = dbnav.command.navigator:main',
+            'dbexport = dbnav.command.exporter:main',
+            'dbgraph = dbnav.command.grapher:main',
+            'dbexec = dbnav.command.executer:main',
+            'dbdiff = dbnav.command.differ:main',
+            'dbdaemon = dbnav.command.daemon:main',
+            'dbstat = dbnav.command.status:main'
         ]
     },
 

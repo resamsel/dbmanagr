@@ -163,10 +163,41 @@ class UtilsTestCase(DbTestCase):
 
         self.assertEqual(
             user.column('id'),
-            utils.foreign_key_or_column(user, 'id'))
+            utils.foreign_key_or_column(user, 'id')
+        )
         self.assertEqual(
             article.foreign_key('user_id'),
-            utils.foreign_key_or_column(article, 'user_id'))
+            utils.foreign_key_or_column(article, 'user_id')
+        )
         self.assertEqual(
             None,
-            utils.foreign_key_or_column(article, 'foo'))
+            utils.foreign_key_or_column(article, 'foo')
+        )
+
+    def test_unicode_decode(self):
+        """Tests the utils.unicode_decode function"""
+
+        self.assertEqual(
+            u'3.14',
+            utils.unicode_decode(3.14)
+        )
+
+    def test_filter_keys(self):
+        """Tests the utils.filter_keys function"""
+
+        self.assertEqual(
+            {'a': 1, 'b': 2},
+            utils.filter_keys({'a': 1, 'b': 2, 'c': 3}, 'a', 'b')
+        )
+        self.assertEqual(
+            {},
+            utils.filter_keys({'a': 1, 'b': 2, 'c': 3}, 'd', 'e')
+        )
+
+    def test_freeze(self):
+        """Tests the utils.freeze function"""
+
+        self.assertEqual(
+            ('a', 'b'),
+            utils.freeze(['a', 'b'])
+        )

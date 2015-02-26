@@ -22,10 +22,10 @@
 import sys
 from workflow import Workflow
 
-__version__ = "0.22.0"
+__version__ = "0.23.0"
 
 def main(wf):
-    from dbnav import navigator
+    from dbnav.command import navigator
 
     wf.logger.debug('Args: %s', wf.args)
 
@@ -48,7 +48,10 @@ if __name__ == '__main__':
     wf = Workflow(
         libraries=[
             'lib/dbnav-{}-py2.7.egg'.format(__version__),
-            'lib/ijson-2.0-py2.7.egg'
+            'lib/ijson-2.0-py2.7.egg',
+            'lib/SQLAlchemy-0.9.8-py2.7-macosx-10.10-x86_64.egg',
+            'lib/pg8000-1.10.1-py2.7.egg',
+            'lib/PyMySQL3-0.5-py2.7.egg'
         ],
         update_settings={
             'github_slug': 'resamsel/dbnavigator',

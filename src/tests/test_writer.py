@@ -30,3 +30,19 @@ class WriterTestCase(ParentTestCase):
             [''],
             writer.DefaultWriter().str([''])
         )
+
+    def test_itemtostring(self):
+        """Tests the Writer.itemtostring method"""
+
+        self.assertEqual(
+            u"['']",
+            writer.DefaultWriter().itemtostring([''])
+        )
+
+        orig = writer.Writer.writer
+        writer.Writer.set(writer.DefaultWriter())
+        self.assertEqual(
+            u"['']",
+            writer.Writer.itemtostring([''])
+        )
+        writer.Writer.set(orig)
