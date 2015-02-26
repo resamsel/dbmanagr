@@ -131,9 +131,9 @@ release-%:
 	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' \
 		-i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
 	$(MAKE) README.md
-	$(GIT) rm dist/dbnav*-py2.7.egg
-	$(SETUPTOOLS) bdist_egg
-	$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
+	#$(GIT) rm dist/dbnav*-py2.7.egg
+	#$(SETUPTOOLS) bdist_egg
+	#$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
 	$(MAKE) assemble-alfred
 
 clean:
