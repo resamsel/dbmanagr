@@ -33,15 +33,27 @@ PARSER_ARGS = {
 }
 
 
-class LogLevel(argparse.Action):
+class CommaSeparatedList(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        if values == 'trace':
-            values = 'debug'
-            setattr(namespace, 'trace', True)
+        setattr(namespace, self.dest, values.split(','))
+
+
+class CommaSeparatedStringList(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
         setattr(
             namespace,
             self.dest,
-            getattr(logging, str(values.upper()), None))
+            ','.join(map(lambda s: "'{0}'".format(s), values.split(',')))
+        )
+
+
+class CommaSeparatedPlainList(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(
+            namespace,
+            self.dest,
+            ','.join(values.split(','))
+        )
 
 
 def default_log_file(dirs=None):

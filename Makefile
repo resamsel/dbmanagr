@@ -31,6 +31,9 @@ ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
 
 IJSON_URL = https://pypi.python.org/packages/source/i/ijson/ijson-2.0.tar.gz
+SQLALCHEMY_URL = https://pypi.python.org/packages/source/S/SQLAlchemy/SQLAlchemy-0.9.8.tar.gz
+POSTGRESQL_URL = https://pypi.python.org/packages/source/p/pg8000/pg8000-1.10.1.tar.gz
+MYSQL_URL = https://pypi.python.org/packages/source/P/PyMySQL3/PyMySQL3-0.5.tar.gz
 
 init:
 	mkdir -p $(TARGETS)
@@ -40,12 +43,15 @@ assemble: init assemble-main assemble-alfred
 assemble-main:
 	$(SETUPTOOLS) bdist_egg
 
-assemble-alfred: assemble-main assemble-ijson $(RESOURCES)
+assemble-alfred: assemble-main assemble-ijson assemble-sqlalchemy assemble-postgresql assemble-mysql $(RESOURCES)
 	rm -rf $(ALFRED)
 	mkdir -p $(ALFRED) $(ALFRED)/lib
 	cp -r $(RESOURCES) $(ALFRED)
 	cp dist/dbnav*-py2.7.egg $(ALFRED)/lib
-	cp $(TARGET)/ijson-2.0/dist/ijson-2.0-py2.7.egg $(ALFRED)/lib
+	cp $(TARGET)/ijson-2.0/dist/*py2.7*.egg $(ALFRED)/lib
+	cp $(TARGET)/SQLAlchemy-0.9.8/dist/*py2.7*.egg $(ALFRED)/lib
+	cp $(TARGET)/pg8000-1.10.1/dist/*py2.7*.egg $(ALFRED)/lib
+	cp $(TARGET)/PyMySQL3-0.5/dist/*py2.7*.egg $(ALFRED)/lib
 	rm -f $(ARCHIVE)
 	cd $(ALFRED); $(ZIP) -rq ../../$(ARCHIVE) . \
 		--exclude images/.DS_Store "images/dbnavigator.sketch/*"
@@ -56,6 +62,27 @@ $(TARGET)/ijson-2.0.tar.gz: init
 assemble-ijson: $(TARGET)/ijson-2.0.tar.gz
 	tar -C $(TARGET) -xzf "$^"
 	cd $(TARGET)/ijson-2.0; $(SETUPTOOLS) bdist_egg
+
+$(TARGET)/SQLAlchemy-0.9.8.tar.gz: init
+	curl -o "$@" "$(SQLALCHEMY_URL)"
+
+assemble-sqlalchemy: $(TARGET)/SQLAlchemy-0.9.8.tar.gz
+	tar -C $(TARGET) -xzf "$^"
+	cd $(TARGET)/SQLAlchemy-0.9.8; $(SETUPTOOLS) bdist_egg
+
+$(TARGET)/pg8000-1.10.1.tar.gz: init
+	curl -o "$@" "$(POSTGRESQL_URL)"
+
+assemble-postgresql: $(TARGET)/pg8000-1.10.1.tar.gz
+	tar -C $(TARGET) -xzf "$^"
+	cd $(TARGET)/pg8000-1.10.1; $(SETUPTOOLS) bdist_egg
+
+$(TARGET)/PyMySQL3-0.5.tar.gz: init
+	curl -o "$@" "$(MYSQL_URL)"
+
+assemble-mysql: $(TARGET)/PyMySQL3-0.5.tar.gz
+	tar -C $(TARGET) -xzf "$^"
+	cd $(TARGET)/PyMySQL3-0.5; $(SETUPTOOLS) bdist_egg
 
 build: assemble test
 

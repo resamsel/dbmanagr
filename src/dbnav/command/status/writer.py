@@ -22,17 +22,35 @@ from dbnav.writer import FormatWriter
 from dbnav.formatter import Formatter, DefaultFormatter
 
 DEFAULT_FORMAT = u'{0}'
-VERBOSE_FORMAT = u'PID\tDatabase\tUser\tClient\tQuery Start\tBlocked by\t'\
-    u'Query\n{0}'
+FORMATS = {
+    0: u'{0}',
+    1: u'PID\tDatabase\tUser\tClient\tTX Start\tQuery Start\tState\t'
+       u'Blocked by\tQuery\n{0}',
+    2: u'PID\tDatabase\tUser\tClient\tTX Start\tTX Duration\tQuery Start\t'
+       u'Query Duration\tState\tBlocked by\tQuery\n{0}'
+}
+ITEM_FORMATS = {
+    0: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
+       u'{row.transaction_start:%Y-%m-%d %H:%M:%S}\t'
+       u'{row.query_start:%Y-%m-%d %H:%M:%S}\t{row.state}\t'
+       u'{row.blocked_by}\t{row.query}',
+    1: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
+       u'{row.transaction_start:%Y-%m-%d %H:%M:%S}\t'
+       u'{row.query_start:%Y-%m-%d %H:%M:%S}\t{row.state}\t'
+       u'{row.blocked_by}\t{row.query}',
+    2: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
+       u'{row.transaction_start}\t{row.transaction_duration}\t'
+       u'{row.query_start}\t{row.query_duration}\t{row.state}\t'
+       u'{row.blocked_by}\t{row.query}'
+}
 
 
 class StatementActivityWriter(FormatWriter):
     def __init__(self, options):
         FormatWriter.__init__(
             self,
-            VERBOSE_FORMAT if options.verbose > 0 else DEFAULT_FORMAT,
-            u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
-            u'{row.query_start}\t{row.state}\t{row.blocked_by}\t{row.query}')
+            FORMATS.get(options.verbose, FORMATS[0]),
+            ITEM_FORMATS.get(options.verbose, ITEM_FORMATS[0]))
         Formatter.set(DefaultFormatter())
         self.options = options
 

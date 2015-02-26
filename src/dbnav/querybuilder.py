@@ -168,8 +168,8 @@ def create_label(alias_format):
 
 def simplify(table, comment, key, d):
     if comment:
-        d[key] = comment.__dict__[key].format(table.name, **d)
-        d['id'] = d['{0}_{1}'.format(
+        d[key] = unicode(comment.__dict__[key]).format(table.name, **d)
+        d['id'] = d[u'{0}_{1}'.format(
             comment.aliases[table.name], table.primary_key)]
     else:
         d[key] = create_title(

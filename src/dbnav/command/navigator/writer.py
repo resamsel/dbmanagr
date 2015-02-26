@@ -25,7 +25,7 @@ from dbnav.formatter import JsonFormatter, SimpleFormatter, SimplifiedFormatter
 
 class SimplifiedWriter(FormatWriter):
     def __init__(self):
-        FormatWriter.__init__(self, u'{0}')
+        FormatWriter.__init__(self, u'{0}\n')
         Formatter.set(SimplifiedFormatter())
 
 
@@ -51,5 +51,6 @@ class SimpleWriter(FormatWriter):
         FormatWriter.__init__(
             self,
             u"""Id\tTitle\tSubtitle\tAutocomplete
-{0}""")
+{0}
+""")
         Formatter.set(SimpleFormatter())

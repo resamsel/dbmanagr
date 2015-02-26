@@ -19,6 +19,7 @@
 #
 
 from dbnav.args import parent_parser, format_group, create_parser
+from dbnav.args import CommaSeparatedPlainList, CommaSeparatedStringList
 
 from .writer import StatementActivityWriter
 
@@ -40,6 +41,32 @@ parser = create_parser(
 parser.add_argument(
     'uri',
     help='the URI to a DBMS')
+parser.add_argument(
+    '-u',
+    '--username',
+    default='',
+    help='filter the user')
+parser.add_argument(
+    '-p',
+    '--pids',
+    action=CommaSeparatedPlainList,
+    default=-1,
+    help='filter the process ids of the activity; multiple columns can be '
+         'specified by separating them with a comma')
+parser.add_argument(
+    '-s',
+    '--states',
+    action=CommaSeparatedStringList,
+    default="''",
+    help='filter the states of the activity; multiple columns can be '
+         'specified by separating them with a comma')
+parser.add_argument(
+    '-a',
+    '--all',
+    dest='disabled',
+    default=False,
+    action='store_true',
+    help='show all activity, even those with insufficient privileges')
 parser.add_argument(
     '-v',
     '--verbose',

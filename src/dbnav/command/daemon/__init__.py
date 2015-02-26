@@ -56,7 +56,9 @@ class DaemonHTTPServer(BaseHTTPServer.HTTPServer):
 
 class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_POST(self):  # noqa
-        from dbnav import navigator, exporter, differ, executer, grapher
+        from dbnav.command import navigator, exporter, differ, executer
+        from dbnav.command import grapher
+
         commands = {
             'navigator': navigator,
             'exporter': exporter,

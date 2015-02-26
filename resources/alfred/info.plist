@@ -66,7 +66,7 @@
 				<key>runningsubtext</key>
 				<string>Retrieving...</string>
 				<key>script</key>
-				<string>python alfred.py "{query}"</string>
+				<string>python alfred.py --daemon "{query}"</string>
 				<key>subtext</key>
 				<string>Shows database contents</string>
 				<key>title</key>
@@ -95,7 +95,7 @@
 				<key>runningsubtext</key>
 				<string>Searching...</string>
 				<key>script</key>
-				<string>python alfred.py "skiline@localhost/skiline/resort?id={query}|~{query}%"</string>
+				<string>python alfred.py --daemon "skiline@localhost/skiline/resort?id={query}|~{query}%"</string>
 				<key>title</key>
 				<string>Skiresort</string>
 				<key>type</key>

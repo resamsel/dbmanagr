@@ -23,22 +23,31 @@ STAT_ACTIVITY = """select
         sa.pid pid,
         sa.usename username,
         coalesce(sa.client_addr || ':' || sa.client_port, '') as client,
+        sa.xact_start transaction_start,
         sa.query_start query_start,
-        case
-            when sa.query = '<IDLE>' then 'idle'
-            when sa.query = '<IDLE> in transaction' then 'idle in transaction'
-            when sa.query = '<insufficient privilege>' then 'disabled'
-            when sa.query not like '<%>' then 'active'
-            else '?'
-        end state,
+        sa.state state,
         regexp_replace(sa.query, '\s+', ' ', 'g') query,
         sa.waiting blocked,
         case
             when sa.waiting then string_agg(l.virtualxid, ',')
             else ''
-        end blocked_by
+        end blocked_by,
+        now() - sa.xact_start as transaction_duration,
+        now() - sa.query_start as query_duration
     from pg_stat_activity sa
         left join pg_locks l on l.pid = sa.pid
-    group by 1, 2, 3, 4, 5, 6, 7, 8
+    where
+        '{database}' in (sa.datname, '')
+        and (
+            sa.state in ({states})
+            or array[{states}] = array['']
+        )
+        and (sa.state != 'disabled' or {disabled})
+        and '{username}' in (sa.usename, '')
+        and (
+            sa.pid in ({pids})
+            or array[{pids}] = array[-1]
+        )
+    group by 1, 2, 3, 4, 5, 6, 7, 8, 9
     order by sa.datname
 """

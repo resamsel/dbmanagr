@@ -70,4 +70,5 @@ complete -o nospace -F _dbnav_completer dbexec
 complete -o nospace -F _dbnav_completer dbexport
 complete -o nospace -F _dbnav_completer dbgraph
 complete -o nospace -F _dbnav_completer dbnav
+complete -o nospace -F _dbnav_completer dbstat
 complete            -F _dbdaemon_completer dbdaemon

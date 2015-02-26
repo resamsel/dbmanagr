@@ -85,7 +85,7 @@ class PostgreSQLDriver(DatabaseDriver):
 
     def statement_activity(self, con):
         return con.execute(stat_activity_query(
-            con._engine.dialect.server_version_info))
+            con._engine.dialect.server_version_info).format(**self.__dict__))
 
 
 class PostgreSQLOptionsParser(UriOptionsParser):

@@ -204,12 +204,13 @@ class FileOptionsParser(OptionsParser):
                 driver.filter = parse_filter(url.query)
                 paths.append(url.query)
 
+            driver.show_code = len(paths)
             driver.show = {
                 1: 'connections',
                 2: 'tables',
                 3: 'columns',
                 4: 'values'
-            }.get(len(paths), 'connections')
+            }.get(driver.show_code, 'connections')
 
         return driver
 
@@ -238,13 +239,14 @@ class UriOptionsParser(OptionsParser):
                 driver.filter = parse_filter(url.query)
                 paths.append(url.query)
 
+            driver.show_code = len(paths)
             driver.show = {
                 1: 'connections',
                 2: 'databases',
                 3: 'tables',
                 4: 'columns',
                 5: 'values'
-            }.get(len(paths), 'connections')
+            }.get(driver.show_code, 'connections')
 
         if driver.user and driver.host:
             driver.gen = OPTION_URI_FORMAT % (

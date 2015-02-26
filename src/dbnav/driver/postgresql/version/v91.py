@@ -23,6 +23,7 @@ STAT_ACTIVITY = """select
         sa.procpid pid,
         sa.usename username,
         coalesce(sa.client_addr || ':' || sa.client_port, '') as client,
+        sa.xact_start transaction_start,
         sa.query_start query_start,
         case
             when sa.current_query = '<IDLE>' then 'idle'
@@ -37,9 +38,42 @@ STAT_ACTIVITY = """select
         case
             when sa.waiting then string_agg(l.virtualxid, ',')
             else ''
-        end blocked_by
+        end blocked_by,
+        now() - sa.xact_start as transaction_duration,
+        now() - sa.query_start as query_duration
     from pg_stat_activity sa
         left join pg_locks l on l.pid = sa.procpid
-    group by 1, 2, 3, 4, 5, 6, 7, 8
+    where
+        '{database}' in (sa.datname, '')
+        and (
+            case
+                when sa.current_query = '<IDLE>' then 'idle'
+                when sa.current_query = '<IDLE> in transaction'
+                    then 'idle in transaction'
+                when sa.current_query = '<insufficient privilege>'
+                    then 'disabled'
+                when sa.current_query not like '<%>' then 'active'
+                else '?'
+            end in ({states})
+            or array[{states}] = array['']
+        )
+        and (
+            {disabled}
+            or case
+                when sa.current_query = '<IDLE>' then 'idle'
+                when sa.current_query = '<IDLE> in transaction'
+                    then 'idle in transaction'
+                when sa.current_query = '<insufficient privilege>'
+                    then 'disabled'
+                when sa.current_query not like '<%>' then 'active'
+                else '?'
+            end != 'disabled'
+        )
+        and '{username}' in (sa.usename, '')
+        and (
+            sa.procpid in ({pids})
+            or array[{pids}] = array[-1]
+        )
+    group by 1, 2, 3, 4, 5, 6, 7, 8, 9
     order by sa.datname
 """

@@ -68,7 +68,7 @@ class DatabaseStatus(Wrapper):
         # search exact match of connection
         for connection in cons:
             opts = options.get(connection.dbms)
-            if connection.matches(opts):
+            if opts.show_code > 1 and connection.matches(opts):
                 try:
                     connection.connect(opts.database)
                     return to_dto(map(
