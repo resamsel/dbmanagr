@@ -41,10 +41,11 @@ logger = logging.getLogger(__name__)
 
 
 class RowItem(Jsonable):
-    def __init__(self, row, include, exclude):
+    def __init__(self, row, include, exclude, substitutes):
         self.row = row
         self.include = include
         self.exclude = exclude
+        self.substitutes = substitutes
 
     def __hash__(self):
         return hash(self.row.row)
@@ -57,7 +58,8 @@ class RowItem(Jsonable):
         return RowItem(
             from_json(d['row']),
             from_json(d['include']),
-            from_json(d['exclude'])
+            from_json(d['exclude']),
+            from_json(d['substitutes'])
         )
 
 
@@ -66,7 +68,7 @@ def fk_by_a_table_name(fks):
 
 
 @LogWith(logger)
-def create_items(connection, items, include, exclude):
+def create_items(connection, items, include, exclude, substitutes):
     results_pre = []
     results_post = []
     includes = {}
@@ -136,7 +138,8 @@ def create_items(connection, items, include, exclude):
                     limit=-1,
                     simplify=False),
                 remove_prefix(fk.a.name, include),
-                remove_prefix(fk.a.name, exclude))
+                remove_prefix(fk.a.name, exclude),
+                remove_prefix(fk.a.name, substitutes))
         else:
             # backward reference, must be in post
             results_post += create_items(
@@ -147,10 +150,15 @@ def create_items(connection, items, include, exclude):
                     limit=-1,
                     simplify=False),
                 remove_prefix(fk.a.table.name, include),
-                remove_prefix(fk.a.table.name, exclude))
+                remove_prefix(fk.a.table.name, exclude),
+                remove_prefix(fk.a.table.name, substitutes))
 
     return results_pre + map(
-        lambda i: RowItem(to_dto(i), prefixes(include), prefixes(exclude)),
+        lambda i: RowItem(
+            to_dto(i),
+            prefixes(include),
+            prefixes(exclude),
+            prefixes(substitutes)),
         items) + results_post
 
 
@@ -190,7 +198,8 @@ class DatabaseExporter(Wrapper):
                             opts.limit,
                             simplify=False),
                         opts.include,
-                        opts.exclude)
+                        opts.exclude,
+                        opts.substitutes)
                     # remove duplicates
                     return list(OrderedDict.fromkeys(items))
                 finally:

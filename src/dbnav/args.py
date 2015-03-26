@@ -38,6 +38,19 @@ class CommaSeparatedList(argparse.Action):
         setattr(namespace, self.dest, values.split(','))
 
 
+class CommaSeparatedDict(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(
+            namespace,
+            self.dest,
+            dict(map(
+                lambda s: map(
+                    lambda s: s.strip(),
+                    (s.split('=', 1) + [''])[:2]),
+                filter(len, values.split(','))))
+        )
+
+
 class CommaSeparatedStringList(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(

@@ -52,11 +52,31 @@ def prefix(item, separator='.'):
 
 
 def prefixes(items):
+    if items is None:
+        return None
+
+    if type(items) is dict:
+        return dict(filter(
+            lambda (k, v): len(prefix(k)), map(
+                lambda (k, v): (prefix(k), v),
+                items.iteritems())
+        ))
+
     return set(filter(len, map(prefix, items)))
 
 
 def remove_prefix(prefix, items):
+    if items is None:
+        return None
+
     p = '%s.' % prefix
+
+    if type(items) is dict:
+        return dict(map(
+            lambda (k, v): (re.sub('^%s' % p, '', k), v),
+            items.iteritems()
+        ))
+
     return [re.sub('^%s' % p, '', i) for i in items if i.startswith(p)]
 
 

@@ -51,7 +51,7 @@ class GraphvizFormatter(DefaultFormatter):
 
 class GraphWriter(FormatWriter):
     def __init__(self, options=None):
-        FormatWriter.__init__(self, u'{0}')
+        FormatWriter.__init__(self, u'{0}\n')
         if options.verbose > 0:
             Formatter.set(VerboseGraphFormatter(options))
         else:
@@ -62,7 +62,8 @@ class GraphvizWriter(FormatWriter):
     def __init__(self, include_tables=False):
         FormatWriter.__init__(self, u"""digraph dbgraph {{
 {0}
-}}""")
+}}
+""")
         self.include_tables = include_tables
         Formatter.set(GraphvizFormatter())
 

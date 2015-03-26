@@ -19,6 +19,7 @@
 #
 
 from dbnav.args import parent_parser, format_group, create_parser
+from dbnav.args import CommaSeparatedDict
 
 from .writer import SqlInsertWriter, SqlUpdateWriter, SqlDeleteWriter
 from .writer import YamlWriter, FormattedWriter
@@ -85,6 +86,13 @@ parser.add_argument(
     '-x',
     '--exclude',
     help='exclude specified columns')
+parser.add_argument(
+    '-s',
+    '--substitutes',
+    action=CommaSeparatedDict,
+    help='substitute values of rows with static values, in the form of: '
+         'fk.column=replacement; multiple substitutions can be specified by '
+         'separating them with a comma')
 parser.add_argument(
     '-m',
     '--limit',

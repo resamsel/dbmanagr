@@ -42,7 +42,7 @@ class SqlInsertWriter(FormatWriter):
     def __init__(self, options):
         FormatWriter.__init__(
             self,
-            u'{0}',
+            u'{0}\n',
             u'insert into {table} ({columns}) values ({values});')
         Formatter.set(DefaultFormatter())
         self.options = options
@@ -51,10 +51,11 @@ class SqlInsertWriter(FormatWriter):
         row = item.row
         exclude = item.exclude
         include = item.include
+        substitutes = item.substitutes
         return self.item_format.format(
             table=self.options.escape_keyword(row.table.name),
             columns=self.create_columns(row, include, exclude),
-            values=self.create_values(row, include, exclude))
+            values=self.create_values(row, include, exclude, substitutes))
 
     def create_columns(self, row, include, exclude):
         return u','.join(
@@ -63,9 +64,11 @@ class SqlInsertWriter(FormatWriter):
                     lambda col: included(col.name, include, exclude),
                     row.table.columns)))
 
-    def create_values(self, row, include, exclude):
+    def create_values(self, row, include, exclude, substitutes):
         return u','.join(
-            map(lambda col: self.options.format_value(col, row[col.name]),
+            map(lambda col: substitutes.get(
+                col.name,
+                self.options.format_value(col, row[col.name])),
                 filter(
                     lambda col: included(col.name, include, exclude),
                     row.table.columns)))
@@ -74,22 +77,26 @@ class SqlInsertWriter(FormatWriter):
 class SqlUpdateWriter(FormatWriter):
     def __init__(self, options):
         FormatWriter.__init__(
-            self, u'{0}', u'update {table} set {values} where {restriction};')
+            self,
+            u'{0}\n',
+            u'update {table} set {values} where {restriction};')
         Formatter.set(DefaultFormatter())
         self.options = options
 
     def itemtostring(self, item):
         row = item.row
         exclude = item.exclude
+        substitutes = item.substitutes
         table = row.table
         return self.item_format.format(
             table=self.options.escape_keyword(table.name),
-            values=self.create_values(row, exclude),
+            values=self.create_values(row, exclude, substitutes),
             restriction=self.create_restriction(
                 row,
                 filter(lambda col: col.primary_key, table.columns)))
 
-    def create_values(self, row, exclude):
+    def create_values(self, row, exclude, substitutes):
+        # Substitutes do not make sense here, or do they?
         return u', '.join(map(
             lambda col: self.options.restriction(
                 None, col, '=', row[col.name], map_null_operator=False),
@@ -107,7 +114,9 @@ class SqlUpdateWriter(FormatWriter):
 class SqlDeleteWriter(FormatWriter):
     def __init__(self, options):
         FormatWriter.__init__(
-            self, u'{0}', u'delete from {table} where {restriction};')
+            self,
+            u'{0}\n',
+            u'delete from {table} where {restriction};')
         Formatter.set(DefaultFormatter())
         self.options = options
 
@@ -176,7 +185,9 @@ def yaml_value(col, table, value):
 class YamlWriter(FormatWriter):
     def __init__(self, options=None):
         FormatWriter.__init__(
-            self, u'{0}', u"""{prefix}    - &{table}_{id} !!{package}.{model}
+            self,
+            u'{0}\n',
+            u"""{prefix}    - &{table}_{id} !!{package}.{model}
         {tuples}""")
         Formatter.set(DefaultFormatter())
         self.package = options.package
@@ -185,6 +196,7 @@ class YamlWriter(FormatWriter):
     def itemtostring(self, item):
         row = item.row
         exclude = item.exclude
+        substitutes = item.substitutes
         table = row.table
         tablename = table.name.replace('_', '')
         prefix = ''
@@ -200,19 +212,24 @@ class YamlWriter(FormatWriter):
             prefix=prefix,
             package=self.package,
             model=yaml_format_entity(table.name),
-            tuples=self.create_tuples(row, exclude))
+            tuples=self.create_tuples(row, exclude, substitutes))
 
-    def create_tuples(self, row, exclude):
+    def create_tuples(self, row, exclude, substitutes):
         return u"\n        ".join(map(
             lambda col: u'{0}: {1}'.format(
                 yaml_field(col.name, row.table),
-                yaml_value(col.name, row.table, row[col.name])),
+                substitutes.get(
+                    col.name,
+                    yaml_value(col.name, row.table, row[col.name]))),
             filter(lambda col: col.name not in exclude, row.table.columns)))
 
 
 class FormattedWriter(FormatWriter):
     def __init__(self, options=None):
-        FormatWriter.__init__(self, u'{0}', options.format)
+        FormatWriter.__init__(
+            self,
+            u'{0}\n',
+            options.format)
         Formatter.set(DefaultFormatter())
 
     def itemtostring(self, item):
