@@ -39,10 +39,15 @@ from .node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 logger = logging.getLogger(__name__)
 
 
-def bfs(start, include=[], exclude=[], indent=0, opts=None):
+def bfs(start, include=None, exclude=None, indent=0, opts=None):
     logger.debug(
         'bfs(start=%s, include=%s, exclude=%s, indent=%d)',
         start, include, exclude, indent)
+
+    if include is None:
+        include = []
+    if exclude is None:
+        exclude = []
 
     head = [TableNode(start, include, exclude, indent)]
     consumed = []

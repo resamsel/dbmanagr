@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ["databaseconnection", "sources"]
+__all__ = ["databaseconnection", "driver"]
 
 from os.path import expanduser
 from os import getenv

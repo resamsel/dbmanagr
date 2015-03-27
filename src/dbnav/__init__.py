@@ -31,8 +31,8 @@ from dbnav import logger as log
 from dbnav.jsonable import from_json
 
 __all__ = (
-    'navigator', 'item', 'writer', 'sources', 'querybuilder', 'logger',
-    'options', 'tests'
+    'command', 'item', 'writer', 'sources', 'querybuilder', 'logger',
+    'options'
 )
 __drivers__ = []
 

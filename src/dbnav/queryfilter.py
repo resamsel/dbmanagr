@@ -37,8 +37,8 @@ class QueryFilter(Op):
         return self
 
     def __repr__(self):
-        return '{self.lhs} {self.operator} {self.rhs}'.format(
-            self=self)
+        return '{me.lhs} {me.operator} {me.rhs}'.format(
+            me=self)
 
 
 class BitOp(Op):

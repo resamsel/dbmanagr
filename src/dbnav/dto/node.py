@@ -63,8 +63,7 @@ class ColumnNode(BaseNode):
             indent,
             self.column.name,
             PRIMARY_KEY_OPTIONS.get(self.column.primary_key),
-            NULLABLE_OPTIONS.get(self.column.nullable),
-            self.column.tablename)
+            NULLABLE_OPTIONS.get(self.column.nullable))
 
     def format(self):
         return Formatter.format_column_node(self)

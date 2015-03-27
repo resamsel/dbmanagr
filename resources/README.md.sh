@@ -9,6 +9,8 @@ EOF
 cat <<EOF > README.md
 # Database Navigator
 
+[![Code Health](https://landscape.io/github/resamsel/dbnavigator/$(git branch | grep '*' | sed 's/\* //g')/landscape.svg?style=plastic)](https://landscape.io/github/resamsel/dbnavigator/$(git branch | grep '*' | sed 's/\* //g'))
+
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
 ![Alfred Database Navigator Sample](resources/images/dbnav-example.png "Alfred Database Navigator Sample")

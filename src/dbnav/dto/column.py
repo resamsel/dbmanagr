@@ -50,7 +50,7 @@ class Column(Dto):
         return self.name
 
     def ddl(self):
-        return '{0} {1}{2}{3}'.format(
+        return '{0} {1}{2}{3}{4}'.format(
             self.name,
             self.type,
             {False: ' not null'}.get(self.nullable, ''),

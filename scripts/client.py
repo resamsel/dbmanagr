@@ -42,7 +42,6 @@ except urllib2.URLError as e:
     print 'Daemon not available', e
 except BaseException as e:
     print e.__class__, e
-    import sys
     import pdb
     type, value, tb = sys.exc_info()  # pragma: no cover
     # traceback.print_exc()

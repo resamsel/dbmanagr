@@ -10,6 +10,7 @@ UNZIP ?= unzip
 PIP ?= pip
 FIND ?= find
 DIFF ?= diff
+RADON ?= radon
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
@@ -111,6 +112,10 @@ test-daemon: init-daemon
 	@echo Ran $(shell ls -1 $(TARGET)/actual-* | wc -l) tests: OK
 
 include $(wildcard includes/*.mk)
+
+metrics:
+	$(RADON) cc src --total-average -s -n C
+	$(RADON) mi src -s -n B
 
 instrumental: init
 	$(FLAKE8) src

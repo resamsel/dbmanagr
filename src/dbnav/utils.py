@@ -137,7 +137,7 @@ def create_title(comment, columns, exclude=None):
     if len(columns) > 0:
         return (columns[0].name, '{%s}' % columns[0].name)
 
-    return None
+    return (None, None)
 
 
 @LogWith(logger)
