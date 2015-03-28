@@ -67,56 +67,19 @@ def fk_by_a_table_name(fks):
     return dict(map(lambda (k, v): (v.a.table.name, v), fks.iteritems()))
 
 
-@LogWith(logger)
-def create_items(connection, items, include, exclude, substitutes):
-    results_pre = []
-    results_post = []
-    includes = {}
-    for item in items:
-        for i in include:
-            p = re.compile(replace_wildcards(prefix(i)))
-            col, fk = None, None
-            for key, val in item.table.foreign_keys().iteritems():
-                if p.match(val.a.table.name):
-                    fk = val
-                    break
-            for c in item.table.columns():
-                if p.match(c.name):
-                    col = c
-                    break
-            if not col and not fk:
-                raise UnknownColumnException(item.table, i)
-            if '.' not in i:
-                # Only include column, don't include referencing rows
-                #
-                # Examples:
-                # 1) user_id - include column user_id, but no referenced rows
-                # 2) user_id. - include column user_id with referencing user
-                #    row
-                # 3) user_id.article - include column user_id with referenced
-                #    articles
-                continue
-            if fk:
-                if fk not in includes:
-                    includes[fk] = []
-                includes[fk].append(item[fk.b.name])
-            if col and col.name in item.table.foreign_keys():
-                fk = item.table.foreign_key(col.name)
-                if fk not in includes:
-                    includes[fk] = []
-                includes[fk].append(item[fk.a.name])
+def check_excludes(items, exclude):
     if exclude:
         for item in items:
             for x in exclude:
-                p = re.compile(replace_wildcards(prefix(x)))
+                matcher = re.compile(replace_wildcards(prefix(x)))
                 fks = fk_by_a_table_name(item.table.foreign_keys())
                 col, fk = None, None
                 for k in fks.keys():
-                    if p.match(k):
+                    if matcher.match(k):
                         fk = fks[k]
                         break
                 for c in item.table.columns():
-                    if p.match(c.name):
+                    if matcher.match(c.name):
                         col = c
                         break
                 if not col and not fk:
@@ -127,6 +90,73 @@ def create_items(connection, items, include, exclude, substitutes):
             # only check first item, as we expect all items are from the same
             # table
             break
+
+
+def find_foreign_key(table, matcher):
+    for key, val in table.foreign_keys().iteritems():
+        if matcher.match(val.a.table.name):
+            return val
+
+    return None
+
+
+def find_column(table, matcher):
+    for c in table.columns():
+        if matcher.match(c.name):
+            return c
+
+    return None
+
+
+def add_foreign_key(includes, fk, item):
+    if fk not in includes:
+        includes[fk] = []
+    includes[fk].append(item[fk.b.name])
+
+
+def add_column(includes, col, item):
+    fk = item.table.foreign_key(col.name)
+    if fk not in includes:
+        includes[fk] = []
+    includes[fk].append(item[fk.a.name])
+
+
+def process_item(item, include, includes):
+    matcher = re.compile(replace_wildcards(prefix(include)))
+    col = find_column(item.table, matcher)
+    fk = find_foreign_key(item.table, matcher)
+    if not col and not fk:
+        raise UnknownColumnException(item.table, include)
+    if '.' not in include:
+        # Only include column, don't include referencing rows
+        #
+        # Examples:
+        # 1) user_id - include column user_id, but no referenced rows
+        # 2) user_id. - include column user_id with referencing user
+        #    row
+        # 3) user_id.article - include column user_id with referenced
+        #    articles
+        return
+
+    if fk:
+        add_foreign_key(includes, fk, item)
+
+    if col and col.name in item.table.foreign_keys():
+        add_column(includes, col, item)
+
+
+@LogWith(logger)
+def create_items(connection, items, include, exclude, substitutes):
+    results_pre = []
+    results_post = []
+    includes = {}
+
+    check_excludes(items, exclude)
+
+    for item in items:
+        for i in include:
+            process_item(item, i, includes)
+
     for fk in includes.keys():
         if fk.a.table.name == item.table.name:
             # forward references, must be in pre

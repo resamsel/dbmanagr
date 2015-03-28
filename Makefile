@@ -114,7 +114,7 @@ test-daemon: init-daemon
 include $(wildcard includes/*.mk)
 
 metrics:
-	$(RADON) cc src --total-average -s -n C
+	$(RADON) cc src --total-average -s -n D
 	$(RADON) mi src -s -n B
 
 instrumental: init
