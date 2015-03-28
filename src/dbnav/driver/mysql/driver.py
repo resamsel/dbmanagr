@@ -64,7 +64,7 @@ def restriction(alias, column, operator, value, map_null_operator=True):
     return ' '.join([lhs, operator, rhs])
 
 
-class MySQLDriver:
+class MySQLDriver(object):
     def __init__(self):
         self.user = None
         self.host = None

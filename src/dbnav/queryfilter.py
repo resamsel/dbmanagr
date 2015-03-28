@@ -19,7 +19,7 @@
 #
 
 
-class Op:
+class Op(object):
     def last(self):
         return None
 
@@ -48,8 +48,8 @@ class BitOp(Op):
         else:
             self.children = []
 
-    def append(self, filter):
-        self.children.append(filter)
+    def append(self, _filter):
+        self.children.append(_filter)
 
     def last(self):
         return self.children[-1].last()
@@ -63,9 +63,9 @@ class BitOp(Op):
 
 class OrOp(BitOp):
     def __repr__(self):
-        return u' or '.join(map(lambda c: unicode(c), self.children))
+        return u' or '.join(map(unicode, self.children))
 
 
 class AndOp(BitOp):
     def __repr__(self):
-        return u' and '.join(map(lambda c: unicode(c), self.children))
+        return u' and '.join(map(unicode, self.children))

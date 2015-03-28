@@ -25,7 +25,6 @@ import urllib2
 import sys
 
 from dbnav.config import Config
-from dbnav.exception import BusinessException
 from dbnav.exporter import parser
 from dbnav.exporter.writer import SqlInsertWriter
 
@@ -43,7 +42,6 @@ except urllib2.URLError as e:
 except BaseException as e:
     print e.__class__, e
     import pdb
-    type, value, tb = sys.exc_info()  # pragma: no cover
+    _type, value, tb = sys.exc_info()  # pragma: no cover
     # traceback.print_exc()
     pdb.post_mortem(tb)  # pragma: no cover
-        

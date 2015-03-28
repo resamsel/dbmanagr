@@ -43,7 +43,7 @@ def column_name(column, config):
 
 class DiffWriter(FormatWriter):
     def __init__(self, left=None, right=None):
-        FormatWriter.__init__(self, u'{0}')
+        FormatWriter.__init__(self, u'{0}\n')
         Formatter.set(DefaultFormatter())
         self.left = left
         self.right = right

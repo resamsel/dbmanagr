@@ -128,7 +128,7 @@ class UtilsTestCase(DbTestCase):
         table = con.table('user')
 
         self.assertEqual(
-            None,
+            (None, None),
             utils.create_title(None, []))
         self.assertEqual(
             ('name', '{name}'),

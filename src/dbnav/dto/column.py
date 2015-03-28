@@ -50,13 +50,11 @@ class Column(Dto):
         return self.name
 
     def ddl(self):
-        return '{0} {1}{2}{3}{4}'.format(
+        return '{0} {1}{2}{3}'.format(
             self.name,
             self.type,
             {False: ' not null'}.get(self.nullable, ''),
-            {None: ''}.get(self.default, ' default {0}'.format(self.default)),
-            {None: ''}.get(self.autocomplete_, ' autoincrement {0}'.format(
-                self.autoincrement)))
+            {None: ''}.get(self.default, ' default {0}'.format(self.default)))
 
     @staticmethod
     def from_json(d):

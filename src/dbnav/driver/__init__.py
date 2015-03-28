@@ -21,7 +21,7 @@
 __all__ = ('sqlite', 'postgresql', 'mysql')
 
 
-class DatabaseDriver:
+class DatabaseDriver(object):
     def __init__(self):
         pass
 

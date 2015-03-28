@@ -47,9 +47,7 @@ class Column(BaseItem):
             self.name,
             self.type.compile(),
             {False: ' not null'}.get(self.nullable, ''),
-            {None: ''}.get(self.default, ' default {0}'.format(self.default)),
-            {None: ''}.get(self.autocomplete, ' autoincrement {0}'.format(
-                self.autoincrement)))
+            {None: ''}.get(self.default, ' default {0}'.format(self.default)))
 
     def title(self):
         return self.name

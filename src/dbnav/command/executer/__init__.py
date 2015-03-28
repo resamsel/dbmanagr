@@ -45,7 +45,7 @@ EXECUTION_END = {
 }
 
 
-class Item:
+class Item(object):
     def __init__(self, connection, row):
         self.connection = connection
         self.row = row
@@ -96,7 +96,7 @@ def trim_space(stmt):
     return re.sub(r'\s+', ' ', unicode(stmt))
 
 
-class BaseExecuter:
+class BaseExecuter(object):
     def begin(self):  # pragma: no cover
         pass
 
@@ -264,8 +264,8 @@ class DatabaseExecuter(Wrapper):
 
                         if (opts.progress > 0
                                 and counter % opts.progress == 0):
-                            sys.stdout.write('.')
-                            sys.stdout.flush()
+                            sys.stderr.write('.')
+                            sys.stderr.flush()
 
                         end = datetime.now()
                         sys.stdout.write(
@@ -282,7 +282,7 @@ class DatabaseExecuter(Wrapper):
                     if opts.progress > 0 and counter >= opts.progress:
                         # Write a new line after progress indicator dots have
                         # been written
-                        sys.stdout.write('\n')
+                        sys.stderr.write('\n')
                 except:
                     errors += 1
                     if executer:

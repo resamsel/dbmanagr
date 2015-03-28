@@ -43,9 +43,9 @@ logger = logging.getLogger(__name__)
 class RowItem(Jsonable):
     def __init__(self, row, include, exclude, substitutes):
         self.row = row
-        self.include = include
-        self.exclude = exclude
-        self.substitutes = substitutes
+        self.include = include if include is not None else []
+        self.exclude = exclude if exclude is not None else []
+        self.substitutes = substitutes if substitutes is not None else {}
 
     def __hash__(self):
         return hash(self.row.row)

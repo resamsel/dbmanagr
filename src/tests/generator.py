@@ -18,19 +18,19 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from os import path, makedirs
+from os import path, makedirs, environ
 from nose.tools import assert_equal
 import codecs
 
 from dbnav.writer import Writer
 
 LOGFILE = '{}/target/dbnavigator.log'.format(
-    path.join(path.dirname(__file__), '../../'))
+    path.join(path.dirname(__file__), '..', '..'))
 
 
 def params(dir, testcase):
     with codecs.open(
-            path.join(dir, 'resources/%s' % testcase),
+            path.join(dir, 'resources', testcase),
             encoding='utf-8',
             mode='r') as f:
         return map(lambda line: line.strip(), f.readlines())
@@ -38,7 +38,7 @@ def params(dir, testcase):
 
 def expected(dir, testcase):
     with codecs.open(
-            path.join(dir, 'resources/expected/%s' % testcase),
+            path.join(dir, 'resources', 'expected', testcase),
             encoding='utf-8',
             mode='r') as f:
         return f.read()
@@ -46,11 +46,11 @@ def expected(dir, testcase):
 
 def write_actual(command, testcase, content):
     try:
-        makedirs(path.join('target/actual/%s' % command))
+        makedirs(path.join('target', 'actual', command))
     except:
         pass
     with codecs.open(
-            path.join('target/actual/%s/%s' % (command, testcase)),
+            path.join('target', 'actual', command, testcase),
             encoding='utf-8',
             mode='w') as f:
         f.write(content)
@@ -59,7 +59,7 @@ def write_actual(command, testcase, content):
 
 def update_expected(dir, testcase, content):
     with codecs.open(
-            path.join(dir, 'resources/expected/%s' % testcase),
+            path.join(dir, 'resources', 'expected', testcase),
             encoding='utf-8',
             mode='w') as f:
         f.write(content)
@@ -73,6 +73,7 @@ def generator(f, command, dir, tc, parameters=None):
     assert_equal.im_class.maxDiff = None
 
     def test():
+        environ['DBNAV_INPUT'] = path.join(dir, 'resources', tc)
         p, e = params(dir, tc), expected(dir, tc)
         items = f.run([
             '--debug',
