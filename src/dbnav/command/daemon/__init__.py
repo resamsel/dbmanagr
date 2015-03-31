@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 class Encoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj):  # pylint: disable=method-hidden
         if isinstance(obj, Jsonable):
             return obj.as_json()
         return as_json(obj)

@@ -23,14 +23,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Source:
+class Source(object):
     sources = []
 
     def __init__(self):
-        self.connections = []
+        self._connections = []
 
     def list(self):
-        return self.connections
+        return self._connections
 
     @staticmethod
     def connections():

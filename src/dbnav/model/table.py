@@ -149,6 +149,7 @@ class Table(BaseItem):
         except BaseException as e:  # pragma: no cover
             logger.error(e, exc_info=1)  # pragma: no cover
             import sys  # pragma: no cover
+            # pylint: disable=raising-non-exception
             raise type(e), type(e)(
                 u'{} (check comment on table {})'.format(e.message, self.name)
             ), sys.exc_info()[2]  # pragma: no cover

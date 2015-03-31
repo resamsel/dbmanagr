@@ -30,6 +30,8 @@ class Column(BaseItem):
         self.table = table
         self.name = name
         self.type = None
+        self.nullable = None
+        self.default = None
         self.__dict__.update(kwargs)
         self.tablename = table.name
         self.uri = self.autocomplete()

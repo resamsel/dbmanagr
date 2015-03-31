@@ -2,6 +2,7 @@
 MAKE ?= make
 PYTHON ?= python
 FLAKE8 ?= flake8
+PYLINT ?= pylint
 INSTRUMENTAL ?= instrumental
 SED ?= gsed
 GIT ?= git
@@ -100,8 +101,15 @@ install: assemble install-bash-completion
 missing-copyright:
 	$(FIND) . -name "*.py" -exec grep -L 'Copyright' {} \;
 
-test: init
+check-code:
 	$(FLAKE8) src
+	$(PYLINT) src/dbnav
+
+metrics:
+	$(RADON) cc src --total-average -s -n C
+	$(RADON) mi src -s -n B
+
+test: init check-code
 	$(TEST)
 
 init-daemon:
@@ -112,10 +120,6 @@ test-daemon: init-daemon
 	@echo Ran $(shell ls -1 $(TARGET)/actual-* | wc -l) tests: OK
 
 include $(wildcard includes/*.mk)
-
-metrics:
-	$(RADON) cc src --total-average -s -n D
-	$(RADON) mi src -s -n B
 
 instrumental: init
 	$(FLAKE8) src

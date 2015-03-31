@@ -29,8 +29,8 @@ URI = 'sqlite+pysqlite:///{file}'
 
 class MockSource(Source):
     def list(self):
-        if not self.connections:
-            self.connections.append(
+        if not self._connections:
+            self._connections.append(
                 SQLiteConnection(
                     URI,
                     None,
@@ -38,7 +38,7 @@ class MockSource(Source):
                     path.join(DIR, '../resources/dbnav.sqlite'),
                     None,
                     None))
-            self.connections.append(
+            self._connections.append(
                 SQLiteConnection(
                     URI,
                     None,
@@ -46,7 +46,7 @@ class MockSource(Source):
                     path.join(DIR, '../resources/dbnav-c.sqlite'),
                     None,
                     None))
-            self.connections.append(
+            self._connections.append(
                 SQLiteConnection(
                     URI,
                     None,
@@ -55,4 +55,4 @@ class MockSource(Source):
                     None,
                     None))
 
-        return self.connections
+        return self._connections

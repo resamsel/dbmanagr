@@ -39,8 +39,8 @@ class DBExplorerSource(Source):
 
     def list(self):
         if not isfile(self.file):
-            return self.connections
-        if not self.connections:
+            return self._connections
+        if not self._connections:
             try:
                 tree = ET.parse(self.file)
             except Exception as e:
@@ -66,6 +66,6 @@ class DBExplorerSource(Source):
                         password = None
                     connection = self.con_creator(
                         self.driver, host, port, database, user, password)
-                    self.connections.append(connection)
+                    self._connections.append(connection)
 
-        return self.connections
+        return self._connections

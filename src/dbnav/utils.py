@@ -27,8 +27,7 @@ import sys
 
 from sqlalchemy.types import Integer
 
-from dbnav.logger import LogWith
-from dbnav import OPERATORS
+# from dbnav.logger import LogWith
 
 NAMES = [
     'name', 'title', 'key', 'text', 'first_name', 'username', 'user_name',
@@ -74,7 +73,9 @@ def remove_prefix(prefix, items):
     if type(items) is dict:
         return dict(map(
             lambda (k, v): (re.sub('^%s' % p, '', k), v),
-            items.iteritems()
+            filter(
+                lambda (k, v): k.startswith(p),
+                items.iteritems())
         ))
 
     return [re.sub('^%s' % p, '', i) for i in items if i.startswith(p)]
@@ -111,7 +112,7 @@ def getorelse(i, e):
     return e
 
 
-@LogWith(logger)
+# @LogWith(logger)
 def create_title(comment, columns, exclude=None):
     if exclude is None:
         exclude = []
@@ -140,7 +141,7 @@ def create_title(comment, columns, exclude=None):
     return (None, None)
 
 
-@LogWith(logger)
+# @LogWith(logger)
 def foreign_key_or_column(table, column):
     fk = table.foreign_key(column)
     if fk:
@@ -153,6 +154,7 @@ def hash(s):
 
 
 def operation(column, operator, value):
+    from dbnav import OPERATORS
     return OPERATORS.get(operator)(column, value)
 
 

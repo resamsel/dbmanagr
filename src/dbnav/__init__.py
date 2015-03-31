@@ -31,8 +31,7 @@ from dbnav import logger as log
 from dbnav.jsonable import from_json
 
 __all__ = (
-    'command', 'item', 'writer', 'sources', 'querybuilder', 'logger',
-    'options'
+    'command', 'writer', 'sources', 'querybuilder', 'logger', 'options'
 )
 __drivers__ = []
 
@@ -79,6 +78,10 @@ class Wrapper(object):
             log.logger.exception(e)
             return -1
         return 0
+
+    def execute(self):  # pragma: no cover
+        """To be overridden by sub classes"""
+        pass
 
     def run(self):
         try:
