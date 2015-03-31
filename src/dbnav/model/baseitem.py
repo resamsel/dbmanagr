@@ -19,13 +19,17 @@
 #
 
 import logging
+import uuid
 
 from dbnav.formatter import Formatter
-from dbnav.utils import hash
 from dbnav.model import Model
 from dbnav.logger import LogWith
 
 logger = logging.getLogger(__name__)
+
+
+def hash(s):
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 
 class BaseItem(Model):

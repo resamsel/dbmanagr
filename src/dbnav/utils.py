@@ -21,7 +21,6 @@
 import logging
 import re
 import pkgutil
-import uuid
 import os
 import sys
 
@@ -147,10 +146,6 @@ def foreign_key_or_column(table, column):
     if fk:
         return fk
     return table.column(column)
-
-
-def hash(s):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 
 def operation(column, operator, value):
