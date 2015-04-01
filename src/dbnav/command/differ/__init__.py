@@ -22,7 +22,7 @@ import sys
 
 from dbnav.writer import Writer
 
-from dbnav import Wrapper
+from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.exception import UnknownTableException

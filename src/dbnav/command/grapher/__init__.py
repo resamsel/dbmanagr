@@ -23,7 +23,7 @@ import logging
 
 from collections import deque
 
-from dbnav import Wrapper
+from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.sources import Source
 from dbnav.logger import LogWith

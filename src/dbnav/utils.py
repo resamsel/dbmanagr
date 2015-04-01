@@ -23,6 +23,7 @@ import re
 import pkgutil
 import os
 import sys
+import uuid
 
 from sqlalchemy.types import Integer
 
@@ -35,6 +36,10 @@ NAMES = [
 NAME_SUFFIXES = ['name', 'title', 'key', 'text']
 
 logger = logging.getLogger(__name__)
+
+
+def hash_(s):
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 
 def module_installed(*modules):

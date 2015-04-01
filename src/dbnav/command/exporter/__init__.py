@@ -24,7 +24,7 @@ import logging
 
 from collections import OrderedDict
 
-from dbnav import Wrapper
+from dbnav.wrapper import Wrapper
 from dbnav.logger import LogWith
 from dbnav.config import Config
 from dbnav.sources import Source

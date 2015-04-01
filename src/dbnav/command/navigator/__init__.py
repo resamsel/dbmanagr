@@ -21,10 +21,10 @@
 import logging
 import sys
 
-from dbnav import Wrapper
 from dbnav import KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
 from dbnav import OPTION_URI_SINGLE_ROW_FORMAT
 from dbnav import OPTION_URI_MULTIPLE_ROWS_FORMAT
+from dbnav.wrapper import Wrapper
 from dbnav.utils import tostring, foreign_key_or_column
 from dbnav.logger import LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper

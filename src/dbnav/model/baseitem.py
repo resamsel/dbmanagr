@@ -19,17 +19,13 @@
 #
 
 import logging
-import uuid
 
 from dbnav.formatter import Formatter
 from dbnav.model import Model
 from dbnav.logger import LogWith
+from dbnav.utils import hash_
 
 logger = logging.getLogger(__name__)
-
-
-def hash(s):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 
 class BaseItem(Model):
@@ -53,7 +49,7 @@ class BaseItem(Model):
 
     @LogWith(logger)
     def uid(self):
-        return hash(self.autocomplete())
+        return hash_(self.autocomplete())
 
     def format(self):
         return Formatter.format(self)

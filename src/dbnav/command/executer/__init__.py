@@ -24,7 +24,7 @@ import re
 
 from datetime import datetime
 
-from dbnav import Wrapper
+from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer
 from dbnav.sources import Source
