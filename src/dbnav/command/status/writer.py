@@ -23,11 +23,11 @@ from dbnav.formatter import Formatter, DefaultFormatter
 
 DEFAULT_FORMAT = u'{0}'
 FORMATS = {
-    0: u'{0}',
+    0: u'{0}\n',
     1: u'PID\tDatabase\tUser\tClient\tTX Start\tQuery Start\tState\t'
-       u'Blocked by\tQuery\n{0}',
+       u'Blocked by\tQuery\n{0}\n',
     2: u'PID\tDatabase\tUser\tClient\tTX Start\tTX Duration\tQuery Start\t'
-       u'Query Duration\tState\tBlocked by\tQuery\n{0}'
+       u'Query Duration\tState\tBlocked by\tQuery\n{0}\n'
 }
 ITEM_FORMATS = {
     0: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'

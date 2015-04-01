@@ -2,6 +2,7 @@
 MAKE ?= make
 PYTHON ?= python
 FLAKE8 ?= flake8
+PYLINT ?= pylint
 INSTRUMENTAL ?= instrumental
 SED ?= gsed
 GIT ?= git
@@ -10,6 +11,7 @@ UNZIP ?= unzip
 PIP ?= pip
 FIND ?= find
 DIFF ?= diff
+RADON ?= radon
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
@@ -99,8 +101,15 @@ install: assemble install-bash-completion
 missing-copyright:
 	$(FIND) . -name "*.py" -exec grep -L 'Copyright' {} \;
 
-test: init
+check-code:
 	$(FLAKE8) src
+	$(PYLINT) src/dbnav
+
+metrics:
+	$(RADON) cc src --total-average -s -n C
+	$(RADON) mi src -s -n B
+
+test: init check-code
 	$(TEST)
 
 init-daemon:
@@ -131,9 +140,9 @@ release-%:
 	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' \
 		-i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
 	$(MAKE) README.md
-	$(GIT) rm dist/dbnav*-py2.7.egg
-	$(SETUPTOOLS) bdist_egg
-	$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
+	#$(GIT) rm dist/dbnav*-py2.7.egg
+	#$(SETUPTOOLS) bdist_egg
+	#$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
 	$(MAKE) assemble-alfred
 
 clean:

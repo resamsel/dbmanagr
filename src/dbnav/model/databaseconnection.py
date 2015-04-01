@@ -204,6 +204,9 @@ class DatabaseConnection(BaseItem):
                 self._tables[a.table.name].set_foreign_key(a.name, fk)
                 self._tables[b.table.name].set_foreign_key(str(a), fk)
 
+    def __repr__(self):
+        raise Exception('Should be overridden in subclass')
+
     def __str__(self):
         return self.__repr__()
 

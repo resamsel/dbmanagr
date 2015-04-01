@@ -30,6 +30,8 @@ class Column(BaseItem):
         self.table = table
         self.name = name
         self.type = None
+        self.nullable = None
+        self.default = None
         self.__dict__.update(kwargs)
         self.tablename = table.name
         self.uri = self.autocomplete()
@@ -47,9 +49,7 @@ class Column(BaseItem):
             self.name,
             self.type.compile(),
             {False: ' not null'}.get(self.nullable, ''),
-            {None: ''}.get(self.default, ' default {0}'.format(self.default)),
-            {None: ''}.get(self.autocomplete, ' autoincrement {0}'.format(
-                self.autoincrement)))
+            {None: ''}.get(self.default, ' default {0}'.format(self.default)))
 
     def title(self):
         return self.name

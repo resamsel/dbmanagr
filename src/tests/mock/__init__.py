@@ -20,7 +20,7 @@
 
 __all__ = ["sources"]
 
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 from .sources import MockSource
 
 

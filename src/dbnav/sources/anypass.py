@@ -20,7 +20,7 @@
 
 from os.path import isfile, abspath
 
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 
 
 class AnyPassSource(Source):
@@ -32,24 +32,24 @@ class AnyPassSource(Source):
 
     def list(self):
         if not isfile(self.file):
-            return self.connections
-        if not self.connections:
+            return self._connections
+        if not self._connections:
             with open(self.file) as f:
                 anypass = f.readlines()
 
             for line in anypass:
                 connection = self.con_creator(
                     self.driver, *line.strip().split(':'))
-                self.connections.append(connection)
+                self._connections.append(connection)
 
-        return self.connections
+        return self._connections
 
 
 class AnyFilePassSource(AnyPassSource):
     def list(self):
         if not isfile(self.file):
-            return self.connections
-        if not self.connections:
+            return self._connections
+        if not self._connections:
             with open(self.file) as f:
                 anypass = f.readlines()
 
@@ -58,6 +58,6 @@ class AnyFilePassSource(AnyPassSource):
                 if isfile(filepath):
                     connection = self.con_creator(
                         self.driver, None, None, filepath, None, None)
-                    self.connections.append(connection)
+                    self._connections.append(connection)
 
-        return self.connections
+        return self._connections

@@ -39,7 +39,7 @@ class GraphvizFormatter(DefaultFormatter):
 
     def format_table_node(self, item):
         columns = map(
-            lambda (i, it): u'<{1}> {1}'.format(i, it.name),
+            lambda (i, it): u'<{0}> {0}'.format(it.name),
             enumerate(item.table.columns))
         return u'  {0} [shape="record" label="{0}| {1}"];'.format(
             item.table.name, '| '.join(columns))
@@ -51,7 +51,7 @@ class GraphvizFormatter(DefaultFormatter):
 
 class GraphWriter(FormatWriter):
     def __init__(self, options=None):
-        FormatWriter.__init__(self, u'{0}')
+        FormatWriter.__init__(self, u'{0}\n')
         if options.verbose > 0:
             Formatter.set(VerboseGraphFormatter(options))
         else:
@@ -62,7 +62,8 @@ class GraphvizWriter(FormatWriter):
     def __init__(self, include_tables=False):
         FormatWriter.__init__(self, u"""digraph dbgraph {{
 {0}
-}}""")
+}}
+""")
         self.include_tables = include_tables
         Formatter.set(GraphvizFormatter())
 

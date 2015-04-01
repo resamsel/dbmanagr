@@ -21,9 +21,9 @@
 import sys
 import logging
 
-from dbnav import Wrapper
+from dbnav.wrapper import Wrapper
 from dbnav.config import Config
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 from dbnav.writer import Writer
 from dbnav.dto.mapper import to_dto
 from dbnav.jsonable import Jsonable, from_json

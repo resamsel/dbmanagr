@@ -19,13 +19,13 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav import sources
+from dbnav.sources import source
 
 
 class OptionsTestCase(ParentTestCase):
     def test_list(self):
-        """Tests the sources.Source.list function"""
+        """Tests the sources.source.Source.list function"""
 
         self.assertEqual(
             [],
-            sources.Source().list())
+            source.Source().list())

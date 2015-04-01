@@ -35,8 +35,8 @@ class JsonWriter(FormatWriter):
             self,
             u"""[
 {0}
-]""", item_separator=u""",
-""",)
+]
+""", item_separator=u',\n',)
         Formatter.set(JsonFormatter())
 
 

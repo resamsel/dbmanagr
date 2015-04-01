@@ -142,6 +142,9 @@ class Options:
         self.simplify = False
         self.prog = parser.prog
         self.daemon = False
+        self.command = None
+        self.left = None
+        self.right = None
 
         args = parser.parse_args(argv)
 

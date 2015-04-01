@@ -54,9 +54,7 @@ class Column(Dto):
             self.name,
             self.type,
             {False: ' not null'}.get(self.nullable, ''),
-            {None: ''}.get(self.default, ' default {0}'.format(self.default)),
-            {None: ''}.get(self.autocomplete_, ' autoincrement {0}'.format(
-                self.autoincrement)))
+            {None: ''}.get(self.default, ' default {0}'.format(self.default)))
 
     @staticmethod
     def from_json(d):

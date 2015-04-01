@@ -23,14 +23,14 @@ import logging
 
 from collections import deque
 
-from dbnav import Wrapper
+from dbnav.wrapper import Wrapper
 from dbnav.config import Config
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 from dbnav.logger import LogWith
-from dbnav.utils import prefixes, remove_prefix
+from dbnav.utils import prefixes, remove_prefix, find_connection
 from dbnav.writer import Writer
 from dbnav.dto.mapper import to_dto
-from dbnav.exception import UnknownTableException
+from dbnav.exception import UnknownTableException, UnknownConnectionException
 
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
@@ -39,10 +39,71 @@ from .node import ColumnNode, ForeignKeyNode, NameNode, TableNode
 logger = logging.getLogger(__name__)
 
 
-def bfs(start, include=[], exclude=[], indent=0, opts=None):
+def include_forward_references(
+        table, head, consumed, include, exclude, indent, opts):
+    found = False
+    for col in filter(
+            lambda col: col.name not in exclude, table.columns()):
+        fk = table.foreign_key(col.name)
+        # logger.debug('consumed=%s', consumed)
+        if not fk:
+            if opts.include_columns:
+                # Add column
+                head.append(ColumnNode(col, indent))
+        elif fk.a.table.name == table.name:
+            # Collects the forward references
+            logger.debug(
+                'adds forward reference: fk=%s, include=%s',
+                fk, include)
+            head.append(ForeignKeyNode(fk, table, indent))
+            if (fk.a.name in prefixes(include)
+                    or (opts.recursive and fk.b.table.name not in consumed)):
+                # logger.debug('adds table=%s', fk.b.table)
+                head.append(TableNode(
+                    fk.b.table,
+                    include=remove_prefix(fk.a.name, include),
+                    exclude=remove_prefix(fk.a.name, exclude),
+                    indent=indent + 1))
+                found = True
+
+    return found
+
+
+def include_back_references(
+        table, head, consumed, include, exclude, indent, opts):
+    found = False
+    for key, fk in filter(
+            lambda (key, fk): (
+                fk.b.table.name == table.name
+                and fk.a.table.name not in exclude),
+            table.foreign_keys().iteritems()):
+        logger.debug(
+            'adds back reference: fk=%s, include=%s',
+            fk, include)
+        head.append(ForeignKeyNode(fk, table, indent))
+        if (fk.a.table.name in prefixes(include)
+                or (opts.recursive and fk.a.table.name not in consumed)):
+            # Collects the back references
+            # logger.debug('adds table=%s', fk.a.table)
+            head.append(TableNode(
+                fk.a.table,
+                include=remove_prefix(fk.a.table.name, include),
+                exclude=remove_prefix(fk.a.table.name, exclude),
+                indent=indent + 1))
+            found = True
+
+    return found
+
+
+def bfs(start, include=None, exclude=None, indent=0, opts=None):
     logger.debug(
         'bfs(start=%s, include=%s, exclude=%s, indent=%d)',
         start, include, exclude, indent)
+
+    if include is None:
+        include = []
+    if exclude is None:
+        exclude = []
 
     head = [TableNode(start, include, exclude, indent)]
     consumed = []
@@ -77,54 +138,13 @@ def bfs(start, include=[], exclude=[], indent=0, opts=None):
                     'indent=%d',
                     table, include, exclude, consumed, indent)
 
-                for col in filter(
-                        lambda col: col.name not in exclude, table.columns()):
-                    fk = table.foreign_key(col.name)
-                    # logger.debug('consumed=%s', consumed)
-                    if not fk:
-                        if opts.include_columns:
-                            # Add column
-                            head.append(ColumnNode(col, indent))
-                    elif fk.a.table.name == table.name:
-                        # Collects the forward references
-                        logger.debug(
-                            'adds forward reference: fk=%s, include=%s',
-                            fk, include)
-                        head.append(ForeignKeyNode(fk, table, indent))
-                        if (fk.a.name in prefixes(include)
-                                or (opts.recursive
-                                    and fk.b.table.name not in consumed)):
-                            # logger.debug('adds table=%s', fk.b.table)
-                            head.append(TableNode(
-                                fk.b.table,
-                                include=remove_prefix(fk.a.name, include),
-                                exclude=remove_prefix(fk.a.name, exclude),
-                                indent=indent + 1))
-                            found = True
+                if include_forward_references(
+                        table, head, consumed, include, exclude, indent, opts):
+                    found = True
 
-                if opts.include_back_references:
-                    for key, fk in filter(
-                            lambda (key, fk): (
-                                fk.b.table.name == table.name
-                                and fk.a.table.name not in exclude),
-                            table.foreign_keys().iteritems()):
-                        logger.debug(
-                            'adds back reference: fk=%s, include=%s',
-                            fk, include)
-                        head.append(ForeignKeyNode(fk, table, indent))
-                        if (fk.a.table.name in prefixes(include)
-                                or (opts.recursive
-                                    and fk.a.table.name not in consumed)):
-                            # Collects the back references
-                            # logger.debug('adds table=%s', fk.a.table)
-                            head.append(TableNode(
-                                fk.a.table,
-                                include=remove_prefix(
-                                    fk.a.table.name, include),
-                                exclude=remove_prefix(
-                                    fk.a.table.name, exclude),
-                                indent=indent + 1))
-                            found = True
+                if opts.include_back_references and include_back_references(
+                        table, head, consumed, include, exclude, indent, opts):
+                    found = True
             else:
                 head.append(node)
         indent += 1
@@ -147,16 +167,19 @@ class DatabaseGrapher(Wrapper):
         """The main method that splits the arguments and starts the magic"""
         options = self.options
 
-        cons = Source.connections()
-
         # search exact match of connection
-        for connection in cons:
-            opts = options.get(connection.dbms)
-            if connection.matches(opts) and opts.show in [
-                    'tables', 'columns', 'values']:
-                return to_dto(self.build(connection, opts))
+        connection, opts = find_connection(
+            Source.connections(),
+            options,
+            lambda con, opts: con.matches(opts))
 
-        raise Exception('Specify the complete URI to a table')
+        if connection is None:
+            raise UnknownConnectionException(options.uri)
+
+        if opts.show not in ['tables', 'columns', 'values']:
+            raise Exception('Specify the complete URI to a table')
+
+        return to_dto(self.build(connection, opts))
 
     @LogWith(logger)
     def build(self, connection, opts):

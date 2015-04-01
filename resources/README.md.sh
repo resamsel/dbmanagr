@@ -9,6 +9,8 @@ EOF
 cat <<EOF > README.md
 # Database Navigator
 
+[![Code Health](https://landscape.io/github/resamsel/dbnavigator/$(git branch | grep '*' | sed 's/\* //g')/landscape.svg?style=plastic)](https://landscape.io/github/resamsel/dbnavigator/$(git branch | grep '*' | sed 's/\* //g'))
+
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
 ![Alfred Database Navigator Sample](resources/images/dbnav-example.png "Alfred Database Navigator Sample")
@@ -85,10 +87,16 @@ Documentation: [Differ wiki page](https://github.com/resamsel/dbnavigator/wiki/D
 
 ## Installation
 
-Installation using PIP is recommended, as it also upgrades to the latest version:
+Installing using PIP also upgrades to the latest version:
 
 \`\`\`
-pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=dbnav
+sudo pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=dbnav
+\`\`\`
+
+You might want to install database drivers for PostgreSQL and MySQL as well:
+
+\`\`\`
+sudo pip install pg8000 mysql-python
 \`\`\`
 
 More information and installation options can be found on the [Installation wiki page](https://github.com/resamsel/dbnavigator/wiki/Installation).

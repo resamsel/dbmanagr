@@ -43,7 +43,7 @@ def column_name(column, config):
 
 class DiffWriter(FormatWriter):
     def __init__(self, left=None, right=None):
-        FormatWriter.__init__(self, u'{0}')
+        FormatWriter.__init__(self, u'{0}\n')
         Formatter.set(DefaultFormatter())
         self.left = left
         self.right = right
@@ -51,10 +51,9 @@ class DiffWriter(FormatWriter):
     def str(self, items):
         items = [i for i in items]  # resolves generator
         if not items:
-            return 'No differences found'
+            return self.items_format.format('No differences found')
         s = self.item_separator.join(
-            map(lambda i: self.itemtostring(i),
-                self.filter_(items)))
+            map(lambda i: self.itemtostring(i), self.filter_(items)))
         return self.items_format.format(s)
 
     def itemtostring(self, item):

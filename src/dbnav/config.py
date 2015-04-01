@@ -18,6 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
 import logging
 
 from dbnav.logger import logger
@@ -31,7 +32,7 @@ for mod in driver.__all__:
     import_module('dbnav.driver.{0}'.format(mod)).init()
 
 
-class Config:
+class Config(object):
     @staticmethod
     def init(argv, parser):
         options = Options(unicode_decode(argv), parser)
@@ -50,5 +51,10 @@ class Config:
             parser.prog, options.argv)
 
         logger.debug("Options: %s", options)
+        logger.debug(
+            "Environment: %s",
+            dict(filter(
+                lambda (k, v): k.startswith('DBNAV_'),
+                os.environ.iteritems())))
 
         return options

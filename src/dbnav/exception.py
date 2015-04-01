@@ -22,6 +22,7 @@ from difflib import get_close_matches
 
 from dbnav.logger import logger
 
+CONNECTION_NOT_FOUND = 'Connection "{0}" was not found'
 TABLE_NOT_FOUND = 'Table "{0}" was not found ({1})'
 COLUMN_NOT_FOUND = 'Column "{0}" was not found on table "{1}" ({2})'
 CLOSE_MATCHES = 'close matches: {0}'
@@ -57,6 +58,12 @@ def unknown_column_message(table, column, haystack=None):
 
 class BusinessException(Exception):
     pass
+
+
+class UnknownConnectionException(BusinessException):
+    def __init__(self, connection):
+        super(UnknownConnectionException, self).__init__(
+            CONNECTION_NOT_FOUND.format(connection))
 
 
 class UnknownTableException(BusinessException):

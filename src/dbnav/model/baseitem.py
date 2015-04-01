@@ -21,9 +21,9 @@
 import logging
 
 from dbnav.formatter import Formatter
-from dbnav.utils import hash
 from dbnav.model import Model
 from dbnav.logger import LogWith
+from dbnav.utils import hash_
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class BaseItem(Model):
 
     @LogWith(logger)
     def uid(self):
-        return hash(self.autocomplete())
+        return hash_(self.autocomplete())
 
     def format(self):
         return Formatter.format(self)

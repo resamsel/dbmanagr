@@ -21,14 +21,13 @@
 import logging
 import re
 import pkgutil
-import uuid
 import os
 import sys
+import uuid
 
 from sqlalchemy.types import Integer
 
-from dbnav.logger import LogWith
-from dbnav import OPERATORS
+# from dbnav.logger import LogWith
 
 NAMES = [
     'name', 'title', 'key', 'text', 'first_name', 'username', 'user_name',
@@ -37,6 +36,10 @@ NAMES = [
 NAME_SUFFIXES = ['name', 'title', 'key', 'text']
 
 logger = logging.getLogger(__name__)
+
+
+def hash_(s):
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 
 def module_installed(*modules):
@@ -52,11 +55,33 @@ def prefix(item, separator='.'):
 
 
 def prefixes(items):
+    if items is None:
+        return None
+
+    if type(items) is dict:
+        return dict(filter(
+            lambda (k, v): len(prefix(k)), map(
+                lambda (k, v): (prefix(k), v),
+                items.iteritems())
+        ))
+
     return set(filter(len, map(prefix, items)))
 
 
 def remove_prefix(prefix, items):
+    if items is None:
+        return None
+
     p = '%s.' % prefix
+
+    if type(items) is dict:
+        return dict(map(
+            lambda (k, v): (re.sub('^%s' % p, '', k), v),
+            filter(
+                lambda (k, v): k.startswith(p),
+                items.iteritems())
+        ))
+
     return [re.sub('^%s' % p, '', i) for i in items if i.startswith(p)]
 
 
@@ -91,7 +116,7 @@ def getorelse(i, e):
     return e
 
 
-@LogWith(logger)
+# @LogWith(logger)
 def create_title(comment, columns, exclude=None):
     if exclude is None:
         exclude = []
@@ -117,10 +142,10 @@ def create_title(comment, columns, exclude=None):
     if len(columns) > 0:
         return (columns[0].name, '{%s}' % columns[0].name)
 
-    return None
+    return (None, None)
 
 
-@LogWith(logger)
+# @LogWith(logger)
 def foreign_key_or_column(table, column):
     fk = table.foreign_key(column)
     if fk:
@@ -128,11 +153,8 @@ def foreign_key_or_column(table, column):
     return table.column(column)
 
 
-def hash(s):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
-
-
 def operation(column, operator, value):
+    from dbnav import OPERATORS
     return OPERATORS.get(operator)(column, value)
 
 
@@ -198,3 +220,12 @@ def escape_statement(stmt):
     """Escapes the given statement for use with SQLAlchemy"""
 
     return stmt.replace('%', '%%')
+
+
+def find_connection(cons, options, matcher):
+    for con in cons:
+        opts = options.get(con.dbms)
+        if matcher(con, opts):
+            return (con, opts)
+
+    return (None, None)

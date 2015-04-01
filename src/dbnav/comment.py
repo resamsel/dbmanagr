@@ -26,7 +26,7 @@ from dbnav.utils import create_title
 logger = logging.getLogger(__name__)
 
 
-class Comment:
+class Comment(object):
     def __init__(
             self, id, title, subtitle, order, search, display, columns,
             aliases):

@@ -38,7 +38,7 @@ def sql_escape(value):
 
 class ExecuteWriter(StdoutWriter):
     def __init__(self, options=None):
-        StdoutWriter.__init__(self, u'{0}', u'{item}')
+        StdoutWriter.__init__(self, u'{0}\n', u'{item}')
         Formatter.set(DefaultFormatter())
 
 
@@ -46,7 +46,7 @@ class SqlInsertWriter(FormatWriter):
     def __init__(self, options=None):
         FormatWriter.__init__(
             self,
-            u'{0}',
+            u'{0}\n',
             u'insert into {table} ({columns}) values ({values});')
         Formatter.set(DefaultFormatter())
         self.table_name = options.table_name
