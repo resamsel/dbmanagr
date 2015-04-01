@@ -27,10 +27,10 @@ from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.sources.source import Source
 from dbnav.logger import LogWith
-from dbnav.utils import prefixes, remove_prefix
+from dbnav.utils import prefixes, remove_prefix, find_connection
 from dbnav.writer import Writer
 from dbnav.dto.mapper import to_dto
-from dbnav.exception import UnknownTableException
+from dbnav.exception import UnknownTableException, UnknownConnectionException
 
 from .args import parser
 from .writer import GraphWriter, GraphvizWriter
@@ -167,16 +167,19 @@ class DatabaseGrapher(Wrapper):
         """The main method that splits the arguments and starts the magic"""
         options = self.options
 
-        cons = Source.connections()
-
         # search exact match of connection
-        for connection in cons:
-            opts = options.get(connection.dbms)
-            if connection.matches(opts) and opts.show in [
-                    'tables', 'columns', 'values']:
-                return to_dto(self.build(connection, opts))
+        connection, opts = find_connection(
+            Source.connections(),
+            options,
+            lambda con, opts: con.matches(opts))
 
-        raise Exception('Specify the complete URI to a table')
+        if connection is None:
+            raise UnknownConnectionException(options.uri)
+
+        if opts.show not in ['tables', 'columns', 'values']:
+            raise Exception('Specify the complete URI to a table')
+
+        return to_dto(self.build(connection, opts))
 
     @LogWith(logger)
     def build(self, connection, opts):

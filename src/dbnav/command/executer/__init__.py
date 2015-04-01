@@ -27,8 +27,10 @@ from datetime import datetime
 from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer
+from dbnav.utils import find_connection
 from dbnav.sources.source import Source
 from dbnav.logger import logger, LogTimer, log_error
+from dbnav.exception import UnknownConnectionException
 from dbnav.dto.mapper import to_dto
 
 from .args import parser
@@ -210,102 +212,103 @@ class DatabaseExecuter(Wrapper):
         """The main method that splits the arguments and starts the magic"""
         options = self.options
 
-        cons = Source.connections()
+        # search exact match of connection
+        connection, opts = find_connection(
+            Source.connections(),
+            options,
+            lambda con, opts: (
+                con.matches(opts)
+                and opts.show in ['databases', 'tables', 'columns', 'values']))
 
-        # Search exact match of connection
-        for connection in cons:
-            opts = options.get(connection.dbms)
-            if connection.matches(opts) and opts.show in [
-                    'databases', 'tables', 'columns', 'values']:
-                # Reads the statements
-                stmts = read_statements(opts)
+        if connection is None:
+            raise UnknownConnectionException(options.uri)
 
-                # Exit gracefully when no statements have been found (or the
-                # input got cancelled)
-                if not stmts:
-                    return []
+        # Reads the statements
+        stmts = read_statements(opts)
 
-                # Collects results
-                results = []
-                # Counts the changes (inserts, updates)
-                changes = 0
-                # Counts the errors (useful with option --ignore-errors)
-                errors = 0
-                # Counts the statements
-                counter = 0
+        # Exit gracefully when no statements have been found (or the
+        # input got cancelled)
+        if not stmts:
+            return []
 
-                timer = None
-                executer = None
-                try:
-                    # Connects to the database and starts a transaction
-                    connection.connect(opts.database)
+        # Collects results
+        results = []
+        # Counts the changes (inserts, updates)
+        changes = 0
+        # Counts the errors (useful with option --ignore-errors)
+        errors = 0
+        # Counts the statements
+        counter = 0
 
-                    timer = LogTimer(logger, 'Executing SQL statements')
+        timer = None
+        executer = None
+        try:
+            # Connects to the database and starts a transaction
+            connection.connect(opts.database)
 
-                    if opts.isolate_statements:
-                        executer = IsolationExecuter(connection, opts)
-                    else:
-                        executer = DefaultExecuter(connection, opts)
+            timer = LogTimer(logger, 'Executing SQL statements')
 
-                    executer.begin()
+            if opts.isolate_statements:
+                executer = IsolationExecuter(connection, opts)
+            else:
+                executer = DefaultExecuter(connection, opts)
 
-                    for stmt in stmts:
-                        start = datetime.now()
-                        sys.stdout.write(
-                            EXECUTION_START.get(opts.verbose, '').format(
-                                time=start,
-                                statement=stmt))
+            executer.begin()
 
-                        res, changed, failed = executer.execute(stmt)
-                        results.extend(res)
-                        changes += changed
-                        errors += failed
-                        counter += 1
+            for stmt in stmts:
+                start = datetime.now()
+                sys.stdout.write(
+                    EXECUTION_START.get(opts.verbose, '').format(
+                        time=start,
+                        statement=stmt))
 
-                        if (opts.progress > 0
-                                and counter % opts.progress == 0):
-                            sys.stderr.write('.')
-                            sys.stderr.flush()
+                res, changed, failed = executer.execute(stmt)
+                results.extend(res)
+                changes += changed
+                errors += failed
+                counter += 1
 
-                        end = datetime.now()
-                        sys.stdout.write(
-                            EXECUTION_END.get(opts.verbose, '').format(
-                                time=end,
-                                statement=trim_space(stmt),
-                                duration=(end - start).total_seconds()))
+                if (opts.progress > 0 and counter % opts.progress == 0):
+                    sys.stderr.write('.')
+                    sys.stderr.flush()
 
-                    if opts.dry_run:
-                        executer.rollback()
-                    else:
-                        executer.commit()
+                end = datetime.now()
+                sys.stdout.write(
+                    EXECUTION_END.get(opts.verbose, '').format(
+                        time=end,
+                        statement=trim_space(stmt),
+                        duration=(end - start).total_seconds()))
 
-                    if opts.progress > 0 and counter >= opts.progress:
-                        # Write a new line after progress indicator dots have
-                        # been written
-                        sys.stderr.write('\n')
-                except:
-                    errors += 1
-                    if executer:
-                        executer.rollback()
-                    if not opts.mute_errors:
-                        raise
-                finally:
-                    connection.close()
-                    if timer:
-                        timer.stop()
+            if opts.dry_run:
+                executer.rollback()
+            else:
+                executer.commit()
 
-                if not results:
-                    dry_run = ''
-                    if opts.dry_run:
-                        dry_run = ' (dry run)'
-                    sys.stdout.write(
-                        'Changed rows: {0}{1}\n'.format(changes, dry_run))
-                if errors:
-                    sys.stdout.write('Errors: {0}'.format(errors))
+            if opts.progress > 0 and counter >= opts.progress:
+                # Write a new line after progress indicator dots have
+                # been written
+                sys.stderr.write('\n')
+        except:
+            errors += 1
+            if executer:
+                executer.rollback()
+            if not opts.mute_errors:
+                raise
+        finally:
+            connection.close()
+            if timer:
+                timer.stop()
 
-                return to_dto(results)
+        if not results:
+            dry_run = ''
+            if opts.dry_run:
+                dry_run = ' (dry run)'
+            sys.stdout.write(
+                'Changed rows: {0}{1}\n'.format(changes, dry_run))
+        if errors:
+            sys.stdout.write('Errors: {0}'.format(errors))
 
-        raise Exception('Specify the complete URI to a database')
+        return to_dto(results)
 
 
 def execute(args):

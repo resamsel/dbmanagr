@@ -29,10 +29,12 @@ from dbnav.logger import LogWith
 from dbnav.config import Config
 from dbnav.sources.source import Source
 from dbnav.utils import prefix, prefixes, remove_prefix, replace_wildcards
+from dbnav.utils import find_connection
 from dbnav.queryfilter import QueryFilter
 from dbnav.writer import Writer
 from dbnav.jsonable import Jsonable, from_json
 from dbnav.dto.mapper import to_dto
+from dbnav.exception import UnknownConnectionException
 from dbnav.exception import UnknownColumnException, UnknownTableException
 
 from .args import parser, SqlInsertWriter
@@ -206,34 +208,39 @@ class DatabaseExporter(Wrapper):
         """The main method that splits the arguments and starts the magic"""
         options = self.options
 
-        cons = Source.connections()
-
         # search exact match of connection
-        for connection in cons:
-            opts = options.get(connection.dbms)
-            if ((opts.show == 'values'
-                    or opts.show == 'columns' and opts.filter is not None)
-                    and connection.matches(opts)):
-                try:
-                    connection.connect(opts.database)
-                    tables = connection.tables()
-                    if opts.table not in tables:
-                        raise UnknownTableException(opts.table, tables.keys())
-                    table = tables[opts.table]
-                    items = create_items(
-                        connection,
-                        connection.rows(
-                            table,
-                            opts.filter,
-                            opts.limit,
-                            simplify=False),
-                        opts.include,
-                        opts.exclude,
-                        opts.substitutes)
-                    # remove duplicates
-                    return list(OrderedDict.fromkeys(items))
-                finally:
-                    connection.close()
+        connection, opts = find_connection(
+            Source.connections(),
+            options,
+            lambda con, opts: (
+                (opts.show == 'values'
+                    or opts.show == 'columns'
+                    and opts.filter is not None)
+                and con.matches(opts)))
+
+        if connection is None:
+            raise UnknownConnectionException(options.uri)
+
+        try:
+            connection.connect(opts.database)
+            tables = connection.tables()
+            if opts.table not in tables:
+                raise UnknownTableException(opts.table, tables.keys())
+            table = tables[opts.table]
+            items = create_items(
+                connection,
+                connection.rows(
+                    table,
+                    opts.filter,
+                    opts.limit,
+                    simplify=False),
+                opts.include,
+                opts.exclude,
+                opts.substitutes)
+            # remove duplicates
+            return list(OrderedDict.fromkeys(items))
+        finally:
+            connection.close()
 
         raise Exception('Specify the complete URI to a table')
 

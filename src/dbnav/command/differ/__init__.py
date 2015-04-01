@@ -25,7 +25,7 @@ from dbnav.writer import Writer
 from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.sources.source import Source
-from dbnav.exception import UnknownTableException
+from dbnav.exception import UnknownTableException, UnknownConnectionException
 from dbnav.dto.mapper import to_dto
 
 from .args import parser
@@ -59,11 +59,11 @@ class DatabaseDiffer(Wrapper):
 
         lcon = Source.connection(left)
         if not lcon:
-            raise Exception('Could not find connection {0}'.format(left.uri))
+            raise UnknownConnectionException(left.uri)
         lopts = left.get(lcon.dbms)
         rcon = Source.connection(right)
         if not rcon:
-            raise Exception('Could not find connection {0}'.format(right.uri))
+            raise UnknownConnectionException(right.uri)
         ropts = right.get(rcon.dbms)
 
         try:

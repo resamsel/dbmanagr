@@ -220,3 +220,12 @@ def escape_statement(stmt):
     """Escapes the given statement for use with SQLAlchemy"""
 
     return stmt.replace('%', '%%')
+
+
+def find_connection(cons, options, matcher):
+    for con in cons:
+        opts = options.get(con.dbms)
+        if matcher(con, opts):
+            return (con, opts)
+
+    return (None, None)

@@ -25,7 +25,7 @@ from dbnav import KIND_VALUE, KIND_FOREIGN_KEY, KIND_FOREIGN_VALUE
 from dbnav import OPTION_URI_SINGLE_ROW_FORMAT
 from dbnav import OPTION_URI_MULTIPLE_ROWS_FORMAT
 from dbnav.wrapper import Wrapper
-from dbnav.utils import tostring, foreign_key_or_column
+from dbnav.utils import tostring, foreign_key_or_column, find_connection
 from dbnav.logger import LogWith
 from dbnav.querybuilder import QueryBuilder, SimplifyMapper
 from dbnav.exception import UnknownTableException
@@ -251,10 +251,14 @@ class DatabaseNavigator(Wrapper):
         cons = Source.connections()
 
         # search exact match of connection
-        for connection in cons:
-            opts = options.get(connection.dbms)
-            if opts.show != 'connections' and connection.matches(opts):
-                return create(connection, opts)
+        connection, opts = find_connection(
+            cons,
+            options,
+            lambda con, opts: (
+                opts.show != 'connections' and con.matches(opts)))
+
+        if connection is not None:
+            return create(connection, opts)
 
         # print all connections
         return sorted(
