@@ -81,7 +81,7 @@ class Wrapper(object):
         options = self.options
 
         try:
-            from dbnav.command import daemon
+            from dbnav.command.daemon import daemon
             if not daemon.is_running(options):
                 daemon.start_server(options)
 
