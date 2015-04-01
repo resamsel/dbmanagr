@@ -24,7 +24,7 @@ import xml.etree.ElementTree as ET
 from urlparse import urlparse
 from os.path import isfile
 
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 
 logger = logging.getLogger(__name__)
 

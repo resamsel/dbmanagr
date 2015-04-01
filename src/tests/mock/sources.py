@@ -20,7 +20,7 @@
 
 from os import path
 
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 from dbnav.driver.sqlite.databaseconnection import SQLiteConnection
 
 DIR = path.dirname(__file__)

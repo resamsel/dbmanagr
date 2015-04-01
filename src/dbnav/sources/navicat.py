@@ -23,7 +23,7 @@ import logging
 from plistlib import readPlist
 from os.path import isfile
 
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 
 logger = logging.getLogger(__name__)
 

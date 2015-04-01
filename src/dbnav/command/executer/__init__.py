@@ -27,7 +27,7 @@ from datetime import datetime
 from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.writer import Writer
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 from dbnav.logger import logger, LogTimer, log_error
 from dbnav.dto.mapper import to_dto
 

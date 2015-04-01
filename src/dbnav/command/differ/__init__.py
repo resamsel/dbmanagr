@@ -24,7 +24,7 @@ from dbnav.writer import Writer
 
 from dbnav.wrapper import Wrapper
 from dbnav.config import Config
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 from dbnav.exception import UnknownTableException
 from dbnav.dto.mapper import to_dto
 

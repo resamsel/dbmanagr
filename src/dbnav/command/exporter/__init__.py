@@ -27,7 +27,7 @@ from collections import OrderedDict
 from dbnav.wrapper import Wrapper
 from dbnav.logger import LogWith
 from dbnav.config import Config
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 from dbnav.utils import prefix, prefixes, remove_prefix, replace_wildcards
 from dbnav.queryfilter import QueryFilter
 from dbnav.writer import Writer

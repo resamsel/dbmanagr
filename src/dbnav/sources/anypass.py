@@ -20,7 +20,7 @@
 
 from os.path import isfile, abspath
 
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 
 
 class AnyPassSource(Source):

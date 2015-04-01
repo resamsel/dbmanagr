@@ -37,8 +37,8 @@ class SQLiteDatabase(Database):
 
 
 class SQLiteConnection(DatabaseConnection):
-    def __init__(self, uri, host, port, path, user, password):
-        self.path = path
+    def __init__(self, uri, *args):
+        self.path = args[2]
         self.filename = basename(self.path)
         DatabaseConnection.__init__(
             self,

@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.sources import Source
+from dbnav.sources.source import Source
 from tests.mock import init_mock
 
 
