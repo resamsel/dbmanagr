@@ -75,6 +75,9 @@ class DatabaseConnection(BaseItem):
         self._engine = create_engine(source)
         self._con = self._engine.connect()
 
+    def engine(self):
+        return self._engine
+
     def meta(self):
         if self._meta is None:
             self._meta = MetaData()

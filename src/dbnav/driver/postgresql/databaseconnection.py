@@ -88,7 +88,7 @@ class PostgreSQLConnection(UriDatabaseConnection):
         return self._databases
 
     @LogWith(logger)
-    def init_tables(self, database):
+    def init_tables(self):
         # sqlalchemy does not yet provide reflecting comments
 
         self._tables = {}

@@ -85,6 +85,9 @@ class Table(BaseItem):
 
         return format_ % (self.uri, tablename, value)
 
+    def entity(self):
+        return self._entity
+
     def columns(self, needle=None):
         """Retrieves columns of table with optional filter applied"""
 

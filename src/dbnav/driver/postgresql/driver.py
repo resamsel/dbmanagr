@@ -73,7 +73,7 @@ class PostgreSQLDriver(DatabaseDriver):
         self.host = None
         self.gen = None
 
-    def get(self, driver):
+    def get(self, *args):
         return self
 
     @LogWith(logger)
@@ -85,7 +85,7 @@ class PostgreSQLDriver(DatabaseDriver):
 
     def statement_activity(self, con):
         return con.execute(stat_activity_query(
-            con._engine.dialect.server_version_info).format(**self.__dict__))
+            con.engine().dialect.server_version_info).format(**self.__dict__))
 
 
 class PostgreSQLOptionsParser(UriOptionsParser):
