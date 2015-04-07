@@ -173,4 +173,4 @@ class DatabaseConnectionTestCase(DbTestCase):
             dbc.PostgreSQLConnection(
                 'postgresql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
-            ).matches({'postgresql': Opts(gen='foo@bar')}))
+            ).matches(Opts(gen='foo@bar')))

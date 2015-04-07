@@ -267,7 +267,6 @@ class UriDatabaseConnection(DatabaseConnection):
         return '%s@%s/' % (self.user, self.host)
 
     def matches(self, options):
-        options = options.get(self.dbms)
         if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False

@@ -73,9 +73,6 @@ class PostgreSQLDriver(DatabaseDriver):
         self.host = None
         self.gen = None
 
-    def get(self, driver):
-        return self
-
     @LogWith(logger)
     def restriction(self, *args):
         return restriction(*args)

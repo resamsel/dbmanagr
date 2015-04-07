@@ -51,7 +51,6 @@ class SQLiteConnection(DatabaseConnection):
         return AUTOCOMPLETE_FORMAT.format(connection=self.filename)
 
     def matches(self, options):
-        options = options.get(self.dbms)
         if options.uri:
             return options.uri.startswith(self.filename)
         return False

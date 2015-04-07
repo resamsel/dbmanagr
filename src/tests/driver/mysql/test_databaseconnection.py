@@ -156,5 +156,5 @@ class DatabaseConnectionTestCase(DbTestCase):
             dbc.MySQLConnection(
                 'mysql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
-            ).matches({'mysql': Opts(gen='foo@bar')})
+            ).matches(Opts(gen='foo@bar'))
         )
