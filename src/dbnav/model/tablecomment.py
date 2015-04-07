@@ -57,7 +57,6 @@ accurate information"""
                 d.update(json.loads(json_string))
             except BaseException as e:
                 logger.warn('Error parsing JSON comment: %s', e)
-                pass
 
         if COMMENT_ID in d:
             self.id = d[COMMENT_ID]

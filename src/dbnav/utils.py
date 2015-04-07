@@ -50,8 +50,8 @@ def module_installed(*modules):
     return None
 
 
-def prefix(item, separator='.'):
-    return re.sub('([^\\.]*)\\..*', '\\1', item)
+def prefix(item, separator='\\.'):
+    return re.sub('([^{0}]*){0}.*'.format(separator), '\\1', item)
 
 
 def prefixes(items):
@@ -116,6 +116,14 @@ def getorelse(i, e):
     return e
 
 
+def is_name(name):
+    return lambda c: c.name == name
+
+
+def ends_with(suffix):
+    return lambda c: c.name.endswith(suffix)
+
+
 # @LogWith(logger)
 def create_title(comment, columns, exclude=None):
     if exclude is None:
@@ -124,13 +132,13 @@ def create_title(comment, columns, exclude=None):
     # Find certain column names (but their type is not an integer - integers
     # are no good names)
     for name in filter(lambda n: n not in exclude, NAMES):
-        for c in filter(lambda c: c.name == name, columns):
+        for c in filter(is_name(name), columns):
             if not isinstance(c.type, Integer):
                 return (name, '{%s}' % c.name)
 
     # Find first column that ends with any of certain suffixes
     for suffix in filter(lambda n: n not in exclude, NAME_SUFFIXES):
-        for c in filter(lambda c: c.name.endswith(suffix), columns):
+        for c in filter(ends_with(suffix), columns):
             if not isinstance(c.type, Integer):
                 return (c.name, '{%s}' % c.name)
 
