@@ -25,5 +25,8 @@ class DatabaseDriver(object):
     def __init__(self):
         pass
 
-    def statement_activity(self, *args):
-        return []
+    def get(self, driver):
+        pass
+
+    def statement_activity(self, con):
+        pass
