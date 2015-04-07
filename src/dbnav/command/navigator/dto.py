@@ -37,7 +37,7 @@ def to_dto(model):
             icon=model.icon(),
             value=model.value(),
             uid=model.uid(),
-            format=model.format()
+            format_=model.format()
         )
     return model
 
@@ -52,7 +52,7 @@ class Item(Jsonable):
             icon=None,
             value=None,
             validity=None,
-            format=None):
+            format_=None):
         self.title_ = title
         self.subtitle_ = subtitle
         self.autocomplete_ = autocomplete
@@ -60,7 +60,7 @@ class Item(Jsonable):
         self.icon_ = icon
         self.value_ = value
         self.validity_ = validity
-        self.format_ = format
+        self.format_ = format_
 
     def __hash__(self):
         return utils.hash_(utils.freeze(self.__dict__))
@@ -106,5 +106,5 @@ class Item(Jsonable):
             icon=from_json(d['icon']),
             value=from_json(d['value']),
             validity=from_json(d['validity']),
-            format=from_json(d['format'])
+            format_=from_json(d['format_'])
         )

@@ -100,7 +100,7 @@ class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             }))
 
     def log_message(self, format_, *args):
-        logger.info(format_ % args)
+        logger.info(format_, args)
 
 
 def is_running(config):
@@ -123,7 +123,7 @@ def start_server(config):
         if os.fork() == 0:
             # Child process
             httpd.serve_forever()
-            os._exit(0)
+            sys.exit(0)
         return True
     except BaseException:
         pass
