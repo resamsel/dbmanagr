@@ -49,13 +49,13 @@ def allowed(column, operator, value):
         try:
             column.type.python_type(value)
             return True
-        except:
+        except BaseException:
             return False
     return True
 
 
 def add_references(tablename, foreign_keys, joins, comment):
-    for key, fk in filter(
+    for _, fk in filter(
             lambda (k, v): (
                 v.a.table.name == tablename
                 and (comment is None or k in comment.display)),
@@ -176,7 +176,7 @@ def simplify(table, comment, key, d):
             comment, table.columns())[1].format(table.name, **d)
 
 
-class SimplifyMapper:
+class SimplifyMapper(object):
     def __init__(self, table, comment=None):
         self.table = table
         self.comment = comment
@@ -188,18 +188,18 @@ class SimplifyMapper:
         return row
 
 
-class QueryBuilder:
+class QueryBuilder(object):
     def __init__(
             self,
             connection,
             table,
-            filter=None,
+            filter_=None,
             order=None,
             limit=None,
             simplify=True):
         self.connection = connection
         self.table = table
-        self.filter = filter if filter else OrOp()
+        self.filter = filter_ if filter_ else OrOp()
         self.order = order if order else []
         self.limit = limit
         self.aliases = {}
@@ -278,7 +278,7 @@ class QueryBuilder:
             lambda (k, v): k != entity.original.name,
             joins.iteritems()))
         logger.debug('Joins: %s', joins)
-        for k, join in joins.iteritems():
+        for _, join in joins.iteritems():
             query = query.outerjoin(join)
             for column in join.columns.keys():
                 col = join.columns[column]

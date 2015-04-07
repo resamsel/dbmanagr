@@ -31,7 +31,7 @@ COMMENT_DISPLAY = 'display'
 logger = logging.getLogger(__name__)
 
 
-class TableComment:
+class TableComment(object):
     """The comment on the given table that allows to display much more
 accurate information"""
 

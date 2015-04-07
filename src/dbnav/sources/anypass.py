@@ -24,10 +24,10 @@ from dbnav.sources.source import Source
 
 
 class AnyPassSource(Source):
-    def __init__(self, driver, file, con_creator):
+    def __init__(self, driver, file_, con_creator):
         Source.__init__(self)
         self.driver = driver
-        self.file = file
+        self.file = file_
         self.con_creator = con_creator
 
     def list(self):

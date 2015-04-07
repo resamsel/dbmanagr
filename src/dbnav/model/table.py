@@ -45,8 +45,7 @@ class Table(BaseItem):
             size=None,
             name=None,
             primary_key=None,
-            columns=None,
-            foreign_keys=None):
+            columns=None):
         if entity is not None:
             self.name = entity.name
         elif name is not None:
@@ -72,7 +71,7 @@ class Table(BaseItem):
         return self.name
 
     def autocomplete(
-            self, column=None, value=None, format=OPTION_URI_VALUE_FORMAT):
+            self, column=None, value=None, format_=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 
         if column is None:
@@ -84,7 +83,7 @@ class Table(BaseItem):
         else:
             value = u'%s=%s' % (column, value)
 
-        return format % (self.uri, tablename, value)
+        return format_ % (self.uri, tablename, value)
 
     def columns(self, needle=None):
         """Retrieves columns of table with optional filter applied"""
@@ -106,7 +105,11 @@ class Table(BaseItem):
 
     @LogWith(logger, log_result=False, log_args=False)
     def rows(
-            self, connection, filter=None, limit=DEFAULT_LIMIT, simplify=None):
+            self,
+            connection,
+            filter_=None,
+            limit=DEFAULT_LIMIT,
+            simplify=None):
         """Retrieves rows from the table with the given filter applied"""
 
         comment = None
@@ -122,7 +125,7 @@ class Table(BaseItem):
         builder = QueryBuilder(
             connection,
             self,
-            filter=filter,
+            filter_=filter_,
             order=order,
             limit=limit,
             simplify=simplify)
@@ -141,7 +144,6 @@ class Table(BaseItem):
         try:
             result = connection.queryall(
                 builder.build(),
-                name='Rows',
                 mapper=mapper)
         except (DataError, ProgrammingError, UnknownColumnException,
                 UnicodeEncodeError):  # pragma: no cover

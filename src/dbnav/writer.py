@@ -31,7 +31,7 @@ sys.stdout = UTF8Writer(sys.stdout)
 logger = logging.getLogger(__name__)
 
 
-class DefaultWriter:
+class DefaultWriter(object):
     def write(self, items):
         return self.str(items)
 
@@ -106,7 +106,7 @@ class TestWriter(FormatWriter):
         Formatter.set(TestFormatter())
 
 
-class Writer:
+class Writer(object):
     writer = StdoutWriter()
 
     @staticmethod

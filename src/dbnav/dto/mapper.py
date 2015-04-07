@@ -44,7 +44,7 @@ def to_dto(model):
         return Column(
             name=model.name,
             tablename=model.table.name,
-            type=model.type,
+            type_=model.type,
             nullable=model.nullable,
             default=model.default,
             autoincrement=model.autoincrement,

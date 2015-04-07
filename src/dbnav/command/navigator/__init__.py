@@ -125,7 +125,7 @@ def create_values(connection, table, filter_):
     builder = QueryBuilder(
         connection,
         table,
-        filter=filter_.filter,
+        filter_=filter_.filter,
         limit=1,
         simplify=filter_.simplify)
 
@@ -147,7 +147,6 @@ def create_values(connection, table, filter_):
 
     result = connection.queryone(
         builder.build(),
-        'Values',
         mapper)
 
     row = Row(table, result)

@@ -23,7 +23,7 @@ from dbnav.driver import sqlite
 from dbnav.driver.sqlite import databaseconnection as dbc
 
 
-class Opts:
+class Opts(object):
     def __init__(
             self, uri=None, user=None, password=None, host=None, gen=None):
         self.uri = uri

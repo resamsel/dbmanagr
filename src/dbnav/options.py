@@ -122,7 +122,7 @@ def parse_filter(s):
     return _or
 
 
-class Options:
+class Options(object):
     parser = {}
 
     def __init__(self, argv, parser):
@@ -184,7 +184,7 @@ class Options:
         return self.__dict__.__repr__()
 
 
-class OptionsParser:
+class OptionsParser(object):
     def create_driver(self):  # pragma: no cover
         pass
 

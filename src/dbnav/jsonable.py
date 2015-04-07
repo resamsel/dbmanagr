@@ -113,6 +113,6 @@ def from_json(d):
     return d
 
 
-class Jsonable:
+class Jsonable(object):
     def as_json(self):
         return as_json(self)

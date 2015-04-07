@@ -47,7 +47,7 @@ def expected(dir, testcase):
 def write_actual(command, testcase, content):
     try:
         makedirs(path.join('target', 'actual', command))
-    except:
+    except BaseException:
         pass
     with codecs.open(
             path.join('target', 'actual', command, testcase),
