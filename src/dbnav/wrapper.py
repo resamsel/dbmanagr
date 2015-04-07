@@ -81,9 +81,9 @@ class Wrapper(object):
         options = self.options
 
         try:
-            from dbnav import daemon
-            if not daemon.is_running(options):
-                daemon.start_server(options)
+            # from dbnav import daemon
+            # if not daemon.is_running(options):
+            #     daemon.start_server(options)
 
             url = 'http://{host}:{port}/{path}'.format(
                 host=options.host,
