@@ -118,7 +118,7 @@ entry and exit points of the function with logging.DEBUG level.
         return wrapper
 
 
-class LogTimer:
+class LogTimer(object):
     def __init__(self, logger, subject, prolog=None, *pargs):
         self.logger = logger
         self.subject = subject

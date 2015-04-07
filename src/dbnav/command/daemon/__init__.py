@@ -22,8 +22,8 @@
 import sys
 
 from dbnav.config import Config
+from dbnav.daemon import start, stop, restart, status
 from .args import parser
-from .daemon import start, stop, restart, status
 
 
 def main(args=None):

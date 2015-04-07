@@ -18,14 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import uuid
-
 from dbnav.jsonable import Jsonable, from_json
 from dbnav import utils
-
-
-def hash(s):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 
 def to_dto(model):
@@ -43,7 +37,7 @@ def to_dto(model):
             icon=model.icon(),
             value=model.value(),
             uid=model.uid(),
-            format=model.format()
+            format_=model.format()
         )
     return model
 
@@ -58,7 +52,7 @@ class Item(Jsonable):
             icon=None,
             value=None,
             validity=None,
-            format=None):
+            format_=None):
         self.title_ = title
         self.subtitle_ = subtitle
         self.autocomplete_ = autocomplete
@@ -66,13 +60,13 @@ class Item(Jsonable):
         self.icon_ = icon
         self.value_ = value
         self.validity_ = validity
-        self.format_ = format
+        self.format_ = format_
 
     def __hash__(self):
-        return hash(utils.freeze(self.__dict__))
+        return utils.hash_(utils.freeze(self.__dict__))
 
     def __eq__(self, o):
-        return hash(self) == hash(o)
+        return utils.hash_(self) == utils.hash_(o)
 
     def autocomplete(self):
         return self.autocomplete_
@@ -92,7 +86,7 @@ class Item(Jsonable):
     def uid(self):
         if self.uid_ is not None:
             return self.uid_
-        return hash(self.autocomplete())
+        return utils.hash_(self.autocomplete())
 
     def icon(self):  # pragma: no cover
         if self.icon_ is not None:
@@ -112,5 +106,5 @@ class Item(Jsonable):
             icon=from_json(d['icon']),
             value=from_json(d['value']),
             validity=from_json(d['validity']),
-            format=from_json(d['format'])
+            format_=from_json(d['format_'])
         )

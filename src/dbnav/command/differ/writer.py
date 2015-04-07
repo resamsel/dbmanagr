@@ -53,7 +53,7 @@ class DiffWriter(FormatWriter):
         if not items:
             return self.items_format.format('No differences found')
         s = self.item_separator.join(
-            map(lambda i: self.itemtostring(i), self.filter_(items)))
+            map(self.itemtostring, self.filter_(items)))
         return self.items_format.format(s)
 
     def itemtostring(self, item):

@@ -29,10 +29,10 @@ logger = logging.getLogger(__name__)
 
 
 class NavicatSource(Source):
-    def __init__(self, uri, file, key, con_creator):
+    def __init__(self, uri, file_, key, con_creator):
         Source.__init__(self)
         self.uri = uri
-        self.file = file
+        self.file = file_
         self.key = key
         self.con_creator = con_creator
 
@@ -44,7 +44,7 @@ class NavicatSource(Source):
 
             # Note: only works with SQLite ATM - passwords are encrypted within
             # Navicat config files
-            for k, v in plist[self.key]['servers'].items():
+            for _, v in plist[self.key]['servers'].items():
                 connection = self.con_creator(
                     self.uri,
                     None,

@@ -28,9 +28,9 @@ logger = logging.getLogger(__name__)
 
 class Comment(object):
     def __init__(
-            self, id, title, subtitle, order, search, display, columns,
+            self, id_, title, subtitle, order, search, display, columns,
             aliases):
-        self.id = id
+        self.id = id_
         self.title = title
         self.subtitle = subtitle
         self.order = order
@@ -100,7 +100,7 @@ def create_comment(table, comment, counter, aliases, alias):
     logger.debug('Aliases: %s', aliases)
 
     caliases = column_aliases(table.columns(), alias)
-    for (k, v) in filter(
+    for (_, v) in filter(
             lambda (k, v): v.a.table.name == table.name,
             table.foreign_keys().iteritems()):
         caliases.update(filter(
@@ -120,12 +120,12 @@ def create_comment(table, comment, counter, aliases, alias):
     primary_key = table.primary_key
 
     if comment.id:
-        id = comment.id.format(**caliases)
+        id_ = comment.id.format(**caliases)
     else:
         if primary_key:
-            id = u'{{{0}_{1}}}'.format(alias, primary_key)
+            id_ = u'{{{0}_{1}}}'.format(alias, primary_key)
         else:
-            id = "-"
+            id_ = "-"
 
     title, subtitle, name = None, None, None
     if comment.title:
@@ -142,13 +142,13 @@ def create_comment(table, comment, counter, aliases, alias):
         if comment.subtitle:
             subtitle = comment.subtitle.format(**caliases)
         else:
-            sname, subtitle = create_title(comment, table.columns(), [name])
+            _, subtitle = create_title(comment, table.columns(), [name])
             d = dict(map(lambda k: (k.name, k.name), table.columns()))
             logger.debug(
                 'search.add(subtitle.format(**d)=%s)', subtitle.format(**d))
             search.add(subtitle.format(**d))
 
-            subtitle = u'{0} (id={1})'.format(subtitle.format(**caliases), id)
+            subtitle = u'{0} (id={1})'.format(subtitle.format(**caliases), id_)
 
     if comment.order:
         order = comment.order
@@ -162,7 +162,7 @@ def create_comment(table, comment, counter, aliases, alias):
             display.append(u'{0}_{1}'.format(alias, column.name))
 
     if primary_key in [c.name for c in table.columns()]:
-        columns[primary_key] = id
+        columns[primary_key] = id_
     else:
         columns[primary_key] = "'-'"
 
@@ -174,4 +174,4 @@ def create_comment(table, comment, counter, aliases, alias):
         columns[column] = column
 
     return Comment(
-        id, title, subtitle, order, search, display, columns, aliases)
+        id_, title, subtitle, order, search, display, columns, aliases)

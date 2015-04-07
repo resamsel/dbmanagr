@@ -83,18 +83,18 @@ class PostgreSQLConnection(UriDatabaseConnection):
         if self._databases is None:
             self._databases = map(
                 lambda row: Database(self, row[0]),
-                self.execute(DATABASES_QUERY % self.user, 'Databases'))
+                self.execute(DATABASES_QUERY % self.user))
 
         return self._databases
 
     @LogWith(logger)
-    def init_tables(self, database):
+    def init_tables(self):
         # sqlalchemy does not yet provide reflecting comments
 
         self._tables = {}
         self._comments = {}
 
-        result = self.execute(TABLES_QUERY, 'Tables')
+        result = self.execute(TABLES_QUERY)
         for row in result:  # pragma: no cover
             self._tables[row[0]] = Table(  # pragma: no cover
                 self.entity(row[0]),

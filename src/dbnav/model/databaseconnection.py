@@ -75,6 +75,9 @@ class DatabaseConnection(BaseItem):
         self._engine = create_engine(source)
         self._con = self._engine.connect()
 
+    def engine(self):
+        return self._engine
+
     def meta(self):
         if self._meta is None:
             self._meta = MetaData()
@@ -103,7 +106,7 @@ class DatabaseConnection(BaseItem):
         return self._con.begin()
 
     @LogWith(logger, log_args=False, log_result=False)
-    def execute(self, query, name='Unnamed'):
+    def execute(self, query):
         cur = self.cursor()
         if not cur:
             raise Exception('Database is not connected')
@@ -115,7 +118,7 @@ class DatabaseConnection(BaseItem):
             timer.stop()
 
     @LogWith(logger, log_args=False, log_result=False)
-    def queryall(self, query, name='Unnamed', mapper=None):
+    def queryall(self, query, mapper=None):
         timer = LogTimer(logger, 'Query all', 'Querying all:\n%s', query)
         result = query.all()
         timer.stop()
@@ -127,7 +130,7 @@ class DatabaseConnection(BaseItem):
         return result
 
     @LogWith(logger, log_args=False, log_result=False)
-    def queryone(self, query, name='Unnamed', mapper=None):
+    def queryone(self, query, mapper=None):
         timer = LogTimer(logger, 'Query one', 'Querying one:\n%s', query)
         result = query.one()
         timer.stop()
@@ -137,8 +140,8 @@ class DatabaseConnection(BaseItem):
 
         return result
 
-    def rows(self, table, filter=None, limit=DEFAULT_LIMIT, simplify=None):
-        return table.rows(self, filter, limit, simplify)
+    def rows(self, table, filter_=None, limit=DEFAULT_LIMIT, simplify=None):
+        return table.rows(self, filter_, limit, simplify)
 
     def filter_(self, options):
         return True
@@ -149,23 +152,23 @@ class DatabaseConnection(BaseItem):
             self.inspector().get_schema_names())
 
     @LogWith(logger)
-    def init_tables(self, database):
+    def init_tables(self):
         self._tables = dict(map(
             lambda table: (table, Table(
                 self.entity(table), self.autocomplete())),
             self.meta().tables))
-        logger.debug('Tables: %s' % self._tables)
+        logger.debug('Tables: %s', self._tables)
         self.init_foreign_keys()
 
     @LogWith(logger)
     def tables(self):
         if not self._tables:
-            self.init_tables(self.database)
+            self.init_tables()
 
         return self._tables
 
     def table(self, tablename):
-        return self.tables().get(tablename, None)
+        return self.tables().get(tablename)
 
     def entity(self, tablename):
         return self.meta().tables[tablename]
@@ -190,7 +193,7 @@ class DatabaseConnection(BaseItem):
         return self.comments().get(tablename, None)
 
     def init_foreign_keys(self):
-        for k, t in self.meta().tables.iteritems():
+        for _, t in self.meta().tables.iteritems():
             for _fk in t.foreign_keys:
                 a = create_column(
                     self._tables[_fk.parent.table.name],
@@ -264,7 +267,6 @@ class UriDatabaseConnection(DatabaseConnection):
         return '%s@%s/' % (self.user, self.host)
 
     def matches(self, options):
-        options = options.get(self.dbms)
         if options.gen:
             return options.gen.startswith("%s@%s" % (self.user, self.host))
         return False
@@ -274,11 +276,11 @@ class UriDatabaseConnection(DatabaseConnection):
         matches = True
 
         if options.user:
-            filter = options.user
+            filter_ = options.user
             if options.host is not None:
-                matches = filter in self.user
+                matches = filter_ in self.user
             else:
-                matches = filter in self.user or filter in self.host
+                matches = filter_ in self.user or filter_ in self.host
         if options.host is not None:
             matches = matches and options.host in self.host
 

@@ -31,7 +31,7 @@ from tests.mock.sources import DIR as MOCK_DIR
 from tests.mock.sources import URI as MOCK_URI
 
 
-class Opts:
+class Opts(object):
     def __init__(self, user=None, password=None, host=None, gen=None):
         self.user = user
         self.password = password
@@ -156,5 +156,5 @@ class DatabaseConnectionTestCase(DbTestCase):
             dbc.MySQLConnection(
                 'mysql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
-            ).matches({'mysql': Opts(gen='foo@bar')})
+            ).matches(Opts(gen='foo@bar'))
         )

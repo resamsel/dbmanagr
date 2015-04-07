@@ -23,6 +23,6 @@ from dbnav.dto.mapper import to_dto
 DEFAULT_LIMIT = 50
 
 
-class Model:
+class Model(object):
     def to_dto(self):
         return to_dto(self)

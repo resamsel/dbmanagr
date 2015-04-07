@@ -46,7 +46,7 @@ class DaemonHTTPServer(BaseHTTPServer.HTTPServer):
         BaseHTTPServer.HTTPServer.__init__(self, *args, **kwargs)
         self.active = True
 
-    def serve_forever(self):
+    def serve_forever(self, poll_interval=0.5):
         while self.active:
             self.handle_request()
 
@@ -99,8 +99,8 @@ class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 'traceback': as_json(traceback.extract_tb(sys.exc_info()[2]))
             }))
 
-    def log_message(self, format, *args):
-        logger.info(format % args)
+    def log_message(self, format_, *args):
+        logger.info(format_, args)
 
 
 def is_running(config):
@@ -110,7 +110,7 @@ def is_running(config):
                 host=config.host,
                 port=config.port),
             '')
-    except:
+    except BaseException:
         return False
 
     return True
@@ -123,9 +123,9 @@ def start_server(config):
         if os.fork() == 0:
             # Child process
             httpd.serve_forever()
-            os._exit(0)
+            sys.exit(0)
         return True
-    except:
+    except BaseException:
         pass
     return False
 
@@ -147,7 +147,7 @@ def stop(config):
                 host=config.host,
                 port=config.port),
             '')
-    except:
+    except BaseException:
         sys.stdout.write('failed\n')
     else:
         sys.stdout.write('OK\n')

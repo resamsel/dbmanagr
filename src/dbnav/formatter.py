@@ -19,7 +19,7 @@
 #
 
 
-class DefaultFormatter:
+class DefaultFormatter(object):
     def __init__(self):
         pass
 
@@ -124,7 +124,7 @@ class AutocompleteFormatter(SimplifiedFormatter):
             item_format=u"""{autocomplete}""")
 
 
-class Formatter:
+class Formatter(object):
     formatter = DefaultFormatter()
 
     @staticmethod

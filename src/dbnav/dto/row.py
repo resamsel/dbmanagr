@@ -42,7 +42,7 @@ class Row(Dto):
         if type(i) is str:
             try:
                 return self.row.__dict__[i]
-            except:
+            except BaseException:
                 return None
         return self.row[i]
 

@@ -37,7 +37,7 @@ def sql_escape(value):
 
 
 class ExecuteWriter(StdoutWriter):
-    def __init__(self, options=None):
+    def __init__(self, *args):
         StdoutWriter.__init__(self, u'{0}\n', u'{item}')
         Formatter.set(DefaultFormatter())
 

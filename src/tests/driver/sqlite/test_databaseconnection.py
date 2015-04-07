@@ -21,9 +21,10 @@
 from tests.testcase import DbTestCase
 from dbnav.driver import sqlite
 from dbnav.driver.sqlite import databaseconnection as dbc
+from dbnav.driver import DatabaseDriver
 
 
-class Opts:
+class Opts(DatabaseDriver):
     def __init__(
             self, uri=None, user=None, password=None, host=None, gen=None):
         self.uri = uri
@@ -54,5 +55,4 @@ class DatabaseConnectionTestCase(DbTestCase):
                 None,
                 '',
                 None,
-                None).matches(
-                    {'sqlite': Opts()}))
+                None).matches(Opts()))

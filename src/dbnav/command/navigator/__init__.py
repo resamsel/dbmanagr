@@ -119,19 +119,19 @@ def create_databases(connection, options):
 
 
 @LogWith(logger)
-def create_values(connection, table, filter):
+def create_values(connection, table, filter_):
     """Creates row values according to the given filter"""
 
     builder = QueryBuilder(
         connection,
         table,
-        filter=filter.filter,
+        filter_=filter_.filter,
         limit=1,
-        simplify=filter.simplify)
+        simplify=filter_.simplify)
 
     mapper = None
     keys = None
-    if filter.simplify:
+    if filter_.simplify:
         comment = create_comment(
             table,
             connection.comment(table.name),
@@ -147,7 +147,6 @@ def create_values(connection, table, filter):
 
     result = connection.queryone(
         builder.build(),
-        'Values',
         mapper)
 
     row = Row(table, result)

@@ -42,7 +42,7 @@ DRIVERS = OrderedDict([
 ])
 
 
-def init_postgresql(driver, dbexplorer_config, pgpass_config, navicat_config):
+def init_postgresql(driver, dbexplorer_config, pgpass_config):
     Source.sources.append(
         DBExplorerSource(
             driver, dbexplorer_config, 'postgresql', PostgreSQLConnection))
@@ -67,11 +67,7 @@ def init():
             expanduser('~/.dbexplorer/dbexplorer.cfg')),
         getenv(
             'PGPASS_CFG',
-            expanduser('~/.pgpass')),
-        getenv(
-            'NAVICAT_CFG',
-            expanduser('~/Library/Application Support/PremiumSoft CyberTech/'
-                       'preference.plist'))
+            expanduser('~/.pgpass'))
     )
 
     Options.parser['postgresql'] = PostgreSQLOptionsParser()

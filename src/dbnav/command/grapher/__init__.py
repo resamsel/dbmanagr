@@ -72,7 +72,7 @@ def include_forward_references(
 def include_back_references(
         table, head, consumed, include, exclude, indent, opts):
     found = False
-    for key, fk in filter(
+    for _, fk in filter(
             lambda (key, fk): (
                 fk.b.table.name == table.name
                 and fk.a.table.name not in exclude),

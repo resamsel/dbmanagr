@@ -30,10 +30,10 @@ logger = logging.getLogger(__name__)
 
 
 class DBExplorerSource(Source):
-    def __init__(self, driver, file, scheme, con_creator):
+    def __init__(self, driver, file_, scheme, con_creator):
         Source.__init__(self)
         self.driver = driver
-        self.file = file
+        self.file = file_
         self.scheme = scheme
         self.con_creator = con_creator
 

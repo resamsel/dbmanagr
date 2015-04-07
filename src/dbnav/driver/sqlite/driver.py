@@ -22,14 +22,12 @@ import logging
 
 from dbnav.logger import LogWith
 from dbnav.options import restriction, FileOptionsParser
+from dbnav.driver import DatabaseDriver
 
 logger = logging.getLogger(__name__)
 
 
-class SQLiteDriver:
-    def get(self, driver):
-        return self
-
+class SQLiteDriver(DatabaseDriver):
     @LogWith(logger)
     def restriction(self, *args):
         return restriction(*args)

@@ -24,7 +24,7 @@ from tests.testcase import DbTestCase
 from dbnav.model import row
 
 
-class ResultRow:
+class ResultRow(object):
     def __init__(self, d):
         self.__dict__ = d
 

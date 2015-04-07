@@ -49,7 +49,7 @@ class BaseNode(Dto):
 
 class ColumnNode(BaseNode):
     def __init__(self, column, indent=0):
-        Dto.__init__(self)
+        BaseNode.__init__(self)
 
         self.column = column
         self.indent = indent
@@ -79,7 +79,7 @@ class ColumnNode(BaseNode):
 
 class ForeignKeyNode(BaseNode):
     def __init__(self, fk, parent=None, indent=0):
-        Dto.__init__(self)
+        BaseNode.__init__(self)
 
         self.fk = fk
         self.parent = parent
@@ -117,7 +117,7 @@ class ForeignKeyNode(BaseNode):
 
 class TableNode(BaseNode):
     def __init__(self, table, indent=0):
-        Dto.__init__(self)
+        BaseNode.__init__(self)
 
         self.table = table
         self.indent = indent
@@ -141,7 +141,7 @@ class TableNode(BaseNode):
 
 class NameNode(BaseNode):
     def __init__(self, name, indent=0):
-        Dto.__init__(self)
+        BaseNode.__init__(self)
 
         self.name = name
         self.indent = indent
