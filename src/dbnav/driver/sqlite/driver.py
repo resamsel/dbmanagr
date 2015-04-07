@@ -26,7 +26,7 @@ from dbnav.options import restriction, FileOptionsParser
 logger = logging.getLogger(__name__)
 
 
-class SQLiteDriver:
+class SQLiteDriver(object):
     def get(self, driver):
         return self
 

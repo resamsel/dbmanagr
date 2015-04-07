@@ -28,7 +28,7 @@ class Column(Dto):
             self,
             name=None,
             tablename=None,
-            type=None,
+            type_=None,
             nullable=None,
             default=None,
             autoincrement=None,
@@ -38,7 +38,7 @@ class Column(Dto):
 
         self.name = name
         self.tablename = tablename
-        self.type = type
+        self.type = type_
         self.nullable = nullable
         self.default = default
         self.autoincrement = autoincrement

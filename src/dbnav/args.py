@@ -56,7 +56,7 @@ class CommaSeparatedStringList(argparse.Action):
         setattr(
             namespace,
             self.dest,
-            ','.join(map(lambda s: "'{0}'".format(s), values.split(',')))
+            ','.join(map("'{0}'".format, values.split(',')))
         )
 
 

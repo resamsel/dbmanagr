@@ -18,14 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import uuid
-
 from dbnav.jsonable import Jsonable, from_json
 from dbnav import utils
-
-
-def hash(s):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
 
 
 def to_dto(model):
@@ -69,10 +63,10 @@ class Item(Jsonable):
         self.format_ = format
 
     def __hash__(self):
-        return hash(utils.freeze(self.__dict__))
+        return utils.hash_(utils.freeze(self.__dict__))
 
     def __eq__(self, o):
-        return hash(self) == hash(o)
+        return utils.hash_(self) == utils.hash_(o)
 
     def autocomplete(self):
         return self.autocomplete_
@@ -92,7 +86,7 @@ class Item(Jsonable):
     def uid(self):
         if self.uid_ is not None:
             return self.uid_
-        return hash(self.autocomplete())
+        return utils.hash_(self.autocomplete())
 
     def icon(self):  # pragma: no cover
         if self.icon_ is not None:

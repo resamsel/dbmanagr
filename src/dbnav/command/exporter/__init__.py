@@ -95,7 +95,7 @@ def check_excludes(items, exclude):
 
 
 def find_foreign_key(table, matcher):
-    for key, val in table.foreign_keys().iteritems():
+    for _, val in table.foreign_keys().iteritems():
         if matcher.match(val.a.table.name):
             return val
 
@@ -155,35 +155,37 @@ def create_items(connection, items, include, exclude, substitutes):
 
     check_excludes(items, exclude)
 
+    item = None
     for item in items:
         for i in include:
             process_item(item, i, includes)
 
-    for fk in includes.keys():
-        if fk.a.table.name == item.table.name:
-            # forward references, must be in pre
-            results_pre += create_items(
-                connection,
-                connection.rows(
-                    fk.b.table,
-                    QueryFilter(fk.b.name, 'in', includes[fk]),
-                    limit=-1,
-                    simplify=False),
-                remove_prefix(fk.a.name, include),
-                remove_prefix(fk.a.name, exclude),
-                remove_prefix(fk.a.name, substitutes))
-        else:
-            # backward reference, must be in post
-            results_post += create_items(
-                connection,
-                connection.rows(
-                    fk.a.table,
-                    QueryFilter(fk.a.name, 'in', includes[fk]),
-                    limit=-1,
-                    simplify=False),
-                remove_prefix(fk.a.table.name, include),
-                remove_prefix(fk.a.table.name, exclude),
-                remove_prefix(fk.a.table.name, substitutes))
+    if item is not None:
+        for fk in includes.keys():
+            if fk.a.table.name == item.table.name:
+                # forward references, must be in pre
+                results_pre += create_items(
+                    connection,
+                    connection.rows(
+                        fk.b.table,
+                        QueryFilter(fk.b.name, 'in', includes[fk]),
+                        limit=-1,
+                        simplify=False),
+                    remove_prefix(fk.a.name, include),
+                    remove_prefix(fk.a.name, exclude),
+                    remove_prefix(fk.a.name, substitutes))
+            else:
+                # backward reference, must be in post
+                results_post += create_items(
+                    connection,
+                    connection.rows(
+                        fk.a.table,
+                        QueryFilter(fk.a.name, 'in', includes[fk]),
+                        limit=-1,
+                        simplify=False),
+                    remove_prefix(fk.a.table.name, include),
+                    remove_prefix(fk.a.table.name, exclude),
+                    remove_prefix(fk.a.table.name, substitutes))
 
     return results_pre + map(
         lambda i: RowItem(

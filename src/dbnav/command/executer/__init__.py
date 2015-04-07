@@ -53,18 +53,18 @@ class Item(object):
         self.row = row
 
     def __str__(self):
-        return '\t'.join(map(lambda c: unicode(c), self.row))
+        return '\t'.join(map(unicode, self.row))
 
 
-def read_sql(file):
+def read_sql(file_):
     timer = LogTimer(logger, 'Reading input statements')
 
     try:
-        sql = file.read()
+        sql = file_.read()
     except KeyboardInterrupt:  # pragma: no cover
         sql = None
     finally:
-        file.close()
+        file_.close()
 
     timer.stop()
 
@@ -204,7 +204,7 @@ class DatabaseExecuter(Wrapper):
     def write(self):
         try:
             self.run()
-        except:
+        except BaseException:
             return -1
         return 0
 
@@ -288,7 +288,7 @@ class DatabaseExecuter(Wrapper):
                 # Write a new line after progress indicator dots have
                 # been written
                 sys.stderr.write('\n')
-        except:
+        except BaseException:
             errors += 1
             if executer:
                 executer.rollback()
