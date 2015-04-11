@@ -40,7 +40,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         con = databaseconnection.DatabaseConnection()
 
         self.assertEquals(
-            True,
+            None,
             con.filter_(None)
         )
 

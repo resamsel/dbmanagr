@@ -58,15 +58,15 @@ def forward_references(row, table, keys, aliases):
         if key in foreign_keys:
             # Key is a foreign key column
             fk = foreign_keys[key]
-            autocomplete = fk.b.table.autocomplete(
+            autocomplete = fk.b.table.autocomplete_(
                 fk.b.name, row[tostring(key)])
         elif table.column(k).primary_key:
             # Key is a simple column, but primary key
-            autocomplete = table.autocomplete(
+            autocomplete = table.autocomplete_(
                 k, row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
         else:
             # Key is a simple column
-            autocomplete = table.autocomplete(
+            autocomplete = table.autocomplete_(
                 k, row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
         f = foreign_key_or_column(table, k)
         kind = KIND_VALUE
@@ -91,7 +91,7 @@ def back_references(row, table, aliases):
             key=lambda k: foreign_keys[k].a.table.name):
         fk = foreign_keys[key]
         if fk.b.table.name == table.name:
-            autocomplete = fk.a.table.autocomplete(
+            autocomplete = fk.a.table.autocomplete_(
                 fk.a.name, row['{0}_{1}'.format(
                     aliases.get(fk.b.table.name, fk.b.table.name), fk.b.name)],
                 OPTION_URI_MULTIPLE_ROWS_FORMAT)

@@ -22,8 +22,8 @@ from tests.testcase import DbTestCase
 
 
 class TableTestCase(DbTestCase):
-    def test_autocomplete(self):
-        """Tests the table.autocomplete method"""
+    def test_autocomplete_(self):
+        """Tests the table.autocomplete_ method"""
 
         con = DbTestCase.connection
         user = con.table('user')
@@ -31,7 +31,7 @@ class TableTestCase(DbTestCase):
 
         self.assertEqual(
             'dbnav-c.sqlite/user/?[BLOB]',
-            user.autocomplete(id, buffer('Blub', 0, 4)))
+            user.autocomplete_(id, buffer('Blub', 0, 4)))
 
     def test_subtitle(self):
         """Tests the table.subitle method"""

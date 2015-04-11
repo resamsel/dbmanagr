@@ -231,8 +231,12 @@ def escape_statement(stmt):
 
 
 def find_connection(cons, options, matcher):
+    logger.debug(
+        'find_connection(cons=%s, options=%s, matcher=%s)',
+        cons, options, matcher)
     for con in cons:
         opts = options.get(con.dbms)
+        logger.debug('matcher(con=%s, opts=%s)', con, opts)
         if matcher(con, opts):
             return (con, opts)
 

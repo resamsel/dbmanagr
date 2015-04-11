@@ -1,7 +1,7 @@
 # May be overridden by environment variables
 MAKE ?= make
 PYTHON ?= python
-FLAKE8 ?= flake8
+FLAKE8 ?= flake8 --max-complexity=16
 PYLINT ?= pylint
 INSTRUMENTAL ?= instrumental
 SED ?= gsed

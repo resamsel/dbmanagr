@@ -214,14 +214,15 @@ class DatabaseExporter(Wrapper):
         connection, opts = find_connection(
             Source.connections(),
             options,
-            lambda con, opts: (
-                (opts.show == 'values'
-                    or opts.show == 'columns'
-                    and opts.filter is not None)
-                and con.matches(opts)))
+            lambda con, opts: con.matches(opts))
 
         if connection is None:
-            raise UnknownConnectionException(options.uri)
+            raise UnknownConnectionException(
+                options.uri,
+                map(lambda c: c.autocomplete(), Source.connections()))
+
+        if opts.show not in ('values', 'columns') or opts.filter is None:
+            raise Exception('Specify the complete URI to a table')
 
         try:
             connection.connect(opts.database)

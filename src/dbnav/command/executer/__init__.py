@@ -221,8 +221,13 @@ class DatabaseExecuter(Wrapper):
                 and opts.show in ['databases', 'tables', 'columns', 'values']))
 
         if connection is None:
-            raise UnknownConnectionException(options.uri)
+            raise UnknownConnectionException(
+                options.uri,
+                map(lambda c: c.autocomplete(), Source.connections()))
 
+        return self.process(connection, opts)
+
+    def process(self, connection, opts):
         # Reads the statements
         stmts = read_statements(opts)
 
@@ -268,7 +273,7 @@ class DatabaseExecuter(Wrapper):
                 errors += failed
                 counter += 1
 
-                if (opts.progress > 0 and counter % opts.progress == 0):
+                if opts.progress > 0 and counter % opts.progress == 0:
                     sys.stderr.write('.')
                     sys.stderr.flush()
 
