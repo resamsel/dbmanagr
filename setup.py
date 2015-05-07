@@ -76,9 +76,9 @@ setup(
     },
 
     data_files=[
-        (
-            '/usr/local/etc/bash_completion.d',
-            ['resources/bash_completion/dbnav']
-        )
+#        (
+#            '/usr/local/etc/bash_completion.d',
+#            ['resources/bash_completion/dbnav']
+#        )
     ]
 )
