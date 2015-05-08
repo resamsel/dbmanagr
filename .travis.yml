@@ -6,4 +6,4 @@ install:
   - python setup.py install
 # command to run tests
 script:
-  - python setup.py nosetests --with-coverage --cover-package=dbnav
+  - python setup.py nosetests

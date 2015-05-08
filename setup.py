@@ -60,6 +60,7 @@ setup(
         'pep8-naming>=0.2.2',
         'flake8-todo>=0.3',
         'nose>=1.3.4',
+        'coverage>=3.7.1',
         'pylint>=1.4.3',
         'pg8000>=1.08',
         'mysql-python>=1.2.5'
