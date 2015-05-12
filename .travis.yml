@@ -7,4 +7,4 @@ install:
 # command to run tests
 script:
   - mkdir -p target/coverage
-#  - python setup.py nosetests
+#  - python setup.py nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=target/coverage
