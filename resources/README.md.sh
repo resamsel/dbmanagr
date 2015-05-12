@@ -10,7 +10,7 @@ cat <<EOF > README.md
 # Database Navigator
 
 [![Code Health](https://landscape.io/github/resamsel/dbnavigator/master/landscape.svg?style=plastic)](https://landscape.io/github/resamsel/dbnavigator/master)
-[![Build Status](https://travis-ci.org/resamsel/dbnavigator)](https://api.travis-ci.org/resamsel/dbnavigator.svg)
+[![Build Status](https://api.travis-ci.org/resamsel/dbnavigator.svg)](https://travis-ci.org/resamsel/dbnavigator)
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
