@@ -20,7 +20,7 @@
 
 from os import path
 
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import InterfaceError
 
 from tests.testcase import DbTestCase
 from dbnav.driver import postgresql
@@ -92,7 +92,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         self.assertEqual(
             False,
             dbc.PostgreSQLConnection(
-                'postgresql://{user}:{password}@{host}/{database}',
+                'postgresql+pg8000://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).filter_({'postgresql': Opts(user='foo', host=None)}))
 
@@ -100,9 +100,9 @@ class DatabaseConnectionTestCase(DbTestCase):
         """Tests the connect function"""
 
         self.assertRaises(
-            OperationalError,
+            InterfaceError,
             dbc.PostgreSQLConnection(
-                'postgresql://{user}:{password}@{host}/{database}',
+                'postgresql+pg8000://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).connect,
             [None])
@@ -141,7 +141,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         """Tests the databases function"""
 
         con = dbc.PostgreSQLConnection(
-            'postgresql://{user}:{password}@{host}/{database}',
+            'postgresql+pg8000://{user}:{password}@{host}/{database}',
             'host', '3333', 'db', 'user', 'password'
         )
 
@@ -160,7 +160,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         self.assertRaises(
             Exception,
             dbc.PostgreSQLConnection(
-                'postgresql://{user}:{password}@{host}/{database}',
+                'postgresql+pg8000://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).init_tables,
             [None])
@@ -171,6 +171,6 @@ class DatabaseConnectionTestCase(DbTestCase):
         self.assertEqual(
             False,
             dbc.PostgreSQLConnection(
-                'postgresql://{user}:{password}@{host}/{database}',
+                'postgresql+pg8000://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).matches(Opts(gen='foo@bar')))
