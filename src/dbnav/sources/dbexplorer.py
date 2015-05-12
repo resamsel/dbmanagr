@@ -39,7 +39,13 @@ class DBExplorerSource(Source):
 
     def list(self):
         if not isfile(self.file):
+            from os.path import realpath
+            logger.warn(
+                'File %r does not exist (this file: %r)',
+                self.file, realpath(__file__))
+
             return self._connections
+
         if not self._connections:
             try:
                 tree = ET.parse(self.file)

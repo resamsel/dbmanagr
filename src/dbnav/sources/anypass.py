@@ -36,7 +36,13 @@ class AnyPassSource(Source):
 
     def list(self):
         if not isfile(self.file):
+            from os.path import realpath
+            logger.warn(
+                'File %r does not exist (this file: %r)',
+                self.file, realpath(__file__))
+
             return self._connections
+
         if not self._connections:
             with open(self.file) as f:
                 anypass = f.readlines()
@@ -54,7 +60,13 @@ class AnyPassSource(Source):
 class AnyFilePassSource(AnyPassSource):
     def list(self):
         if not isfile(self.file):
+            from os.path import realpath
+            logger.warn(
+                'File %r does not exist (this file: %r)',
+                self.file, realpath(__file__))
+
             return self._connections
+
         if not self._connections:
             with open(self.file) as f:
                 anypass = f.readlines()
