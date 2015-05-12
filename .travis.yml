@@ -3,8 +3,12 @@ python:
   - "2.7"
 # command to install dependencies
 install:
-  - python setup.py install
+  - pip install pip==1.5.6
 # command to run tests
 script:
   - mkdir -p target/coverage
-#  - python setup.py nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=target/coverage
+  - python setup.py install
+  - python setup.py develop
+  - python setup.py develop --uninstall
+  - pip uninstall -y dbnavigator
+  - python setup.py nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=target/coverage
