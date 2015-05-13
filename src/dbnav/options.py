@@ -199,7 +199,7 @@ class FileOptionsParser(OptionsParser):
         if driver.uri:
             uri = driver.uri
             url = urlparse('url://%s' % uri)
-            paths = url.path.split('/')
+            paths = url.path.split('?')[0].split('/')
 
             if len(paths) > 1:
                 driver.table = paths[1]
