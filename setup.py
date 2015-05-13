@@ -63,7 +63,7 @@ setup(
         'coverage>=3.7.1',
         'pylint>=1.4.3',
         'pg8000>=1.08',
-        'mysql-python>=1.2.5'
+        'pymysql>=0.6.2',
     ],
 
     entry_points={
@@ -74,7 +74,7 @@ setup(
             'dbexec = dbnav.command.executer:main',
             'dbdiff = dbnav.command.differ:main',
             'dbdaemon = dbnav.command.daemon:main',
-            'dbstat = dbnav.command.status:main'
+            'dbstat = dbnav.command.status:main',
         ]
     },
 
