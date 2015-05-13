@@ -97,7 +97,7 @@ sudo pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=d
 You might want to install database drivers for PostgreSQL and MySQL as well:
 
 \`\`\`
-sudo pip install pg8000 mysql-python
+sudo pip install pg8000 pymysql
 \`\`\`
 
 More information and installation options can be found on the [Installation wiki page](https://github.com/resamsel/dbnavigator/wiki/Installation).
