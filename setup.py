@@ -51,6 +51,7 @@ setup(
         'sqlalchemy>=0.9.8',
         'sqlparse>=0.1.13',
         'ijson>=2.0',
+        'pyyaml>=3.11',
         # 'psycopg2>=2.5.1',
         # 'mysql-python>=1.2.5'
     ],
@@ -75,6 +76,7 @@ setup(
             'dbdiff = dbnav.command.differ:main',
             'dbdaemon = dbnav.command.daemon:main',
             'dbstat = dbnav.command.status:main',
+            'dbargs = dbnav.command.argumentor:main',
         ]
     },
 

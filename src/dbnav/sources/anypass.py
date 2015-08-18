@@ -37,7 +37,7 @@ class AnyPassSource(Source):
     def list(self):
         if not isfile(self.file):
             from os.path import realpath
-            logger.warn(
+            logger.info(
                 'File %r does not exist (this file: %r)',
                 self.file, realpath(__file__))
 
@@ -61,7 +61,7 @@ class AnyFilePassSource(AnyPassSource):
     def list(self):
         if not isfile(self.file):
             from os.path import realpath
-            logger.warn(
+            logger.info(
                 'File %r does not exist (this file: %r)',
                 self.file, realpath(__file__))
 

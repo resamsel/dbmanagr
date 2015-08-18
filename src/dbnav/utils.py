@@ -62,7 +62,10 @@ def prefixes(items):
         return dict(filter(
             lambda (k, v): len(prefix(k)), map(
                 lambda (k, v): (prefix(k), v),
-                items.iteritems())
+                filter(
+                    lambda (k, v): '.' not in k,
+                    items.iteritems())
+                )
         ))
 
     return set(filter(len, map(prefix, items)))

@@ -156,7 +156,7 @@ def process_item(item, include, includes):
         add_column(includes, col, item)
 
 
-@LogWith(logger)
+@LogWith(logger, log_args=False, log_result=False)
 def create_items(connection, items, include, exclude, substitutes):
     results_pre = []
     results_post = []

@@ -56,6 +56,15 @@ class Item(object):
         return '\t'.join(map(unicode, self.row))
 
 
+def read_sqls(files):
+    sql = ''
+
+    for file_ in files:
+        sql += read_sql(file_)
+
+    return sql
+
+
 def read_sql(file_):
     timer = LogTimer(logger, 'Reading input statements')
 
@@ -75,7 +84,7 @@ def read_statements(opts):
     if opts.statements is not None:
         sql = opts.statements
     else:
-        sql = read_sql(opts.infile)
+        sql = read_sqls(opts.infile)
 
     if not sql:
         return None
