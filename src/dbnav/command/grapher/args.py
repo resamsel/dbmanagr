@@ -20,7 +20,7 @@
 
 from dbnav.args import parent_parser, format_group, create_parser
 
-from .writer import GraphWriter, GraphvizWriter, GraphTestWriter
+from .writer import GraphWriter, GraphvizWriter, GraphTestWriter, YamlWriter
 
 parent = parent_parser(daemonable=True)
 
@@ -42,6 +42,13 @@ group.add_argument(
     dest='formatter',
     action='store_const',
     const=GraphvizWriter)
+group.add_argument(
+    '-Y',
+    '--yaml',
+    help='output format: the graph in YAML format',
+    dest='formatter',
+    action='store_const',
+    const=YamlWriter)
 
 parser = create_parser(
     prog='dbgraph',

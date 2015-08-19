@@ -59,11 +59,15 @@ class DatabaseDiffer(Wrapper):
 
         lcon = Source.connection(left)
         if not lcon:
-            raise UnknownConnectionException(left.uri)
+            raise UnknownConnectionException(
+                left.uri,
+                map(lambda c: c.autocomplete(), Source.connections()))
         lopts = left.get(lcon.dbms)
         rcon = Source.connection(right)
         if not rcon:
-            raise UnknownConnectionException(right.uri)
+            raise UnknownConnectionException(
+                right.uri,
+                map(lambda c: c.autocomplete(), Source.connections()))
         ropts = right.get(rcon.dbms)
 
         try:

@@ -18,9 +18,13 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import logging
+
 from os.path import isfile, abspath
 
 from dbnav.sources.source import Source
+
+logger = logging.getLogger(__name__)
 
 
 class AnyPassSource(Source):
@@ -32,7 +36,13 @@ class AnyPassSource(Source):
 
     def list(self):
         if not isfile(self.file):
+            from os.path import realpath
+            logger.info(
+                'File %r does not exist (this file: %r)',
+                self.file, realpath(__file__))
+
             return self._connections
+
         if not self._connections:
             with open(self.file) as f:
                 anypass = f.readlines()
@@ -42,13 +52,21 @@ class AnyPassSource(Source):
                     self.driver, *line.strip().split(':'))
                 self._connections.append(connection)
 
+        logger.debug('Connections: %s', self._connections)
+
         return self._connections
 
 
 class AnyFilePassSource(AnyPassSource):
     def list(self):
         if not isfile(self.file):
+            from os.path import realpath
+            logger.info(
+                'File %r does not exist (this file: %r)',
+                self.file, realpath(__file__))
+
             return self._connections
+
         if not self._connections:
             with open(self.file) as f:
                 anypass = f.readlines()
@@ -59,5 +77,7 @@ class AnyFilePassSource(AnyPassSource):
                     connection = self.con_creator(
                         self.driver, None, None, filepath, None, None)
                     self._connections.append(connection)
+
+        logger.debug('Connections: %s', self._connections)
 
         return self._connections

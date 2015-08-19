@@ -174,7 +174,9 @@ class DatabaseGrapher(Wrapper):
             lambda con, opts: con.matches(opts))
 
         if connection is None:
-            raise UnknownConnectionException(options.uri)
+            raise UnknownConnectionException(
+                options.uri,
+                map(lambda c: c.autocomplete(), Source.connections()))
 
         if opts.show not in ['tables', 'columns', 'values']:
             raise Exception('Specify the complete URI to a table')

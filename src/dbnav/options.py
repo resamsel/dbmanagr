@@ -199,7 +199,7 @@ class FileOptionsParser(OptionsParser):
         if driver.uri:
             uri = driver.uri
             url = urlparse('url://%s' % uri)
-            paths = url.path.split('/')
+            paths = url.path.split('?')[0].split('/')
 
             if len(paths) > 1:
                 driver.table = paths[1]
@@ -228,7 +228,7 @@ class UriOptionsParser(OptionsParser):
                 uri += '@'
             url = urlparse('url://%s' % uri)
             locs = url.netloc.split('@')
-            paths = url.path.split('/')
+            paths = url.path.split('?')[0].split('/')
 
             if len(locs) > 0:
                 driver.user = locs[0]

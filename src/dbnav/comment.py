@@ -74,6 +74,27 @@ def column_aliases(columns, alias):
         columns))
 
 
+def find_primary_key(table):
+    if table.primary_key is None:
+        # finds the primary key
+        for c in table.columns():
+            if c.primary_key:
+                table.primary_key = c.name
+                break
+
+    return table.primary_key
+
+
+def find_id(comment, caliases, alias, primary_key):
+    if comment.id:
+        return comment.id.format(**caliases)
+    else:
+        if primary_key:
+            return u'{{{0}_{1}}}'.format(alias, primary_key)
+        else:
+            return "-"
+
+
 @LogWith(logger)
 def create_comment(table, comment, counter, aliases, alias):
     columns = {}
@@ -110,22 +131,8 @@ def create_comment(table, comment, counter, aliases, alias):
 
     logger.debug('Column aliases: %s', caliases)
 
-    if table.primary_key is None:
-        # finds the primary key
-        for c in table.columns():
-            if c.primary_key:
-                table.primary_key = c.name
-                break
-
-    primary_key = table.primary_key
-
-    if comment.id:
-        id_ = comment.id.format(**caliases)
-    else:
-        if primary_key:
-            id_ = u'{{{0}_{1}}}'.format(alias, primary_key)
-        else:
-            id_ = "-"
+    primary_key = find_primary_key(table)
+    id_ = find_id(comment, caliases, alias, primary_key)
 
     title, subtitle, name = None, None, None
     if comment.title:

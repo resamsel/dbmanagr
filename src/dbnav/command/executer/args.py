@@ -56,7 +56,7 @@ parser.add_argument(
     default='-',
     help='the path to the file containing the SQL query to execute',
     type=argparse.FileType('r'),
-    nargs='?')
+    nargs='*')
 parser.add_argument(
     '-s',
     '--statements',

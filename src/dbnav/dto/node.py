@@ -44,7 +44,9 @@ class BaseNode(Dto):
         return Formatter.format_node(self)
 
     def format_verbose(self, verbosity=0):
-        return self.format()
+        if verbosity > -1:
+            return self.format()
+        return None
 
 
 class ColumnNode(BaseNode):

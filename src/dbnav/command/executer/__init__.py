@@ -56,6 +56,15 @@ class Item(object):
         return '\t'.join(map(unicode, self.row))
 
 
+def read_sqls(files):
+    sql = ''
+
+    for file_ in files:
+        sql += read_sql(file_)
+
+    return sql
+
+
 def read_sql(file_):
     timer = LogTimer(logger, 'Reading input statements')
 
@@ -75,7 +84,7 @@ def read_statements(opts):
     if opts.statements is not None:
         sql = opts.statements
     else:
-        sql = read_sql(opts.infile)
+        sql = read_sqls(opts.infile)
 
     if not sql:
         return None
@@ -221,8 +230,13 @@ class DatabaseExecuter(Wrapper):
                 and opts.show in ['databases', 'tables', 'columns', 'values']))
 
         if connection is None:
-            raise UnknownConnectionException(options.uri)
+            raise UnknownConnectionException(
+                options.uri,
+                map(lambda c: c.autocomplete(), Source.connections()))
 
+        return self.process(connection, opts)
+
+    def process(self, connection, opts):
         # Reads the statements
         stmts = read_statements(opts)
 
@@ -268,7 +282,7 @@ class DatabaseExecuter(Wrapper):
                 errors += failed
                 counter += 1
 
-                if (opts.progress > 0 and counter % opts.progress == 0):
+                if opts.progress > 0 and counter % opts.progress == 0:
                     sys.stderr.write('.')
                     sys.stderr.flush()
 

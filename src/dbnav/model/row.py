@@ -66,7 +66,7 @@ class Row(BaseItem):
 
     def autocomplete(self):
         column = primary_key_or_first_column(self.table)
-        return self.table.autocomplete(column, self[column])
+        return self.table.autocomplete_(column, self[column])
 
     def icon(self):
         return 'images/row.png'

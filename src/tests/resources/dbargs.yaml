@@ -1,0 +1,71 @@
+#
+# Bonus competition instance
+#
+# dbexport skiline@livecopy.skiline.net/skiline/competition_instance?link_name=ac_saasfee_2014_adrenalin_saison $(cat $0 | dbargs)
+#
+
+includes:
+    definition:
+        competition:
+            name:
+            short_name:
+            description:
+            teaser:
+            teaser_popup:
+            winner_tab:
+            reminder_email:
+            reminder_email_subject:
+            user_2_competition:
+                user_id:
+                    security_info_id:
+                    current_fitness_profile:
+                    race_profile:
+                    address:
+                        country:
+                competition_terms:
+        type:
+            competition_result_format_id:
+        name:
+        description:
+    # Result holds a reference to competition_instance, which makes it a cycle.
+    # We can break it by removing it from the export
+    # current_result:
+    name:
+    short_name:
+    email_template:
+    email_subject:
+excludes:
+    safari_route_id:
+    skimovie_spot_id:
+    definition:
+        type:
+            status_api_component:
+        competition:
+            enter_ticket_resort:
+    # User exclusions
+    definition.competition.user_2_competition.user_id:
+        communicated_to_ticket_corner:
+        privacy_rankings_user_name:
+        ticket_corner_id:
+        current_season_statistics:
+        created_by_api_key_id:
+        race_profile:
+            current_ski:
+            current_snowboard:
+        current_fitness_profile:
+            user_id:
+        address:
+            federal_state:
+
+substitutes:
+    current_result: -1
+    period_name: -1
+    description_properties: -1
+    prices_properties: -1
+    teaser_properties: -1
+    unit_name: -1
+    definition:
+        prices: -1
+        teaser: -1
+    definition.competition.user_2_competition.user_id:
+        newsfeed: "'NULL0000000000000000000000000000'"

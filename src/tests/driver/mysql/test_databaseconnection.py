@@ -97,7 +97,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         self.assertEqual(
             False,
             dbc.MySQLConnection(
-                'mysql://{user}:{password}@{host}/{database}',
+                'mysql+pymysql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).filter_({'mysql': Opts(user='foo', host=None)})
         )
@@ -108,7 +108,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         self.assertRaises(
             OperationalError,
             dbc.MySQLConnection(
-                'mysql://{user}:{password}@{host}/{database}',
+                'mysql+pymysql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).connect,
             [None]
@@ -154,7 +154,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         self.assertEqual(
             False,
             dbc.MySQLConnection(
-                'mysql://{user}:{password}@{host}/{database}',
+                'mysql+pymysql://{user}:{password}@{host}/{database}',
                 'host', '3333', 'db', 'user', 'password'
             ).matches(Opts(gen='foo@bar'))
         )

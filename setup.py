@@ -48,9 +48,10 @@ setup(
 
     # dependencies
     install_requires=[
-        'sqlalchemy>=0.9.8',
+        'sqlalchemy==0.9.10',
         'sqlparse>=0.1.13',
         'ijson>=2.0',
+        'pyyaml>=3.11',
         # 'psycopg2>=2.5.1',
         # 'mysql-python>=1.2.5'
     ],
@@ -60,7 +61,10 @@ setup(
         'pep8-naming>=0.2.2',
         'flake8-todo>=0.3',
         'nose>=1.3.4',
-        'pylint>=1.4.3'
+        'coverage>=3.7.1',
+        'pylint>=1.4.3',
+        'pg8000>=1.08',
+        'pymysql>=0.6.2',
     ],
 
     entry_points={
@@ -71,14 +75,15 @@ setup(
             'dbexec = dbnav.command.executer:main',
             'dbdiff = dbnav.command.differ:main',
             'dbdaemon = dbnav.command.daemon:main',
-            'dbstat = dbnav.command.status:main'
+            'dbstat = dbnav.command.status:main',
+            'dbargs = dbnav.command.argumentor:main',
         ]
     },
 
     data_files=[
-        (
-            '/usr/local/etc/bash_completion.d',
-            ['resources/bash_completion/dbnav']
-        )
+#        (
+#            '/usr/local/etc/bash_completion.d',
+#            ['resources/bash_completion/dbnav']
+#        )
     ]
 )

@@ -110,7 +110,13 @@ def find_column(table, matcher):
     return None
 
 
-def add_foreign_key(includes, fk, item):
+def add_forward_reference(includes, fk, item):
+    if fk not in includes:
+        includes[fk] = []
+    includes[fk].append(item[fk.a.name])
+
+
+def add_backward_reference(includes, fk, item):
     if fk not in includes:
         includes[fk] = []
     includes[fk].append(item[fk.b.name])
@@ -141,13 +147,16 @@ def process_item(item, include, includes):
         return
 
     if fk:
-        add_foreign_key(includes, fk, item)
+        if fk.a.table.name == item.table.name:
+            add_forward_reference(includes, fk, item)
+        else:
+            add_backward_reference(includes, fk, item)
 
     if col and col.name in item.table.foreign_keys():
         add_column(includes, col, item)
 
 
-@LogWith(logger)
+@LogWith(logger, log_args=False, log_result=False)
 def create_items(connection, items, include, exclude, substitutes):
     results_pre = []
     results_post = []
@@ -214,14 +223,15 @@ class DatabaseExporter(Wrapper):
         connection, opts = find_connection(
             Source.connections(),
             options,
-            lambda con, opts: (
-                (opts.show == 'values'
-                    or opts.show == 'columns'
-                    and opts.filter is not None)
-                and con.matches(opts)))
+            lambda con, opts: con.matches(opts))
 
         if connection is None:
-            raise UnknownConnectionException(options.uri)
+            raise UnknownConnectionException(
+                options.uri,
+                map(lambda c: c.autocomplete(), Source.connections()))
+
+        if opts.show not in ('values', 'columns') or opts.filter is None:
+            raise Exception('Specify the complete URI to a table')
 
         try:
             connection.connect(opts.database)

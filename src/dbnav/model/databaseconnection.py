@@ -63,7 +63,7 @@ class DatabaseConnection(BaseItem):
         return 'images/connection.png'
 
     def matches(self, options):  # pragma: no cover
-        return True
+        pass
 
     def connect(self, database):  # pragma: no cover
         """Is to be implemented by subclasses"""
@@ -144,7 +144,7 @@ class DatabaseConnection(BaseItem):
         return table.rows(self, filter_, limit, simplify)
 
     def filter_(self, options):
-        return True
+        pass
 
     def databases(self):
         return map(

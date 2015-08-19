@@ -25,7 +25,9 @@ import os
 import sys
 import uuid
 
-from sqlalchemy.types import Integer
+# from sqlalchemy.types import Integer
+from sqlalchemy.sql.sqltypes import Boolean, Integer, Float, String, \
+    Date, Time, DateTime, _Binary
 
 # from dbnav.logger import LogWith
 
@@ -62,7 +64,10 @@ def prefixes(items):
         return dict(filter(
             lambda (k, v): len(prefix(k)), map(
                 lambda (k, v): (prefix(k), v),
-                items.iteritems())
+                filter(
+                    lambda (k, v): '.' not in k,
+                    items.iteritems())
+                )
         ))
 
     return set(filter(len, map(prefix, items)))
@@ -231,9 +236,31 @@ def escape_statement(stmt):
 
 
 def find_connection(cons, options, matcher):
+    logger.debug(
+        'find_connection(cons=%s, options=%s, matcher=%s)',
+        cons, options, matcher)
     for con in cons:
         opts = options.get(con.dbms)
+        logger.debug('matcher(con=%s, opts=%s)', con, opts)
         if matcher(con, opts):
             return (con, opts)
 
     return (None, None)
+
+
+def to_yaml_type(type_):
+    if isinstance(type_, Integer):
+        return 'int'
+    if isinstance(type_, Float):
+        return 'float'
+    if isinstance(type_, String):
+        return 'str'
+    if isinstance(type_, Boolean):
+        return 'bool'
+    if (isinstance(type_, DateTime)
+            or isinstance(type_, Date)
+            or isinstance(type_, Time)):
+        return 'str'
+    if isinstance(type_, _Binary):
+        return 'binary'
+    return type_.__class__

@@ -70,7 +70,10 @@ class Table(BaseItem):
     def __repr__(self):
         return self.name
 
-    def autocomplete(
+    def autocomplete(self):
+        return self.autocomplete_()
+
+    def autocomplete_(
             self, column=None, value=None, format_=OPTION_URI_VALUE_FORMAT):
         """Retrieves the autocomplete string for the given column and value"""
 

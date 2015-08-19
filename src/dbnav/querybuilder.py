@@ -176,6 +176,24 @@ def simplify(table, comment, key, d):
             comment, table.columns())[1].format(table.name, **d)
 
 
+def with_filters(query, filters):
+    """Adds filters"""
+
+    for f in filters:
+        query = query.filter(f)
+
+    return query
+
+
+def with_orders(query, orders):
+    """Adds orders"""
+
+    for order in orders:
+        query = query.order_by(order)
+
+    return query
+
+
 class SimplifyMapper(object):
     def __init__(self, table, comment=None):
         self.table = table
@@ -285,16 +303,8 @@ class QueryBuilder(object):
                 query = query.add_column(create_label(alias_format)(col))
         logger.debug('Query (joins): %s', query)
 
-        # Add filters
-        logger.debug('Filters: %s', filters)
-        for f in filters:
-            query = query.filter(f)
-        logger.debug('Query (filter): %s', query)
-
-        # Add orders
-        for order in orders:
-            query = query.order_by(order)
-        logger.debug('Query (order): %s', query)
+        query = with_filters(query, filters)
+        query = with_orders(query, orders)
 
         logger.debug('Slice: 0, %d', self.limit)
 

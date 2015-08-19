@@ -1,6 +1,7 @@
 # Database Navigator
 
-[![Code Health](https://landscape.io/github/resamsel/dbnavigator/master/landscape.svg?style=plastic)](https://landscape.io/github/resamsel/dbnavigator/master)
+[![Build Status](https://api.travis-ci.org/resamsel/dbnavigator.svg)](https://travis-ci.org/resamsel/dbnavigator)
+[![Code Health](https://landscape.io/github/resamsel/dbnavigator/master/landscape.svg)](https://landscape.io/github/resamsel/dbnavigator/master)
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
@@ -98,7 +99,7 @@ sudo pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=d
 You might want to install database drivers for PostgreSQL and MySQL as well:
 
 ```
-sudo pip install pg8000 mysql-python
+sudo pip install pg8000 pymysql
 ```
 
 More information and installation options can be found on the [Installation wiki page](https://github.com/resamsel/dbnavigator/wiki/Installation).
