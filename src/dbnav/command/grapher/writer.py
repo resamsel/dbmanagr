@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import textwrap
+
 from collections import OrderedDict
 
 from dbnav.writer import FormatWriter
@@ -61,7 +63,6 @@ class GraphWriter(FormatWriter):
 
 class YamlFormatter(DefaultFormatter):
     def format_name_node(self, node):
-        # Don't print the name node, we only need contents
         return '{name}:'.format(**node.__dict__)
 
     def format_table_node(self, node):  # pylint: disable=unused-argument
@@ -76,15 +77,23 @@ class YamlFormatter(DefaultFormatter):
             **node.__dict__)
 
     def format_foreign_key_node(self, node):
-        return u'\n{indent_}{fk.a.name}: # !!{type_} {nullable} {ref} {fk.b}'\
-            .format(
+        if node.fk.a.tablename == node.parent.name:
+            # A forward reference
+            return textwrap.dedent(u"""
+                    {indent_}# → {fk.a.name} → {fk.b}
+                    {indent_}{fk.a.name}: # !!{type_} {nullable}""").format(
                 indent_=(node.indent+1)*4*' ',
                 type_=to_yaml_type(node.fk.a.type),
                 nullable={True: 'optional', False: 'mandatory'}.get(
                     node.fk.a.nullable),
-                ref={True: u'→', False: u'↑'}.get(
-                    node.fk.a.tablename == node.parent.name),
                 **node.__dict__)
+
+        # A back reference
+        return textwrap.dedent(u"""
+                {indent_}# ↑ {fk.a} → {fk.b}
+                {indent_}{fk.a.tablename}:""").format(
+            indent_=(node.indent+1)*4*' ',
+            **node.__dict__)
 
 
 class YamlWriter(FormatWriter):
