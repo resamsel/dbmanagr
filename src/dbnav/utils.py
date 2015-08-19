@@ -25,7 +25,9 @@ import os
 import sys
 import uuid
 
-from sqlalchemy.types import Integer
+# from sqlalchemy.types import Integer
+from sqlalchemy.sql.sqltypes import Boolean, Integer, Float, String, \
+    Date, Time, DateTime, _Binary
 
 # from dbnav.logger import LogWith
 
@@ -244,3 +246,21 @@ def find_connection(cons, options, matcher):
             return (con, opts)
 
     return (None, None)
+
+
+def to_yaml_type(type_):
+    if isinstance(type_, Integer):
+        return 'int'
+    if isinstance(type_, Float):
+        return 'float'
+    if isinstance(type_, String):
+        return 'str'
+    if isinstance(type_, Boolean):
+        return 'bool'
+    if (isinstance(type_, DateTime)
+            or isinstance(type_, Date)
+            or isinstance(type_, Time)):
+        return 'str'
+    if isinstance(type_, _Binary):
+        return 'binary'
+    return type_.__class__
