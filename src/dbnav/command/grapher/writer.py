@@ -82,7 +82,7 @@ class YamlFormatter(DefaultFormatter):
                 type_=to_yaml_type(node.fk.a.type),
                 nullable={True: 'optional', False: 'mandatory'}.get(
                     node.fk.a.nullable),
-                ref={True: '→', False: '↑'}.get(
+                ref={True: u'→', False: u'↑'}.get(
                     node.fk.a.tablename == node.parent.name),
                 **node.__dict__)
 
