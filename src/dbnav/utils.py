@@ -248,6 +248,43 @@ def find_connection(cons, options, matcher):
     return (None, None)
 
 
+def to_dict(opts, d=None):
+    """
+    Creates a dictionary from the given list of strings. The dict keys are
+    separated by dots. This can be used to create the includes/excludes/
+    substitutes given as command line arguments.
+    """
+
+    if d is None:
+        d = {}
+    if opts is None:
+        return d
+
+    for opt in opts:
+        s = opt.split('=', 1)
+        key = s[0]
+        val = False
+        if len(s) > 1:
+            val = s[1]
+
+        if key == '':
+            if d == {}:
+                # Overwrite newly created dict
+                d = True
+            return d
+
+        if '.' in key:
+            # Recurse into keys
+            pfx = prefix(key)
+            if pfx not in d or type(d[pfx]) is bool:
+                d[pfx] = {}
+            d[pfx] = to_dict(remove_prefix(pfx, [opt]), d[pfx])
+        else:
+            d[prefix(key)] = val
+
+    return d
+
+
 def to_yaml_type(type_):
     if isinstance(type_, Integer):
         return 'int'

@@ -39,6 +39,8 @@ def unknown_connection_message(connection, haystack):
 
 
 def unknown_table_message(tablename, haystack):
+    if tablename is None:
+        tablename = '?'
     matches = get_close_matches(tablename, haystack)
     if not matches:
         return TABLE_NOT_FOUND.format(

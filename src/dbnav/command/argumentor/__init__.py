@@ -107,6 +107,8 @@ class DatabaseArgumentor(Wrapper):
 
         config = yaml.safe_load(options.infile)
 
+        logger.debug('Config file: %s', config)
+
         includes = []
         excludes = []
         substitutes = []

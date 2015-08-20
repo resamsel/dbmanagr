@@ -63,13 +63,19 @@ class GraphWriter(FormatWriter):
 
 class YamlFormatter(DefaultFormatter):
     def format_name_node(self, node):
-        return '{name}:'.format(**node.__dict__)
+        return textwrap.dedent("""
+            {indent_}# root element
+            {indent_}{name}:""").format(
+            indent_=(node.indent)*4*' ',
+            **node.__dict__)
 
     def format_table_node(self, node):  # pylint: disable=unused-argument
         return ''
 
     def format_column_node(self, node):
-        return '\n{indent_}{column.name}: # !!{type_} {nullable}'.format(
+        return textwrap.dedent("""
+                {indent_}# {column}
+                {indent_}{column.name}: # !!{type_} {nullable}""").format(
             indent_=(node.indent+1)*4*' ',
             type_=to_yaml_type(node.column.type),
             nullable={True: 'optional', False: 'mandatory'}.get(
