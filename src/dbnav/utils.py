@@ -263,14 +263,14 @@ def to_dict(opts, d=None):
     for opt in opts:
         s = opt.split('=', 1)
         key = s[0]
-        val = False
+        val = None
         if len(s) > 1:
             val = s[1]
 
         if key == '':
             if d == {}:
                 # Overwrite newly created dict
-                d = True
+                d = None
             return d
 
         if '.' in key:
@@ -283,6 +283,62 @@ def to_dict(opts, d=None):
             d[prefix(key)] = val
 
     return d
+
+
+# Example
+#
+# a:
+#   b: False
+#   c: True
+# d:
+# e:
+#   f:
+#     g:
+#
+# When Included: a, a.c, d, e, e.f, e.f.g
+# When Excluded: a.c, d, e.f.g
+#
+def is_included(name, d):
+    """Checks the given content selection dict for inclusion of name"""
+
+    if d is None:
+        # None means included
+        return True
+    if d is False:
+        return False
+    # Type must be dict, then any value (None, dict, True) except for False
+    # includes name
+    if type(d) is dict:
+        if '*' in d:
+            # Wildcard matches any element within this level
+            return True
+        return d.get(name, False) is not False
+    return False
+
+
+def is_excluded(name, d):
+    """Checks the given content selection dict for exclusion of name"""
+
+    if d is None:
+        # None means excluded
+        return True
+    if d is False:
+        return False
+    if type(d) is dict:
+        if '*' in d:
+            # Wildcard matches any element within this level
+            return True
+        val = d.get(name, True)
+        return val is None or val is False
+    return True
+
+
+def selection(name, d):
+    """Retrieves the content selection for the given name"""
+
+    if type(d) is dict:
+        return d.get(name, False)
+    return False
 
 
 def to_yaml_type(type_):

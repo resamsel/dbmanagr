@@ -27,7 +27,8 @@ from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.sources.source import Source
 from dbnav.logger import LogWith
-from dbnav.utils import prefixes, remove_prefix, find_connection
+from dbnav.utils import find_connection, to_dict, selection, is_included, \
+    is_excluded
 from dbnav.writer import Writer
 from dbnav.dto.mapper import to_dto
 from dbnav.exception import UnknownTableException, UnknownConnectionException
@@ -43,7 +44,11 @@ def include_forward_references(
         table, head, consumed, include, exclude, indent, opts):
     found = False
     for col in filter(
-            lambda col: col.name not in exclude, table.columns()):
+            lambda col: (
+                not is_excluded(col.name, exclude) or
+                is_included(col.name, include)),
+            table.columns()):
+        logger.debug('col.name %s not in exclude %s', col.name, exclude)
         fk = table.foreign_key(col.name)
         # logger.debug('consumed=%s', consumed)
         if not fk:
@@ -56,13 +61,13 @@ def include_forward_references(
                 'adds forward reference: fk=%s, include=%s',
                 fk, include)
             head.append(ForeignKeyNode(fk, table, indent))
-            if (fk.a.name in prefixes(include)
+            if (is_included(fk.a.name, include)
                     or (opts.recursive and fk.b.table.name not in consumed)):
                 # logger.debug('adds table=%s', fk.b.table)
                 head.append(TableNode(
                     fk.b.table,
-                    include=remove_prefix(fk.a.name, include),
-                    exclude=remove_prefix(fk.a.name, exclude),
+                    include=selection(fk.a.name, include),
+                    exclude=selection(fk.a.name, exclude),
                     indent=indent + 1))
                 found = True
 
@@ -75,20 +80,22 @@ def include_back_references(
     for _, fk in filter(
             lambda (key, fk): (
                 fk.b.table.name == table.name
-                and fk.a.table.name not in exclude),
+                and (
+                    not is_excluded(fk.a.table.name, exclude)
+                    or is_included(fk.a.table.name, include))),
             table.foreign_keys().iteritems()):
         logger.debug(
             'adds back reference: fk=%s, include=%s',
             fk, include)
         head.append(ForeignKeyNode(fk, table, indent))
-        if (fk.a.table.name in prefixes(include)
+        if (is_included(fk.a.table.name, include)
                 or (opts.recursive and fk.a.table.name not in consumed)):
             # Collects the back references
             # logger.debug('adds table=%s', fk.a.table)
             head.append(TableNode(
                 fk.a.table,
-                include=remove_prefix(fk.a.table.name, include),
-                exclude=remove_prefix(fk.a.table.name, exclude),
+                include=selection(fk.a.table.name, include),
+                exclude=selection(fk.a.table.name, exclude),
                 indent=indent + 1))
             found = True
 
@@ -101,9 +108,9 @@ def bfs(start, include=None, exclude=None, indent=0, opts=None):
         start, include, exclude, indent)
 
     if include is None:
-        include = []
+        include = {}
     if exclude is None:
-        exclude = []
+        exclude = {}
 
     head = [TableNode(start, include, exclude, indent)]
     consumed = []
@@ -142,6 +149,9 @@ def bfs(start, include=None, exclude=None, indent=0, opts=None):
                         table, head, consumed, include, exclude, indent, opts):
                     found = True
 
+                logger.debug(
+                    'opts.include_back_references: %s',
+                    opts.include_back_references)
                 if opts.include_back_references and include_back_references(
                         table, head, consumed, include, exclude, indent, opts):
                     found = True
@@ -206,8 +216,8 @@ class DatabaseGrapher(Wrapper):
             nodes.append(NameNode(table.name, indent=indent))
             nodes += bfs(
                 table,
-                include=opts.include,
-                exclude=opts.exclude,
+                include=to_dict(opts.include),
+                exclude=to_dict(opts.exclude),
                 indent=indent,
                 opts=opts)
 

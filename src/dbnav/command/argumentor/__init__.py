@@ -51,9 +51,10 @@ def dfsi(tree, parent, includes):
 
     for (k, v) in tree.iteritems():
         ref = to_ref(parent, k)
-        includes.append(to_forward_ref(ref))
         if type(v) is dict:
             dfsi(v, ref, includes)
+        else:
+            includes.append(to_forward_ref(ref))
 
 
 def dfsx(tree, parent, excludes):
