@@ -1,0 +1,34 @@
+includes:
+    # → user_id → user.id
+    user_id: # !!int mandatory
+        # ↑ article.user_id → user.id
+        article:
+        # ↑ user_address.user_id → user.id
+        user_address:
+            # → user_id → user.id
+            user_id: # !!int mandatory
+            # → address_id → address.id
+            address_id: # !!int mandatory
+                # ↑ user_address.address_id → address.id
+                user_address:
+        # ↑ blog_user.user_id → user.id
+        blog_user:
+            # → blog_id → blog.id
+            blog_id: # !!int mandatory
+                # ↑ blog_user.blog_id → blog.id
+                blog_user:
+            # → user_id → user.id
+            user_id: # !!int mandatory
+excludes:
+    # → user_id → user.id
+    user_id: # !!int mandatory
+        # ↑ article.user_id → user.id
+        article:
+            id:
+            '*':
+substitutes:
+    # → user_id → user.id
+    user_id: # !!int mandatory
+        # ↑ article.user_id → user.id
+        article:
+            title: The Title

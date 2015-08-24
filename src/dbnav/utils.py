@@ -341,6 +341,27 @@ def selection(name, d):
     return False
 
 
+def is_node(tree, name):
+    """Checks whether the name is part of the tree dict"""
+
+    return (
+        type(tree) is dict
+        and name in tree
+        and type(tree[name]) is dict)
+
+
+def to_ref(parent, key):
+    if parent is None:
+        return key
+    return '{0}.{1}'.format(parent, key)
+
+
+def to_forward_ref(ref):
+    if ref.endswith('*'):
+        return ref
+    return '{0}.'.format(ref)
+
+
 def to_yaml_type(type_):
     if isinstance(type_, Integer):
         return 'int'
@@ -356,4 +377,4 @@ def to_yaml_type(type_):
         return 'str'
     if isinstance(type_, _Binary):
         return 'binary'
-    return type_.__class__
+    return 'str'

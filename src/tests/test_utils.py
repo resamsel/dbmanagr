@@ -201,3 +201,179 @@ class UtilsTestCase(DbTestCase):
             ('a', 'b'),
             utils.freeze(['a', 'b'])
         )
+
+    def test_to_dict(self):
+        """Tests the utils.to_dict function"""
+
+        self.assertEqual({}, utils.to_dict(None, {}))
+        self.assertEqual({}, utils.to_dict([], {}))
+
+        self.assertEqual(
+            {'a': None},
+            utils.to_dict(['a.'], {})
+        )
+        self.assertEqual(
+            {'a': None, 'b': None},
+            utils.to_dict(['a', 'b'], {})
+        )
+        self.assertEqual(
+            {'a': {'b': None, 'c': None}, 'd': None, 'e': {'f': {'g': None}}},
+            utils.to_dict(['a.b', 'a.c', 'd', 'e.f.g'], {})
+        )
+        self.assertEqual(
+            {'a': {'b': '1', 'c': None}, 'd': None, 'e': {'f': {'g': None}}},
+            utils.to_dict(['a.b=1', 'a.c', 'd', 'e.f.g'], {})
+        )
+
+    def test_is_included(self):
+        """Tests the utils.is_included function"""
+
+        d = {
+            'a': {
+                'b': False,
+                'c': None
+            },
+            'd': None,
+            'e': {
+                'f': {
+                    'g': None
+                }
+            }
+        }
+
+        self.assertEqual(False, utils.is_included('a', {}))
+        self.assertEqual(True, utils.is_included('a', None))
+
+        self.assertEqual(True, utils.is_included('a', d))
+        self.assertEqual(False, utils.is_included('b', d))
+        self.assertEqual(False, utils.is_included('c', d))
+        self.assertEqual(True, utils.is_included('d', d))
+        self.assertEqual(True, utils.is_included('e', d))
+        self.assertEqual(False, utils.is_included('f', d))
+        self.assertEqual(False, utils.is_included('g', d))
+
+        self.assertEqual(False, utils.is_included('b', d['a']))
+        self.assertEqual(True, utils.is_included('c', d['a']))
+        self.assertEqual(True, utils.is_included('f', d['e']))
+        self.assertEqual(True, utils.is_included('g', d['e']['f']))
+        self.assertEqual(False, utils.is_included('g', True))
+        self.assertEqual(True, utils.is_included('g', {'*': None}))
+
+    def test_is_excluded(self):
+        """Tests the utils.is_excluded function"""
+
+        d = {
+            'a': {
+                'b': False,
+                'c': None
+            },
+            'd': None,
+            'e': {
+                'f': {
+                    'g': None
+                }
+            }
+        }
+
+        self.assertEqual(False, utils.is_excluded('a', {}))
+        self.assertEqual(True, utils.is_excluded('a', None))
+
+        self.assertEqual(False, utils.is_excluded('a', d))
+        self.assertEqual(False, utils.is_excluded('b', d))
+        self.assertEqual(False, utils.is_excluded('c', d))
+        self.assertEqual(True, utils.is_excluded('d', d))
+        self.assertEqual(False, utils.is_excluded('e', d))
+        self.assertEqual(False, utils.is_excluded('f', d))
+        self.assertEqual(False, utils.is_excluded('g', d))
+
+        self.assertEqual(True, utils.is_excluded('b', d['a']))
+        self.assertEqual(True, utils.is_excluded('c', d['a']))
+        self.assertEqual(False, utils.is_excluded('f', d['e']))
+        self.assertEqual(True, utils.is_excluded('g', d['e']['f']))
+        self.assertEqual(True, utils.is_excluded('g', True))
+        self.assertEqual(True, utils.is_excluded('g', {'*': None}))
+
+    def test_selection(self):
+        """Tests the utils.selection function"""
+
+        d = {
+            'a': {
+                'b': False,
+                'c': None
+            },
+            'd': None,
+            'e': {
+                'f': {
+                    'g': None
+                }
+            }
+        }
+
+        self.assertEqual(False, utils.selection('', False))
+        self.assertEqual(False, utils.selection('', {}))
+
+        self.assertEqual(d['a'], utils.selection('a', d))
+        self.assertEqual(False, utils.selection('b', d))
+        self.assertEqual(False, utils.selection('c', d))
+        self.assertEqual(d['d'], utils.selection('d', d))
+        self.assertEqual(d['e'], utils.selection('e', d))
+        self.assertEqual(False, utils.selection('f', d))
+        self.assertEqual(False, utils.selection('g', d))
+
+    def test_is_node(self):
+        """Tests the utils.is_node function"""
+
+        d = {
+            'a': {
+                'b': False,
+                'c': None
+            },
+            'd': None,
+            'e': {
+                'f': {
+                    'g': None
+                }
+            }
+        }
+
+        self.assertEqual(False, utils.is_node(False, ''))
+        self.assertEqual(False, utils.is_node({}, ''))
+        self.assertEqual(False, utils.is_node({'x': False}, 'x'))
+
+        self.assertEqual(True, utils.is_node(d, 'a'))
+        self.assertEqual(False, utils.is_node(d, 'b'))
+        self.assertEqual(False, utils.is_node(d, 'c'))
+        self.assertEqual(False, utils.is_node(d, 'd'))
+        self.assertEqual(True, utils.is_node(d, 'e'))
+        self.assertEqual(False, utils.is_node(d, 'f'))
+        self.assertEqual(False, utils.is_node(d, 'g'))
+
+    def test_to_yaml_type(self):
+        """Tests the utils.to_yaml_type function"""
+
+        from sqlalchemy.sql.sqltypes import Boolean, Integer, Float, String, \
+            Date, Time, DateTime, _Binary
+
+        self.assertEqual('str', utils.to_yaml_type(None))
+
+        self.assertEqual('bool', utils.to_yaml_type(Boolean()))
+        self.assertEqual('int', utils.to_yaml_type(Integer()))
+        self.assertEqual('float', utils.to_yaml_type(Float()))
+        self.assertEqual('str', utils.to_yaml_type(String()))
+        self.assertEqual('str', utils.to_yaml_type(Date()))
+        self.assertEqual('str', utils.to_yaml_type(Time()))
+        self.assertEqual('str', utils.to_yaml_type(DateTime()))
+        self.assertEqual('binary', utils.to_yaml_type(_Binary()))
+
+    def test_to_ref(self):
+        """Tests the utils.to_ref function"""
+
+        self.assertEqual('b', utils.to_ref(None, 'b'))
+
+        self.assertEqual('a.b', utils.to_ref('a', 'b'))
+
+    def test_to_forward_ref(self):
+        """Tests the utils.to_forward_ref function"""
+
+        self.assertEqual('a.', utils.to_forward_ref('a'))
+        self.assertEqual('a*', utils.to_forward_ref('a*'))
