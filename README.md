@@ -2,6 +2,7 @@
 
 [![Build Status](https://api.travis-ci.org/resamsel/dbnavigator.svg)](https://travis-ci.org/resamsel/dbnavigator)
 [![Code Health](https://landscape.io/github/resamsel/dbnavigator/master/landscape.svg)](https://landscape.io/github/resamsel/dbnavigator/master)
+[![Coverage Status](https://coveralls.io/repos/resamsel/dbnavigator/badge.svg?branch=develop&service=github)](https://coveralls.io/github/resamsel/dbnavigator?branch=develop)
 
 Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
