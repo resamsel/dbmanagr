@@ -62,9 +62,9 @@ class ForeignKeyNode(BaseNode):
 class TableNode(BaseNode):
     def __init__(self, table, include=None, exclude=None, indent=0):
         if include is None:
-            include = []
+            include = {}
         if exclude is None:
-            exclude = []
+            exclude = {}
 
         self.table = table
         self.include = include

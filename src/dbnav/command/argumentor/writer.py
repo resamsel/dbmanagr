@@ -43,7 +43,7 @@ class ArgumentWriter(FormatWriter):
 
 class ArgumentVerboseWriter(FormatWriter):
     def __init__(self, options=None):
-        FormatWriter.__init__(self, u'{0}\n', u'{0}\n')
+        FormatWriter.__init__(self, u'{0}\n', u'{0}')
         if options.verbose > 0:
             Formatter.set(DefaultFormatter())
         else:
@@ -59,7 +59,7 @@ class ArgumentVerboseWriter(FormatWriter):
             output.append('Excludes:\n{0}\n\n'.format('\n'.join(
                 map(lambda x: ' - {0}'.format(x), excludes))))
         if len(substitutes) > 0:
-            output.append('Substitutes:\n{0}\n\n'.format('\n'.join(
+            output.append('Substitutes:\n{0}'.format('\n'.join(
                 map(lambda x: ' - {0}'.format(x), substitutes))))
         return self.items_format.format(''.join(output))
 

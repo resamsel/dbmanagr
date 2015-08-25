@@ -248,6 +248,120 @@ def find_connection(cons, options, matcher):
     return (None, None)
 
 
+def to_dict(opts, d=None):
+    """
+    Creates a dictionary from the given list of strings. The dict keys are
+    separated by dots. This can be used to create the includes/excludes/
+    substitutes given as command line arguments.
+    """
+
+    if d is None:
+        d = {}
+    if opts is None:
+        return d
+
+    for opt in opts:
+        s = opt.split('=', 1)
+        key = s[0]
+        val = None
+        if len(s) > 1:
+            val = s[1]
+
+        if key == '':
+            if d == {}:
+                # Overwrite newly created dict
+                d = None
+            return d
+
+        if '.' in key:
+            # Recurse into keys
+            pfx = prefix(key)
+            if pfx not in d or type(d[pfx]) is bool:
+                d[pfx] = {}
+            d[pfx] = to_dict(remove_prefix(pfx, [opt]), d[pfx])
+        else:
+            d[prefix(key)] = val
+
+    return d
+
+
+# Example
+#
+# a:
+#   b: False
+#   c: True
+# d:
+# e:
+#   f:
+#     g:
+#
+# When Included: a, a.c, d, e, e.f, e.f.g
+# When Excluded: a.c, d, e.f.g
+#
+def is_included(name, d):
+    """Checks the given content selection dict for inclusion of name"""
+
+    if d is None:
+        # None means included
+        return True
+    if d is False:
+        return False
+    # Type must be dict, then any value (None, dict, True) except for False
+    # includes name
+    if type(d) is dict:
+        if '*' in d:
+            # Wildcard matches any element within this level
+            return True
+        return d.get(name, False) is not False
+    return False
+
+
+def is_excluded(name, d):
+    """Checks the given content selection dict for exclusion of name"""
+
+    if d is None:
+        # None means excluded
+        return True
+    if d is False:
+        return False
+    if type(d) is dict:
+        if '*' in d:
+            # Wildcard matches any element within this level
+            return True
+        val = d.get(name, True)
+        return val is None or val is False
+    return True
+
+
+def selection(name, d):
+    """Retrieves the content selection for the given name"""
+
+    if type(d) is dict:
+        return d.get(name, False)
+    return False
+
+
+def is_node(tree, name):
+    """Checks whether the name is part of the tree dict"""
+
+    return (
+        type(tree) is dict
+        and name in tree
+        and type(tree[name]) is dict)
+
+
+def to_ref(parent, key):
+    if parent is None:
+        return key
+    return '{0}.{1}'.format(parent, key)
+
+
+def to_forward_ref(ref):
+    if ref.endswith('*'):
+        return ref
+    return '{0}.'.format(ref)
+
+
 def to_yaml_type(type_):
     if isinstance(type_, Integer):
         return 'int'
@@ -263,4 +377,4 @@ def to_yaml_type(type_):
         return 'str'
     if isinstance(type_, _Binary):
         return 'binary'
-    return type_.__class__
+    return 'str'

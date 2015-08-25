@@ -18,8 +18,35 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ('__version__',)
-__version__ = "0.26.1"
+import os
 
-if __name__ == "__main__":  # pragma: no cover
-    print __version__
+from tests.command.argumentor import load
+from tests.testcase import DbTestCase
+from dbnav.command import argumentor
+from dbnav.utils import mute_stderr
+
+
+def test_argumentor():
+    os.environ['UNITTEST'] = 'True'
+    for test in load():
+        yield test,
+    del os.environ['UNITTEST']
+
+
+class ArgumentorTestCase(DbTestCase):
+    def test_writer(self):
+        """Tests the writer"""
+
+        import sys
+        sys.argv = ['']
+
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(argumentor.main),
+            ['unknown']
+        )
+
+        self.assertEqual(
+            0,
+            argumentor.main(['tests/command/argumentor/resources/empty.yaml'])
+        )

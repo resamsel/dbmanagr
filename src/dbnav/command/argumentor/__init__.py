@@ -22,10 +22,13 @@ import sys
 import logging
 import yaml
 
+from pipes import quote
+
 from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.logger import LogWith
 from dbnav.writer import Writer
+from dbnav.utils import is_node, to_ref, to_forward_ref
 
 from .args import parser
 from .writer import ArgumentWriter
@@ -35,59 +38,27 @@ logger = logging.getLogger(__name__)
 
 @LogWith(logger)
 def consume(tree, parent, includes, excludes, substitutes):
-    if (type(tree) is dict and 'includes' in tree
-            and type(tree['includes']) is dict):
-        dfsi(tree['includes'], parent, includes)
-    if (type(tree) is dict and 'excludes' in tree
-            and type(tree['excludes']) is dict):
-        dfsx(tree['excludes'], parent, excludes)
-    if (type(tree) is dict and 'substitutes' in tree
-            and type(tree['substitutes']) is dict):
-        dfss(tree['substitutes'], parent, substitutes)
+    if is_node(tree, 'includes'):
+        dfs(tree['includes'], parent, includes,
+            lambda ref, v: to_forward_ref(ref))
+    if is_node(tree, 'excludes'):
+        dfs(tree['excludes'], parent, excludes,
+            lambda ref, v: ref)
+    if is_node(tree, 'substitutes'):
+        dfs(tree['substitutes'], parent, substitutes,
+            lambda ref, v: '{0}={1}'.format(ref, quote(v)))
 
 
-def dfsi(tree, parent, includes):
-    """Depth first search for includes"""
-
-    for (k, v) in tree.iteritems():
-        ref = to_ref(parent, k)
-        includes.append(to_forward_ref(ref))
-        if type(v) is dict:
-            dfsi(v, ref, includes)
-
-
-def dfsx(tree, parent, excludes):
-    """Depth first search for excludes"""
+@LogWith(logger)
+def dfs(tree, parent, selection, conversion):
+    """Depth first search for selection"""
 
     for (k, v) in tree.iteritems():
         ref = to_ref(parent, k)
         if type(v) is dict:
-            dfsx(v, ref, excludes)
+            dfs(v, ref, selection, conversion)
         else:
-            excludes.append(ref)
-
-
-def dfss(tree, parent, substitutes):
-    """Depth first search for substitutes"""
-
-    for (k, v) in tree.iteritems():
-        ref = to_ref(parent, k)
-        if type(v) is dict:
-            dfss(v, ref, substitutes)
-        else:
-            substitutes.append('{0}={1}'.format(ref, v))
-
-
-def to_ref(parent, key):
-    if parent is None:
-        return key
-    return '{0}.{1}'.format(parent, key)
-
-
-def to_forward_ref(ref):
-    if ref.endswith('*'):
-        return ref
-    return '{0}.'.format(ref)
+            selection.append(conversion(ref, v))
 
 
 class DatabaseArgumentor(Wrapper):
@@ -106,6 +77,8 @@ class DatabaseArgumentor(Wrapper):
         options = self.options
 
         config = yaml.safe_load(options.infile)
+
+        logger.debug('Config file: %s', config)
 
         includes = []
         excludes = []

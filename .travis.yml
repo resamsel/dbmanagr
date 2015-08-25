@@ -12,7 +12,7 @@ install:
 script:
   - mkdir -p target/coverage
   - python setup.py install
-  - pip uninstall dbnav
+  - pip uninstall dbnav -y
   - python setup.py develop
   - python setup.py develop --uninstall
   - python setup.py nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=target/coverage
