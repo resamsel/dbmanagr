@@ -63,9 +63,8 @@ class GraphWriter(FormatWriter):
 
 class YamlFormatter(DefaultFormatter):
     def format_name_node(self, node):
-        return textwrap.dedent("""
-            {indent_}# root element
-            {indent_}{name}:""").format(
+        return """{indent_}# root element
+{indent_}{name}:""".format(
             indent_=(node.indent)*4*' ',
             **node.__dict__)
 

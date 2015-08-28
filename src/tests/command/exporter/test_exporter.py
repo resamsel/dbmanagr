@@ -20,13 +20,18 @@
 
 import os
 
+from decimal import Decimal
+from sqlalchemy.util import KeyedTuple
+
 from tests.command.exporter import load
 from tests.testcase import DbTestCase
 from tests.mock.sources import MockSource
 from dbnav.command import exporter
-from dbnav.exception import UnknownTableException, UnknownColumnException
+from dbnav.exception import UnknownTableException, UnknownColumnException, \
+    UnknownConnectionException
 from dbnav.utils import mute_stderr
 from dbnav.dto.mapper import to_dto
+from dbnav.model.row import Row
 
 
 def test_exporter():
@@ -63,6 +68,18 @@ class DifferTestCase(DbTestCase):
             u'!!str Yes',
             exporter.writer.yaml_value(
                 to_dto(user.column('url')), user_dto, 'Yes'))
+        self.assertEqual(
+            u'!!int 3',
+            exporter.writer.yaml_value(
+                to_dto(user.column('score')), user_dto, Decimal(3.0)))
+
+    def test_unknown_connection(self):
+        """Tests unknown connection"""
+
+        self.assertRaises(
+            UnknownConnectionException,
+            exporter.run,
+            ['unknown'])
 
     def test_unknown_table(self):
         """Tests unknown tables"""
@@ -106,3 +123,40 @@ class DifferTestCase(DbTestCase):
         self.assertEqual(
             0,
             exporter.main(['dbnav.sqlite/user?id=1']))
+
+    def test_execute(self):
+        """Tests the exporter.execute function"""
+
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(exporter.execute),
+            []
+        )
+
+    def test_row_item(self):
+        """Tests the RowItem class"""
+
+        row = Row(None, KeyedTuple(
+            [
+                '', -1, '', '', None, None, '',
+                '', '', '', -1, -1],
+            labels=[
+                'database_name', 'pid', 'username', 'client',
+                'transaction_start', 'query_start', 'state', 'query',
+                'blocked', 'blocked_by', 'transaction_duration',
+                'query_duration']
+        ))
+
+        item = exporter.RowItem(row, None, None, None)
+
+        self.assertEqual(item, item)
+
+        self.assertEqual(
+            item,
+            exporter.RowItem.from_json({
+                'row': row,
+                'include': None,
+                'exclude': None,
+                'substitutes': None
+            })
+        )

@@ -254,8 +254,6 @@ class DatabaseExporter(Wrapper):
         finally:
             connection.close()
 
-        raise Exception('Specify the complete URI to a table')
-
 
 def execute(args):
     """

@@ -142,3 +142,12 @@ class NavigatorTestCase(DbTestCase):
         self.assertEqual(
             -1,
             navigator.main(['dbnav.sqlite/unknown?']))
+
+    def test_execute(self):
+        """Tests the navigator.execute function"""
+
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(navigator.execute),
+            ['-K']
+        )

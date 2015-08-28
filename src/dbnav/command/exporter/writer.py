@@ -85,23 +85,26 @@ class SqlUpdateWriter(FormatWriter):
 
     def itemtostring(self, item):
         row = item.row
+        include = item.include
         exclude = item.exclude
         # substitutes = item.substitutes
         table = row.table
         return self.item_format.format(
             table=self.options.escape_keyword(table.name),
-            values=self.create_values(row, exclude),
+            values=self.create_values(row, include, exclude),
             restriction=self.create_restriction(
                 row,
                 filter(lambda col: col.primary_key, table.columns)))
 
-    def create_values(self, row, exclude):
+    def create_values(self, row, include, exclude):
         # Substitutes do not make sense here, or do they?
         return u', '.join(map(
             lambda col: self.options.restriction(
                 None, col, '=', row[col.name], map_null_operator=False),
             filter(
-                lambda col: not col.primary_key and col.name not in exclude,
+                lambda col: (
+                    not col.primary_key
+                    and included(col.name, include, exclude)),
                 row.table.columns)))
 
     def create_restriction(self, row, pks):

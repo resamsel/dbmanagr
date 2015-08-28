@@ -1,0 +1,8 @@
+# root element
+user:
+    # ↑ article.user_id → user.id
+    article:
+    # ↑ user_address.user_id → user.id
+    user_address:
+    # ↑ blog_user.user_id → user.id
+    blog_user:

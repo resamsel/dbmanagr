@@ -56,4 +56,5 @@ class StatementActivityWriter(FormatWriter):
 
     def itemtostring(self, item):
         row = item.row
+        print self.item_format, item.row
         return self.item_format.format(row=row)

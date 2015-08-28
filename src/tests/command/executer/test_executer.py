@@ -70,6 +70,15 @@ class ExecuterTestCase(DbTestCase):
                 ['dbnav.sqlite/user?id=1', '-s', 'select * from unknown'])
         )
 
+    def test_execute(self):
+        """Tests the executer.execute function"""
+
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(executer.execute),
+            []
+        )
+
     def test_exception(self):
         """Tests exceptions"""
 

@@ -23,7 +23,7 @@ __all__ = ('sqlite', 'postgresql', 'mysql')
 
 class DatabaseDriver(object):
     def __init__(self):
-        pass
+        self.show_code = -1
 
     def get(self):
         return self

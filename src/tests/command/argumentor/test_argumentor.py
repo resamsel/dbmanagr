@@ -38,15 +38,28 @@ class ArgumentorTestCase(DbTestCase):
         """Tests the writer"""
 
         import sys
-        sys.argv = ['']
+        sys.argv = ['', 'unknown']
 
         self.assertRaises(
             SystemExit,
             mute_stderr(argumentor.main),
             ['unknown']
         )
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(argumentor.main)
+        )
 
         self.assertEqual(
             0,
             argumentor.main(['tests/command/argumentor/resources/empty.yaml'])
+        )
+
+    def test_execute(self):
+        """Tests the argumentor.execute function"""
+
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(argumentor.execute),
+            ['unknown']
         )
