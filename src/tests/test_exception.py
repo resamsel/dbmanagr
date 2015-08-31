@@ -50,3 +50,7 @@ class ExceptionTestCase(DbTestCase):
             'Table "a" was not found (close matches: ad, ab)',
             exception.unknown_table_message('a', ['ab', 'bc', 'ad'])
         )
+        self.assertEqual(
+            'Table "?" was not found (no close matches in: ab, bc, ad)',
+            exception.unknown_table_message(None, ['ab', 'bc', 'ad'])
+        )
