@@ -1,0 +1,74 @@
+# root element
+user:
+    # user.id
+    id: # !!int mandatory
+    # user.first_name
+    first_name: # !!str mandatory
+    # user.last_name
+    last_name: # !!str mandatory
+    # user.company
+    company: # !!str optional
+    # user.username
+    username: # !!str optional
+    # user.email
+    email: # !!str optional
+    # user.phone
+    phone: # !!str optional
+    # user.gender
+    gender: # !!str optional
+    # user.url
+    url: # !!str optional
+    # ↑ article.user_id → user.id
+    article:
+        # article.id
+        id: # !!int mandatory
+        # → user_id → user.id
+        user_id: # !!int mandatory
+        # article.created
+        created: # !!str mandatory
+        # article.title
+        title: # !!str mandatory
+        # article.text
+        text: # !!str mandatory
+        # article.tags
+        tags: # !!str optional
+    # ↑ user_address.user_id → user.id
+    user_address:
+        # user_address.id
+        id: # !!int mandatory
+        # → user_id → user.id
+        user_id: # !!int mandatory
+        # → address_id → address.id
+        address_id: # !!int mandatory
+            # address.id
+            id: # !!int mandatory
+            # address.street
+            street: # !!str optional
+            # address.zip_code
+            zip_code: # !!str optional
+            # address.city
+            city: # !!str optional
+            # address.country
+            country: # !!str optional
+            # ↑ user_address.address_id → address.id
+            user_address:
+        # user_address.type
+        type: # !!str mandatory
+    # ↑ blog_user.user_id → user.id
+    blog_user:
+        # blog_user.id
+        id: # !!int mandatory
+        # → blog_id → blog.id
+        blog_id: # !!int mandatory
+            # blog.id
+            id: # !!int mandatory
+            # blog.name
+            name: # !!str mandatory
+            # blog.url
+            url: # !!str mandatory
+            # ↑ blog_user.blog_id → blog.id
+            blog_user:
+        # → user_id → user.id
+        user_id: # !!int mandatory
+        # blog_user.role
+        role: # !!str mandatory

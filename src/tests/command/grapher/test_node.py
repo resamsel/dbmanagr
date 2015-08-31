@@ -30,3 +30,38 @@ class NodeTestCase(ParentTestCase):
             hash(str('a')),
             node.ColumnNode('a').__hash__()
         )
+
+    def test_base_node_eq(self):
+        """Tests the node.BaseNode __eq__ method"""
+
+        self.assertEqual(node.ColumnNode('a'), node.ColumnNode('a'))
+
+    def test_table_node(self):
+        """Tests the node.TableNode class"""
+
+        from dbnav.model.table import Table
+        table = Table(name='a')
+
+        self.assertEqual(node.TableNode(table), node.TableNode(table))
+
+    def test_name_node(self):
+        """Tests the node.NameNode class"""
+
+        self.assertEqual(node.NameNode('a'), node.NameNode('a'))
+        self.assertEqual('# root element\na:', node.NameNode('a').format())
+
+    def test_foreign_key_node_hash(self):
+        """Tests the node.ForeignKeyNode __hash__ method"""
+
+        self.assertEqual(
+            hash(str({'a': 'b'})),
+            node.ForeignKeyNode({'a': 'b'}).__hash__()
+        )
+
+    def test_foreign_key_node_getattr(self):
+        """Tests the node.ForeignKeyNode __getattr__ method"""
+
+        self.assertEqual(
+            'A',
+            node.ForeignKeyNode('a').capitalize()
+        )

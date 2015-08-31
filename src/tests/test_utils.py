@@ -377,3 +377,9 @@ class UtilsTestCase(DbTestCase):
 
         self.assertEqual('a.', utils.to_forward_ref('a'))
         self.assertEqual('a*', utils.to_forward_ref('a*'))
+
+    def test_shell_escape(self):
+        """Tests the utils.shell_escape function"""
+
+        self.assertEqual("'*'", utils.shell_escape('*'))
+        self.assertEqual('1', utils.shell_escape(1))

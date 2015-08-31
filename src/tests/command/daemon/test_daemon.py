@@ -18,27 +18,35 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import logging
+import os
 
-from dbnav.logger import LogWith
-from dbnav.options import restriction, FileOptionsParser
-from dbnav.driver import DatabaseDriver
-
-logger = logging.getLogger(__name__)
-
-
-class SQLiteDriver(DatabaseDriver):
-    @LogWith(logger)
-    def restriction(self, *args):
-        return restriction(*args)
-
-    def statement_activity(self, con):
-        return []
-
-    def __repr__(self):
-        return str(self.__dict__)
+from tests.command.daemon import load
+from tests.testcase import ParentTestCase
+from dbnav.command import daemon
+from dbnav.utils import mute_stderr
 
 
-class SQLiteOptionsParser(FileOptionsParser):
-    def create_driver(self):
-        return SQLiteDriver()
+def test_daemon():
+    os.environ['UNITTEST'] = 'True'
+    for test in load():
+        yield test,
+    del os.environ['UNITTEST']
+
+
+class DaemonTestCase(ParentTestCase):
+    def test_writer(self):
+        """Tests the writer"""
+
+        import sys
+        sys.argv = ['']
+
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(daemon.main)
+        )
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(daemon.main),
+            []
+        )
+        self.assertIsNone(daemon.main(['stop']))

@@ -18,27 +18,12 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import logging
-
-from dbnav.logger import LogWith
-from dbnav.options import restriction, FileOptionsParser
-from dbnav.driver import DatabaseDriver
-
-logger = logging.getLogger(__name__)
+from tests.testcase import ParentTestCase
+from dbnav import model
 
 
-class SQLiteDriver(DatabaseDriver):
-    @LogWith(logger)
-    def restriction(self, *args):
-        return restriction(*args)
+class ModelTestCase(ParentTestCase):
+    def test_to_dto(self):
+        """Tests the model.to_dto function"""
 
-    def statement_activity(self, con):
-        return []
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-
-class SQLiteOptionsParser(FileOptionsParser):
-    def create_driver(self):
-        return SQLiteDriver()
+        self.assertIsNotNone(model.Model().to_dto())

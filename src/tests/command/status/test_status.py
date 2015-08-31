@@ -20,42 +20,23 @@
 
 import os
 
-from tests.command.grapher import load
+from sqlalchemy.util import KeyedTuple
+
+from tests.command.status import load
 from tests.testcase import DbTestCase
-from dbnav.command import grapher
-from dbnav.config import Config
-from dbnav.exception import UnknownTableException, UnknownConnectionException
+from dbnav.command import status
 from dbnav.utils import mute_stderr
+from dbnav.model.row import Row
 
 
-def test_grapher():
+def test_argumentor():
     os.environ['UNITTEST'] = 'True'
     for test in load():
         yield test,
     del os.environ['UNITTEST']
 
 
-class GrapherTestCase(DbTestCase):
-    def test_unknown_connection(self):
-        """Tests unknown connection"""
-
-        self.assertRaises(
-            UnknownConnectionException,
-            grapher.run,
-            ['unknown'])
-
-    def test_unknown_table(self):
-        """Tests unknown tables"""
-
-        self.assertRaises(
-            Exception,
-            grapher.run,
-            ['dbnav.sqlite'])
-        self.assertRaises(
-            UnknownTableException,
-            grapher.run,
-            ['dbnav.sqlite/unknown?'])
-
+class StatusTestCase(DbTestCase):
     def test_writer(self):
         """Tests the writer"""
 
@@ -64,29 +45,42 @@ class GrapherTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            mute_stderr(grapher.main))
-
-        self.assertEqual(
-            0,
-            grapher.main(['dbnav.sqlite/user?id=1']))
-
-    def test_execute(self):
-        """Tests the grapher.execute function"""
-
+            mute_stderr(status.main)
+        )
         self.assertRaises(
             SystemExit,
-            mute_stderr(grapher.execute),
+            mute_stderr(status.main),
             []
         )
 
-    def test_options(self):
-        """Tests options"""
+    def test_execute(self):
+        """Tests the status.execute function"""
 
-        config = Config.init(
-            ['-r', '--database', 'dbnav.sqlite/article'],
-            grapher.args.parser)
-        config.database = 'db'
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(status.execute),
+            []
+        )
+
+    def test_row_item(self):
+        """Tests the RowItem class"""
+
+        row = Row(None, KeyedTuple(
+            [
+                '', -1, '', '', None, None, '',
+                '', '', '', -1, -1],
+            labels=[
+                'database_name', 'pid', 'username', 'client',
+                'transaction_start', 'query_start', 'state', 'query',
+                'blocked', 'blocked_by', 'transaction_duration',
+                'query_duration']
+        ))
+
+        item = status.RowItem(row)
+
+        self.assertEqual(item, item)
 
         self.assertEqual(
-            12,
-            len(grapher.DatabaseGrapher(config).run()))
+            item,
+            status.RowItem.from_json({'row': row})
+        )

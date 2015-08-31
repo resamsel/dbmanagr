@@ -22,13 +22,11 @@ import sys
 import logging
 import yaml
 
-from pipes import quote
-
 from dbnav.wrapper import Wrapper
 from dbnav.config import Config
 from dbnav.logger import LogWith
 from dbnav.writer import Writer
-from dbnav.utils import is_node, to_ref, to_forward_ref
+from dbnav.utils import is_node, to_ref, to_forward_ref, shell_escape
 
 from .args import parser
 from .writer import ArgumentWriter
@@ -46,7 +44,7 @@ def consume(tree, parent, includes, excludes, substitutes):
             lambda ref, v: ref)
     if is_node(tree, 'substitutes'):
         dfs(tree['substitutes'], parent, substitutes,
-            lambda ref, v: '{0}={1}'.format(ref, quote(v)))
+            lambda ref, v: '{0}={1}'.format(ref, shell_escape(v)))
 
 
 @LogWith(logger)

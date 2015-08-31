@@ -67,3 +67,12 @@ class DifferTestCase(DbTestCase):
         self.assertEqual(
             0,
             differ.main(['dbnav.sqlite/user', 'dbnav.sqlite/user2']))
+
+    def test_execute(self):
+        """Tests the differ.execute function"""
+
+        self.assertRaises(
+            SystemExit,
+            mute_stderr(differ.execute),
+            []
+        )

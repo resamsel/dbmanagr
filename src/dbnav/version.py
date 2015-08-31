@@ -19,7 +19,7 @@
 #
 
 __all__ = ('__version__',)
-__version__ = "0.26.2"
+__version__ = "0.26.3"
 
 if __name__ == "__main__":  # pragma: no cover
     print __version__

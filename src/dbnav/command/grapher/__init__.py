@@ -102,15 +102,10 @@ def include_back_references(
     return found
 
 
-def bfs(start, include=None, exclude=None, indent=0, opts=None):
+def bfs(start, include, exclude, indent, opts):
     logger.debug(
         'bfs(start=%s, include=%s, exclude=%s, indent=%d)',
         start, include, exclude, indent)
-
-    if include is None:
-        include = {}
-    if exclude is None:
-        exclude = {}
 
     head = [TableNode(start, include, exclude, indent)]
     consumed = []

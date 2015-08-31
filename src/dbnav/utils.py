@@ -25,7 +25,6 @@ import os
 import sys
 import uuid
 
-# from sqlalchemy.types import Integer
 from sqlalchemy.sql.sqltypes import Boolean, Integer, Float, String, \
     Date, Time, DateTime, _Binary
 
@@ -378,3 +377,11 @@ def to_yaml_type(type_):
     if isinstance(type_, _Binary):
         return 'binary'
     return 'str'
+
+
+def shell_escape(s):
+    if type(s) in (str, unicode):
+        if "'" in s:
+            return u'"{0}"'.format(s)
+        return u"'{0}'".format(s)
+    return unicode(s)
