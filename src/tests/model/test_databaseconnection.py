@@ -26,6 +26,11 @@ from tests.mock.sources import DIR as MOCK_DIR
 from tests.mock.sources import URI as MOCK_URI
 
 
+class Options(object):
+    def __init__(self):
+        self.gen = False
+
+
 class DatabaseConnectionTestCase(DbTestCase):
     def test_inspector(self):
         """Tests the DatabaseConnection inspector method"""
@@ -75,3 +80,9 @@ class DatabaseConnectionTestCase(DbTestCase):
         )
 
         con.close()
+
+    def test_uridatabaseconnection(self):
+        """Tests the dbc.UriDatabaseConnection class"""
+
+        con = databaseconnection.UriDatabaseConnection()
+        self.assertFalse(con.matches(Options()))

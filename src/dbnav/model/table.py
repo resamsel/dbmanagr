@@ -46,6 +46,7 @@ class Table(BaseItem):
             name=None,
             primary_key=None,
             columns=None):
+        self.name = None
         if entity is not None:
             self.name = entity.name
         elif name is not None:
