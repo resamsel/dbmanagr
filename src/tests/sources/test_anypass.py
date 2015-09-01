@@ -37,9 +37,9 @@ class OptionsTestCase(ParentTestCase):
         """Tests the anypass.AnyPassSource.list method"""
 
         self.assertEqual(
-            [],
+            ['dbnav.sqlite/'],
             map(str, anypass.AnyPassSource(
-                '', MYPASS_CONFIG, None).list()))
+                '', MYPASS_CONFIG, SQLiteConnection).list()))
         self.assertEqual(
             [],
             map(str, anypass.AnyPassSource(

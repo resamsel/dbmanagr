@@ -25,7 +25,7 @@ from tests.testcase import DbTestCase
 from tests.command.navigator import load
 from dbnav.config import Config
 from dbnav.exception import UnknownTableException
-from dbnav.utils import mute_stderr
+from dbnav.utils import mute_stderr, hash_
 
 
 def test_navigator():
@@ -150,4 +150,56 @@ class NavigatorTestCase(DbTestCase):
             SystemExit,
             mute_stderr(navigator.execute),
             ['-K']
+        )
+
+    def test_to_dto(self):
+        """Tests the navigator.dto.to_dto function"""
+
+        self.assertEqual({}, navigator.dto.to_dto({}))
+        self.assertEqual('a', navigator.dto.to_dto('a'))
+
+    def test_item(self):
+        """Tests the navigator.dto.Item class"""
+
+        item = navigator.dto.Item(
+            title='a',
+            subtitle='b',
+            autocomplete='c',
+            uid='d',
+            icon='e',
+            value='f',
+            validity='g',
+            format_='h'
+        )
+
+        self.assertEqual(item, item)
+        self.assertEqual(hash(item), item.__hash__())
+        self.assertEqual('a', item.title())
+        self.assertEqual('b', item.subtitle())
+        self.assertEqual('c', item.autocomplete())
+        self.assertEqual('d', item.uid())
+        self.assertEqual('e', item.icon())
+        self.assertEqual('f', item.value())
+        self.assertEqual('g', item.validity())
+        self.assertEqual('h', item.format())
+        self.assertEqual(
+            hash_('c'),
+            navigator.dto.Item(autocomplete='c').uid()
+        )
+        self.assertEqual(
+            'images/icon.png',
+            navigator.dto.Item().icon()
+        )
+        self.assertEqual(
+            item,
+            navigator.dto.Item.from_json({
+                'title': 'a',
+                'subtitle': 'b',
+                'autocomplete': 'c',
+                'uid': 'd',
+                'icon': 'e',
+                'value': 'f',
+                'validity': 'g',
+                'format_': 'h'
+            })
         )

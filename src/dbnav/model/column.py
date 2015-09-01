@@ -70,7 +70,7 @@ class Column(BaseItem):
         d = {
             '__cls__': str(self.__class__),
             'name': self.name,
-            'table': self.table.as_json(),
+            'table': self.table.name,
             'type': self.type.compile(),
             'uri': self.uri
         }

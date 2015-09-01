@@ -19,28 +19,19 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.model import value
+from dbnav.dto import foreignkey
 
 
-class ValueTestCase(ParentTestCase):
-    def test_title(self):
-        """Tests the Value.title method"""
+class ForeignKeyTestCase(ParentTestCase):
+    def test_from_json(self):
+        """Tests the ForeignKey.from_json static method"""
 
-        self.assertEqual(
-            '[BLOB]',
-            value.Value(
-                buffer('Blob', 0, 4), None, None, True, None).title())
-
-    def test_as_json(self):
-        """Tests the Value.as_json method"""
-
-        v = value.Value('a', 'b', None, None, None)
+        fk = foreignkey.ForeignKey(a='a', b='b')
 
         self.assertEqual(
-            {
-                '__cls__': "<class 'dbnav.model.value.Value'>",
-                'value': 'a',
-                'subtitle': 'b'
-            },
-            v.as_json()
+            fk,
+            foreignkey.ForeignKey.from_json({
+                'a': 'a',
+                'b': 'b'
+            })
         )

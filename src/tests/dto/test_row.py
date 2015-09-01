@@ -19,28 +19,29 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.model import value
+from dbnav.dto import row
 
 
-class ValueTestCase(ParentTestCase):
-    def test_title(self):
-        """Tests the Value.title method"""
+class RowTestCase(ParentTestCase):
+    def test_getitem(self):
+        """Tests the Row.__getitem__ method"""
+
+        r = row.Row(row=[1, 'a'])
+
+        self.assertIsNone(r[None])
+        self.assertIsNone(r[u'table'])
+        self.assertEqual(1, r[0])
+
+    def test_from_json(self):
+        """Tests the Row.from_json static method"""
+
+        r = row.Row(row=[1, 'a'])
 
         self.assertEqual(
-            '[BLOB]',
-            value.Value(
-                buffer('Blob', 0, 4), None, None, True, None).title())
-
-    def test_as_json(self):
-        """Tests the Value.as_json method"""
-
-        v = value.Value('a', 'b', None, None, None)
-
-        self.assertEqual(
-            {
-                '__cls__': "<class 'dbnav.model.value.Value'>",
-                'value': 'a',
-                'subtitle': 'b'
-            },
-            v.as_json()
+            r,
+            row.Row.from_json({
+                'table': None,
+                'row': [1, 'a'],
+                'autocomplete': None
+            })
         )

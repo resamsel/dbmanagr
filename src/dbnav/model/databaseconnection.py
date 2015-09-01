@@ -207,13 +207,13 @@ class DatabaseConnection(BaseItem):
                 self._tables[a.table.name].set_foreign_key(a.name, fk)
                 self._tables[b.table.name].set_foreign_key(str(a), fk)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         raise Exception('Should be overridden in subclass')
 
     def __str__(self):
         return self.__repr__()
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # pragma: no cover
         return self.__repr__() == other.__repr__()
 
     def __hash__(self):

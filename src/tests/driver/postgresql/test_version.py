@@ -18,29 +18,18 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from tests.testcase import ParentTestCase
-from dbnav.model import value
+from tests.testcase import DbTestCase
+from dbnav.driver.postgresql import version
 
 
-class ValueTestCase(ParentTestCase):
-    def test_title(self):
-        """Tests the Value.title method"""
+class VersionTestCase(DbTestCase):
+    def test_stat_activity_query(self):
+        """Tests the postgresql version stat_activity_query function"""
 
-        self.assertEqual(
-            '[BLOB]',
-            value.Value(
-                buffer('Blob', 0, 4), None, None, True, None).title())
-
-    def test_as_json(self):
-        """Tests the Value.as_json method"""
-
-        v = value.Value('a', 'b', None, None, None)
-
-        self.assertEqual(
-            {
-                '__cls__': "<class 'dbnav.model.value.Value'>",
-                'value': 'a',
-                'subtitle': 'b'
-            },
-            v.as_json()
+        self.assertIsNotNone(version.stat_activity_query((9, 2, 0)))
+        self.assertIsNotNone(version.stat_activity_query((9, 1, 0)))
+        self.assertRaises(
+            Exception,
+            version.stat_activity_query,
+            [[9, 0, 0]]
         )

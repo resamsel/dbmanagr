@@ -19,28 +19,27 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.model import value
+from dbnav.dto import column
 
 
-class ValueTestCase(ParentTestCase):
-    def test_title(self):
-        """Tests the Value.title method"""
+class ColumnTestCase(ParentTestCase):
+    def test_str(self):
+        """Tests the Column.__str__ method"""
+
+        col = column.Column(name='a', tablename='b')
+
+        self.assertEqual('b.a', str(col))
+        self.assertEqual('a', str(column.Column(name='a')))
+
+    def test_from_json(self):
+        """Tests the Column.from_json static method"""
+
+        col = column.Column(name='a', tablename='b')
 
         self.assertEqual(
-            '[BLOB]',
-            value.Value(
-                buffer('Blob', 0, 4), None, None, True, None).title())
-
-    def test_as_json(self):
-        """Tests the Value.as_json method"""
-
-        v = value.Value('a', 'b', None, None, None)
-
-        self.assertEqual(
-            {
-                '__cls__': "<class 'dbnav.model.value.Value'>",
-                'value': 'a',
-                'subtitle': 'b'
-            },
-            v.as_json()
+            col,
+            column.Column.from_json({
+                'name': 'a',
+                'tablename': 'b'
+            })
         )

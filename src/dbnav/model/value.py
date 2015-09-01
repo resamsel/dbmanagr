@@ -68,5 +68,5 @@ class Value(BaseItem):
         return {
             '__cls__': str(self.__class__),
             'value': self._value,
-            'subtitle': self._subtitle.as_json()
+            'subtitle': self._subtitle
         }

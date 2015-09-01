@@ -40,7 +40,10 @@ logger = logging.getLogger(__name__)
 
 
 def hash_(s):
-    return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
+    try:
+        return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
+    except:
+        return hash(s)
 
 
 def module_installed(*modules):

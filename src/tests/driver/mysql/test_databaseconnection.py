@@ -158,3 +158,13 @@ class DatabaseConnectionTestCase(DbTestCase):
                 'host', '3333', 'db', 'user', 'password'
             ).matches(Opts(gen='foo@bar'))
         )
+
+    def test_repr(self):
+        """Tests the repr method"""
+
+        con = dbc.MySQLConnection(
+            'mysql+pymysql://{user}:{password}@{host}/{database}',
+            'host', '3333', 'db', 'user', 'password'
+        )
+
+        self.assertEqual(repr(con), con.__repr__())
