@@ -36,6 +36,11 @@ def test_argumentor():
     del os.environ['UNITTEST']
 
 
+class Options(object):
+    def __init__(self):
+        self.verbose = -1
+
+
 class StatusTestCase(DbTestCase):
     def test_writer(self):
         """Tests the writer"""
@@ -51,6 +56,11 @@ class StatusTestCase(DbTestCase):
             SystemExit,
             mute_stderr(status.main),
             []
+        )
+        self.assertRaises(
+            Exception,
+            mute_stderr(status.execute),
+            ['unknown']
         )
 
     def test_execute(self):
@@ -83,4 +93,9 @@ class StatusTestCase(DbTestCase):
         self.assertEqual(
             item,
             status.RowItem.from_json({'row': row})
+        )
+        self.assertIsNotNone(
+            status.writer.StatementActivityWriter(Options()).itemtostring(
+                item
+            )
         )

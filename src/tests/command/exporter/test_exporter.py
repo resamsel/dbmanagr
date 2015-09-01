@@ -72,6 +72,10 @@ class DifferTestCase(DbTestCase):
             u'!!int 3',
             exporter.writer.yaml_value(
                 to_dto(user.column('score')), user_dto, Decimal(3.0)))
+        self.assertEqual(
+            u'!!float 3.100000',
+            exporter.writer.yaml_value(
+                to_dto(user.column('score')), user_dto, Decimal(3.1)))
 
     def test_unknown_connection(self):
         """Tests unknown connection"""

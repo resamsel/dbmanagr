@@ -49,6 +49,18 @@ class ColumnTestCase(DbTestCase):
             },
             col.as_json()
         )
+        col.default = '-1'
+        self.assertEqual(
+            {
+                '__cls__': "<class 'dbnav.model.column.Column'>",
+                'name': 'id',
+                'table': 'user',
+                'type': 'INTEGER',
+                'uri': u'dbnav-c.sqlite/user?id',
+                'default': '-1'
+            },
+            col.as_json()
+        )
 
     def test_create_column(self):
         """Tests the column.create_column function"""

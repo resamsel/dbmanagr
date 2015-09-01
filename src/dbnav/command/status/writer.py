@@ -23,6 +23,7 @@ from dbnav.formatter import Formatter, DefaultFormatter
 
 DEFAULT_FORMAT = u'{0}'
 FORMATS = {
+    -1: u'{0}\n',  # for testing only
     0: u'{0}\n',
     1: u'PID\tDatabase\tUser\tClient\tTX Start\tQuery Start\tState\t'
        u'Blocked by\tQuery\n{0}\n',
@@ -30,6 +31,7 @@ FORMATS = {
        u'Query Duration\tState\tBlocked by\tQuery\n{0}\n'
 }
 ITEM_FORMATS = {
+    -1: u'{row}',  # for testing only
     0: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
        u'{row.transaction_start:%Y-%m-%d %H:%M:%S}\t'
        u'{row.query_start:%Y-%m-%d %H:%M:%S}\t{row.state}\t'
@@ -56,5 +58,4 @@ class StatementActivityWriter(FormatWriter):
 
     def itemtostring(self, item):
         row = item.row
-        print self.item_format, item.row
         return self.item_format.format(row=row)
