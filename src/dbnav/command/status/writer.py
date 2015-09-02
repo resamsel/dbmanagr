@@ -32,10 +32,7 @@ FORMATS = {
 }
 ITEM_FORMATS = {
     -1: u'{row}',  # for testing only
-    0: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
-       u'{row.transaction_start:%Y-%m-%d %H:%M:%S}\t'
-       u'{row.query_start:%Y-%m-%d %H:%M:%S}\t{row.state}\t'
-       u'{row.blocked_by}\t{row.query}',
+    0: u'{row.pid}\t{row.state}\t{row.query_duration}\t{row.query}',
     1: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
        u'{row.transaction_start:%Y-%m-%d %H:%M:%S}\t'
        u'{row.query_start:%Y-%m-%d %H:%M:%S}\t{row.state}\t'
