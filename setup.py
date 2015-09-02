@@ -48,7 +48,7 @@ setup(
 
     # dependencies
     install_requires=[
-        'sqlalchemy==1.0.4',
+        'sqlalchemy==0.9.10',
         'sqlparse>=0.1.13',
         'ijson>=2.0',
         'pyyaml>=3.11',
