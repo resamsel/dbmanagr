@@ -23,7 +23,7 @@ import glob
 from os import path
 from tests.sources import init_sources
 from tests.testcase import create_test
-from dbnav.command import status
+from dbnav.command import activity
 
 DIR = path.dirname(__file__)
 TEST_CASES = map(
@@ -34,5 +34,5 @@ TEST_CASES = map(
 def load():
     init_sources(DIR)
     return map(
-        lambda tc: create_test(status, 'dbstat', DIR, tc),
+        lambda tc: create_test(activity, 'dbstac', DIR, tc),
         TEST_CASES)

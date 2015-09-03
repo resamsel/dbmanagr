@@ -35,8 +35,9 @@ group.add_argument(
     const=StatementActivityWriter)
 
 parser = create_parser(
-    prog='dbstat',
-    description='A database status tool',
+    prog='dbstac',
+    description='Lists the statements and transactions currently active in '
+                'the DBMS.',
     parents=[parent])
 parser.add_argument(
     'uri',

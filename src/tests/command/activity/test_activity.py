@@ -22,9 +22,9 @@ import os
 
 from sqlalchemy.util import KeyedTuple
 
-from tests.command.status import load
+from tests.command.activity import load
 from tests.testcase import DbTestCase
-from dbnav.command import status
+from dbnav.command import activity
 from dbnav.utils import mute_stderr
 from dbnav.model.row import Row
 
@@ -50,25 +50,25 @@ class StatusTestCase(DbTestCase):
 
         self.assertRaises(
             SystemExit,
-            mute_stderr(status.main)
+            mute_stderr(activity.main)
         )
         self.assertRaises(
             SystemExit,
-            mute_stderr(status.main),
+            mute_stderr(activity.main),
             []
         )
         self.assertRaises(
             Exception,
-            mute_stderr(status.execute),
+            mute_stderr(activity.execute),
             ['unknown']
         )
 
     def test_execute(self):
-        """Tests the status.execute function"""
+        """Tests the activity.execute function"""
 
         self.assertRaises(
             SystemExit,
-            mute_stderr(status.execute),
+            mute_stderr(activity.execute),
             []
         )
 
@@ -86,16 +86,16 @@ class StatusTestCase(DbTestCase):
                 'query_duration']
         ))
 
-        item = status.RowItem(row)
+        item = activity.RowItem(row)
 
         self.assertEqual(item, item)
 
         self.assertEqual(
             item,
-            status.RowItem.from_json({'row': row})
+            activity.RowItem.from_json({'row': row})
         )
         self.assertIsNotNone(
-            status.writer.StatementActivityWriter(Options()).itemtostring(
+            activity.writer.StatementActivityWriter(Options()).itemtostring(
                 item
             )
         )

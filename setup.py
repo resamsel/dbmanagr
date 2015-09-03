@@ -75,7 +75,7 @@ setup(
             'dbexec = dbnav.command.executer:main',
             'dbdiff = dbnav.command.differ:main',
             'dbdaemon = dbnav.command.daemon:main',
-            'dbstat = dbnav.command.status:main',
+            'dbstac = dbnav.command.activity:main',
             'dbargs = dbnav.command.argumentor:main',
         ]
     },
