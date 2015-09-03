@@ -3,9 +3,9 @@
 [![Build Status](https://api.travis-ci.org/resamsel/dbnavigator.svg)](https://travis-ci.org/resamsel/dbnavigator)
 [![Coverage Status](https://coveralls.io/repos/resamsel/dbnavigator/badge.svg?branch=master&service=github)](https://coveralls.io/github/resamsel/dbnavigator?branch=master)
 
-Allows you to explore, visualise and export your database. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
+Allows you to explore, visualise, and export your database recursively. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
-![Alfred Database Navigator Sample](resources/images/dbnav-example.png "Alfred Database Navigator Sample")
+![Database Grapher Example](resources/images/dbgraph-example.png "Database Grapher Example")
 
 - [Main Features](#main-features)
 - [Database Navigation](#database-navigation)

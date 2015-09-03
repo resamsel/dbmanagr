@@ -27,6 +27,7 @@ from dbnav.sources.source import Source
 from dbnav.writer import Writer
 from dbnav.dto.mapper import to_dto
 from dbnav.jsonable import Jsonable, from_json
+from dbnav.utils.sql import sanitise
 
 from .args import parser
 from .writer import StatementActivityWriter
@@ -62,6 +63,8 @@ class DatabaseStatus(Wrapper):
 
     def execute(self):
         options = self.options
+
+        options.pattern = sanitise(options.pattern)
 
         cons = Source.connections()
 

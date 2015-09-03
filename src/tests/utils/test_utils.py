@@ -382,4 +382,5 @@ class UtilsTestCase(DbTestCase):
         """Tests the utils.shell_escape function"""
 
         self.assertEqual("'*'", utils.shell_escape('*'))
+        self.assertEqual("\"'*'\"", utils.shell_escape("'*'"))
         self.assertEqual('1', utils.shell_escape(1))

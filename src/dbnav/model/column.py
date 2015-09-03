@@ -37,9 +37,7 @@ class Column(BaseItem):
         self.uri = self.autocomplete()
 
     def __repr__(self):
-        if self.table:
-            return '%s.%s' % (self.table.name, self.name)
-        return self.name
+        return '%s.%s' % (self.table.name, self.name)
 
     def __str__(self):
         return self.__repr__()
@@ -70,7 +68,7 @@ class Column(BaseItem):
         d = {
             '__cls__': str(self.__class__),
             'name': self.name,
-            'table': self.table.as_json(),
+            'table': self.table.name,
             'type': self.type.compile(),
             'uri': self.uri
         }

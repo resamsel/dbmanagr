@@ -109,7 +109,7 @@ metrics:
 	$(RADON) cc src --total-average -s -n C
 	$(RADON) mi src -s -n B
 
-test: init check-code
+test: init clean-coverage check-code
 	$(TEST)
 
 init-daemon:
@@ -145,10 +145,12 @@ release-%:
 	#$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
 	$(MAKE) assemble-alfred
 
-clean:
+clean-coverage:
+	rm -f .coverage .instrumental.cov
+
+clean: clean-coverage
 	$(SETUPTOOLS) clean --all
 	$(FIND) . -name "*.pyc" -delete
 	rm -rf $(TARGET)
 	rm -rf $(DIST)
 	rm -f .dbnavigator.cache*
-	rm -f .coverage .instrumental.cov

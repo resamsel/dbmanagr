@@ -57,7 +57,9 @@ class Wrapper(object):
 
     def run(self):
         try:
-            if self.options is not None and self.options.daemon:
+            if (
+                    self.options is not None
+                    and self.options.daemon):  # pragma: no cover
                 log.logger.debug('Executing remotely')
                 return self.executer(*sys.argv)
 
@@ -69,13 +71,13 @@ class Wrapper(object):
                 # Start post mortem debugging only when debugging is enabled
                 if os.getenv('UNITTEST', 'False') == 'True':
                     raise
-                if self.options.trace:
-                    pdb.post_mortem(sys.exc_info()[2])  # pragma: no cover
+                if self.options.trace:  # pragma: no cover
+                    pdb.post_mortem(sys.exc_info()[2])
             else:
                 # Show the error message if log level is INFO or higher
                 log.log_error(e)  # pragma: no cover
 
-    def executer(self, *args):
+    def executer(self, *args):  # pragma: no cover
         """Execute remotely"""
 
         options = self.options

@@ -88,19 +88,19 @@ class PostgreSQLConnection(UriDatabaseConnection):
         return self._databases
 
     @LogWith(logger)
-    def init_tables(self):
+    def init_tables(self):  # pragma: no cover
         # sqlalchemy does not yet provide reflecting comments
 
         self._tables = {}
         self._comments = {}
 
         result = self.execute(TABLES_QUERY)
-        for row in result:  # pragma: no cover
-            self._tables[row[0]] = Table(  # pragma: no cover
+        for row in result:
+            self._tables[row[0]] = Table(
                 self.entity(row[0]),
                 self.autocomplete(),
                 row[2],
                 row[3])
-            self._comments[row[0]] = TableComment(row[1])  # pragma: no cover
+            self._comments[row[0]] = TableComment(row[1])
 
-        self.init_foreign_keys()  # pragma: no cover
+        self.init_foreign_keys()

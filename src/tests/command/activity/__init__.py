@@ -18,8 +18,21 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ('__version__',)
-__version__ = "0.27.0"
+import glob
 
-if __name__ == "__main__":  # pragma: no cover
-    print __version__
+from os import path
+from tests.sources import init_sources
+from tests.testcase import create_test
+from dbnav.command import activity
+
+DIR = path.dirname(__file__)
+TEST_CASES = map(
+    lambda p: path.basename(p),
+    glob.glob(path.join(DIR, 'resources/testcase-*')))
+
+
+def load():
+    init_sources(DIR)
+    return map(
+        lambda tc: create_test(activity, 'dbstac', DIR, tc),
+        TEST_CASES)

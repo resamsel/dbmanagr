@@ -19,6 +19,7 @@
 #
 
 import argparse
+import sys
 
 from dbnav.args import parent_parser, format_group, create_parser
 
@@ -53,8 +54,9 @@ parser.add_argument(
          'for SQLite: databasefile.db)')
 parser.add_argument(
     'infile',
-    default='-',
-    help='the path to the file containing the SQL query to execute',
+    default=[sys.stdin],
+    help='the path to the file containing the SQL query to execute (default: '
+         'standard input)',
     type=argparse.FileType('r'),
     nargs='*')
 parser.add_argument(

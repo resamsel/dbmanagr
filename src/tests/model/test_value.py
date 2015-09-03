@@ -30,3 +30,17 @@ class ValueTestCase(ParentTestCase):
             '[BLOB]',
             value.Value(
                 buffer('Blob', 0, 4), None, None, True, None).title())
+
+    def test_as_json(self):
+        """Tests the Value.as_json method"""
+
+        v = value.Value('a', 'b', None, None, None)
+
+        self.assertEqual(
+            {
+                '__cls__': "<class 'dbnav.model.value.Value'>",
+                'value': 'a',
+                'subtitle': 'b'
+            },
+            v.as_json()
+        )

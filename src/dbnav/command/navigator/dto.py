@@ -88,7 +88,7 @@ class Item(Jsonable):
             return self.uid_
         return utils.hash_(self.autocomplete())
 
-    def icon(self):  # pragma: no cover
+    def icon(self):
         if self.icon_ is not None:
             return self.icon_
         return 'images/icon.png'

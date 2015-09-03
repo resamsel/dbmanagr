@@ -17,9 +17,3 @@
 # You should have received a copy of the GNU General Public License
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-__all__ = ('__version__',)
-__version__ = "0.27.0"
-
-if __name__ == "__main__":  # pragma: no cover
-    print __version__

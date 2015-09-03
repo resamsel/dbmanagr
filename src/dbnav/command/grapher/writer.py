@@ -68,9 +68,6 @@ class YamlFormatter(DefaultFormatter):
             indent_=(node.indent)*4*' ',
             **node.__dict__)
 
-    def format_table_node(self, node):  # pylint: disable=unused-argument
-        return ''
-
     def format_column_node(self, node):
         return textwrap.dedent("""
                 {indent_}# {column}

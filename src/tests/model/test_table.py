@@ -19,6 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
+from dbnav.model import table
 
 
 class TableTestCase(DbTestCase):
@@ -49,3 +50,14 @@ class TableTestCase(DbTestCase):
         self.assertEqual(
             'Owner: me (123 kB)',
             user.subtitle())
+
+    def test_table(self):
+        """Tests the table.Table class"""
+
+        con = DbTestCase.connection
+        user = con.table('user')
+
+        self.assertEqual(
+            len(user.columns()),
+            len(table.Table(name=user.name, columns=user.columns()).columns())
+        )

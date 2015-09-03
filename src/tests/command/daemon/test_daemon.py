@@ -50,3 +50,9 @@ class DaemonTestCase(ParentTestCase):
             []
         )
         self.assertIsNone(daemon.main(['stop']))
+
+    def test_main(self):
+        """Tests the main function"""
+
+        self.assertIsNone(daemon.main(['status']))
+        self.assertIsNone(daemon.main(['stop']))

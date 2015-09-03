@@ -64,3 +64,14 @@ class OptionsTestCase(DbTestCase):
             '_article.id = 1',
             driver.PostgreSQLDriver().restriction(
                 '_article', article.column('id'), '~', 1))
+
+    def test_statement_activity(self):
+        """Tests the postgresql driver statement_activity function"""
+
+        con = DbTestCase.connection
+
+        self.assertRaises(
+            Exception,
+            driver.PostgreSQLDriver().statement_activity,
+            [con]
+        )

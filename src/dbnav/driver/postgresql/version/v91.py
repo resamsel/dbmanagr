@@ -74,6 +74,10 @@ STAT_ACTIVITY = """select
             sa.procpid in ({pids})
             or array[{pids}] = array[-1]
         )
+        and (
+            '{pattern}' = ''
+            or sa.current_query like '%{pattern}%'
+        )
     group by 1, 2, 3, 4, 5, 6, 7, 8, 9
     order by sa.datname
 """

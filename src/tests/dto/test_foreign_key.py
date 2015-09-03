@@ -18,8 +18,20 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ('__version__',)
-__version__ = "0.27.0"
+from tests.testcase import ParentTestCase
+from dbnav.dto import foreignkey
 
-if __name__ == "__main__":  # pragma: no cover
-    print __version__
+
+class ForeignKeyTestCase(ParentTestCase):
+    def test_from_json(self):
+        """Tests the ForeignKey.from_json static method"""
+
+        fk = foreignkey.ForeignKey(a='a', b='b')
+
+        self.assertEqual(
+            fk,
+            foreignkey.ForeignKey.from_json({
+                'a': 'a',
+                'b': 'b'
+            })
+        )

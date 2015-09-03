@@ -19,7 +19,6 @@
 #
 
 from dbnav.jsonable import Jsonable
-from dbnav.formatter import Formatter
 from dbnav.utils import freeze
 
 
@@ -35,6 +34,3 @@ class Dto(Jsonable):
 
     def __eq__(self, o):
         return hash(self) == hash(o)
-
-    def format(self):
-        return Formatter.format(self)

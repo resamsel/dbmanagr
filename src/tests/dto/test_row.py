@@ -18,8 +18,30 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-__all__ = ('__version__',)
-__version__ = "0.27.0"
+from tests.testcase import ParentTestCase
+from dbnav.dto import row
 
-if __name__ == "__main__":  # pragma: no cover
-    print __version__
+
+class RowTestCase(ParentTestCase):
+    def test_getitem(self):
+        """Tests the Row.__getitem__ method"""
+
+        r = row.Row(row=[1, 'a'])
+
+        self.assertIsNone(r[None])
+        self.assertIsNone(r[u'table'])
+        self.assertEqual(1, r[0])
+
+    def test_from_json(self):
+        """Tests the Row.from_json static method"""
+
+        r = row.Row(row=[1, 'a'])
+
+        self.assertEqual(
+            r,
+            row.Row.from_json({
+                'table': None,
+                'row': [1, 'a'],
+                'autocomplete': None
+            })
+        )
