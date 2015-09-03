@@ -1,0 +1,2 @@
+dbnav.sqlite/
+"'); drop table user_; -- SQL injection attempt"

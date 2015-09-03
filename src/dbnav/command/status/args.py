@@ -42,6 +42,11 @@ parser.add_argument(
     'uri',
     help='the URI to a DBMS')
 parser.add_argument(
+    'pattern',
+    default=None,
+    help='shows only queries that match the pattern (default: no pattern)',
+    nargs='?')
+parser.add_argument(
     '-u',
     '--username',
     default='',
