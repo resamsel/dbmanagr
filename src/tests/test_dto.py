@@ -27,4 +27,3 @@ class DtoTestCase(ParentTestCase):
         """Tests the args.Dto class"""
 
         self.assertEqual(dto.Dto('a'), dto.Dto('a'))
-        self.assertIsNotNone(dto.Dto('a').format())
