@@ -44,7 +44,7 @@ def consume(tree, parent, includes, excludes, substitutes):
             lambda ref, v: ref)
     if is_node(tree, 'substitutes'):
         dfs(tree['substitutes'], parent, substitutes,
-            lambda ref, v: '{0}={1}'.format(ref, shell_escape(v)))
+            lambda ref, v: u'{0}={1}'.format(ref, shell_escape(v)))
 
 
 @LogWith(logger)
