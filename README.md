@@ -37,6 +37,8 @@ Allows you to explore, visualise, and export your database recursively. Addition
 
 Documentation: [Navigator wiki page](https://github.com/resamsel/dbnavigator/wiki/Navigator)
 
+![Database Navigator Example](resources/images/dbnav-example.png "Database Navigator Example")
+
 ### Features
 
 * Shows databases of configured connections
@@ -55,6 +57,8 @@ Visualises the dependencies of a table using its foreign key references (forward
 
 Documentation: [Grapher wiki page](https://github.com/resamsel/dbnavigator/wiki/Grapher)
 
+![Database Grapher Example](resources/images/dbgraph-example.png "Database Grapher Example")
+
 ### Features
 * Optionally display columns as well as references
 * Highlights primary keys (*) and optional columns (?)
@@ -69,6 +73,8 @@ Exports specific rows from the database along with their references rows from ot
 
 Documentation: [Exporter wiki page](https://github.com/resamsel/dbnavigator/wiki/Exporter)
 
+![Database Exporter Example](resources/images/dbexport-example.png "Database Exporter Example")
+
 ### Features
 * Exports the rows matching the given URI as SQL insert statements
 * Allows inclusion of referenced tables (forward and back references)
@@ -82,11 +88,15 @@ Executes the SQL statements from the given file on the database specified by the
 
 Documentation: [Executer wiki page](https://github.com/resamsel/dbnavigator/wiki/Executer)
 
+![Database Executer Example](resources/images/dbexec-example.png "Database Executer Example")
+
 ## Database Differ
 
 A diff tool that compares the structure of two database tables with each other.
 
 Documentation: [Differ wiki page](https://github.com/resamsel/dbnavigator/wiki/Differ)
+
+![Database Differ Example](resources/images/dbdiff-example.png "Database Differ Example")
 
 ## Installation
 
