@@ -33,11 +33,11 @@ class ArgumentWriter(FormatWriter):
         (includes, excludes, substitutes) = items
         output = []
         if options.includes and len(includes) > 0:
-            output.append('-i {0}'.format(','.join(includes)))
+            output.append(u'-i {0}'.format(','.join(includes)))
         if options.excludes and len(excludes) > 0:
-            output.append('-x {0}'.format(','.join(excludes)))
+            output.append(u'-x {0}'.format(','.join(excludes)))
         if options.substitutes and len(substitutes) > 0:
-            output.append('-s {0}'.format(','.join(substitutes)))
+            output.append(u'-s {0}'.format(','.join(substitutes)))
         return self.items_format.format(' '.join(output))
 
 

@@ -7,10 +7,10 @@ EOF
 )
 
 cat <<EOF > README.md
-# Database Navigator
+# Database Managr
 
-[![Build Status](https://api.travis-ci.org/resamsel/dbnavigator.svg)](https://travis-ci.org/resamsel/dbnavigator)
-[![Coverage Status](https://coveralls.io/repos/resamsel/dbnavigator/badge.svg?branch=master&service=github)](https://coveralls.io/github/resamsel/dbnavigator?branch=master)
+[![Build Status](https://api.travis-ci.org/resamsel/dbmanagr.svg)](https://travis-ci.org/resamsel/dbmanagr)
+[![Coverage Status](https://coveralls.io/repos/resamsel/dbmanagr/badge.svg?branch=master&service=github)](https://coveralls.io/github/resamsel/dbmanagr?branch=master)
 
 Allows you to explore, visualise, and export your database recursively. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
@@ -33,7 +33,9 @@ Allows you to explore, visualise, and export your database recursively. Addition
 
 ## Database Navigation
 
-Documentation: [Navigator wiki page](https://github.com/resamsel/dbnavigator/wiki/Navigator)
+Documentation: [Navigator wiki page](https://github.com/resamsel/dbmanagr/wiki/Navigator)
+
+![Database Navigator Example](resources/images/dbnav-example.png "Database Navigator Example")
 
 ### Features
 
@@ -51,7 +53,9 @@ Documentation: [Navigator wiki page](https://github.com/resamsel/dbnavigator/wik
 
 Visualises the dependencies of a table using its foreign key references (forward and back references).
 
-Documentation: [Grapher wiki page](https://github.com/resamsel/dbnavigator/wiki/Grapher)
+Documentation: [Grapher wiki page](https://github.com/resamsel/dbmanagr/wiki/Grapher)
+
+![Database Grapher Example](resources/images/dbgraph-example.png "Database Grapher Example")
 
 ### Features
 * Optionally display columns as well as references
@@ -65,7 +69,9 @@ Documentation: [Grapher wiki page](https://github.com/resamsel/dbnavigator/wiki/
 
 Exports specific rows from the database along with their references rows from other tables.
 
-Documentation: [Exporter wiki page](https://github.com/resamsel/dbnavigator/wiki/Exporter)
+Documentation: [Exporter wiki page](https://github.com/resamsel/dbmanagr/wiki/Exporter)
+
+![Database Exporter Example](resources/images/dbexport-example.png "Database Exporter Example")
 
 ### Features
 * Exports the rows matching the given URI as SQL insert statements
@@ -78,20 +84,24 @@ Documentation: [Exporter wiki page](https://github.com/resamsel/dbnavigator/wiki
 
 Executes the SQL statements from the given file on the database specified by the given URI.
 
-Documentation: [Executer wiki page](https://github.com/resamsel/dbnavigator/wiki/Executer)
+Documentation: [Executer wiki page](https://github.com/resamsel/dbmanagr/wiki/Executer)
+
+![Database Executer Example](resources/images/dbexec-example.png "Database Executer Example")
 
 ## Database Differ
 
 A diff tool that compares the structure of two database tables with each other.
 
-Documentation: [Differ wiki page](https://github.com/resamsel/dbnavigator/wiki/Differ)
+Documentation: [Differ wiki page](https://github.com/resamsel/dbmanagr/wiki/Differ)
+
+![Database Differ Example](resources/images/dbdiff-example.png "Database Differ Example")
 
 ## Installation
 
 Installing using PIP also upgrades to the latest version:
 
 \`\`\`
-sudo pip install --upgrade git+https://github.com/resamsel/dbnavigator.git#egg=dbnav
+sudo pip install --upgrade git+https://github.com/resamsel/dbmanagr.git#egg=dbnav
 \`\`\`
 
 You might want to install database drivers for PostgreSQL and MySQL as well:
@@ -100,16 +110,16 @@ You might want to install database drivers for PostgreSQL and MySQL as well:
 sudo pip install pg8000 pymysql
 \`\`\`
 
-More information and installation options can be found on the [Installation wiki page](https://github.com/resamsel/dbnavigator/wiki/Installation).
+More information and installation options can be found on the [Installation wiki page](https://github.com/resamsel/dbmanagr/wiki/Installation).
 
 ## Configuration
 
-Configuration of *connections* is described in the [Connection Configuration wiki page](https://github.com/resamsel/dbnavigator/wiki/Connection-Configuration).
+Configuration of *connections* is described in the [Connection Configuration wiki page](https://github.com/resamsel/dbmanagr/wiki/Connection-Configuration).
 
-Configuration of *content* is described in the [Content Configuration wiki page](https://github.com/resamsel/dbnavigator/wiki/Content-Configuration).
+Configuration of *content* is described in the [Content Configuration wiki page](https://github.com/resamsel/dbmanagr/wiki/Content-Configuration).
 
 ## Development
 
-More information can be found on the [Development wiki page](https://github.com/resamsel/dbnavigator/wiki/Development).
+More information can be found on the [Development wiki page](https://github.com/resamsel/dbmanagr/wiki/Development).
 
 EOF

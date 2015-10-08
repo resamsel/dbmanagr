@@ -1,9 +1,6 @@
 # May be overridden by environment variables
 MAKE ?= make
 PYTHON ?= python
-FLAKE8 ?= flake8 --max-complexity=16
-PYLINT ?= pylint
-INSTRUMENTAL ?= instrumental
 SED ?= gsed
 GIT ?= git
 ZIP ?= zip
@@ -14,6 +11,11 @@ DIFF ?= diff
 RADON ?= radon
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
+
+# Code quality and coverage
+FLAKE8 ?= flake8 --max-complexity=16
+PYLINT ?= pylint
+INSTRUMENTAL ?= instrumental
 
 VERSION = src/dbnav/version.py
 TARGET = target
@@ -32,10 +34,10 @@ BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
 ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
 
-IJSON_URL = https://pypi.python.org/packages/source/i/ijson/ijson-2.0.tar.gz
-SQLALCHEMY_URL = https://pypi.python.org/packages/source/S/SQLAlchemy/SQLAlchemy-0.9.8.tar.gz
-POSTGRESQL_URL = https://pypi.python.org/packages/source/p/pg8000/pg8000-1.10.1.tar.gz
-MYSQL_URL = https://pypi.python.org/packages/source/P/PyMySQL3/PyMySQL3-0.5.tar.gz
+$(TARGET)/ijson-2.0.tar.gz = https://pypi.python.org/packages/source/i/ijson/ijson-2.0.tar.gz
+$(TARGET)/SQLAlchemy-0.9.8.tar.gz = https://pypi.python.org/packages/source/S/SQLAlchemy/SQLAlchemy-0.9.8.tar.gz
+$(TARGET)/pg8000-1.10.1.tar.gz = https://pypi.python.org/packages/source/p/pg8000/pg8000-1.10.1.tar.gz
+$(TARGET)/PyMySQL3-0.5.tar.gz = https://pypi.python.org/packages/source/P/PyMySQL3/PyMySQL3-0.5.tar.gz
 
 init:
 	mkdir -p $(TARGETS)
@@ -58,33 +60,22 @@ assemble-alfred: assemble-main assemble-ijson assemble-sqlalchemy assemble-postg
 	cd $(ALFRED); $(ZIP) -rq ../../$(ARCHIVE) . \
 		--exclude images/.DS_Store "images/dbnavigator.sketch/*"
 
-$(TARGET)/ijson-2.0.tar.gz: init
-	curl -o "$@" "$(IJSON_URL)"
+$(TARGET)/%.tar.gz: init
+	curl -o "$@" "$($@)"
 
-assemble-ijson: $(TARGET)/ijson-2.0.tar.gz
+$(TARGET)/%: $(TARGET)/%.tar.gz
 	tar -C $(TARGET) -xzf "$^"
-	cd $(TARGET)/ijson-2.0; $(SETUPTOOLS) bdist_egg
 
-$(TARGET)/SQLAlchemy-0.9.8.tar.gz: init
-	curl -o "$@" "$(SQLALCHEMY_URL)"
+bdist-%: $(TARGET)/%
+	cd $^; $(SETUPTOOLS) bdist_egg
 
-assemble-sqlalchemy: $(TARGET)/SQLAlchemy-0.9.8.tar.gz
-	tar -C $(TARGET) -xzf "$^"
-	cd $(TARGET)/SQLAlchemy-0.9.8; $(SETUPTOOLS) bdist_egg
+assemble-ijson: bdist-ijson-2.0
 
-$(TARGET)/pg8000-1.10.1.tar.gz: init
-	curl -o "$@" "$(POSTGRESQL_URL)"
+assemble-sqlalchemy: bdist-SQLAlchemy-0.9.8
 
-assemble-postgresql: $(TARGET)/pg8000-1.10.1.tar.gz
-	tar -C $(TARGET) -xzf "$^"
-	cd $(TARGET)/pg8000-1.10.1; $(SETUPTOOLS) bdist_egg
+assemble-postgresql: bdist-pg8000-1.10.1
 
-$(TARGET)/PyMySQL3-0.5.tar.gz: init
-	curl -o "$@" "$(MYSQL_URL)"
-
-assemble-mysql: $(TARGET)/PyMySQL3-0.5.tar.gz
-	tar -C $(TARGET) -xzf "$^"
-	cd $(TARGET)/PyMySQL3-0.5; $(SETUPTOOLS) bdist_egg
+assemble-mysql: bdist-PyMySQL3-0.5
 
 build: assemble test
 
