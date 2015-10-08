@@ -34,7 +34,7 @@ _dbnav_completer()
 	if [[ ${cur} == -* ]]; then
 		words="$(_dbnav_options ${command})"
 	else
-		words="$(dbnav --daemon -A ${cur})"
+		words="$(dbnav --daemon ${cur})"
 	fi
 
 	_dbnav_log "_dbnav_completer: command=${command}, words=${words}"

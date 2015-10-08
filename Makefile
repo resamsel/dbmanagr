@@ -1,9 +1,6 @@
 # May be overridden by environment variables
 MAKE ?= make
 PYTHON ?= python
-FLAKE8 ?= flake8 --max-complexity=16
-PYLINT ?= pylint
-INSTRUMENTAL ?= instrumental
 SED ?= gsed
 GIT ?= git
 ZIP ?= zip
@@ -14,6 +11,11 @@ DIFF ?= diff
 RADON ?= radon
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
+
+# Code quality and coverage
+FLAKE8 ?= flake8 --max-complexity=16
+PYLINT ?= pylint
+INSTRUMENTAL ?= instrumental
 
 VERSION = src/dbnav/version.py
 TARGET = target
