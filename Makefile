@@ -151,7 +151,7 @@ release-%:
 	#$(GIT) rm dist/dbmanagr*-py2.7.egg
 	#$(SETUPTOOLS) bdist_egg
 	#$(GIT) add dist/dbmanagr-$(@:release-%=%)-py2.7.egg
-	$(MAKE) assemble-alfred
+	#$(MAKE) assemble-alfred
 
 clean-coverage:
 	rm -f .coverage .instrumental.cov
