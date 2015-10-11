@@ -24,9 +24,9 @@ from sqlalchemy.util import KeyedTuple
 
 from tests.command.activity import load
 from tests.testcase import DbTestCase
-from dbnav.command import activity
-from dbnav.utils import mute_stderr
-from dbnav.model.row import Row
+from dbmanagr.command import activity
+from dbmanagr.utils import mute_stderr
+from dbmanagr.model.row import Row
 
 
 def test_argumentor():

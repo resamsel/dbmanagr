@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.model import column
+from dbmanagr.model import column
 
 
 class ColumnTestCase(DbTestCase):
@@ -41,22 +41,22 @@ class ColumnTestCase(DbTestCase):
 
         self.assertEqual(
             {
-                '__cls__': "<class 'dbnav.model.column.Column'>",
+                '__cls__': "<class 'dbmanagr.model.column.Column'>",
                 'name': 'id',
                 'table': 'user',
                 'type': 'INTEGER',
-                'uri': u'dbnav-c.sqlite/user?id'
+                'uri': u'dbmanagr-c.sqlite/user?id'
             },
             col.as_json()
         )
         col.default = '-1'
         self.assertEqual(
             {
-                '__cls__': "<class 'dbnav.model.column.Column'>",
+                '__cls__': "<class 'dbmanagr.model.column.Column'>",
                 'name': 'id',
                 'table': 'user',
                 'type': 'INTEGER',
-                'uri': u'dbnav-c.sqlite/user?id',
+                'uri': u'dbmanagr-c.sqlite/user?id',
                 'default': '-1'
             },
             col.as_json()

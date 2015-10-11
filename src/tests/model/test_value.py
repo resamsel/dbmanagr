@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.model import value
+from dbmanagr.model import value
 
 
 class ValueTestCase(ParentTestCase):
@@ -38,7 +38,7 @@ class ValueTestCase(ParentTestCase):
 
         self.assertEqual(
             {
-                '__cls__': "<class 'dbnav.model.value.Value'>",
+                '__cls__': "<class 'dbmanagr.model.value.Value'>",
                 'value': 'a',
                 'subtitle': 'b'
             },

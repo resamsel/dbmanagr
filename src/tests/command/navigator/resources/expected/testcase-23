@@ -1,7 +1,7 @@
 Title	Autocomplete
-created	dbnav.sqlite/article?created
-id	dbnav.sqlite/article?id
-tags	dbnav.sqlite/article?tags
-text	dbnav.sqlite/article?text
-title	dbnav.sqlite/article?title
-user_id	dbnav.sqlite/article?user_id
+created	dbmanagr.sqlite/article?created
+id	dbmanagr.sqlite/article?id
+tags	dbmanagr.sqlite/article?tags
+text	dbmanagr.sqlite/article?text
+title	dbmanagr.sqlite/article?title
+user_id	dbmanagr.sqlite/article?user_id

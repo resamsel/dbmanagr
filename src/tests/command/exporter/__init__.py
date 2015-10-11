@@ -23,7 +23,7 @@ import glob
 from os import path
 from tests.sources import init_sources
 from tests.testcase import create_test
-from dbnav.command import exporter
+from dbmanagr.command import exporter
 
 DIR = path.dirname(__file__)
 TEST_CASES = map(

@@ -21,8 +21,8 @@
 from os import path
 
 from tests.testcase import ParentTestCase
-from dbnav.sources import anypass
-from dbnav.driver.sqlite.databaseconnection import SQLiteConnection
+from dbmanagr.sources import anypass
+from dbmanagr.driver.sqlite.databaseconnection import SQLiteConnection
 
 DIR = path.dirname(__file__)
 RESOURCES = path.join(DIR, '../resources')
@@ -37,7 +37,7 @@ class OptionsTestCase(ParentTestCase):
         """Tests the anypass.AnyPassSource.list method"""
 
         self.assertEqual(
-            ['dbnav.sqlite/'],
+            ['dbmanagr.sqlite/'],
             map(str, anypass.AnyPassSource(
                 '', MYPASS_CONFIG, SQLiteConnection).list()))
         self.assertEqual(
@@ -49,7 +49,7 @@ class OptionsTestCase(ParentTestCase):
         """Tests the anypass.AnyFilePassSource.list method"""
 
         self.assertEqual(
-            ['dbnav.sqlite/'],
+            ['dbmanagr.sqlite/'],
             map(str, anypass.AnyFilePassSource(
                 '', SQLITEPASS_CONFIG, SQLiteConnection).list()))
         self.assertEqual(

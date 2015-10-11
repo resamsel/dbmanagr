@@ -19,8 +19,8 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.model import database
-from dbnav.model.databaseconnection import UriDatabaseConnection
+from dbmanagr.model import database
+from dbmanagr.model.databaseconnection import UriDatabaseConnection
 
 
 class DatabaseTestCase(ParentTestCase):

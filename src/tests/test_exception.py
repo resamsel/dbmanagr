@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav import exception
+from dbmanagr import exception
 
 
 class ExceptionTestCase(DbTestCase):

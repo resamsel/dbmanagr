@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.utils import sql
+from dbmanagr.utils import sql
 
 
 class UtilsTestCase(DbTestCase):

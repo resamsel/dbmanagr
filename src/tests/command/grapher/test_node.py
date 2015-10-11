@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.command.grapher import node
+from dbmanagr.command.grapher import node
 
 
 class NodeTestCase(ParentTestCase):
@@ -39,7 +39,7 @@ class NodeTestCase(ParentTestCase):
     def test_table_node(self):
         """Tests the node.TableNode class"""
 
-        from dbnav.model.table import Table
+        from dbmanagr.model.table import Table
         table = Table(name='a')
 
         self.assertEqual(node.TableNode(table), node.TableNode(table))

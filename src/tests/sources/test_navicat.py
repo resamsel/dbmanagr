@@ -21,8 +21,8 @@
 from os import path
 
 from tests.testcase import ParentTestCase
-from dbnav.sources import navicat
-from dbnav.driver.sqlite.databaseconnection import SQLiteConnection
+from dbmanagr.sources import navicat
+from dbmanagr.driver.sqlite.databaseconnection import SQLiteConnection
 
 DIR = path.dirname(__file__)
 RESOURCES = path.join(DIR, '../resources')
@@ -35,9 +35,9 @@ class SourcesTestCase(ParentTestCase):
         """Tests the navicat.NavicatSource.list class"""
 
         self.assertEqual(
-            ['me@xyz.com.sqlite/', 'dbnav.sqlite/', 'dbnav-c.sqlite/'],
-            map(str, navicat.NavicatSource(
-                '', NAVICAT_CONFIG, 'SQLite', SQLiteConnection).list()))
+            ['dbmanagr-c.sqlite/', 'dbmanagr.sqlite/', 'me@xyz.com.sqlite/'],
+            sorted(map(str, navicat.NavicatSource(
+                '', NAVICAT_CONFIG, 'SQLite', SQLiteConnection).list())))
         self.assertEqual(
             [],
             map(str, navicat.NavicatSource(

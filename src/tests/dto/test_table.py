@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.dto import table
+from dbmanagr.dto import table
 
 
 class TableTestCase(ParentTestCase):

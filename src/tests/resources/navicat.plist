@@ -65,12 +65,12 @@
 		<dict/>
 		<key>servers</key>
 		<dict>
-			<key>dbnav</key>
+			<key>dbmanagr</key>
 			<dict>
 				<key>autoconnect</key>
 				<integer>0</integer>
 				<key>connectionname</key>
-				<string>dbnav</string>
+				<string>dbmanagr</string>
 				<key>dbfilebookmark</key>
 				<data>
 				Ym9va4gDAAAAAAQQMAAAANYuYQ3Pa/9hc7zxLC8thgRa
@@ -103,7 +103,7 @@
 				ABDQAAAEAAAAAAAAAA==
 				</data>
 				<key>dbfilename</key>
-				<string>tests/resources/dbnav.sqlite</string>
+				<string>tests/resources/dbmanagr.sqlite</string>
 				<key>dbsp</key>
 				<integer>4</integer>
 				<key>encrypted</key>
@@ -132,12 +132,12 @@
 				<key>usehttptunnel</key>
 				<integer>0</integer>
 			</dict>
-			<key>dbnav-c</key>
+			<key>dbmanagr-c</key>
 			<dict>
 				<key>autoconnect</key>
 				<integer>0</integer>
 				<key>connectionname</key>
-				<string>dbnav-c</string>
+				<string>dbmanagr-c</string>
 				<key>dbfilebookmark</key>
 				<data>
 				Ym9va4wDAAAAAAQQMAAAAJrx8nvlfXgV5GsPgIKGjsyv
@@ -170,7 +170,7 @@
 				AAAAAAAQ0AAABAAAAAAAAAA=
 				</data>
 				<key>dbfilename</key>
-				<string>tests/resources/dbnav-c.sqlite</string>
+				<string>tests/resources/dbmanagr-c.sqlite</string>
 				<key>dbsp</key>
 				<integer>4</integer>
 				<key>encrypted</key>
@@ -371,7 +371,7 @@
 					</dict>
 				</dict>
 			</dict>
-			<key>dbnav</key>
+			<key>dbmanagr</key>
 			<dict>
 				<key>main</key>
 				<dict>
@@ -421,7 +421,7 @@
 					</dict>
 				</dict>
 			</dict>
-			<key>dbnav-c</key>
+			<key>dbmanagr-c</key>
 			<dict>
 				<key>main</key>
 				<dict>

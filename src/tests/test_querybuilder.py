@@ -25,9 +25,9 @@ from collections import OrderedDict
 
 from tests.testcase import DbTestCase
 
-from dbnav import querybuilder
-from dbnav import queryfilter
-from dbnav.exception import UnknownColumnException
+from dbmanagr import querybuilder
+from dbmanagr import queryfilter
+from dbmanagr.exception import UnknownColumnException
 
 logger = logging.getLogger(__name__)
 

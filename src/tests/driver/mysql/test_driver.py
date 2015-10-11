@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.driver.mysql import driver
+from dbmanagr.driver.mysql import driver
 
 
 class OptionsTestCase(DbTestCase):

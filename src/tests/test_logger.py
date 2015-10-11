@@ -22,8 +22,8 @@ import unittest
 import logging
 
 from tests.testcase import ParentTestCase
-import dbnav
-from dbnav.logger import LogWith
+import dbmanagr
+from dbmanagr.logger import LogWith
 
 logger = logging.getLogger(__name__)
 
@@ -50,32 +50,32 @@ class LoggerTestCase(ParentTestCase):
 
         self.assertEqual(
             None,
-            dbnav.logger.encode(None))
+            dbmanagr.logger.encode(None))
         self.assertEqual(
             "u'a'",
-            dbnav.logger.encode(u'a'))
+            dbmanagr.logger.encode(u'a'))
         self.assertEqual(
             "u'a'",
-            dbnav.logger.encode('a'))
+            dbmanagr.logger.encode('a'))
         self.assertEqual(
             ["u'a.b'"],
-            dbnav.logger.encode(['a.b']))
+            dbmanagr.logger.encode(['a.b']))
         self.assertEqual(
             "u'7'",
-            dbnav.logger.encode(7))
+            dbmanagr.logger.encode(7))
 
     def test_argtostring(self):
         """Tests the logger.argtostring function"""
 
         self.assertEqual(
             "k=u'v'",
-            dbnav.logger.argtostring('k', 'v'))
+            dbmanagr.logger.argtostring('k', 'v'))
         self.assertEqual(
             "self",
-            dbnav.logger.argtostring('self', 'v'))
+            dbmanagr.logger.argtostring('self', 'v'))
         self.assertEqual(
             "k=[\"u'v1'\", \"u'v2'\"]",
-            dbnav.logger.argtostring('k', ['v1', 'v2']))
+            dbmanagr.logger.argtostring('k', ['v1', 'v2']))
         self.assertEqual(
             "k=None",
-            dbnav.logger.argtostring('k', None))
+            dbmanagr.logger.argtostring('k', None))

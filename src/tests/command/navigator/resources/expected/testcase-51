@@ -1,7 +1,7 @@
 [
-   { "uid": "4e00901e-88f1-3969-b4f8-c043d1059cb2", "arg": "1 Utah Crossing", "autocomplete": "dbnav.sqlite/address/?id=2", "valid": "True", "title": "1 Utah Crossing", "subtitle": "Ash Shāmīyah (id=2)", "icon": "images/row.png" },
-   { "uid": "581793a2-0c8b-3b9e-a06b-806675c87202", "arg": "44 Duke Place", "autocomplete": "dbnav.sqlite/address/?id=3", "valid": "True", "title": "44 Duke Place", "subtitle": "Zhamao (id=3)", "icon": "images/row.png" },
-   { "uid": "6bfa73fd-fca8-33d6-9dbe-b0e0a1ce8b2d", "arg": "3 Brentwood Street", "autocomplete": "dbnav.sqlite/address/?id=7", "valid": "True", "title": "3 Brentwood Street", "subtitle": "Sumisip (id=7)", "icon": "images/row.png" },
-   { "uid": "ced0ae8c-dbb8-3949-b722-1cf61a3dacc0", "arg": "64 Rieder Way", "autocomplete": "dbnav.sqlite/address/?id=8", "valid": "True", "title": "64 Rieder Way", "subtitle": "Burgeo (id=8)", "icon": "images/row.png" },
-   { "uid": "a3c49d26-2bfc-328f-b7e1-e536cabb56bd", "arg": "06775 Spohn Parkway", "autocomplete": "dbnav.sqlite/address/?id=9", "valid": "True", "title": "06775 Spohn Parkway", "subtitle": "Xiaosanjiang (id=9)", "icon": "images/row.png" }
+   { "uid": "512a82ba-f64d-33a1-b692-2fafe9f01e55", "arg": "1 Utah Crossing", "autocomplete": "dbmanagr.sqlite/address/?id=2", "valid": "True", "title": "1 Utah Crossing", "subtitle": "Ash Shāmīyah (id=2)", "icon": "images/row.png" },
+   { "uid": "e12da401-15c1-327f-83e0-f6205f0769ad", "arg": "44 Duke Place", "autocomplete": "dbmanagr.sqlite/address/?id=3", "valid": "True", "title": "44 Duke Place", "subtitle": "Zhamao (id=3)", "icon": "images/row.png" },
+   { "uid": "789b80a5-cd9b-32b2-aeb9-07168cb1481a", "arg": "3 Brentwood Street", "autocomplete": "dbmanagr.sqlite/address/?id=7", "valid": "True", "title": "3 Brentwood Street", "subtitle": "Sumisip (id=7)", "icon": "images/row.png" },
+   { "uid": "03712a9b-feac-3962-80a1-368ee65d318c", "arg": "64 Rieder Way", "autocomplete": "dbmanagr.sqlite/address/?id=8", "valid": "True", "title": "64 Rieder Way", "subtitle": "Burgeo (id=8)", "icon": "images/row.png" },
+   { "uid": "4a5070a4-0a6b-32cf-b0c7-981c4569192d", "arg": "06775 Spohn Parkway", "autocomplete": "dbmanagr.sqlite/address/?id=9", "valid": "True", "title": "06775 Spohn Parkway", "subtitle": "Xiaosanjiang (id=9)", "icon": "images/row.png" }
 ]

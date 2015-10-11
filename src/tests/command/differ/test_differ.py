@@ -22,8 +22,8 @@ import os
 
 from tests.command.differ import load
 from tests.testcase import DbTestCase
-from dbnav.command import differ
-from dbnav.utils import mute_stderr
+from dbmanagr.command import differ
+from dbmanagr.utils import mute_stderr
 
 
 def test_differ():
@@ -44,15 +44,15 @@ class DifferTestCase(DbTestCase):
         self.assertRaises(
             Exception,
             differ.run,
-            ['dbnav.sqlite/user', 'b'])
+            ['dbmanagr.sqlite/user', 'b'])
         self.assertRaises(
             Exception,
             differ.run,
-            ['dbnav.sqlite/unknown', 'dbnav-c.sqlite/unknown'])
+            ['dbmanagr.sqlite/unknown', 'dbmanagr-c.sqlite/unknown'])
         self.assertRaises(
             Exception,
             differ.run,
-            ['dbnav.sqlite/user', 'dbnav-c.sqlite/unknown'])
+            ['dbmanagr.sqlite/user', 'dbmanagr-c.sqlite/unknown'])
 
     def test_writer(self):
         """Tests the writer"""
@@ -66,7 +66,7 @@ class DifferTestCase(DbTestCase):
 
         self.assertEqual(
             0,
-            differ.main(['dbnav.sqlite/user', 'dbnav.sqlite/user2']))
+            differ.main(['dbmanagr.sqlite/user', 'dbmanagr.sqlite/user2']))
 
     def test_execute(self):
         """Tests the differ.execute function"""

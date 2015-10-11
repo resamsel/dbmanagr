@@ -20,12 +20,12 @@
 
 import os
 
-from dbnav.command import navigator
+from dbmanagr.command import navigator
 from tests.testcase import DbTestCase
 from tests.command.navigator import load
-from dbnav.config import Config
-from dbnav.exception import UnknownTableException
-from dbnav.utils import mute_stderr, hash_
+from dbmanagr.config import Config
+from dbmanagr.exception import UnknownTableException
+from dbmanagr.utils import mute_stderr, hash_
 
 
 def test_navigator():
@@ -82,7 +82,8 @@ class NavigatorTestCase(DbTestCase):
         """Tests the navigator.create function"""
 
         con = DbTestCase.connection
-        options = Config.init(['dbnav-c.sqlite/user'], navigator.args.parser)
+        options = Config.init(
+            ['dbmanagr-c.sqlite/user'], navigator.args.parser)
 
         options.show = 'connections'
         self.assertEqual(
@@ -91,7 +92,7 @@ class NavigatorTestCase(DbTestCase):
 
         options.show = 'databases'
         self.assertEqual(
-            ['dbnav-c.sqlite//'],
+            ['dbmanagr-c.sqlite//'],
             map(str, navigator.create(con, options)))
 
         options.database = 'db'
@@ -99,9 +100,10 @@ class NavigatorTestCase(DbTestCase):
             [],
             map(str, navigator.create(con, options)))
 
-        options = Config.init(['dbnav-c.sqlite/user?'], navigator.args.parser)
+        options = Config.init(
+            ['dbmanagr-c.sqlite/user?'], navigator.args.parser)
         self.assertEqual(
-            ['dbnav-c.sqlite/'],
+            ['dbmanagr-c.sqlite/'],
             map(str, navigator.create(con, options)))
 
     def test_filter_complete(self):
@@ -118,7 +120,8 @@ class NavigatorTestCase(DbTestCase):
 
         con = DbTestCase.connection
         user = con.table('user')
-        options = Config.init(['dbnav-c.sqlite/user?'], navigator.args.parser)
+        options = Config.init(
+            ['dbmanagr-c.sqlite/user?'], navigator.args.parser)
         options.simplify = False
 
         self.assertIsNotNone(
@@ -141,7 +144,7 @@ class NavigatorTestCase(DbTestCase):
             navigator.main())
         self.assertEqual(
             -1,
-            navigator.main(['dbnav.sqlite/unknown?']))
+            navigator.main(['dbmanagr.sqlite/unknown?']))
 
     def test_execute(self):
         """Tests the navigator.execute function"""

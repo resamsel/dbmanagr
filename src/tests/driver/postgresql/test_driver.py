@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.driver.postgresql import driver
+from dbmanagr.driver.postgresql import driver
 
 
 class OptionsTestCase(DbTestCase):

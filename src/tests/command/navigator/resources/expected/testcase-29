@@ -1,5 +1,5 @@
 Title	Autocomplete
-2	dbnav.sqlite/blog/?id=2
-Bubblebox	dbnav.sqlite/blog?name=Bubblebox
-http://ehow.com/pede/libero.jpg	dbnav.sqlite/blog?url=http://ehow.com/pede/libero.jpg
-← blog_user.blog_id	dbnav.sqlite/blog_user?blog_id=2
+2	dbmanagr.sqlite/blog/?id=2
+Bubblebox	dbmanagr.sqlite/blog?name=Bubblebox
+http://ehow.com/pede/libero.jpg	dbmanagr.sqlite/blog?url=http://ehow.com/pede/libero.jpg
+← blog_user.blog_id	dbmanagr.sqlite/blog_user?blog_id=2

@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav import queryfilter
+from dbmanagr import queryfilter
 
 
 class QueryFilterTestCase(ParentTestCase):

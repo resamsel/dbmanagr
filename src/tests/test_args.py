@@ -21,7 +21,7 @@
 import os
 
 from tests.testcase import ParentTestCase
-from dbnav import args
+from dbmanagr import args
 
 
 class ArgsTestCase(ParentTestCase):
@@ -29,6 +29,6 @@ class ArgsTestCase(ParentTestCase):
         """Tests the args.default_log_file function"""
 
         self.assertEqual(
-            os.path.expanduser('~/dbnav.log'),
+            os.path.expanduser('~/dbmanagr.log'),
             args.default_log_file([''])
         )

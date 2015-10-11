@@ -22,7 +22,7 @@ from datetime import datetime
 
 from tests.testcase import DbTestCase
 from tests.mock.sources import MockSource
-from dbnav import options
+from dbmanagr import options
 
 
 class OptionsTestCase(DbTestCase):

@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.dto import column
+from dbmanagr.dto import column
 
 
 class ColumnTestCase(ParentTestCase):

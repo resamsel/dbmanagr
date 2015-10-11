@@ -24,7 +24,7 @@ from os import path
 
 from tests.sources import init_sources
 from tests.testcase import create_test
-from dbnav.command import differ
+from dbmanagr.command import differ
 
 DIR = path.dirname(__file__)
 TEST_CASES = map(
