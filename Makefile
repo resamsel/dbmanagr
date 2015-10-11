@@ -33,7 +33,7 @@ PIP_DEPS = flake8 pep8-naming flake8-todo
 ALFRED_RESOURCES = resources/alfred
 RESOURCES = $(ALFRED_RESOURCES)/*
 BASH_COMPLETION_SOURCE = resources/bash_completion/dbmanagr
-ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
+ARCHIVE = $(TARGET)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
 
 $(TARGET)/ijson-2.0.tar.gz = https://pypi.python.org/packages/source/i/ijson/ijson-2.0.tar.gz
@@ -44,7 +44,7 @@ $(TARGET)/PyMySQL3-0.5.tar.gz = https://pypi.python.org/packages/source/P/PyMySQ
 init:
 	mkdir -p $(TARGETS)
 
-assemble: init assemble-main assemble-alfred
+assemble: init assemble-main
 
 assemble-main:
 	$(SETUPTOOLS) bdist_egg
@@ -81,9 +81,6 @@ assemble-mysql: bdist-PyMySQL3-0.5
 
 build: assemble test
 
-wheel:
-	$(SETUPTOOLS) bdist_wheel
-
 install-alfred: assemble-alfred
 	$(UNZIP) -oq $(ARCHIVE) -d $(ALFRED_WORKFLOW)
 
@@ -94,11 +91,20 @@ install-bash-completion:
 install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
+wheel:
+	$(SETUPTOOLS) bdist_wheel
+
+bdist:
+	$(SETUPTOOLS) bdist
+
+sdist:
+	$(SETUPTOOLS) sdist
+
 dist-sign:
 	$(GPG) --detach-sign -a dist/dbmanagr-*.egg
 
-upload: build dist-sign
-	$(TWINE) upload dist/*.egg*
+upload: build wheel sdist bdist dist-sign
+	$(TWINE) upload dist/*
 
 missing-copyright:
 	$(FIND) . -name "*.py" -exec grep -L 'Copyright' {} \;
