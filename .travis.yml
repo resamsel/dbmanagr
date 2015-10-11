@@ -13,10 +13,10 @@ install:
 script:
   - mkdir -p target/coverage
   - python setup.py install
-  - pip uninstall dbnav -y
+  - pip uninstall dbmanagr -y
   - python setup.py develop
   - python setup.py develop --uninstall
-  - python setup.py nosetests --with-coverage --cover-package=dbnav --cover-html --cover-html-dir=target/coverage
+  - python setup.py nosetests --with-coverage --cover-package=dbmanagr --cover-html --cover-html-dir=target/coverage
 after_success:
   - coveralls
 
