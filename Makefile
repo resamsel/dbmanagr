@@ -91,21 +91,6 @@ install-bash-completion:
 install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
-wheel:
-	$(SETUPTOOLS) bdist_wheel
-
-bdist:
-	$(SETUPTOOLS) bdist
-
-sdist:
-	$(SETUPTOOLS) sdist
-
-dist-sign:
-	$(GPG) --detach-sign -a dist/dbmanagr-*.egg
-
-upload: build wheel sdist bdist dist-sign
-	$(TWINE) upload dist/*
-
 missing-copyright:
 	$(FIND) . -name "*.py" -exec grep -L 'Copyright' {} \;
 
@@ -162,3 +147,23 @@ clean: clean-coverage
 	rm -rf $(TARGET)
 	rm -rf $(DIST)
 	rm -f .dbnavigator.cache*
+
+wheel:
+	$(SETUPTOOLS) bdist_wheel
+
+bdist:
+	$(SETUPTOOLS) bdist
+
+sdist:
+	$(SETUPTOOLS) sdist
+
+dist/%.asc: dist/%
+	$(GPG) --detach-sign -a $^
+
+dist-sign:
+	$(GPG) --detach-sign -a dist/*.egg
+	$(GPG) --detach-sign -a dist/*.tar.gz
+	$(GPG) --detach-sign -a dist/*.whl
+
+upload: wheel sdist bdist dist/*.whl.asc dist/*.egg.asc dist/*.tar.gz.asc
+	$(TWINE) upload dist/*
