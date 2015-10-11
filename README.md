@@ -1,5 +1,7 @@
 # Database Managr
 
+[![Latest PyPI version](http://img.shields.io/pypi/v/dbmanagr.svg?style=flat)](https://pypi.python.org/pypi/gitchangelog/)
+[![Number of PyPI downloads](http://img.shields.io/pypi/dm/dbmanagr.svg?style=flat)](https://pypi.python.org/pypi/gitchangelog/)
 [![Build Status](https://api.travis-ci.org/resamsel/dbmanagr.svg)](https://travis-ci.org/resamsel/dbmanagr)
 [![Coverage Status](https://coveralls.io/repos/resamsel/dbmanagr/badge.svg?branch=master&service=github)](https://coveralls.io/github/resamsel/dbmanagr?branch=master)
 
