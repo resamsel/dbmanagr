@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.sources import source
+from dbmanagr.sources import source
 
 
 class OptionsTestCase(ParentTestCase):

@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav import dto
+from dbmanagr import dto
 
 
 class DtoTestCase(ParentTestCase):

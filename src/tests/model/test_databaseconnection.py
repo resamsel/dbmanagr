@@ -21,7 +21,7 @@
 from os import path
 
 from tests.testcase import DbTestCase
-from dbnav.model import databaseconnection
+from dbmanagr.model import databaseconnection
 from tests.mock.sources import DIR as MOCK_DIR
 from tests.mock.sources import URI as MOCK_URI
 
@@ -57,7 +57,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         con = databaseconnection.DatabaseConnection()
         con.connect_to(MOCK_URI.format(
             file=path.join(
-                MOCK_DIR, '../resources/dbnav.sqlite')))
+                MOCK_DIR, '../resources/dbmanagr.sqlite')))
 
         self.assertEquals(
             [],
@@ -72,7 +72,7 @@ class DatabaseConnectionTestCase(DbTestCase):
         con = databaseconnection.DatabaseConnection()
         con.connect_to(MOCK_URI.format(
             file=path.join(
-                MOCK_DIR, '../resources/dbnav.sqlite')))
+                MOCK_DIR, '../resources/dbmanagr.sqlite')))
 
         self.assertEquals(
             True,

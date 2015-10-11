@@ -19,9 +19,9 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.driver import sqlite
-from dbnav.driver.sqlite import databaseconnection as dbc
-from dbnav.driver import DatabaseDriver
+from dbmanagr.driver import sqlite
+from dbmanagr.driver.sqlite import databaseconnection as dbc
+from dbmanagr.driver import DatabaseDriver
 
 
 class Opts(DatabaseDriver):

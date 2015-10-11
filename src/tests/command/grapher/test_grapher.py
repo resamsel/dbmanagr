@@ -22,10 +22,11 @@ import os
 
 from tests.command.grapher import load
 from tests.testcase import DbTestCase
-from dbnav.command import grapher
-from dbnav.config import Config
-from dbnav.exception import UnknownTableException, UnknownConnectionException
-from dbnav.utils import mute_stderr
+from dbmanagr.command import grapher
+from dbmanagr.config import Config
+from dbmanagr.exception import UnknownTableException, \
+    UnknownConnectionException
+from dbmanagr.utils import mute_stderr
 
 
 def test_grapher():
@@ -50,11 +51,11 @@ class GrapherTestCase(DbTestCase):
         self.assertRaises(
             Exception,
             grapher.run,
-            ['dbnav.sqlite'])
+            ['dbmanagr.sqlite'])
         self.assertRaises(
             UnknownTableException,
             grapher.run,
-            ['dbnav.sqlite/unknown?'])
+            ['dbmanagr.sqlite/unknown?'])
 
     def test_writer(self):
         """Tests the writer"""
@@ -68,7 +69,7 @@ class GrapherTestCase(DbTestCase):
 
         self.assertEqual(
             0,
-            grapher.main(['dbnav.sqlite/user?id=1']))
+            grapher.main(['dbmanagr.sqlite/user?id=1']))
 
     def test_execute(self):
         """Tests the grapher.execute function"""
@@ -83,7 +84,7 @@ class GrapherTestCase(DbTestCase):
         """Tests options"""
 
         config = Config.init(
-            ['-r', '--database', 'dbnav.sqlite/article'],
+            ['-r', '--database', 'dbmanagr.sqlite/article'],
             grapher.args.parser)
         config.database = 'db'
 

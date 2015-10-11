@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav import writer
+from dbmanagr import writer
 
 
 class WriterTestCase(ParentTestCase):

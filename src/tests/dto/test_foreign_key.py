@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav.dto import foreignkey
+from dbmanagr.dto import foreignkey
 
 
 class ForeignKeyTestCase(ParentTestCase):

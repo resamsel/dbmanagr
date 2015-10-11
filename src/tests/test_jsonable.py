@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav import jsonable
+from dbmanagr import jsonable
 
 
 class JsonableTestCase(ParentTestCase):
@@ -70,7 +70,7 @@ class JsonableTestCase(ParentTestCase):
                 '__cls__': "<class 'tests.test_jsonable.TestJsonable'>",
                 'a': 1,
                 'b': {
-                    '__cls__': "<class 'dbnav.jsonable.Jsonable'>"
+                    '__cls__': "<class 'dbmanagr.jsonable.Jsonable'>"
                 }
             },
             jsonable.as_json(TestJsonable())
@@ -80,7 +80,7 @@ class JsonableTestCase(ParentTestCase):
         """Tests the jsonable.import_class function"""
 
         self.assertEqual(None, jsonable.import_class('a'))
-        self.assertIsNotNone(jsonable.import_class('dbnav.utils'))
+        self.assertIsNotNone(jsonable.import_class('dbmanagr.utils'))
 
     def test_from_json(self):
         """Tests the jsonable.from_json function"""
@@ -139,11 +139,11 @@ class JsonableTestCase(ParentTestCase):
             })
         )
 
-        from dbnav.dto.node import NameNode
+        from dbmanagr.dto.node import NameNode
         self.assertEqual(
             NameNode('a'),
             jsonable.from_json({
-                '__cls__': 'dbnav.dto.node.NameNode',
+                '__cls__': 'dbmanagr.dto.node.NameNode',
                 'name': 'a',
                 'indent': 0
             })

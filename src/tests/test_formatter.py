@@ -19,8 +19,8 @@
 #
 
 from tests.testcase import ParentTestCase
-from dbnav import formatter
-from dbnav.command.grapher.node import NameNode
+from dbmanagr import formatter
+from dbmanagr.command.grapher.node import NameNode
 
 
 class FormatterTestCase(ParentTestCase):

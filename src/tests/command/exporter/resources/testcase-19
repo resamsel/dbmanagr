@@ -2,4 +2,4 @@
 id=2,article.id=nextval('article_id_seq'),article.user_id=2
 -i
 article.user_id
-dbnav.sqlite/user?id=1
+dbmanagr.sqlite/user?id=1

@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.driver.sqlite import driver
+from dbmanagr.driver.sqlite import driver
 
 
 class OptionsTestCase(DbTestCase):

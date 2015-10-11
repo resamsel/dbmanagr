@@ -22,8 +22,8 @@ import os
 
 from tests.command.argumentor import load
 from tests.testcase import DbTestCase
-from dbnav.command import argumentor
-from dbnav.utils import mute_stderr
+from dbmanagr.command import argumentor
+from dbmanagr.utils import mute_stderr
 
 
 def test_argumentor():

@@ -22,8 +22,8 @@ import os
 
 from tests.command.daemon import load
 from tests.testcase import ParentTestCase
-from dbnav.command import daemon
-from dbnav.utils import mute_stderr
+from dbmanagr.command import daemon
+from dbmanagr.utils import mute_stderr
 
 
 def test_daemon():

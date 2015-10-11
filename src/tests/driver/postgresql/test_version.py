@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.driver.postgresql import version
+from dbmanagr.driver.postgresql import version
 
 
 class VersionTestCase(DbTestCase):

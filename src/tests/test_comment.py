@@ -22,8 +22,8 @@ import unittest
 
 from collections import Counter, OrderedDict
 
-from dbnav.model.column import Column
-from dbnav import comment
+from dbmanagr.model.column import Column
+from dbmanagr import comment
 
 from tests.testcase import DbTestCase
 

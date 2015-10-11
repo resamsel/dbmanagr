@@ -22,9 +22,9 @@ from os import path, makedirs, environ
 from nose.tools import assert_equal
 import codecs
 
-from dbnav.writer import Writer
+from dbmanagr.writer import Writer
 
-LOGFILE = '{}/target/dbnavigator.log'.format(
+LOGFILE = '{}/target/dbmanagr.log'.format(
     path.join(path.dirname(__file__), '..', '..'))
 
 

@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbnav.driver import DatabaseDriver
+from dbmanagr.driver import DatabaseDriver
 from tests.testcase import ParentTestCase
 
 

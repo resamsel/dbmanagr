@@ -20,8 +20,8 @@
 
 from os import path
 
-from dbnav.sources.source import Source
-from dbnav.driver.sqlite.databaseconnection import SQLiteConnection
+from dbmanagr.sources.source import Source
+from dbmanagr.driver.sqlite.databaseconnection import SQLiteConnection
 
 DIR = path.dirname(__file__)
 URI = 'sqlite+pysqlite:///{file}'
@@ -35,7 +35,7 @@ class MockSource(Source):
                     URI,
                     None,
                     None,
-                    path.join(DIR, '../resources/dbnav.sqlite'),
+                    path.join(DIR, '../resources/dbmanagr.sqlite'),
                     None,
                     None))
             self._connections.append(
@@ -43,7 +43,7 @@ class MockSource(Source):
                     URI,
                     None,
                     None,
-                    path.join(DIR, '../resources/dbnav-c.sqlite'),
+                    path.join(DIR, '../resources/dbmanagr-c.sqlite'),
                     None,
                     None))
             self._connections.append(

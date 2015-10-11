@@ -3,8 +3,8 @@ build
 .dbnavigator.cache
 .dbnavigator.cache.db
 target
-src/main/dbnav.egg-info
-dbnav.egg-info
+*.egg-info
 .coverage
 dist/*.egg
 .eggs
+*.asc

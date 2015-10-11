@@ -9,6 +9,8 @@ PIP ?= pip
 FIND ?= find
 DIFF ?= diff
 RADON ?= radon
+TWINE ?= twine
+GPG ?= gpg
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
 
@@ -17,21 +19,21 @@ FLAKE8 ?= flake8 --max-complexity=16
 PYLINT ?= pylint
 INSTRUMENTAL ?= instrumental
 
-VERSION = src/dbnav/version.py
+VERSION = src/dbmanagr/version.py
 TARGET = target
 TARGETS = $(TARGET) $(TARGET)/coverage
 SETUPTOOLS = $(PYTHON) setup.py
-TEST_NOSE = nosetests --with-coverage --cover-package=dbnav --cover-html \
+TEST_NOSE = nosetests --with-coverage --cover-package=dbmanagr --cover-html \
 	--cover-html-dir=$(PWD)/$(TARGET)/coverage
-TEST_INSTRUMENTAL = $(INSTRUMENTAL) -S -t dbnav setup.py $(TEST_NOSE)
+TEST_INSTRUMENTAL = $(INSTRUMENTAL) -S -t dbmanagr setup.py $(TEST_NOSE)
 TEST = $(SETUPTOOLS) $(TEST_NOSE)
 INSTRUMENTAL_REPORT = $(INSTRUMENTAL) -r --xml
 DIST = dist
 PIP_DEPS = flake8 pep8-naming flake8-todo
 ALFRED_RESOURCES = resources/alfred
 RESOURCES = $(ALFRED_RESOURCES)/*
-BASH_COMPLETION_SOURCE = resources/bash_completion/dbnav
-ARCHIVE = $(DIST)/Database\ Navigator.alfredworkflow
+BASH_COMPLETION_SOURCE = resources/bash_completion/dbmanagr
+ARCHIVE = $(TARGET)/Database\ Navigator.alfredworkflow
 ALFRED = $(TARGET)/alfred
 
 $(TARGET)/ijson-2.0.tar.gz = https://pypi.python.org/packages/source/i/ijson/ijson-2.0.tar.gz
@@ -42,7 +44,7 @@ $(TARGET)/PyMySQL3-0.5.tar.gz = https://pypi.python.org/packages/source/P/PyMySQ
 init:
 	mkdir -p $(TARGETS)
 
-assemble: init assemble-main assemble-alfred
+assemble: init assemble-main
 
 assemble-main:
 	$(SETUPTOOLS) bdist_egg
@@ -51,7 +53,7 @@ assemble-alfred: assemble-main assemble-ijson assemble-sqlalchemy assemble-postg
 	rm -rf $(ALFRED)
 	mkdir -p $(ALFRED) $(ALFRED)/lib
 	cp -r $(RESOURCES) $(ALFRED)
-	cp dist/dbnav*-py2.7.egg $(ALFRED)/lib
+	cp dist/dbmanagr*-py2.7.egg $(ALFRED)/lib
 	cp $(TARGET)/ijson-2.0/dist/*py2.7*.egg $(ALFRED)/lib
 	cp $(TARGET)/SQLAlchemy-0.9.8/dist/*py2.7*.egg $(ALFRED)/lib
 	cp $(TARGET)/pg8000-1.10.1/dist/*py2.7*.egg $(ALFRED)/lib
@@ -89,12 +91,27 @@ install-bash-completion:
 install: assemble install-bash-completion
 	$(SETUPTOOLS) install
 
+wheel:
+	$(SETUPTOOLS) bdist_wheel
+
+bdist:
+	$(SETUPTOOLS) bdist
+
+sdist:
+	$(SETUPTOOLS) sdist
+
+dist-sign:
+	$(GPG) --detach-sign -a dist/dbmanagr-*.egg
+
+upload: build wheel sdist bdist dist-sign
+	$(TWINE) upload dist/*
+
 missing-copyright:
 	$(FIND) . -name "*.py" -exec grep -L 'Copyright' {} \;
 
 check-code:
 	$(FLAKE8) src
-	$(PYLINT) src/dbnav
+	$(PYLINT) src/dbmanagr
 
 metrics:
 	$(RADON) cc src --total-average -s -n C
@@ -131,10 +148,10 @@ release-%:
 	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' \
 		-i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
 	$(MAKE) README.md
-	#$(GIT) rm dist/dbnav*-py2.7.egg
+	#$(GIT) rm dist/dbmanagr*-py2.7.egg
 	#$(SETUPTOOLS) bdist_egg
-	#$(GIT) add dist/dbnav-$(@:release-%=%)-py2.7.egg
-	$(MAKE) assemble-alfred
+	#$(GIT) add dist/dbmanagr-$(@:release-%=%)-py2.7.egg
+	#$(MAKE) assemble-alfred
 
 clean-coverage:
 	rm -f .coverage .instrumental.cov

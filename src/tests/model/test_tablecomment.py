@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.model import tablecomment
+from dbmanagr.model import tablecomment
 
 
 class TableCommentTestCase(DbTestCase):

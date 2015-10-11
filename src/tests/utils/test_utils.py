@@ -21,9 +21,9 @@
 import unittest
 
 from tests.testcase import DbTestCase
-from dbnav import utils
-from dbnav.model.column import Column
-from dbnav.comment import Comment
+from dbmanagr import utils
+from dbmanagr.model.column import Column
+from dbmanagr.comment import Comment
 
 
 def load_suite():

@@ -19,7 +19,7 @@
 #
 
 from tests.testcase import DbTestCase
-from dbnav.model import table
+from dbmanagr.model import table
 
 
 class TableTestCase(DbTestCase):
@@ -31,7 +31,7 @@ class TableTestCase(DbTestCase):
         id = user.column('id')
 
         self.assertEqual(
-            'dbnav-c.sqlite/user/?[BLOB]',
+            'dbmanagr-c.sqlite/user/?[BLOB]',
             user.autocomplete_(id, buffer('Blub', 0, 4)))
 
     def test_subtitle(self):

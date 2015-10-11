@@ -24,8 +24,8 @@ from sqlalchemy.exc import OperationalError
 
 from tests.command.executer import load
 from tests.testcase import DbTestCase
-from dbnav.command import executer
-from dbnav.utils import mute_stderr
+from dbmanagr.command import executer
+from dbmanagr.utils import mute_stderr
 
 DIR = os.path.dirname(__file__)
 RESOURCES = os.path.join(DIR, '../../resources')
@@ -46,7 +46,7 @@ class ExecuterTestCase(DbTestCase):
         self.assertRaises(
             Exception,
             executer.run,
-            ['dbnav.sqlite', '-s', 'select 1']
+            ['dbmanagr.sqlite', '-s', 'select 1']
         )
 
     def test_writer(self):
@@ -62,12 +62,12 @@ class ExecuterTestCase(DbTestCase):
 
         self.assertEqual(
             0,
-            executer.main(['dbnav.sqlite/user?id=1', '-s', 'select 1'])
+            executer.main(['dbmanagr.sqlite/user?id=1', '-s', 'select 1'])
         )
         self.assertEqual(
             -1,
             executer.main(
-                ['dbnav.sqlite/user?id=1', '-s', 'select * from unknown'])
+                ['dbmanagr.sqlite/user?id=1', '-s', 'select * from unknown'])
         )
 
     def test_execute(self):
@@ -85,7 +85,7 @@ class ExecuterTestCase(DbTestCase):
         self.assertRaises(
             OperationalError,
             executer.run,
-            ['dbnav.sqlite/', '-s', 'select * from unkown']
+            ['dbmanagr.sqlite/', '-s', 'select * from unkown']
         )
 
     def test_isolation(self):
@@ -94,7 +94,7 @@ class ExecuterTestCase(DbTestCase):
         self.assertEqual(
             0,
             executer.main([
-                'dbnav.sqlite/user',
+                'dbmanagr.sqlite/user',
                 '--isolate-statements',
                 '--mute-errors',
                 '-s',
@@ -104,7 +104,7 @@ class ExecuterTestCase(DbTestCase):
         self.assertEqual(
             0,
             mute_stderr(executer.main)([
-                'dbnav.sqlite/user',
+                'dbmanagr.sqlite/user',
                 '--isolate-statements',
                 '-s',
                 'select blub; select 1;'
@@ -117,7 +117,7 @@ class ExecuterTestCase(DbTestCase):
         self.assertEqual(
             0,
             executer.main([
-                'dbnav.sqlite/user',
+                'dbmanagr.sqlite/user',
                 '-s',
                 '      '
             ])
@@ -125,7 +125,7 @@ class ExecuterTestCase(DbTestCase):
         self.assertEqual(
             0,
             executer.main([
-                'dbnav.sqlite/user',
+                'dbmanagr.sqlite/user',
                 '-s',
                 '',
                 '-n'
@@ -138,7 +138,7 @@ class ExecuterTestCase(DbTestCase):
         self.assertEqual(
             0,
             executer.main([
-                'dbnav.sqlite/user',
+                'dbmanagr.sqlite/user',
                 SELECT_1
             ])
         )

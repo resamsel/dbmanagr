@@ -21,7 +21,7 @@
 from collections import OrderedDict
 
 from tests.testcase import DbTestCase
-from dbnav.model import row
+from dbmanagr.model import row
 
 
 class ResultRow(object):

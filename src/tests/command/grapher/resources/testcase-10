@@ -3,4 +3,4 @@
 user_id.article
 -x
 user_id.article.user_id
-dbnav.sqlite/article
+dbmanagr.sqlite/article

@@ -21,7 +21,7 @@
 from nose.tools import assert_equal
 from datetime import date
 
-from dbnav.command.executer import writer
+from dbmanagr.command.executer import writer
 
 
 def test_sql_escape():

@@ -28,15 +28,33 @@ def get_version():
     maintaining it in multiple places.
     """
     local_results = {}
-    execfile('src/dbnav/version.py', {}, local_results)
+    execfile('src/dbmanagr/version.py', {}, local_results)
     return local_results['__version__']
 
 setup(
-    name="dbnav",
+    name="dbmanagr",
     version=get_version(),
+    description="The database manager for the command line",
+    url="https://github.com/resamsel/dbmanagr",
     author="René Samselnig",
     author_email="me@resamsel.com",
-    description="The database navigator for the command line",
+    license="GPLv3+",
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: System Administrators',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 2 :: Only',
+        'Topic :: Database',
+        'Topic :: Database :: Front-Ends',
+        'Topic :: System :: Systems Administration',
+        'Topic :: Utilities'
+    ],
     keywords="database navigator exporter grapher postgres sqlite graphviz"
              " diff",
 
@@ -69,21 +87,21 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'dbnav = dbnav.command.navigator:main',
-            'dbexport = dbnav.command.exporter:main',
-            'dbgraph = dbnav.command.grapher:main',
-            'dbexec = dbnav.command.executer:main',
-            'dbdiff = dbnav.command.differ:main',
-            'dbdaemon = dbnav.command.daemon:main',
-            'dbstac = dbnav.command.activity:main',
-            'dbargs = dbnav.command.argumentor:main',
+            'dbnav = dbmanagr.command.navigator:main',
+            'dbexport = dbmanagr.command.exporter:main',
+            'dbgraph = dbmanagr.command.grapher:main',
+            'dbexec = dbmanagr.command.executer:main',
+            'dbdiff = dbmanagr.command.differ:main',
+            'dbdaemon = dbmanagr.command.daemon:main',
+            'dbstac = dbmanagr.command.activity:main',
+            'dbargs = dbmanagr.command.argumentor:main',
         ]
     },
 
     data_files=[
 #        (
 #            '/usr/local/etc/bash_completion.d',
-#            ['resources/bash_completion/dbnav']
+#            ['resources/bash_completion/dbmanagr']
 #        )
     ]
 )

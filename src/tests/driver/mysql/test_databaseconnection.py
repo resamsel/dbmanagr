@@ -23,10 +23,10 @@ from os import path
 from sqlalchemy.exc import OperationalError
 
 from tests.testcase import DbTestCase
-from dbnav.driver import mysql
-from dbnav.driver.mysql import databaseconnection as dbc
-from dbnav.config import Config
-from dbnav.command import navigator
+from dbmanagr.driver import mysql
+from dbmanagr.driver.mysql import databaseconnection as dbc
+from dbmanagr.config import Config
+from dbmanagr.command import navigator
 from tests.mock.sources import DIR as MOCK_DIR
 from tests.mock.sources import URI as MOCK_URI
 
@@ -117,7 +117,7 @@ class DatabaseConnectionTestCase(DbTestCase):
             None,
             dbc.MySQLConnection(
                 MOCK_URI.format(
-                    file=path.join(MOCK_DIR, '../resources/dbnav.sqlite')),
+                    file=path.join(MOCK_DIR, '../resources/dbmanagr.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
             ).connect(None)
         )
@@ -125,7 +125,7 @@ class DatabaseConnectionTestCase(DbTestCase):
             None,
             dbc.MySQLConnection(
                 MOCK_URI.format(
-                    file=path.join(MOCK_DIR, '../resources/dbnav.sqlite')),
+                    file=path.join(MOCK_DIR, '../resources/dbmanagr.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
             ).connect(None)
         )
@@ -134,7 +134,7 @@ class DatabaseConnectionTestCase(DbTestCase):
             dbc.MySQLConnection(
                 MOCK_URI.format(
                     file=path.join(
-                        MOCK_DIR, '../resources/dbnav.sqlite')),
+                        MOCK_DIR, '../resources/dbmanagr.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
             ).connect('db')
         )
@@ -143,7 +143,7 @@ class DatabaseConnectionTestCase(DbTestCase):
             dbc.MySQLConnection(
                 MOCK_URI.format(
                     file=path.join(
-                        MOCK_DIR, '../resources/{database}/dbnav.sqlite')),
+                        MOCK_DIR, '../resources/{database}/dbmanagr.sqlite')),
                 'host', '3333', 'db', 'user', 'password'
             ).connect('db')
         )

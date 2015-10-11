@@ -1,4 +1,4 @@
 Title	Autocomplete
-user	dbnav.sqlite/user?
-user2	dbnav.sqlite/user2?
-user_address	dbnav.sqlite/user_address?
+user	dbmanagr.sqlite/user?
+user2	dbmanagr.sqlite/user2?
+user_address	dbmanagr.sqlite/user_address?

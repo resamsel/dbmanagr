@@ -26,12 +26,12 @@ from sqlalchemy.util import KeyedTuple
 from tests.command.exporter import load
 from tests.testcase import DbTestCase
 from tests.mock.sources import MockSource
-from dbnav.command import exporter
-from dbnav.exception import UnknownTableException, UnknownColumnException, \
+from dbmanagr.command import exporter
+from dbmanagr.exception import UnknownTableException, UnknownColumnException, \
     UnknownConnectionException
-from dbnav.utils import mute_stderr
-from dbnav.dto.mapper import to_dto
-from dbnav.model.row import Row
+from dbmanagr.utils import mute_stderr
+from dbmanagr.dto.mapper import to_dto
+from dbmanagr.model.row import Row
 
 
 def test_exporter():
@@ -91,11 +91,11 @@ class DifferTestCase(DbTestCase):
         self.assertRaises(
             Exception,
             exporter.run,
-            ['dbnav.sqlite'])
+            ['dbmanagr.sqlite'])
         self.assertRaises(
             UnknownTableException,
             exporter.run,
-            ['dbnav.sqlite/unknown?'])
+            ['dbmanagr.sqlite/unknown?'])
 
     def test_unknown_column(self):
         """Tests unknown columns"""
@@ -103,11 +103,11 @@ class DifferTestCase(DbTestCase):
         self.assertRaises(
             UnknownColumnException,
             exporter.run,
-            ['dbnav.sqlite/user2?', '-i', 'unknown'])
+            ['dbmanagr.sqlite/user2?', '-i', 'unknown'])
         self.assertRaises(
             UnknownColumnException,
             exporter.run,
-            ['dbnav.sqlite/user2?', '-x', 'unknown'])
+            ['dbmanagr.sqlite/user2?', '-x', 'unknown'])
 
     def test_foreign_keys(self):
         """Tests foreign keys"""
@@ -126,7 +126,7 @@ class DifferTestCase(DbTestCase):
 
         self.assertEqual(
             0,
-            exporter.main(['dbnav.sqlite/user?id=1']))
+            exporter.main(['dbmanagr.sqlite/user?id=1']))
 
     def test_execute(self):
         """Tests the exporter.execute function"""
