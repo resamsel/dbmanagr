@@ -21,6 +21,7 @@
 from os import path, makedirs, environ
 from nose.tools import assert_equal
 import codecs
+import six
 
 from dbmanagr.writer import Writer
 
@@ -33,7 +34,7 @@ def params(dir, testcase):
             path.join(dir, 'resources', testcase),
             encoding='utf-8',
             mode='r') as f:
-        return map(lambda line: line.strip(), f.readlines())
+        return list(map(lambda line: line.strip(), f.readlines()))
 
 
 def expected(dir, testcase):
@@ -70,7 +71,8 @@ def generator(f, command, dir, tc, parameters=None):
     if parameters is None:
         parameters = []
 
-    assert_equal.im_class.maxDiff = None
+    if not six.PY3:
+        assert_equal.im_class.maxDiff = None
 
     def test():
         environ['DBNAV_INPUT'] = path.join(dir, 'resources', tc)

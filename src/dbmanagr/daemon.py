@@ -19,20 +19,17 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from future import standard_library
-standard_library.install_aliases()
+from __future__ import absolute_import
 from builtins import str
 
 import os
 import sys
 import http.server
 import json
-import urllib.request
-import urllib.error
-import urllib.parse
 import logging
 import time
 import traceback
+import requests
 
 from dbmanagr.jsonable import Jsonable, as_json
 from dbmanagr.utils import mute_stderr
@@ -111,11 +108,11 @@ class DaemonHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
 def is_running(config):
     try:
-        urllib.request.urlopen(
+        requests.get(
             'http://{host}:{port}/server-status'.format(
                 host=config.host,
-                port=config.port),
-            '')
+                port=config.port)
+        )
     except BaseException:
         return False
 
@@ -148,11 +145,11 @@ def start(config):
 def stop(config):
     sys.stdout.write('Stopping server... ')
     try:
-        urllib.request.urlopen(
+        requests.get(
             'http://{host}:{port}/server-stop'.format(
                 host=config.host,
-                port=config.port),
-            '')
+                port=config.port)
+        )
     except BaseException:
         sys.stdout.write('failed\n')
     else:

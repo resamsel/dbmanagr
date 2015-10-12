@@ -18,19 +18,17 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from future import standard_library
-standard_library.install_aliases()
+from __future__ import absolute_import
 from builtins import object
 
 import sys
 import os
 import logging
 import pdb
-import urllib.request
-import urllib.error
-import urllib.parse
+import requests
 import json
 import ijson
+from six.moves import urllib
 
 from dbmanagr.writer import Writer
 from dbmanagr import logger as log
@@ -101,7 +99,7 @@ class Wrapper(object):
 
             log.logger.debug('Request to %s:\n%s', url, request)
 
-            response = urllib.request.urlopen(url, request)
+            response = requests.post(url, request)
 
             for i in ijson.items(response, 'item'):
                 yield from_json(i)

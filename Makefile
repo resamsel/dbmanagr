@@ -144,6 +144,7 @@ clean-coverage:
 clean: clean-coverage
 	$(SETUPTOOLS) clean --all
 	$(FIND) . -name "*.pyc" -delete
+	$(FIND) . -name "__pycache__" -delete
 	rm -rf $(TARGET)
 	rm -rf $(DIST)
 	rm -f .dbnavigator.cache*

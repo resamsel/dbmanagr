@@ -19,6 +19,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
 from setuptools import setup, find_packages
 
 
@@ -28,7 +29,15 @@ def get_version():
     maintaining it in multiple places.
     """
     local_results = {}
-    execfile('src/dbmanagr/version.py', {}, local_results)
+    exec(
+        compile(
+            open('src/dbmanagr/version.py').read(),
+            'src/dbmanagr/version.py',
+            'exec'
+        ),
+        {},
+        local_results
+    )
     return local_results['__version__']
 
 setup(
