@@ -57,7 +57,7 @@ def init_sqlite(
 
 
 def init():
-    module = module_installed(*DRIVERS.keys())
+    module = module_installed(*list(DRIVERS.keys()))
     if not module:
         return
 

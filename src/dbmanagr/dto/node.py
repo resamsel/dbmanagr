@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+
 from dbmanagr.dto import Dto
 from dbmanagr.jsonable import from_json
 from dbmanagr.formatter import Formatter

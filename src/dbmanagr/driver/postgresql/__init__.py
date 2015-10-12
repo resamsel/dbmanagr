@@ -55,7 +55,7 @@ def init_postgresql(driver, dbexplorer_config, pgpass_config):
 
 
 def init():
-    module = module_installed(*DRIVERS.keys())
+    module = module_installed(*list(DRIVERS.keys()))
     if not module:
         return
 

@@ -19,11 +19,17 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+
 import os
 import sys
-import BaseHTTPServer
+import http.server
 import json
-import urllib2
+import urllib.request
+import urllib.error
+import urllib.parse
 import logging
 import time
 import traceback
@@ -41,9 +47,9 @@ class Encoder(json.JSONEncoder):
         return as_json(obj)
 
 
-class DaemonHTTPServer(BaseHTTPServer.HTTPServer):
+class DaemonHTTPServer(http.server.HTTPServer):
     def __init__(self, *args, **kwargs):
-        BaseHTTPServer.HTTPServer.__init__(self, *args, **kwargs)
+        http.server.HTTPServer.__init__(self, *args, **kwargs)
         self.active = True
 
     def serve_forever(self, poll_interval=0.5):
@@ -51,7 +57,7 @@ class DaemonHTTPServer(BaseHTTPServer.HTTPServer):
             self.handle_request()
 
 
-class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class DaemonHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):  # noqa
         from dbmanagr.command import navigator, exporter, differ, executer
         from dbmanagr.command import grapher
@@ -105,7 +111,7 @@ class DaemonHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 def is_running(config):
     try:
-        urllib2.urlopen(
+        urllib.request.urlopen(
             'http://{host}:{port}/server-status'.format(
                 host=config.host,
                 port=config.port),
@@ -142,7 +148,7 @@ def start(config):
 def stop(config):
     sys.stdout.write('Stopping server... ')
     try:
-        urllib2.urlopen(
+        urllib.request.urlopen(
             'http://{host}:{port}/server-stop'.format(
                 host=config.host,
                 port=config.port),

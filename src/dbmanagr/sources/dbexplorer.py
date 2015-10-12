@@ -18,10 +18,13 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from future import standard_library
+standard_library.install_aliases()
+
 import logging
 
 import xml.etree.ElementTree as ET
-from urlparse import urlparse
+from urllib.parse import urlparse
 from os.path import isfile
 
 from dbmanagr.sources.source import Source

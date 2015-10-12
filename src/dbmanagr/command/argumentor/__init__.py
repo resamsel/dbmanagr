@@ -51,7 +51,7 @@ def consume(tree, parent, includes, excludes, substitutes):
 def dfs(tree, parent, selection, conversion):
     """Depth first search for selection"""
 
-    for (k, v) in tree.iteritems():
+    for (k, v) in tree.items():
         ref = to_ref(parent, k)
         if type(v) is dict:
             dfs(v, ref, selection, conversion)

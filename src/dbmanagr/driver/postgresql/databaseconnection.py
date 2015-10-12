@@ -81,9 +81,10 @@ class PostgreSQLConnection(UriDatabaseConnection):
     def databases(self):
         # does not yet work with sqlalchemy...
         if self._databases is None:
-            self._databases = map(
-                lambda row: Database(self, row[0]),
-                self.execute(DATABASES_QUERY % self.user))
+            self._databases = [
+                Database(self, row[0])
+                for row in self.execute(DATABASES_QUERY % self.user)
+            ]
 
         return self._databases
 

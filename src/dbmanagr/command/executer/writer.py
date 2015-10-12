@@ -18,22 +18,26 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+from builtins import map
+
 from dbmanagr.writer import FormatWriter, StdoutWriter
 from dbmanagr.formatter import Formatter, DefaultFormatter
 import datetime
+import six
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 
 def sql_escape(value):
-    if type(value) is str or type(value) is unicode:
+    if isinstance(value, six.string_types):
         return "'%s'" % value
     if type(value) in [datetime.datetime, datetime.date, datetime.time]:
         return "'%s'" % value
     if type(value) is bool:
-        return unicode(value).lower()
-    return unicode(value)
+        return str(value).lower()
+    return str(value)
 
 
 class ExecuteWriter(StdoutWriter):
@@ -56,11 +60,11 @@ class SqlInsertWriter(FormatWriter):
         row = item.row
         return self.item_format.format(
             table=self.table_name,
-            columns=self.create_columns(row.keys()),
-            values=self.create_values(row.values()))
+            columns=self.create_columns(list(row.keys())),
+            values=self.create_values(list(row.values())))
 
     def create_columns(self, cols):
-        return u','.join(map(unicode, cols))
+        return u','.join(map(str, cols))
 
     def create_values(self, values):
         return u','.join(map(sql_escape, values))

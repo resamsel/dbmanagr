@@ -41,9 +41,10 @@ class GraphvizFormatter(DefaultFormatter):
         return u'  root={0};'.format(item)
 
     def format_table_node(self, item):
-        columns = map(
-            lambda i_it: u'<{0}> {0}'.format(i_it[1].name),
-            enumerate(item.table.columns))
+        columns = [
+            u'<{0}> {0}'.format(i_it[1].name)
+            for i_it in enumerate(item.table.columns)
+        ]
         return u'  {0} [shape="record" label="{0}| {1}"];'.format(
             item.table.name, '| '.join(columns))
 

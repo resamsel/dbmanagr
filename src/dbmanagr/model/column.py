@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+
 from dbmanagr.model.baseitem import BaseItem
 from dbmanagr.formatter import Formatter
 from dbmanagr.utils import dictminus

@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+
 import logging
 
 from sqlalchemy.exc import ProgrammingError, DataError
@@ -57,11 +59,11 @@ class Table(BaseItem):
         self.size = size
 
         if entity is not None:
-            self._columns = map(
-                lambda c: create_column(self, str(c.name), c), entity.columns)
+            self._columns = [
+                create_column(self, str(c.name), c) for c in entity.columns
+            ]
         elif columns is not None:
-            self._columns = map(
-                lambda c: create_column(self, c), columns)
+            self._columns = [create_column(self, c) for c in columns]
         else:
             self._columns = None
         self._fks = {}
@@ -98,7 +100,7 @@ class Table(BaseItem):
         if needle is None:
             return self._columns
 
-        return filter(lambda c: needle in c.name, self._columns)
+        return [c for c in self._columns if needle in c.name]
 
     def column(self, name):
         if type(name) is int:
@@ -163,7 +165,7 @@ class Table(BaseItem):
                 u'{} (check comment on table {})'.format(e.message, self.name)
             ), sys.exc_info()[2]  # pragma: no cover
 
-        return map(lambda row: Row(self, row), result)
+        return [Row(self, row) for row in result]
 
     def foreign_keys(self):
         return self._fks

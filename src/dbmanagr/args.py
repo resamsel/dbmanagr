@@ -18,6 +18,9 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import map
+from builtins import filter
+
 import os
 import argparse
 import logging
@@ -38,11 +41,10 @@ class CommaSeparatedDict(argparse.Action):
         setattr(
             namespace,
             self.dest,
-            dict(map(
-                lambda s: map(
-                    lambda s: s.strip(),
-                    (s.split('=', 1) + [''])[:2]),
-                filter(len, values.split(','))))
+            dict([
+                [s.strip() for s in (s.split('=', 1) + [''])[:2]]
+                for s in list(filter(len, values.split(',')))
+            ])
         )
 
 

@@ -53,7 +53,7 @@ def unknown_table_message(tablename, haystack):
 
 def unknown_column_message(table, column, haystack=None):
     if haystack is None:
-        haystack = map(lambda c: c.name, table.columns())
+        haystack = [c.name for c in table.columns()]
     logger.debug('haystack: %s', haystack)
     matches = get_close_matches(column, haystack)
     if not matches:

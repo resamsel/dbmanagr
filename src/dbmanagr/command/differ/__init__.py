@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import map
+
 import sys
 
 from dbmanagr.writer import Writer
@@ -62,13 +64,13 @@ class DatabaseDiffer(Wrapper):
         if not lcon:
             raise UnknownConnectionException(
                 left.uri,
-                map(lambda c: c.autocomplete(), Source.connections()))
+                [c.autocomplete() for c in Source.connections()])
         lopts = left.get(lcon.dbms)
         rcon = Source.connection(right)
         if not rcon:
             raise UnknownConnectionException(
                 right.uri,
-                map(lambda c: c.autocomplete(), Source.connections()))
+                [c.autocomplete() for c in Source.connections()])
         ropts = right.get(rcon.dbms)
 
         try:
@@ -76,38 +78,40 @@ class DatabaseDiffer(Wrapper):
             rcon.connect(ropts.database)
             ltables = lcon.tables()
             if lopts.table not in ltables:
-                raise UnknownTableException(lopts.table, ltables.keys())
+                raise UnknownTableException(lopts.table, list(ltables.keys()))
             ltable = ltables[lopts.table]
             rtables = rcon.tables()
             if ropts.table not in rtables:
-                raise UnknownTableException(ropts.table, rtables.keys())
+                raise UnknownTableException(ropts.table, list(rtables.keys()))
             rtable = rtables[ropts.table]
 
-            lcols = map(
+            lcols = list(map(
                 column_ddl if left.compare_ddl else column_name,
-                ltable.columns())
-            rcols = map(
+                ltable.columns()))
+            rcols = list(map(
                 column_ddl if right.compare_ddl else column_name,
-                rtable.columns())
+                rtable.columns()))
 
-            lplus = dict(map(
-                lambda c: (c.split()[0], ltable.column(c.split()[0])),
-                list(set(lcols) - set(rcols))))
-            rplus = dict(map(
-                lambda c: (c.split()[0], rtable.column(c.split()[0])),
-                list(set(rcols) - set(lcols))))
+            lplus = dict([
+                (c.split()[0], ltable.column(c.split()[0]))
+                for c in list(set(lcols) - set(rcols))
+            ])
+            rplus = dict([
+                (c.split()[0], rtable.column(c.split()[0]))
+                for c in list(set(rcols) - set(lcols))
+            ])
 
             r = {}
-            for k, v in lplus.iteritems():
+            for k, v in lplus.items():
                 if k in rplus:
                     r[k] = (v, rplus[k])
                 else:
                     r[k] = (v, None)
-            for k, v in rplus.iteritems():
+            for k, v in rplus.items():
                 if k not in lplus:
                     r[k] = (None, v)
 
-            return to_dto(map(lambda k_v: k_v[1], r.iteritems()))
+            return to_dto([k_v[1] for k_v in iter(r.items())])
         finally:
             lcon.close()
             rcon.close()

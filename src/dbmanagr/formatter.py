@@ -18,25 +18,29 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+from builtins import map
+from builtins import object
+
 
 class DefaultFormatter(object):
     def __init__(self):
         pass
 
     def format(self, item):
-        return unicode(item)
+        return str(item)
 
     def format_item(self, item):
         return self.format(item)
 
     def format_row(self, item):
-        return u', '.join(map(unicode, item))
+        return u', '.join(map(str, item))
 
     def format_column(self, item):
         return self.format(item)
 
     def format_node(self, item):
-        return unicode(item)
+        return str(item)
 
     def format_column_node(self, item):
         return self.format(item)

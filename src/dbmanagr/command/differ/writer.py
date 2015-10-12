@@ -18,6 +18,9 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+from builtins import map
+
 from dbmanagr.writer import FormatWriter
 from dbmanagr.formatter import Formatter, DefaultFormatter
 
@@ -31,7 +34,7 @@ def value_from_column(column, config):
     if config.verbose > 1:
         return '/'.join(column.autocomplete().split('/')[1:])
     if config.verbose > 0:
-        return unicode(column)
+        return str(column)
     return column_name(column, config)
 
 

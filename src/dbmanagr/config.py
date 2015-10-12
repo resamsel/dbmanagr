@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import object
+
 import os
 import logging
 
@@ -53,8 +55,11 @@ class Config(object):
         logger.debug("Options: %s", options)
         logger.debug(
             "Environment: %s",
-            dict(filter(
-                lambda k_v: k_v[0].startswith('DBNAV_'),
-                os.environ.iteritems())))
+            dict(
+                [kv
+                    for kv in iter(os.environ.items())
+                    if kv[0].startswith('DBNAV_')]
+            )
+        )
 
         return options

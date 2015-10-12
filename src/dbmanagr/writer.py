@@ -18,6 +18,10 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import map
+from builtins import str
+from builtins import object
+
 import logging
 import codecs
 import sys
@@ -36,10 +40,10 @@ class DefaultWriter(object):
         return self.str(items)
 
     def str(self, items):
-        return map(self.itemtostring, items)
+        return list(map(self.itemtostring, items))
 
     def itemtostring(self, item):
-        return unicode(item)
+        return str(item)
 
 
 class StdoutWriter(DefaultWriter):
@@ -72,7 +76,7 @@ class StdoutWriter(DefaultWriter):
 
     def itemtostring(self, item):
         return self.item_format.format(
-            item=unicode(item), **item.__dict__)
+            item=str(item), **item.__dict__)
 
 
 class FormatWriter(StdoutWriter):

@@ -18,14 +18,19 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import filter
+from builtins import str
+from builtins import map
+
 import logging
 import re
 import pkgutil
 import os
 import sys
 import uuid
+import six
 
-from sqlalchemy.sql.sqltypes import Boolean, Integer, Float, String, \
+from sqlalchemy.sql.sqltypes import Boolean, Integer, Float, \
     Date, Time, DateTime, _Binary
 
 # from dbmanagr.logger import LogWith
@@ -47,7 +52,7 @@ def hash_(s):
 
 
 def module_installed(*modules):
-    installed = map(lambda m: m[1], pkgutil.iter_modules())
+    installed = [m[1] for m in pkgutil.iter_modules()]
     for module in modules:
         if module in installed:
             return module
@@ -63,16 +68,20 @@ def prefixes(items):
         return None
 
     if type(items) is dict:
-        return dict(filter(
-            lambda k_v3: len(prefix(k_v3[0])), map(
-                lambda k_v1: (prefix(k_v1[0]), k_v1[1]),
-                filter(
-                    lambda k_v: '.' not in k_v[0],
-                    items.iteritems())
-                )
-        ))
+        return dict([
+            k_v3
+            for k_v3 in [
+                (prefix(k_v1[0]), k_v1[1])
+                for k_v1 in [
+                    k_v
+                    for k_v in iter(items.items())
+                    if '.' not in k_v[0]
+                ]
+            ]
+            if len(prefix(k_v3[0]))
+        ])
 
-    return set(filter(len, map(prefix, items)))
+    return set(filter(len, list(map(prefix, items))))
 
 
 def remove_prefix(prefix, items):
@@ -82,18 +91,20 @@ def remove_prefix(prefix, items):
     p = '%s.' % prefix
 
     if type(items) is dict:
-        return dict(map(
-            lambda k_v4: (re.sub('^%s' % p, '', k_v4[0]), k_v4[1]),
-            filter(
-                lambda k_v2: k_v2[0].startswith(p),
-                items.iteritems())
-        ))
+        return dict([
+            (re.sub('^%s' % p, '', k_v4[0]), k_v4[1])
+            for k_v4 in [
+                k_v2
+                for k_v2 in iter(items.items())
+                if k_v2[0].startswith(p)
+            ]
+        ])
 
     return [re.sub('^%s' % p, '', i) for i in items if i.startswith(p)]
 
 
 def tostring(key):
-    if isinstance(key, unicode):
+    if isinstance(key, six.string_types):
         return key.encode('ascii', errors='ignore')
     return key
 
@@ -138,13 +149,13 @@ def create_title(comment, columns, exclude=None):
 
     # Find certain column names (but their type is not an integer - integers
     # are no good names)
-    for name in filter(lambda n: n not in exclude, NAMES):
+    for name in [n for n in NAMES if n not in exclude]:
         for c in filter(is_name(name), columns):
             if not isinstance(c.type, Integer):
                 return (name, '{%s}' % c.name)
 
     # Find first column that ends with any of certain suffixes
-    for suffix in filter(lambda n: n not in exclude, NAME_SUFFIXES):
+    for suffix in [n for n in NAME_SUFFIXES if n not in exclude]:
         for c in filter(ends_with(suffix), columns):
             if not isinstance(c.type, Integer):
                 return (c.name, '{%s}' % c.name)
@@ -175,11 +186,11 @@ def operation(column, operator, value):
 
 def unicode_decode(arg):
     if type(arg) is list:
-        return map(unicode_decode, arg)
-    if type(arg) is unicode:
+        return list(map(unicode_decode, arg))
+    if isinstance(arg, six.string_types):
         return arg
     if type(arg) in [int, bool, float]:
-        return unicode(arg)
+        return str(arg)
     return arg.decode('utf-8')
 
 
@@ -220,12 +231,15 @@ def primary_key_or_first_column(table):
 
 
 def filter_keys(d, *keys):
-    return dict(filter(lambda k_v5: k_v5[0] in keys, d.iteritems()))
+    return dict([k_v5 for k_v5 in iter(d.items()) if k_v5[0] in keys])
 
 
 def freeze(d):
     if isinstance(d, dict):
-        return frozenset((key, freeze(value)) for key, value in d.items())
+        return frozenset(
+            (key, freeze(value))
+            for key, value in list(d.items())
+        )
     elif isinstance(d, list):
         return tuple(freeze(value) for value in d)
     return d
@@ -369,7 +383,7 @@ def to_yaml_type(type_):
         return 'int'
     if isinstance(type_, Float):
         return 'float'
-    if isinstance(type_, String):
+    if isinstance(type_, six.string_types):
         return 'str'
     if isinstance(type_, Boolean):
         return 'bool'
@@ -383,8 +397,8 @@ def to_yaml_type(type_):
 
 
 def shell_escape(s):
-    if type(s) in (str, unicode):
+    if isinstance(s, six.string_types):
         if "'" in s:
             return u'"{0}"'.format(s)
         return u"'{0}'".format(s)
-    return unicode(s)
+    return str(s)

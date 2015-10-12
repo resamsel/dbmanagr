@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+
 from .baseitem import BaseItem
 from dbmanagr import KIND_FOREIGN_VALUE, KIND_FOREIGN_KEY, KIND_VALUE
 from dbmanagr import IMAGE_FOREIGN_VALUE, IMAGE_FOREIGN_KEY, IMAGE_VALUE

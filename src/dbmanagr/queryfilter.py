@@ -18,6 +18,9 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import map
+from builtins import object
+
 
 class Op(object):
     def last(self):
@@ -63,9 +66,9 @@ class BitOp(Op):
 
 class OrOp(BitOp):
     def __repr__(self):
-        return u' or '.join(map(unicode, self.children))
+        return u' or '.join(map(str, self.children))
 
 
 class AndOp(BitOp):
     def __repr__(self):
-        return u' and '.join(map(unicode, self.children))
+        return u' and '.join(map(str, self.children))

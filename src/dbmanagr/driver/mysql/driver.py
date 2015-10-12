@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+
 from sqlalchemy import Integer
 
 from dbmanagr.logger import logger, LogWith

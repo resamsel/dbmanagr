@@ -18,6 +18,10 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import map
+from builtins import str
+from builtins import object
+
 import logging
 
 from collections import Counter
@@ -55,11 +59,11 @@ def allowed(column, operator, value):
 
 
 def add_references(tablename, foreign_keys, joins, comment):
-    for _, fk in filter(
-            lambda k_v1: (
-                k_v1[1].a.table.name == tablename
-                and (comment is None or k_v1[0] in comment.display)),
-            foreign_keys.iteritems()):
+    for _, fk in [
+            k_v1
+            for k_v1 in iter(foreign_keys.items())
+            if (k_v1[1].a.table.name == tablename
+                and (comment is None or k_v1[0] in comment.display))]:
         fktable = fk.b.table
         fkentity = fktable.entity()
 
@@ -71,7 +75,7 @@ def add_references(tablename, foreign_keys, joins, comment):
 
 @LogWith(logger)
 def add_join(entity, joins):
-    if entity.name not in joins.keys():
+    if entity.name not in list(joins.keys()):
         joins[entity.name] = aliased(
             entity, name='_{0}'.format(entity.name))
 
@@ -80,20 +84,19 @@ def add_join(entity, joins):
 
 def replace_filter(f, table, entity, comment, search_fields):
     if isinstance(f, BitOp):
-        f.children = map(
-            lambda child: replace_filter(
-                child, table, entity, comment, search_fields),
-            f.children)
+        f.children = [
+            replace_filter(child, table, entity, comment, search_fields)
+            for child in f.children
+        ]
     elif f.lhs == '' and search_fields:
         logger.debug('Search fields: %s', search_fields)
         rhs = f.rhs
         if rhs == '' and f.operator == '*':
             rhs = '%'
-        ors = OrOp(map(
-            lambda s: QueryFilter(s, f.operator, rhs),
-            filter(
-                lambda s: s in entity.columns,
-                search_fields)))
+        ors = OrOp([
+            QueryFilter(s, f.operator, rhs)
+            for s in [s for s in search_fields if s in entity.columns]
+        ])
         if 'id' in comment.columns:
             col = column_or_raise(table, 'id')
             ors.append(QueryFilter(col.name, f.operator, rhs))
@@ -168,7 +171,7 @@ def create_label(alias_format):
 
 def simplify(table, comment, key, d):
     if comment:
-        d[key] = unicode(comment.__dict__[key]).format(table.name, **d)
+        d[key] = str(comment.__dict__[key]).format(table.name, **d)
         d['id'] = d[u'{0}_{1}'.format(
             comment.aliases[table.name], table.primary_key)]
     else:
@@ -201,7 +204,7 @@ class SimplifyMapper(object):
 
     def map(self, row):
         d = row.__dict__
-        for k in filter(lambda k: k not in d, ['title', 'subtitle']):
+        for k in [k for k in ['title', 'subtitle'] if k not in d]:
             simplify(self.table, self.comment, k, d)
         return row
 
@@ -233,7 +236,7 @@ class QueryBuilder(object):
 
         entity = aliased(self.table.entity(), name=self.alias)
 
-        projection = map(lambda x: x, entity.columns)
+        projection = [x for x in entity.columns]
         joins = {self.table.name: entity}
 
         if self.simplify:
@@ -254,7 +257,7 @@ class QueryBuilder(object):
 
             logger.debug('Order: %s', self.order)
 
-            keys = dict(map(lambda k: (str(k), k), comment.columns.keys()))
+            keys = dict([(str(k), k) for k in list(comment.columns.keys())])
             if comment.search:
                 for s in comment.search:
                     search_fields.append(s.format(**keys))
@@ -287,18 +290,22 @@ class QueryBuilder(object):
         else:
             alias_format = '{col.name}'
         logger.debug('Projection: %s', projection)
-        query = session.query(*map(create_label(alias_format), projection))
+        query = session.query(*list(
+            map(create_label(alias_format), projection)
+        ))
         logger.debug('Query (init): %s', query)
 
         # Add found joins
         # Aliased joins
-        joins = dict(filter(
-            lambda k_v: k_v[0] != entity.original.name,
-            joins.iteritems()))
+        joins = dict([
+            k_v
+            for k_v in iter(joins.items())
+            if k_v[0] != entity.original.name
+        ])
         logger.debug('Joins: %s', joins)
-        for _, join in joins.iteritems():
+        for _, join in joins.items():
             query = query.outerjoin(join)
-            for column in join.columns.keys():
+            for column in list(join.columns.keys()):
                 col = join.columns[column]
                 query = query.add_column(create_label(alias_format)(col))
         logger.debug('Query (joins): %s', query)

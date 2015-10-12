@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import map
+
 import sys
 import logging
 
@@ -74,8 +76,8 @@ class DatabaseStatus(Wrapper):
             if opts.show_code > 1 and connection.matches(opts):
                 try:
                     connection.connect(opts.database)
-                    return to_dto(map(
-                        RowItem, opts.statement_activity(connection)))
+                    return to_dto(list(map(
+                        RowItem, opts.statement_activity(connection))))
                 finally:
                     connection.close()
 

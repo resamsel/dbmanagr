@@ -18,6 +18,10 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+from builtins import map
+from builtins import object
+
 import sys
 import sqlparse
 import re
@@ -53,7 +57,7 @@ class Item(object):
         self.row = row
 
     def __str__(self):
-        return '\t'.join(map(unicode, self.row))
+        return '\t'.join(map(str, self.row))
 
 
 def read_sqls(files):
@@ -94,7 +98,7 @@ def read_statements(opts):
     # Removes the shebang, if any
     sql = re.sub(r'^#!.*\n', '', sql)
 
-    stmts = filter(lambda s: len(s.strip()) > 0, sqlparse.split(sql))
+    stmts = [s for s in sqlparse.split(sql) if len(s.strip()) > 0]
 
     timer.stop()
 
@@ -104,7 +108,7 @@ def read_statements(opts):
 
 
 def trim_space(stmt):
-    return re.sub(r'\s+', ' ', unicode(stmt))
+    return re.sub(r'\s+', ' ', str(stmt))
 
 
 class BaseExecuter(object):
@@ -150,7 +154,7 @@ class DefaultExecuter(BaseExecuter):
 
         result = self.connection.execute(stmt)
         if result.cursor:
-            results = map(lambda row: Item(self.connection, row), result)
+            results = [Item(self.connection, row) for row in result]
             self.write(results)
         else:
             # increase changes based on the returned result info
@@ -180,7 +184,7 @@ class IsolationExecuter(BaseExecuter):
 
             result = self.connection.execute(stmt)
             if result.cursor:
-                results = map(lambda row: Item(self.connection, row), result)
+                results = [Item(self.connection, row) for row in result]
                 self.write(results)
             else:
                 # increase changes based on the returned result
@@ -232,7 +236,7 @@ class DatabaseExecuter(Wrapper):
         if connection is None:
             raise UnknownConnectionException(
                 options.uri,
-                map(lambda c: c.autocomplete(), Source.connections()))
+                [c.autocomplete() for c in Source.connections()])
 
         return self.process(connection, opts)
 

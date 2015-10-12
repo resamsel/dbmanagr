@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import map
+
 import logging
 
 from dbmanagr.dto.row import Row
@@ -31,9 +33,9 @@ logger = logging.getLogger(__name__)
 
 def to_dto(model):
     if type(model) is dict:
-        return dict(map(lambda kv: (kv[0], to_dto(kv[1])), model.iteritems()))
+        return dict([(kv[0], to_dto(kv[1])) for kv in iter(model.items())])
     if type(model) in (tuple, list, set):
-        return map(to_dto, model)
+        return list(map(to_dto, model))
     if model.__class__.__name__ == 'Row':
         return Row(
             table=to_dto(model.table),

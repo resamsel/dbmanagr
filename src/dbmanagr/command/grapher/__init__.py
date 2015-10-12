@@ -18,6 +18,9 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import filter
+from builtins import str
+
 import sys
 import logging
 
@@ -44,11 +47,9 @@ logger = logging.getLogger(__name__)
 def include_forward_references(
         table, head, consumed, include, exclude, indent, opts):
     found = False
-    for col in filter(
-            lambda col: (
+    for col in [col for col in table.columns() if (
                 not is_excluded(col.name, exclude) or
-                is_included(col.name, include)),
-            table.columns()):
+                is_included(col.name, include))]:
         logger.debug('col.name %s not in exclude %s', col.name, exclude)
         fk = table.foreign_key(col.name)
         # logger.debug('consumed=%s', consumed)
@@ -78,13 +79,13 @@ def include_forward_references(
 def include_back_references(
         table, head, consumed, include, exclude, indent, opts):
     found = False
-    for _, fk in filter(
-            lambda key_fk: (
-                key_fk[1].b.table.name == table.name
+    for _, fk in [
+            key_fk
+            for key_fk in iter(table.foreign_keys().items())
+            if (key_fk[1].b.table.name == table.name
                 and (
                     not is_excluded(key_fk[1].a.table.name, exclude)
-                    or is_included(key_fk[1].a.table.name, include))),
-            table.foreign_keys().iteritems()):
+                    or is_included(key_fk[1].a.table.name, include)))]:
         logger.debug(
             'adds back reference: fk=%s, include=%s',
             fk, include)
@@ -182,7 +183,7 @@ class DatabaseGrapher(Wrapper):
         if connection is None:
             raise UnknownConnectionException(
                 options.uri,
-                map(lambda c: c.autocomplete(), Source.connections()))
+                [c.autocomplete() for c in Source.connections()])
 
         if opts.show not in ['tables', 'columns', 'values']:
             raise Exception('Specify the complete URI to a table')
@@ -195,7 +196,7 @@ class DatabaseGrapher(Wrapper):
             connection.connect(opts.database)
             tables = connection.tables()
             if opts.table not in tables:
-                raise UnknownTableException(opts.table, tables.keys())
+                raise UnknownTableException(opts.table, list(tables.keys()))
             table = tables[opts.table]
             nodes = []
             indent = 0
@@ -228,7 +229,7 @@ class DatabaseGrapher(Wrapper):
                     return True
                 return not isinstance(item, TableNode)
 
-            return filter(include_node, nodes)
+            return list(filter(include_node, nodes))
         finally:
             connection.close()
 

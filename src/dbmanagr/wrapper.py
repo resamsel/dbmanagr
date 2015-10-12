@@ -18,11 +18,17 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+
 import sys
 import os
 import logging
 import pdb
-import urllib2
+import urllib.request
+import urllib.error
+import urllib.parse
 import json
 import ijson
 
@@ -95,13 +101,13 @@ class Wrapper(object):
 
             log.logger.debug('Request to %s:\n%s', url, request)
 
-            response = urllib2.urlopen(url, request)
+            response = urllib.request.urlopen(url, request)
 
             for i in ijson.items(response, 'item'):
                 yield from_json(i)
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             raise from_json(json.load(e))
-        except urllib2.URLError as e:
+        except urllib.error.URLError as e:
             log.logger.error('Daemon not available: %s', e)
         except BaseException as e:
             log.logger.exception(e)

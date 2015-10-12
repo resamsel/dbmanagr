@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import object
+
 __all__ = ('sqlite', 'postgresql', 'mysql')
 
 

@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+
 import logging
 import sys
 
@@ -113,7 +115,7 @@ def back_references(row, table, aliases):
 def create_databases(connection, options):
     databases = connection.databases()
     if options.database:
-        databases = filter(lambda db: options.database in db.name, databases)
+        databases = [db for db in databases if options.database in db.name]
 
     return sorted(databases, key=lambda db: db.name.lower())
 
@@ -154,7 +156,7 @@ def create_values(connection, table, filter_):
     logger.debug('Keys: %s', keys)
     if keys is None:
         keys = sorted(
-            row.row.keys(),
+            list(row.row.keys()),
             key=lambda key: '' if key == COMMENT_TITLE else tostring(key))
     logger.debug('Keys: %s', keys)
 
@@ -166,11 +168,9 @@ def create_values(connection, table, filter_):
 
 @LogWith(logger)
 def create_tables(connection, options):
-    tables = map(lambda k_t: k_t[1], connection.tables().iteritems())
+    tables = [k_t[1] for k_t in iter(connection.tables().items())]
     if options.table:
-        tables = filter(
-            lambda t: t.name.startswith(options.table),
-            tables)
+        tables = [t for t in tables if t.name.startswith(options.table)]
 
     return sorted(tables, key=lambda t: t.name.lower())
 
@@ -215,7 +215,7 @@ def create(connection, options):
 
         tables = connection.tables()
         if options.table not in tables:
-            raise UnknownTableException(options.table, tables.keys())
+            raise UnknownTableException(options.table, list(tables.keys()))
 
         table = tables[options.table]
         if options.show == 'columns':

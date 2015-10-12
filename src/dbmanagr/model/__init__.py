@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import object
+
 from dbmanagr.dto.mapper import to_dto
 
 DEFAULT_LIMIT = 50

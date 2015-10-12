@@ -49,7 +49,7 @@ def init_mysql(driver, dbexplorer_config, mypass_config):
 
 
 def init():
-    module = module_installed(*DRIVERS.keys())
+    module = module_installed(*list(DRIVERS.keys()))
     if not module:
         return
 

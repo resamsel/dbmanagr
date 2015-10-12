@@ -18,6 +18,9 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+from builtins import object
+
 import logging
 
 from dbmanagr.logger import LogWith
@@ -40,14 +43,15 @@ class Comment(object):
         self.aliases = aliases
 
     def __repr__(self):
-        return unicode(self.__dict__)
+        return str(self.__dict__)
 
 
 @LogWith(logger)
 def update_aliases(tablename, counter, aliases, foreign_keys):
-    for key in filter(
-            lambda k: foreign_keys[k].a.table.name == tablename,
-            foreign_keys.keys()):
+    for key in [
+            k
+            for k in list(foreign_keys.keys())
+            if foreign_keys[k].a.table.name == tablename]:
         fk = foreign_keys[key]
         fktable = fk.b.table
         if fktable.name in aliases:
@@ -69,9 +73,9 @@ def create_alias(tablename, counter):
 
 @LogWith(logger)
 def column_aliases(columns, alias):
-    return dict(map(
-        lambda col: (col.name, u'{{{0}_{1}}}'.format(alias, col.name)),
-        columns))
+    return dict([
+        (col.name, u'{{{0}_{1}}}'.format(alias, col.name)) for col in columns
+    ])
 
 
 def find_primary_key(table):
@@ -121,13 +125,15 @@ def create_comment(table, comment, counter, aliases, alias):
     logger.debug('Aliases: %s', aliases)
 
     caliases = column_aliases(table.columns(), alias)
-    for (_, v) in filter(
-            lambda k_v1: k_v1[1].a.table.name == table.name,
-            table.foreign_keys().iteritems()):
-        caliases.update(filter(
-            lambda k_v: k_v[0] not in caliases.keys(),
-            column_aliases(
-                v.b.table.columns(), aliases[v.b.table.name]).iteritems()))
+    for (_, v) in [
+            k_v1
+            for k_v1 in iter(table.foreign_keys().items())
+            if k_v1[1].a.table.name == table.name]:
+        caliases.update([
+            k_v
+            for k_v in iter(column_aliases(
+                v.b.table.columns(), aliases[v.b.table.name]).items())
+            if k_v[0] not in list(caliases.keys())])
 
     logger.debug('Column aliases: %s', caliases)
 
@@ -139,7 +145,7 @@ def create_comment(table, comment, counter, aliases, alias):
         title = comment.title.format(**caliases)
     else:
         name, title = create_title(comment, table.columns())
-        d = dict(map(lambda k: (k.name, k.name), table.columns()))
+        d = dict([(k.name, k.name) for k in table.columns()])
         logger.debug('search.add(title.format(**d)=%s)', title.format(**d))
         search.add(title.format(**d))
 
@@ -150,7 +156,7 @@ def create_comment(table, comment, counter, aliases, alias):
             subtitle = comment.subtitle.format(**caliases)
         else:
             _, subtitle = create_title(comment, table.columns(), [name])
-            d = dict(map(lambda k: (k.name, k.name), table.columns()))
+            d = dict([(k.name, k.name) for k in table.columns()])
             logger.debug(
                 'search.add(subtitle.format(**d)=%s)', subtitle.format(**d))
             search.add(subtitle.format(**d))
@@ -163,7 +169,7 @@ def create_comment(table, comment, counter, aliases, alias):
         order = []
 
     if display:
-        display = map(lambda d: u'{0}_{1}'.format(alias, d), display)
+        display = [u'{0}_{1}'.format(alias, d_) for d_ in display]
     else:
         for column in table.columns():
             display.append(u'{0}_{1}'.format(alias, column.name))

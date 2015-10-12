@@ -18,7 +18,10 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+
 import logging
+import six
 
 from dbmanagr.model.baseitem import BaseItem
 from dbmanagr.formatter import Formatter
@@ -44,14 +47,14 @@ class Row(BaseItem):
     def __getitem__(self, i):
         if i is None:
             return None
-        if type(i) == unicode:
+        if isinstance(i, six.string_types):
             i = i.encode('ascii')
-        if type(i) is str:
-            try:
-                return self.row.__dict__[i]
-            except BaseException:
-                return None
-        return self.row[i]
+        if type(i) is int:
+            return self.row[i]
+        try:
+            return self.row.__dict__[i]
+        except BaseException:
+            return None
 
     def __repr__(self):
         return str(self.row)

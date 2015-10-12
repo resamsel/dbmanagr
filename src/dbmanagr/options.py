@@ -18,11 +18,16 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+
 import logging
 import math
 import datetime
 
-from urlparse import urlparse
+from urllib.parse import urlparse
 from sqlalchemy import Boolean, Float, Integer
 from decimal import Decimal
 
@@ -177,7 +182,7 @@ class Options(object):
     def __setattr__(self, name, value):
         self.__dict__[name] = value
         if self.opts:
-            for k in self.opts.keys():
+            for k in list(self.opts.keys()):
                 self.opts[k].__dict__[name] = value
 
     def __repr__(self):

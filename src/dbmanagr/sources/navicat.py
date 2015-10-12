@@ -50,7 +50,7 @@ class NavicatSource(Source):
 
             # Note: only works with SQLite ATM - passwords are encrypted within
             # Navicat config files
-            for _, v in plist[self.key]['servers'].items():
+            for _, v in list(plist[self.key]['servers'].items()):
                 connection = self.con_creator(
                     self.uri,
                     None,

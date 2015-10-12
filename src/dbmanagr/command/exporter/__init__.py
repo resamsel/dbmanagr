@@ -66,7 +66,7 @@ class RowItem(Jsonable):
 
 
 def fk_by_a_table_name(fks):
-    return dict(map(lambda kv: (kv[1].a.table.name, kv[1]), fks.iteritems()))
+    return dict([(kv[1].a.table.name, kv[1]) for kv in iter(fks.items())])
 
 
 def check_excludes(items, exclude):
@@ -76,7 +76,7 @@ def check_excludes(items, exclude):
                 matcher = re.compile(replace_wildcards(prefix(x)))
                 fks = fk_by_a_table_name(item.table.foreign_keys())
                 col, fk = None, None
-                for k in fks.keys():
+                for k in list(fks.keys()):
                     if matcher.match(k):
                         fk = fks[k]
                         break
@@ -87,15 +87,15 @@ def check_excludes(items, exclude):
                 if not col and not fk:
                     raise UnknownColumnException(
                         item.table, x,
-                        fks.keys() + map(
-                            lambda c: c.name, item.table.columns()))
+                        list(fks.keys()) + [
+                            c.name for c in item.table.columns()])
             # only check first item, as we expect all items are from the same
             # table
             break
 
 
 def find_foreign_key(table, matcher):
-    for _, val in table.foreign_keys().iteritems():
+    for _, val in table.foreign_keys().items():
         if matcher.match(val.a.table.name):
             return val
 
@@ -170,7 +170,7 @@ def create_items(connection, items, include, exclude, substitutes):
             process_item(item, i, includes)
 
     if item is not None:
-        for fk in includes.keys():
+        for fk in list(includes.keys()):
             if fk.a.table.name == item.table.name:
                 # forward references, must be in pre
                 results_pre += create_items(
@@ -196,13 +196,11 @@ def create_items(connection, items, include, exclude, substitutes):
                     remove_prefix(fk.a.table.name, exclude),
                     remove_prefix(fk.a.table.name, substitutes))
 
-    return results_pre + map(
-        lambda i: RowItem(
-            to_dto(i),
-            prefixes(include),
-            prefixes(exclude),
-            prefixes(substitutes)),
-        items) + results_post
+    return results_pre + [RowItem(
+        to_dto(i),
+        prefixes(include),
+        prefixes(exclude),
+        prefixes(substitutes)) for i in items] + results_post
 
 
 class DatabaseExporter(Wrapper):
@@ -228,7 +226,7 @@ class DatabaseExporter(Wrapper):
         if connection is None:
             raise UnknownConnectionException(
                 options.uri,
-                map(lambda c: c.autocomplete(), Source.connections()))
+                [c.autocomplete() for c in Source.connections()])
 
         if opts.show not in ('values', 'columns') or opts.filter is None:
             raise Exception('Specify the complete URI to a table')
@@ -237,7 +235,7 @@ class DatabaseExporter(Wrapper):
             connection.connect(opts.database)
             tables = connection.tables()
             if opts.table not in tables:
-                raise UnknownTableException(opts.table, tables.keys())
+                raise UnknownTableException(opts.table, list(tables.keys()))
             table = tables[opts.table]
             items = create_items(
                 connection,

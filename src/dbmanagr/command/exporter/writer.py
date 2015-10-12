@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import six
+
 from string import capwords
 from decimal import Decimal
 
@@ -58,20 +60,27 @@ class SqlInsertWriter(FormatWriter):
             values=self.create_values(row, include, exclude, substitutes))
 
     def create_columns(self, row, include, exclude):
-        return u','.join(
-            map(lambda col: self.options.escape_keyword(col.name),
-                filter(
-                    lambda col: included(col.name, include, exclude),
-                    row.table.columns)))
+        return u','.join([
+            self.options.escape_keyword(col.name)
+            for col in [
+                col
+                for col in row.table.columns
+                if included(col.name, include, exclude)
+            ]
+        ])
 
     def create_values(self, row, include, exclude, substitutes):
-        return u','.join(
-            map(lambda col: substitutes.get(
+        return u','.join([
+            substitutes.get(
                 col.name,
-                self.options.format_value(col, row[col.name])),
-                filter(
-                    lambda col: included(col.name, include, exclude),
-                    row.table.columns)))
+                self.options.format_value(col, row[col.name])
+            )
+            for col in [
+                col
+                for col in row.table.columns
+                if included(col.name, include, exclude)
+            ]
+        ])
 
 
 class SqlUpdateWriter(FormatWriter):
@@ -94,24 +103,26 @@ class SqlUpdateWriter(FormatWriter):
             values=self.create_values(row, include, exclude),
             restriction=self.create_restriction(
                 row,
-                filter(lambda col: col.primary_key, table.columns)))
+                [col for col in table.columns if col.primary_key]))
 
     def create_values(self, row, include, exclude):
         # Substitutes do not make sense here, or do they?
-        return u', '.join(map(
-            lambda col: self.options.restriction(
-                None, col, '=', row[col.name], map_null_operator=False),
-            filter(
-                lambda col: (
-                    not col.primary_key
-                    and included(col.name, include, exclude)),
-                row.table.columns)))
+        return u', '.join([
+            self.options.restriction(
+                None, col, '=', row[col.name], map_null_operator=False)
+            for col in [
+                col
+                for col in row.table.columns
+                if (not col.primary_key
+                    and included(col.name, include, exclude))
+            ]
+        ])
 
     def create_restriction(self, row, pks):
-        return u' and '.join(map(
-            lambda col: self.options.restriction(
-                None, col, '=', row[col.name]),
-            pks))
+        return u' and '.join([
+            self.options.restriction(None, col, '=', row[col.name])
+            for col in pks
+        ])
 
 
 class SqlDeleteWriter(FormatWriter):
@@ -135,14 +146,13 @@ class SqlDeleteWriter(FormatWriter):
         return self.item_format.format(
             table=self.options.escape_keyword(table.name),
             restriction=self.create_restriction(
-                row, filter(lambda col: col.primary_key, table.columns)))
+                row, [col for col in table.columns if col.primary_key]))
 
     def create_restriction(self, row, pks):
-        return u' and '.join(
-            map(
-                lambda col: self.options.restriction(
-                    None, col, '=', row[col.name]),
-                pks))
+        return u' and '.join([
+            self.options.restriction(None, col, '=', row[col.name])
+            for col in pks
+        ])
 
 
 def yaml_format_entity(name):
@@ -180,7 +190,7 @@ def yaml_value(col, table, value):
             return u'!!int %d' % value
         else:
             return u'!!float %f' % value
-    if type(value) in (str, unicode):
+    if isinstance(value, six.string_types):
         return u'!!str %s' % value
     return value
 
@@ -218,13 +228,19 @@ class YamlWriter(FormatWriter):
             tuples=self.create_tuples(row, exclude, substitutes))
 
     def create_tuples(self, row, exclude, substitutes):
-        return u"\n        ".join(map(
-            lambda col: u'{0}: {1}'.format(
+        return u"\n        ".join([
+            u'{0}: {1}'.format(
                 yaml_field(col.name, row.table),
                 substitutes.get(
                     col.name,
-                    yaml_value(col.name, row.table, row[col.name]))),
-            filter(lambda col: col.name not in exclude, row.table.columns)))
+                    yaml_value(col.name, row.table, row[col.name]))
+            )
+            for col in [
+                col
+                for col in row.table.columns
+                if col.name not in exclude
+            ]
+        ])
 
 
 class FormattedWriter(FormatWriter):
@@ -236,7 +252,8 @@ class FormattedWriter(FormatWriter):
         Formatter.set(DefaultFormatter())
 
     def itemtostring(self, item):
-        d = dict(map(
-            lambda col: (col.name, item.row[col.name]),
-            item.row.table.columns))
+        d = dict([
+            (col.name, item.row[col.name])
+            for col in item.row.table.columns
+        ])
         return self.item_format.format(**d)

@@ -54,13 +54,13 @@ class ArgumentVerboseWriter(FormatWriter):
         output = []
         if len(includes) > 0:
             output.append('Includes:\n{0}\n\n'.format('\n'.join(
-                map(lambda x: ' - {0}'.format(x), includes))))
+                [' - {0}'.format(x) for x in includes])))
         if len(excludes) > 0:
             output.append('Excludes:\n{0}\n\n'.format('\n'.join(
-                map(lambda x: ' - {0}'.format(x), excludes))))
+                [' - {0}'.format(x) for x in excludes])))
         if len(substitutes) > 0:
             output.append('Substitutes:\n{0}'.format('\n'.join(
-                map(lambda x: ' - {0}'.format(x), substitutes))))
+                [' - {0}'.format(x) for x in substitutes])))
         return self.items_format.format(''.join(output))
 
 

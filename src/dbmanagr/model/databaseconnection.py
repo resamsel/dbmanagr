@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+
 import logging
 
 from sqlalchemy import create_engine, MetaData
@@ -147,16 +149,17 @@ class DatabaseConnection(BaseItem):
         pass
 
     def databases(self):
-        return map(
-            lambda name: Database(self, name),
-            self.inspector().get_schema_names())
+        return [
+            Database(self, name)
+            for name in self.inspector().get_schema_names()
+        ]
 
     @LogWith(logger)
     def init_tables(self):
-        self._tables = dict(map(
-            lambda table: (table, Table(
-                self.entity(table), self.autocomplete())),
-            self.meta().tables))
+        self._tables = dict([
+            (table, Table(self.entity(table), self.autocomplete()))
+            for table in self.meta().tables
+        ])
         logger.debug('Tables: %s', self._tables)
         self.init_foreign_keys()
 
@@ -174,9 +177,10 @@ class DatabaseConnection(BaseItem):
         return self.meta().tables[tablename]
 
     def init_comments(self):
-        self._comments = dict(map(
-            lambda k: (k, TableComment('')),
-            self.tables().keys()))
+        self._comments = dict([
+            (k, TableComment(''))
+            for k in list(self.tables().keys())
+        ])
         comment = self.table('_comment')
         if comment:
             # Table _comments exists, query it
@@ -193,7 +197,7 @@ class DatabaseConnection(BaseItem):
         return self.comments().get(tablename, None)
 
     def init_foreign_keys(self):
-        for _, t in self.meta().tables.iteritems():
+        for _, t in self.meta().tables.items():
             for _fk in t.foreign_keys:
                 a = create_column(
                     self._tables[_fk.parent.table.name],

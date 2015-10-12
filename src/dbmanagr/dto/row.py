@@ -18,6 +18,8 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import six
+
 from dbmanagr.dto import Dto
 from dbmanagr.jsonable import from_json
 from dbmanagr.utils import filter_keys
@@ -37,14 +39,14 @@ class Row(Dto):
     def __getitem__(self, i):
         if i is None:
             return None
-        if type(i) == unicode:
+        if isinstance(i, six.string_types):
             i = i.encode('ascii')
-        if type(i) is str:
-            try:
-                return self.row.__dict__[i]
-            except BaseException:
-                return None
-        return self.row[i]
+        if type(i) is int:
+            return self.row[i]
+        try:
+            return self.row.__dict__[i]
+        except BaseException:
+            return None
 
     @staticmethod
     def from_json(d):

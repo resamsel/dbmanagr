@@ -18,11 +18,16 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from builtins import str
+from builtins import map
+from builtins import object
+
 import sys
 import logging
 import time
 import functools
 import inspect
+import six
 
 logger = logging.getLogger(__name__)
 
@@ -33,13 +38,13 @@ EXIT_MESSAGE = u'⇠ %s [%0.3fms] = %s'
 def encode(v):
     if v is None:
         return None
-    if type(v) is unicode:
-        return repr(v)
-    if type(v) is str:
-        return encode(unicode(v, 'UTF-8'))
+    if type(v) is int:
+        return str(v)
     if type(v) is list:
-        return map(encode, v)
-    return encode(unicode(v))
+        return list(map(encode, v))
+    if isinstance(v, six.string_types):
+        return repr(v)
+    return encode(str(v))
 
 
 def argtostring(k, v):
@@ -73,15 +78,16 @@ entry and exit points of the function with logging.DEBUG level.
                 if self.log_args:
                     # Keeps order of args intact
                     cargs = inspect.getcallargs(f, *args)
-                    fargs = map(
-                        lambda k: argtostring(k, cargs[k]),
-                        inspect.getargspec(f).args)
+                    fargs = [
+                        argtostring(k, cargs[k])
+                        for k in inspect.getargspec(f).args
+                    ]
                     # Adds keyword arguments
-                    fargs += map(lambda k_v: encode(k_v[1]), kwargs)
+                    fargs += [encode(k_v[1]) for k_v in kwargs]
 
                     # Creates format for the log message
-                    formats = map(lambda arg: '%s', fargs)
-                    formats += map(lambda kv: '{}=%s'.format(kv[0]), kwargs)
+                    formats = ['%s' for arg in fargs]
+                    formats += ['{}=%s'.format(kv[0]) for kv in kwargs]
 
                     # Do the logging
                     self.logger.debug(
