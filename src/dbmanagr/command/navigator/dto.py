@@ -24,7 +24,7 @@ from dbmanagr import utils
 
 def to_dto(model):
     if type(model) is dict:
-        return dict(map(lambda (k, v): (k, to_dto(v)), model.iteritems()))
+        return dict(map(lambda kv: (kv[0], to_dto(kv[1])), model.iteritems()))
     if type(model) in (tuple, list, set):
         return map(to_dto, model)
     from dbmanagr.model.baseitem import BaseItem

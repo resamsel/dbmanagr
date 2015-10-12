@@ -79,11 +79,11 @@ def include_back_references(
         table, head, consumed, include, exclude, indent, opts):
     found = False
     for _, fk in filter(
-            lambda (key, fk): (
-                fk.b.table.name == table.name
+            lambda key_fk: (
+                key_fk[1].b.table.name == table.name
                 and (
-                    not is_excluded(fk.a.table.name, exclude)
-                    or is_included(fk.a.table.name, include))),
+                    not is_excluded(key_fk[1].a.table.name, exclude)
+                    or is_included(key_fk[1].a.table.name, include))),
             table.foreign_keys().iteritems()):
         logger.debug(
             'adds back reference: fk=%s, include=%s',

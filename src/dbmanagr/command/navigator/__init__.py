@@ -166,7 +166,7 @@ def create_values(connection, table, filter_):
 
 @LogWith(logger)
 def create_tables(connection, options):
-    tables = map(lambda (k, t): t, connection.tables().iteritems())
+    tables = map(lambda k_t: k_t[1], connection.tables().iteritems())
     if options.table:
         tables = filter(
             lambda t: t.name.startswith(options.table),

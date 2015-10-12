@@ -56,9 +56,9 @@ def allowed(column, operator, value):
 
 def add_references(tablename, foreign_keys, joins, comment):
     for _, fk in filter(
-            lambda (k, v): (
-                v.a.table.name == tablename
-                and (comment is None or k in comment.display)),
+            lambda k_v1: (
+                k_v1[1].a.table.name == tablename
+                and (comment is None or k_v1[0] in comment.display)),
             foreign_keys.iteritems()):
         fktable = fk.b.table
         fkentity = fktable.entity()
@@ -293,7 +293,7 @@ class QueryBuilder(object):
         # Add found joins
         # Aliased joins
         joins = dict(filter(
-            lambda (k, v): k != entity.original.name,
+            lambda k_v: k_v[0] != entity.original.name,
             joins.iteritems()))
         logger.debug('Joins: %s', joins)
         for _, join in joins.iteritems():

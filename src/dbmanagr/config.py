@@ -54,7 +54,7 @@ class Config(object):
         logger.debug(
             "Environment: %s",
             dict(filter(
-                lambda (k, v): k.startswith('DBNAV_'),
+                lambda k_v: k_v[0].startswith('DBNAV_'),
                 os.environ.iteritems())))
 
         return options

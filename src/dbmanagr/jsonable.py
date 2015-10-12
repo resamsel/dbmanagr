@@ -36,7 +36,7 @@ def as_json(obj):
         return obj
     if isinstance(obj, dict):
         return dict(map(
-            lambda (k, v): (to_key(k), as_json(v)),
+            lambda k_v: (to_key(k_v[0]), as_json(k_v[1])),
             obj.iteritems())
         )
     if isinstance(obj, (datetime.datetime, datetime.date)):
@@ -102,7 +102,7 @@ def from_json(d):
             cls = import_class(classname)
             if hasattr(cls, 'from_json'):
                 return cls.from_json(d)
-        return dict(map(lambda (k, v): (k, from_json(v)), d.iteritems()))
+        return dict(map(lambda kv: (kv[0], from_json(kv[1])), d.iteritems()))
     if type(d) is list or type(d) is tuple:
         return map(from_json, d)
     if type(d) is Decimal:

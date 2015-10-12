@@ -64,10 +64,10 @@ def prefixes(items):
 
     if type(items) is dict:
         return dict(filter(
-            lambda (k, v): len(prefix(k)), map(
-                lambda (k, v): (prefix(k), v),
+            lambda k_v3: len(prefix(k_v3[0])), map(
+                lambda k_v1: (prefix(k_v1[0]), k_v1[1]),
                 filter(
-                    lambda (k, v): '.' not in k,
+                    lambda k_v: '.' not in k_v[0],
                     items.iteritems())
                 )
         ))
@@ -83,9 +83,9 @@ def remove_prefix(prefix, items):
 
     if type(items) is dict:
         return dict(map(
-            lambda (k, v): (re.sub('^%s' % p, '', k), v),
+            lambda k_v4: (re.sub('^%s' % p, '', k_v4[0]), k_v4[1]),
             filter(
-                lambda (k, v): k.startswith(p),
+                lambda k_v2: k_v2[0].startswith(p),
                 items.iteritems())
         ))
 
@@ -220,7 +220,7 @@ def primary_key_or_first_column(table):
 
 
 def filter_keys(d, *keys):
-    return dict(filter(lambda (k, v): k in keys, d.iteritems()))
+    return dict(filter(lambda k_v5: k_v5[0] in keys, d.iteritems()))
 
 
 def freeze(d):

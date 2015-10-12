@@ -107,7 +107,7 @@ class DatabaseDiffer(Wrapper):
                 if k not in lplus:
                     r[k] = (None, v)
 
-            return to_dto(map(lambda (k, v): v, r.iteritems()))
+            return to_dto(map(lambda k_v: k_v[1], r.iteritems()))
         finally:
             lcon.close()
             rcon.close()

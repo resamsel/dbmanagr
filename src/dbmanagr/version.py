@@ -18,8 +18,9 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import print_function
 __all__ = ('__version__',)
 __version__ = "0.28.3"
 
 if __name__ == "__main__":  # pragma: no cover
-    print __version__
+    print(__version__)

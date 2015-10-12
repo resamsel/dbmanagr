@@ -77,11 +77,11 @@ entry and exit points of the function with logging.DEBUG level.
                         lambda k: argtostring(k, cargs[k]),
                         inspect.getargspec(f).args)
                     # Adds keyword arguments
-                    fargs += map(lambda (k, v): encode(v), kwargs)
+                    fargs += map(lambda k_v: encode(k_v[1]), kwargs)
 
                     # Creates format for the log message
                     formats = map(lambda arg: '%s', fargs)
-                    formats += map(lambda (k, v): '{}=%s'.format(k), kwargs)
+                    formats += map(lambda kv: '{}=%s'.format(kv[0]), kwargs)
 
                     # Do the logging
                     self.logger.debug(

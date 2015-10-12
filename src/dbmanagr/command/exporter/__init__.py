@@ -66,7 +66,7 @@ class RowItem(Jsonable):
 
 
 def fk_by_a_table_name(fks):
-    return dict(map(lambda (k, v): (v.a.table.name, v), fks.iteritems()))
+    return dict(map(lambda kv: (kv[1].a.table.name, kv[1]), fks.iteritems()))
 
 
 def check_excludes(items, exclude):
