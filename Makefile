@@ -11,8 +11,10 @@ DIFF ?= diff
 RADON ?= radon
 TWINE ?= twine
 GPG ?= gpg
+GITCHANGELOG ?= gitchangelog
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
+MUSTACHE_TEMPLATE ?= /usr/local/lib/python2.7/site-packages/templates/mustache/markdown.tpl
 
 # Code quality and coverage
 FLAKE8 ?= flake8 --max-complexity=16
@@ -167,3 +169,7 @@ dist-sign:
 
 upload: wheel sdist bdist dist/*.whl.asc dist/*.egg.asc dist/*.tar.gz.asc
 	$(TWINE) upload dist/*
+
+changelog:
+	ln -sf $(PWD)/resources/markdown.tpl $(MUSTACHE_TEMPLATE)
+	$(GITCHANGELOG) > CHANGELOG.md
