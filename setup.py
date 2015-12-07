@@ -75,6 +75,8 @@ setup(
 
     # dependencies
     install_requires=[
+        'six>=1.10.0',
+        'requests>=2.8.0',
         'sqlalchemy==0.9.10',
         'sqlparse>=0.1.13',
         'ijson>=2.0',

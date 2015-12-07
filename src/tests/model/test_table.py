@@ -32,7 +32,7 @@ class TableTestCase(DbTestCase):
 
         self.assertEqual(
             'dbmanagr-c.sqlite/user/?[BLOB]',
-            user.autocomplete_(id, buffer('Blub', 0, 4)))
+            user.autocomplete_(id, memoryview(b'Blub')))
 
     def test_subtitle(self):
         """Tests the table.subitle method"""

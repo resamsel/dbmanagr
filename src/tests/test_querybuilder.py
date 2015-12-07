@@ -79,22 +79,23 @@ class QueryBuilderTestCase(DbTestCase):
         con = DbTestCase.connection
         joins = OrderedDict()
 
-        self.assertEqual(
+        self.assertListEqual(
             ['user'],
-            querybuilder.add_join(con.entity('user'), {}).keys())
-        self.assertEqual(
+            list(querybuilder.add_join(con.entity('user'), {}).keys()))
+        self.assertListEqual(
             ['user_address'],
-            querybuilder.add_join(con.entity('user_address'), joins).keys())
-        self.assertEqual(
+            list(querybuilder.add_join(
+                con.entity('user_address'), joins).keys()))
+        self.assertListEqual(
             ['user_address', 'user'],
-            querybuilder.add_join(con.entity('user'), joins).keys())
-        self.assertEqual(
+            list(querybuilder.add_join(con.entity('user'), joins).keys()))
+        self.assertListEqual(
             ['user_address', 'user', 'address'],
-            querybuilder.add_join(con.entity('address'), joins).keys())
+            list(querybuilder.add_join(con.entity('address'), joins).keys()))
         # Add the same entity a second time
-        self.assertEqual(
+        self.assertListEqual(
             ['user_address', 'user', 'address'],
-            querybuilder.add_join(con.entity('address'), joins).keys())
+            list(querybuilder.add_join(con.entity('address'), joins).keys()))
 
     def test_add_filter(self):
         """Tests the querybuilder.add_filter function"""

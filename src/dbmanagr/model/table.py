@@ -84,7 +84,7 @@ class Table(BaseItem):
             return u'%s%s?' % (self.uri, self.name)
 
         tablename = self.name
-        if type(value) is buffer:
+        if type(value) is memoryview:
             value = '[BLOB]'
         else:
             value = u'%s=%s' % (column, value)

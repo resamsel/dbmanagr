@@ -47,7 +47,7 @@ class Value(BaseItem):
         self._kind = kind
 
     def title(self):
-        if type(self._value) is buffer:
+        if type(self._value) is memoryview:
             return '[BLOB]'
         return TITLES.get(self._kind, KIND_VALUE) % self._value
 

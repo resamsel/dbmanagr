@@ -68,7 +68,9 @@ def unknown_column_message(table, column, haystack=None):
 
 
 class BusinessException(Exception):
-    pass
+    def __init__(self, message):
+        super(BusinessException, self).__init__(message)
+        self.message = message
 
 
 class UnknownConnectionException(BusinessException):

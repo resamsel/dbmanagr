@@ -77,5 +77,6 @@ parser.add_argument(
     '-v',
     '--verbose',
     action='count',
+    default=0,
     help='specify the verbosity of the output, increase the number of '
          'occurences of this option to increase verbosity')

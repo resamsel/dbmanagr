@@ -29,7 +29,7 @@ class ValueTestCase(ParentTestCase):
         self.assertEqual(
             '[BLOB]',
             value.Value(
-                buffer('Blob', 0, 4), None, None, True, None).title())
+                memoryview(b'Blob'), None, None, True, None).title())
 
     def test_as_json(self):
         """Tests the Value.as_json method"""

@@ -26,24 +26,48 @@ class TableCommentTestCase(DbTestCase):
     def test_val(self):
         """Tests the TableComment class"""
 
-        self.assertEqual(
-            "{'search': [], 'subtitle': None, 'title': None, "
-            "'display': [], 'id': None, 'order': []}",
-            repr(tablecomment.TableComment('')))
-        self.assertEqual(
-            "{'search': [], 'subtitle': None, 'title': None, "
-            "'display': [], 'id': None, 'order': []}",
-            repr(tablecomment.TableComment('{')))
-        self.assertEqual(
-            "{'search': [], 'subtitle': None, 'title': None, "
-            "'display': [], 'id': u'id', 'order': []}",
-            repr(tablecomment.TableComment('{"id":"id"}')))
+        self.assertDictEqual(
+            {
+                'search': [],
+                'subtitle': None,
+                'title': None,
+                'display': [],
+                'id': None,
+                'order': []
+            },
+            tablecomment.TableComment('').__dict__)
+        self.assertDictEqual(
+            {
+                'search': [],
+                'subtitle': None,
+                'title': None,
+                'display': [],
+                'id': None,
+                'order': []
+            },
+            tablecomment.TableComment('{').__dict__)
+        self.assertDictEqual(
+            {
+                'search': [],
+                'subtitle': None,
+                'title': None,
+                'display': [],
+                'id': u'id',
+                'order': []
+            },
+            tablecomment.TableComment('{"id":"id"}').__dict__)
 
     def test_parse(self):
         """Tests the TableComment.parse method"""
 
-        self.assertEqual(
-            "{'search': [], 'subtitle': None, 'title': u'{0}.id', "
-            "'display': [], 'id': u'id', 'order': []}",
-            repr(tablecomment.TableComment('{"title":"a", "id":"id"}'))
+        self.assertDictEqual(
+            {
+                'search': [],
+                'subtitle': None,
+                'title': u'{0}.id',
+                'display': [],
+                'id': u'id',
+                'order': []
+            },
+            tablecomment.TableComment('{"title":"a", "id":"id"}').__dict__
         )

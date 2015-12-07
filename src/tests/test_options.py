@@ -97,7 +97,7 @@ class OptionsTestCase(DbTestCase):
         )
         self.assertEqual(
             u"'[BLOB]'",
-            options.format_value(article.column('id'), buffer('abc'))
+            options.format_value(article.column('id'), memoryview(b'abc'))
         )
 
     def test_restriction(self):

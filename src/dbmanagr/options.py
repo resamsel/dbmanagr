@@ -80,7 +80,7 @@ def format_value(column, value):
             ', '.join([format_value(column, v) for v in value]))
     if type(value) in [datetime.datetime, datetime.date, datetime.time]:
         return "'%s'" % value
-    if type(value) is buffer:
+    if type(value) is memoryview:
         return u"'[BLOB]'"
     if column is None:
         try:
