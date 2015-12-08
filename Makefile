@@ -11,8 +11,10 @@ DIFF ?= diff
 RADON ?= radon
 TWINE ?= twine
 GPG ?= gpg
+GITCHANGELOG ?= gitchangelog
 ALFRED_WORKFLOW ?= "$(HOME)/Library/Application Support/Alfred 2/Alfred.alfredpreferences/workflows/user.workflow.FE656C03-5F95-4C20-AB50-92A1C286D7CD"
 BASH_COMPLETION_TARGET ?= /usr/local/etc/bash_completion.d
+MUSTACHE_TEMPLATE ?= /usr/local/lib/python2.7/site-packages/templates/mustache/markdown.tpl
 
 # Code quality and coverage
 FLAKE8 ?= flake8 --max-complexity=16
@@ -129,7 +131,16 @@ README.md: develop resources/README.md.sh
 debug:
 	echo $(PWD)
 
-release-%:
+
+$(MUSTACHE_TEMPLATE): $(PWD)/resources/markdown.tpl
+	ln -sf $^ $@
+
+.PHONY: changelog
+changelog: $(MUSTACHE_TEMPLATE)
+	$(GITCHANGELOG) | \
+		sed "s/%%version%% (unreleased)/$(shell git rev-parse --abbrev-ref HEAD | sed 's#^release/##') ($(shell date +%Y-%m-%d))/g" > CHANGELOG.md
+
+release-%: changelog
 	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' \
 		-i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
 	$(MAKE) README.md
@@ -137,6 +148,8 @@ release-%:
 	#$(SETUPTOOLS) bdist_egg
 	#$(GIT) add dist/dbmanagr-$(@:release-%=%)-py2.7.egg
 	#$(MAKE) assemble-alfred
+
+release: release-$(shell git rev-parse --abbrev-ref HEAD | sed 's#^release/v##')
 
 clean-coverage:
 	rm -f .coverage .instrumental.cov
