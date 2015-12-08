@@ -131,7 +131,16 @@ README.md: develop resources/README.md.sh
 debug:
 	echo $(PWD)
 
-release-%:
+
+$(MUSTACHE_TEMPLATE): $(PWD)/resources/markdown.tpl
+	ln -sf $^ $@
+
+.PHONY: changelog
+changelog: $(MUSTACHE_TEMPLATE)
+	$(GITCHANGELOG) | \
+		sed "s/%%version%% (unreleased)/$(shell git rev-parse --abbrev-ref HEAD | sed 's#^release/##') ($(shell date +%Y-%m-%d))/g" > CHANGELOG.md
+
+release-%: changelog
 	$(SED) 's/__version__ = "[^"]*"/__version__ = "$(@:release-%=%)"/g' \
 		-i $(VERSION) $(ALFRED_RESOURCES)/alfred.py
 	$(MAKE) README.md
@@ -139,6 +148,8 @@ release-%:
 	#$(SETUPTOOLS) bdist_egg
 	#$(GIT) add dist/dbmanagr-$(@:release-%=%)-py2.7.egg
 	#$(MAKE) assemble-alfred
+
+release: release-$(shell git rev-parse --abbrev-ref HEAD | sed 's#^release/v##')
 
 clean-coverage:
 	rm -f .coverage .instrumental.cov
@@ -169,7 +180,3 @@ dist-sign:
 
 upload: wheel sdist bdist dist/*.whl.asc dist/*.egg.asc dist/*.tar.gz.asc
 	$(TWINE) upload dist/*
-
-changelog:
-	ln -sf $(PWD)/resources/markdown.tpl $(MUSTACHE_TEMPLATE)
-	$(GITCHANGELOG) > CHANGELOG.md
