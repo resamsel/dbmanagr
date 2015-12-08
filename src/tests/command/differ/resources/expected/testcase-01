@@ -1,6 +1,6 @@
-> title
-< url
 < company
+< url
+> company_name
 > deleted
 > score
-> company_name
+> title

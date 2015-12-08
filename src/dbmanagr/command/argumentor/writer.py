@@ -30,6 +30,9 @@ class ArgumentWriter(FormatWriter):
 
     def str(self, items):
         options = self.options
+        for item in items:
+            if item is not None:
+                item.sort()
         (includes, excludes, substitutes) = items
         output = []
         if options.includes and len(includes) > 0:
@@ -50,6 +53,9 @@ class ArgumentVerboseWriter(FormatWriter):
             Formatter.set(DefaultFormatter())
 
     def str(self, items):
+        for item in items:
+            if item is not None:
+                item.sort()
         (includes, excludes, substitutes) = items
         output = []
         if len(includes) > 0:

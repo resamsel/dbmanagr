@@ -1,1 +1,1 @@
--i user_id.user_address.address_id.user_address.,user_id.user_address.user_id.,user_id.article.,user_id.blog_user.blog_id.blog_user.,user_id.blog_user.user_id. -x user_id.article.*,user_id.article.id -s user_id.article.title='The Title'
+-i user_id.article.,user_id.blog_user.blog_id.blog_user.,user_id.blog_user.user_id.,user_id.user_address.address_id.user_address.,user_id.user_address.user_id. -x user_id.article.*,user_id.article.id -s user_id.article.title='The Title'

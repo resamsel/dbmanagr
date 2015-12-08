@@ -1,6 +1,6 @@
-                                           > dbmanagr.sqlite/user2?title TEXT(127)
-dbmanagr.sqlite/user?url TEXT(255)         <
-dbmanagr.sqlite/user?company TEXT(255)     <
+                                           > dbmanagr.sqlite/user2?company_name TEXT(255)
                                            > dbmanagr.sqlite/user2?deleted BOOLEAN
                                            > dbmanagr.sqlite/user2?score REAL
-                                           > dbmanagr.sqlite/user2?company_name TEXT(255)
+                                           > dbmanagr.sqlite/user2?title TEXT(127)
+dbmanagr.sqlite/user?company TEXT(255)     <
+dbmanagr.sqlite/user?url TEXT(255)         <

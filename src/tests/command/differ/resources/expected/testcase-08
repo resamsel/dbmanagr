@@ -1,8 +1,8 @@
-username TEXT(31)                          | username TEXT(31) not null
-first_name TEXT(255) not null              | first_name TEXT(127) not null
-                                           > title TEXT(127)
-url TEXT(255)                              <
-company TEXT(255)                          <
+                                           > company_name TEXT(255)
                                            > deleted BOOLEAN
                                            > score REAL
-                                           > company_name TEXT(255)
+                                           > title TEXT(127)
+company TEXT(255)                          <
+first_name TEXT(255) not null              | first_name TEXT(127) not null
+url TEXT(255)                              <
+username TEXT(31)                          | username TEXT(31) not null
