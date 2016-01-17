@@ -206,7 +206,7 @@ def create_items(connection, items, include, exclude, substitutes):
 class DatabaseExporter(Wrapper):
     """The main class"""
     def __init__(self, options):
-        Wrapper.__init__(self, options)
+        super(DatabaseExporter, self).__init__(options)
 
         if options.formatter:
             Writer.set(options.formatter(options))
@@ -247,7 +247,7 @@ class DatabaseExporter(Wrapper):
                 opts.include,
                 opts.exclude,
                 opts.substitutes)
-            # remove duplicates
+            # Removes duplicates
             return list(OrderedDict.fromkeys(items))
         finally:
             connection.close()

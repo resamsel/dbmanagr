@@ -89,8 +89,7 @@ class FormatWriter(StdoutWriter):
             item_separator=u"""
 """,
             format_error_format=u'{0}'):
-        StdoutWriter.__init__(
-            self,
+        super(FormatWriter, self).__init__(
             items_format,
             item_format,
             item_separator,

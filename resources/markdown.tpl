@@ -9,11 +9,12 @@
 
 {{/display_label}}
 {{#commits}}
-- {{subject}} [{{author}}]
+*   {{subject}} @{{author}}
 {{#body}}
-{{body_indented}}
-{{/body}}
-{{/commits}}
 
+  {{body_indented}}
+{{/body}}
+
+{{/commits}}
 {{/sections}}
 {{/versions}}

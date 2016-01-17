@@ -32,10 +32,11 @@ import six
 logger = logging.getLogger(__name__)
 
 ENTRY_MESSAGE = u'⇢ %s({})'
-EXIT_MESSAGE = u'⇠ %s [%0.3fms] = %s'
+EXIT_MESSAGE = u'⇠ %s [%0.3fms] = %s %s'
 
 
 def encode(v):
+    logger.debug('encode(type(v)=%s)', type(v))
     if v is None:
         return None
     if type(v) is int:
@@ -43,8 +44,10 @@ def encode(v):
     if type(v) is list:
         return list(map(encode, v))
     if isinstance(v, six.string_types):
-        return repr(v)
-    return encode(str(v))
+        res = repr(v)
+        return res
+    res = encode(str(v))
+    return res
 
 
 def argtostring(k, v):
@@ -110,12 +113,14 @@ entry and exit points of the function with logging.DEBUG level.
                         EXIT_MESSAGE,
                         f.__name__,
                         (time.time() - start) * 1000.0,
+                        type(result),
                         encode(result))
                 else:
                     self.logger.debug(
                         EXIT_MESSAGE,
                         f.__name__,
                         (time.time() - start) * 1000.0,
+                        type(result),
                         '<omitted>')
 
                 return result
