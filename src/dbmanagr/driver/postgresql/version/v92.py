@@ -22,6 +22,7 @@ STAT_ACTIVITY = """select
         sa.datname database_name,
         sa.pid pid,
         sa.usename username,
+        sa.application_name application,
         coalesce(sa.client_addr || ':' || sa.client_port, '') as client,
         sa.xact_start transaction_start,
         sa.query_start query_start,
@@ -52,6 +53,6 @@ STAT_ACTIVITY = """select
             '{pattern}' = ''
             or sa.query like '%{pattern}%'
         )
-    group by 1, 2, 3, 4, 5, 6, 7, 8, 9
+    group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
     order by sa.datname
 """
