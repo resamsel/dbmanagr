@@ -25,20 +25,20 @@ DEFAULT_FORMAT = u'{0}'
 FORMATS = {
     -1: u'{0}\n',  # for testing only
     0: u'{0}\n',
-    1: u'PID\tDatabase\tUser\tClient\tTX Start\tQuery Start\tState\t'
-       u'Blocked by\tQuery\n{0}\n',
-    2: u'PID\tDatabase\tUser\tClient\tTX Start\tTX Duration\tQuery Start\t'
-       u'Query Duration\tState\tBlocked by\tQuery\n{0}\n'
+    1: u'PID\tDatabase\tUser\tApplication\tClient\tTX Start\tQuery Start\t'
+       u'State\tBlocked by\tQuery\n{0}\n',
+    2: u'PID\tDatabase\tUser\tApplication\tClient\tTX Start\tTX Duration\t'
+       u'Query Start\tQuery Duration\tState\tBlocked by\tQuery\n{0}\n'
 }
 ITEM_FORMATS = {
     -1: u'{row}',  # for testing only
     0: u'{row.pid}\t{row.state}\t{row.query_duration}\t{row.query}',
-    1: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
-       u'{row.transaction_start:%Y-%m-%d %H:%M:%S}\t'
+    1: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.application}\t'
+       u'{row.client}\t{row.transaction_start:%Y-%m-%d %H:%M:%S}\t'
        u'{row.query_start:%Y-%m-%d %H:%M:%S}\t{row.state}\t'
        u'{row.blocked_by}\t{row.query}',
-    2: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.client}\t'
-       u'{row.transaction_start}\t{row.transaction_duration}\t'
+    2: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.application}\t'
+       u'{row.client}\t{row.transaction_start}\t{row.transaction_duration}\t'
        u'{row.query_start}\t{row.query_duration}\t{row.state}\t'
        u'{row.blocked_by}\t{row.query}'
 }

@@ -121,7 +121,7 @@ def parent_parser(daemonable=False, daemon=False):
     group.add_argument(
         '-L',
         '--logfile',
-        type=argparse.FileType('a'),
+        type=argparse.FileType('ab'),
         default=default_log_file(),
         help='the file to log to')
     if daemonable:
