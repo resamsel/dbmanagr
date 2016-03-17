@@ -81,8 +81,10 @@ setup(
         'sqlparse>=0.1.13',
         'ijson>=2.0',
         'pyyaml>=3.11',
+        'tabulate>=0.7.5',
+        'humanize>=0.5.1',
         # 'psycopg2>=2.5.1',
-        # 'mysql-python>=1.2.5'
+        # 'mysql-python>=1.2.5',
     ],
 
     tests_require=[
