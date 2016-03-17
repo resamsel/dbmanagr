@@ -24,10 +24,13 @@ from dbmanagr.formatter import JsonFormatter, SimpleFormatter, \
     SimplifiedFormatter
 
 
-class SimplifiedWriter(FormatWriter):
+class SimplifiedWriter(TabularWriter):
     def __init__(self):
-        FormatWriter.__init__(self, u'{0}\n')
-        Formatter.set(SimplifiedFormatter())
+        super(SimplifiedWriter, self).__init__(
+            None,
+            lambda items: [],
+            lambda item: [item.title(), item.subtitle()]
+        )
 
 
 class JsonWriter(FormatWriter):
