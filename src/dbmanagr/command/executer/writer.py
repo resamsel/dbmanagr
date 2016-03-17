@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbmanagr.writer import FormatWriter, StdoutWriter, TabularWriter
+from dbmanagr.writer import FormatWriter, TabularWriter
 from dbmanagr.formatter import Formatter, DefaultFormatter
 import datetime
 
@@ -36,11 +36,21 @@ def sql_escape(value):
     return unicode(value)
 
 
-class ExecuteWriter(StdoutWriter):
+class ExecuteWriter(TabularWriter):
     def __init__(self, options=None):
-        StdoutWriter.__init__(self, u'{0}\n', u'{item}')
-        Formatter.set(DefaultFormatter())
-        self.options = options
+        super(ExecuteWriter, self).__init__(
+            options,
+            self.keys,
+            self.vals
+        )
+
+    def keys(self, items):
+        if len(items) > 0:
+            return items[0].row.keys()
+        return []
+
+    def vals(self, item):
+        return item.row.values()
 
 
 class SqlInsertWriter(FormatWriter):
@@ -64,23 +74,6 @@ class SqlInsertWriter(FormatWriter):
 
     def create_values(self, values):
         return u','.join(map(sql_escape, values))
-
-
-class ExecuteTabularWriter(TabularWriter):
-    def __init__(self, options):
-        super(ExecuteTabularWriter, self).__init__(
-            options,
-            self.keys,
-            self.values
-        )
-
-    def keys(self, items):
-        if len(items) > 0:
-            return items[0].row.keys()
-        return []
-
-    def values(self, item):
-        return item.row.values()
 
 
 class ExecuteTestWriter(ExecuteWriter):

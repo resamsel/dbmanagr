@@ -24,7 +24,6 @@ import sys
 from dbmanagr.args import parent_parser, format_group, create_parser
 
 from .writer import ExecuteWriter, SqlInsertWriter, ExecuteTestWriter
-from .writer import ExecuteTabularWriter
 
 parent = parent_parser()
 
@@ -43,13 +42,6 @@ group.add_argument(
     dest='formatter',
     action='store_const',
     const=SqlInsertWriter)
-group.add_argument(
-    '-B',
-    '--tabular',
-    help='output format: SQL insert statements',
-    dest='formatter',
-    action='store_const',
-    const=ExecuteTabularWriter)
 
 parser = create_parser(
     prog='dbexec',

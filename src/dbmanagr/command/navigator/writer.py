@@ -20,8 +20,7 @@
 
 from dbmanagr.writer import FormatWriter, TabularWriter
 from dbmanagr.formatter import Formatter, AutocompleteFormatter
-from dbmanagr.formatter import JsonFormatter, SimpleFormatter, \
-    SimplifiedFormatter
+from dbmanagr.formatter import JsonFormatter
 
 
 class SimplifiedWriter(TabularWriter):
