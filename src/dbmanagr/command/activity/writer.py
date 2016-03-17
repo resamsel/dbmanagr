@@ -18,41 +18,65 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbmanagr.writer import FormatWriter
-from dbmanagr.formatter import Formatter, DefaultFormatter
+from datetime import datetime
+from tabulate import tabulate
+from humanize import naturaltime
+
+from dbmanagr.writer import DefaultWriter
+
+
+def format_date(d):
+    if d is None:
+        return ''
+    return naturaltime(datetime.now().replace(tzinfo=d.tzinfo) - d)
+    # return u'{:%Y-%m-%d %H:%M:%S}'.format(d)
+
+
+def format_delta(d):
+    if d is None:
+        return ''
+    # return naturaldelta(d)
+    return str(d)
+
 
 DEFAULT_FORMAT = u'{0}'
-FORMATS = {
-    -1: u'{0}\n',  # for testing only
-    0: u'{0}\n',
-    1: u'PID\tDatabase\tUser\tApplication\tClient\tTX Start\tQuery Start\t'
-       u'State\tBlocked by\tQuery\n{0}\n',
-    2: u'PID\tDatabase\tUser\tApplication\tClient\tTX Start\tTX Duration\t'
-       u'Query Start\tQuery Duration\tState\tBlocked by\tQuery\n{0}\n'
+HEADERS = {
+    -1: [],  # for testing only
+    0: [],
+    1: [
+        u'PID', u'Database', u'User', u'Client', u'Query Start', u'State',
+        u'Blocked by', u'Query'
+    ],
+    2: [
+        u'PID', u'Database', u'User', u'Application', u'Client', u'TX Start',
+        u'TX Duration', u'Query Start', u'Query Duration', u'State',
+        u'Blocked by', u'Query'
+    ],
 }
-ITEM_FORMATS = {
-    -1: u'{row}',  # for testing only
-    0: u'{row.pid}\t{row.state}\t{row.query_duration}\t{row.query}',
-    1: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.application}\t'
-       u'{row.client}\t{row.transaction_start:%Y-%m-%d %H:%M:%S}\t'
-       u'{row.query_start:%Y-%m-%d %H:%M:%S}\t{row.state}\t'
-       u'{row.blocked_by}\t{row.query}',
-    2: u'{row.pid}\t{row.database_name}\t{row.username}\t{row.application}\t'
-       u'{row.client}\t{row.transaction_start}\t{row.transaction_duration}\t'
-       u'{row.query_start}\t{row.query_duration}\t{row.state}\t'
-       u'{row.blocked_by}\t{row.query}'
+SPLITTER = {
+    0: lambda row: [row.pid, row.state, row.query_duration, row.query],
+    1: lambda row: [
+        row.pid, row.database_name, row.username, row.client,
+        format_date(row.query_start), row.state, row.blocked_by, row.query
+    ],
+    2: lambda row: [
+        row.pid, row.database_name, row.username, row.application, row.client,
+        format_date(row.transaction_start),
+        format_delta(row.transaction_duration),
+        format_date(row.query_start), format_delta(row.query_duration),
+        row.state, row.blocked_by, row.query
+    ],
 }
 
 
-class StatementActivityWriter(FormatWriter):
+class StatementActivityWriter(DefaultWriter):
     def __init__(self, options):
-        FormatWriter.__init__(
-            self,
-            FORMATS.get(options.verbose, FORMATS[0]),
-            ITEM_FORMATS.get(options.verbose, ITEM_FORMATS[0]))
-        Formatter.set(DefaultFormatter())
-        self.options = options
+        self.headers = HEADERS.get(options.verbose, HEADERS[0])
+        self.splitter = SPLITTER.get(options.verbose, SPLITTER[0])
 
-    def itemtostring(self, item):
-        row = item.row
-        return self.item_format.format(row=row)
+    def str(self, items):
+        data = map(lambda item: self.itemtoarray(item), items)
+        return tabulate(data, headers=self.headers, tablefmt='plain')
+
+    def itemtoarray(self, item):
+        return self.splitter(item.row)
