@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbmanagr.writer import FormatWriter
+from dbmanagr.writer import FormatWriter, TabularWriter
 from dbmanagr.formatter import Formatter, AutocompleteFormatter
 from dbmanagr.formatter import JsonFormatter, SimpleFormatter, \
     SimplifiedFormatter
@@ -47,11 +47,12 @@ class AutocompleteWriter(FormatWriter):
         Formatter.set(AutocompleteFormatter())
 
 
-class SimpleWriter(FormatWriter):
+class SimpleWriter(TabularWriter):
     def __init__(self):
-        FormatWriter.__init__(
-            self,
-            u"""Id\tTitle\tSubtitle\tAutocomplete
-{0}
-""")
-        Formatter.set(SimpleFormatter())
+        super(SimpleWriter, self).__init__(
+            None,
+            lambda items: [u'Id', u'Title', u'Subtitle', u'Autocomplete'],
+            lambda item: [
+                item.uid(), item.title(), item.subtitle(), item.autocomplete()
+            ]
+        )

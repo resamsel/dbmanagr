@@ -80,7 +80,7 @@ class ExecuteTabularWriter(TabularWriter):
         return []
 
     def values(self, item):
-        return item.values()
+        return item.row.values()
 
 
 class ExecuteTestWriter(ExecuteWriter):

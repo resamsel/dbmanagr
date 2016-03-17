@@ -73,5 +73,5 @@ class StatementActivityWriter(TabularWriter):
         super(StatementActivityWriter, self).__init__(
             options,
             lambda items: HEADERS.get(options.verbose, HEADERS[0]),
-            VALUES.get(options.verbose, VALUES[0])
+            lambda item: VALUES.get(options.verbose, VALUES[0])(item.row)
         )

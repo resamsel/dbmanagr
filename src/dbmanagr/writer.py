@@ -117,7 +117,7 @@ class TabularWriter(DefaultWriter):
         )
 
     def itemtoarray(self, item):
-        return self.values(item.row)
+        return self.values(item)
 
 
 class TestWriter(FormatWriter):
