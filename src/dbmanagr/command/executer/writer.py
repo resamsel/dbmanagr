@@ -18,7 +18,7 @@
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from dbmanagr.writer import FormatWriter, StdoutWriter
+from dbmanagr.writer import FormatWriter, StdoutWriter, TabularWriter
 from dbmanagr.formatter import Formatter, DefaultFormatter
 import datetime
 
@@ -64,6 +64,23 @@ class SqlInsertWriter(FormatWriter):
 
     def create_values(self, values):
         return u','.join(map(sql_escape, values))
+
+
+class ExecuteTabularWriter(TabularWriter):
+    def __init__(self, options):
+        super(ExecuteTabularWriter, self).__init__(
+            options,
+            self.keys,
+            self.values
+        )
+
+    def keys(self, items):
+        if len(items) > 0:
+            return items[0].row.keys()
+        return []
+
+    def values(self, item):
+        return item.values()
 
 
 class ExecuteTestWriter(ExecuteWriter):

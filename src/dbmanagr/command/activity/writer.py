@@ -19,10 +19,9 @@
 #
 
 from datetime import datetime
-from tabulate import tabulate
 from humanize import naturaltime
 
-from dbmanagr.writer import DefaultWriter
+from dbmanagr.writer import TabularWriter
 
 
 def format_date(d):
@@ -53,7 +52,7 @@ HEADERS = {
         u'Blocked by', u'Query'
     ],
 }
-SPLITTER = {
+VALUES = {
     0: lambda row: [row.pid, row.state, row.query_duration, row.query],
     1: lambda row: [
         row.pid, row.database_name, row.username, row.client,
@@ -69,22 +68,10 @@ SPLITTER = {
 }
 
 
-class StatementActivityWriter(DefaultWriter):
+class StatementActivityWriter(TabularWriter):
     def __init__(self, options):
-        self.headers = HEADERS.get(options.verbose, HEADERS[0])
-        self.splitter = SPLITTER.get(options.verbose, SPLITTER[0])
-
-    def str(self, items):
-        try:
-            iter(items)
-        except TypeError as te:
-            return None
-
-        return tabulate(
-            map(lambda item: self.itemtoarray(item), items),
-            headers=self.headers,
-            tablefmt='plain'
+        super(StatementActivityWriter, self).__init__(
+            options,
+            lambda items: HEADERS.get(options.verbose, HEADERS[0]),
+            VALUES.get(options.verbose, VALUES[0])
         )
-
-    def itemtoarray(self, item):
-        return self.splitter(item.row)
