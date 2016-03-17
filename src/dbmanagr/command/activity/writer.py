@@ -75,8 +75,16 @@ class StatementActivityWriter(DefaultWriter):
         self.splitter = SPLITTER.get(options.verbose, SPLITTER[0])
 
     def str(self, items):
-        data = map(lambda item: self.itemtoarray(item), items)
-        return tabulate(data, headers=self.headers, tablefmt='plain')
+        try:
+            iter(items)
+        except TypeError as te:
+            return None
+
+        return tabulate(
+            map(lambda item: self.itemtoarray(item), items),
+            headers=self.headers,
+            tablefmt='plain'
+        )
 
     def itemtoarray(self, item):
         return self.splitter(item.row)
