@@ -97,7 +97,7 @@ def format_value(column, value):
             return '%d' % int(value)
         except ValueError:
             pass
-    return u"'%s'" % escape_statement(value).replace("'", "''")
+    return u"'%s'" % value.replace("'", "''")
 
 
 def parse_filter(s):

@@ -22,15 +22,12 @@ from dbmanagr.writer import FormatWriter, TabularWriter
 from dbmanagr.formatter import Formatter, DefaultFormatter
 import datetime
 
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
-
 
 def sql_escape(value):
     if type(value) is str or type(value) is unicode:
-        return "'%s'" % value
+        return u"'%s'" % value
     if type(value) in [datetime.datetime, datetime.date, datetime.time]:
-        return "'%s'" % value
+        return u"'%s'" % value
     if type(value) is bool:
         return unicode(value).lower()
     return unicode(value)
