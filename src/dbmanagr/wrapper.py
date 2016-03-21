@@ -28,6 +28,7 @@ import pdb
 import requests
 import json
 import ijson
+import collections
 from six.moves import urllib
 
 from dbmanagr.writer import Writer
@@ -48,8 +49,14 @@ class Wrapper(object):
         self.options = options
 
     def write(self):
+        writer = self.options.writer
         try:
-            sys.stdout.write(Writer.write(self.run()))
+            res = Writer.write(self.run())
+            if isinstance(res, collections.Iterable):
+                for i in iter(res):
+                    writer.write(i.encode('utf-8'))
+            else:
+                writer.write(res.encode('utf-8'))  # pylint: disable=no-member
         except BaseException as e:
             log.logger.exception(e)
             return -1

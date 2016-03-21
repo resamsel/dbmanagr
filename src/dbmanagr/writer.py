@@ -23,14 +23,12 @@ from builtins import str
 from builtins import object
 
 import logging
-import codecs
-import sys
 
 from dbmanagr.logger import LogWith
 from dbmanagr.formatter import Formatter, TestFormatter, DefaultFormatter
 
-UTF8Writer = codecs.getwriter('utf8')
-sys.stdout = UTF8Writer(sys.stdout)
+# UTF8Writer = codecs.getwriter('utf8')
+# sys.stdout = UTF8Writer(sys.stdout)
 
 logger = logging.getLogger(__name__)
 

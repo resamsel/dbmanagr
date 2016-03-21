@@ -77,7 +77,7 @@ class StatementActivityWriter(DefaultWriter):
     def str(self, items):
         try:
             iter(items)
-        except TypeError as te:
+        except TypeError:
             return None
 
         return tabulate(

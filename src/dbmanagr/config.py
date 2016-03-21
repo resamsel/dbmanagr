@@ -50,7 +50,9 @@ class Config(object):
 ###
 ### %s called with args: %s
 ###""",
-            parser.prog, options.argv)
+            parser.prog,
+            options.argv
+        )
 
         logger.debug("Options: %s", options)
         logger.debug(

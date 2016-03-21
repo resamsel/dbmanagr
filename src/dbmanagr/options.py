@@ -25,6 +25,7 @@ from builtins import object
 import logging
 import math
 import datetime
+import sys
 
 from six.moves.urllib.parse import urlparse
 from sqlalchemy import Boolean, Float, Integer
@@ -130,10 +131,16 @@ class Options(object):
     parser = {}
 
     def __init__(self, argv, parser):
+        try:
+            sys.stdout = sys.stdout.detach()  # pylint: disable=no-member
+        except AttributeError:
+            pass
+
         logger.info('Called with params: %s', argv)
 
         self.opts = {}
         self.argv = argv
+        self.writer = sys.stdout
         self.uri = None
         self.logfile = None
         self.loglevel = None
