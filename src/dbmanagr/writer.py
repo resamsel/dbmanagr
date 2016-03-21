@@ -24,6 +24,8 @@ from builtins import object
 
 import logging
 
+from tabulate import tabulate
+
 from dbmanagr.logger import LogWith
 from dbmanagr.formatter import Formatter, TestFormatter, DefaultFormatter
 
@@ -95,6 +97,28 @@ class FormatWriter(StdoutWriter):
 
     def itemtostring(self, item):
         return item.format()
+
+
+class TabularWriter(DefaultWriter):
+    def __init__(self, options, headers=None, values=None):
+        self.options = options
+        self.headers = headers
+        self.values = values
+
+    def str(self, items):
+        try:
+            iter(items)
+        except TypeError:
+            return None
+
+        return tabulate(
+            map(lambda item: self.itemtoarray(item), items),
+            headers=self.headers(items),
+            tablefmt='plain'
+        )
+
+    def itemtoarray(self, item):
+        return self.values(item)
 
 
 class TestWriter(FormatWriter):
