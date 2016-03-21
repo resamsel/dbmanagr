@@ -48,7 +48,10 @@ def hash_(s):
     try:
         return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
     except:
-        return hash(s)
+        try:
+            return str(uuid.uuid3(uuid.NAMESPACE_DNS, str(s)))
+        except:
+            return hash(s)
 
 
 def module_installed(*modules):

@@ -21,7 +21,6 @@
 from builtins import str
 
 import logging
-import six
 
 from dbmanagr.model.baseitem import BaseItem
 from dbmanagr.formatter import Formatter
@@ -47,8 +46,6 @@ class Row(BaseItem):
     def __getitem__(self, i):
         if i is None:
             return None
-        if isinstance(i, six.string_types):
-            i = i.encode('ascii')
         if type(i) is int:
             return self.row[i]
         try:

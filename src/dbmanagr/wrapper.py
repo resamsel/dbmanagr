@@ -54,9 +54,11 @@ class Wrapper(object):
             res = Writer.write(self.run())
             if isinstance(res, collections.Iterable):
                 for i in iter(res):
-                    writer.write(i.encode('utf-8'))
-            else:
-                writer.write(res.encode('utf-8'))  # pylint: disable=no-member
+                    writer.write(i)
+                writer.write('\n')
+            elif res is not None:
+                writer.write(res)
+                writer.write('\n')
         except BaseException as e:
             log.logger.exception(e)
             return -1

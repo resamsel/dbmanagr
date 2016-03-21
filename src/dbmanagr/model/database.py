@@ -42,6 +42,12 @@ class Database(BaseItem):
             connection=self._connection,
             database=self.name)
 
+    def title(self):
+        return self.name
+
+    def subtitle(self):
+        return self.uri
+
     def autocomplete(self):
         """Retrieves the autocomplete string"""
 

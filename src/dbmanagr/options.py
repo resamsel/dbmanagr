@@ -33,7 +33,6 @@ from decimal import Decimal
 
 from dbmanagr.logger import LogWith
 from dbmanagr.queryfilter import QueryFilter, OrOp, AndOp
-from dbmanagr.utils import escape_statement
 
 OR_OPERATOR = '|'
 AND_OPERATOR = '&'
@@ -131,11 +130,6 @@ class Options(object):
     parser = {}
 
     def __init__(self, argv, parser):
-        try:
-            sys.stdout = sys.stdout.detach()  # pylint: disable=no-member
-        except AttributeError:
-            pass
-
         logger.info('Called with params: %s', argv)
 
         self.opts = {}

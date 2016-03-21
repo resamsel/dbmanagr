@@ -23,6 +23,7 @@ from builtins import str
 from builtins import object
 
 import logging
+import collections
 
 from tabulate import tabulate
 
@@ -106,13 +107,13 @@ class TabularWriter(DefaultWriter):
         self.values = values
 
     def str(self, items):
-        try:
-            iter(items)
-        except TypeError:
+        logger.info('Items: %s', items)
+
+        if not isinstance(items, collections.Iterable):
             return None
 
         return tabulate(
-            map(lambda item: self.itemtoarray(item), items),
+            [self.itemtoarray(item) for item in items],
             headers=self.headers(items),
             tablefmt='plain'
         )
