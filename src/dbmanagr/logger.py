@@ -36,7 +36,6 @@ EXIT_MESSAGE = u'⇠ %s [%0.3fms] = %s %s'
 
 
 def encode(v):
-    logger.debug('encode(type(v)=%s)', type(v))
     if v is None:
         return None
     if type(v) is int:

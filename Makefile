@@ -26,7 +26,8 @@ TARGET = target
 TARGETS = $(TARGET) $(TARGET)/coverage
 SETUPTOOLS = $(PYTHON) setup.py
 TEST_NOSE = nosetests --with-coverage --cover-package=dbmanagr --cover-html \
-	--cover-html-dir=$(PWD)/$(TARGET)/coverage
+	--cover-html-dir=$(PWD)/$(TARGET)/coverage \
+	--with-html --html-file=$(PWD)/$(TARGET)/nosetests.html
 TEST_INSTRUMENTAL = $(INSTRUMENTAL) -S -t dbmanagr setup.py $(TEST_NOSE)
 TEST = $(SETUPTOOLS) $(TEST_NOSE)
 INSTRUMENTAL_REPORT = $(INSTRUMENTAL) -r --xml
