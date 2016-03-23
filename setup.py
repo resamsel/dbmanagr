@@ -83,6 +83,7 @@ setup(
         'pyyaml>=3.11',
         'tabulate>=0.7.5',
         'humanize>=0.5.1',
+        'future>=0.15.2',
         # 'psycopg2>=2.5.1',
         # 'mysql-python>=1.2.5',
     ],
