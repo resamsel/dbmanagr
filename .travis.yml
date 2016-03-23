@@ -1,23 +1,25 @@
+sudo: false
 language: python
 python:
   - "2.7"
-  - "3.5"
+#  - "3.5"
 # command to install dependencies
 install:
-  - pip install pip==1.5.6
+#  - pip install pip==1.5.6
   - pip --version
-  - pip install nose
-  - pip install pg8000
-  - pip install pymysql
-  - pip install coveralls
+  - pip install nose pg8000 pymysql coveralls nose-htmloutput
 # command to run tests
 script:
   - mkdir -p target/coverage
-  - python setup.py install
-  - pip uninstall dbmanagr -y
-  - python setup.py develop
-  - python setup.py develop --uninstall
-  - python setup.py nosetests --with-coverage --cover-package=dbmanagr --cover-html --cover-html-dir=target/coverage
+#  - python setup.py install
+#  - pip uninstall dbmanagr -y
+#  - python setup.py develop
+#  - python setup.py develop --uninstall
+  - python setup.py nosetests --with-coverage --cover-package=dbmanagr --cover-html --cover-html-dir=target/coverage --with-html
 after_success:
   - coveralls
 
+branches:
+  only:
+    - master
+    - develop
