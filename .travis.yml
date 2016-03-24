@@ -18,8 +18,3 @@ script:
   - python setup.py nosetests --with-coverage --cover-package=dbmanagr --cover-html --cover-html-dir=target/coverage --with-html
 after_success:
   - coveralls
-
-branches:
-  only:
-    - master
-    - develop
