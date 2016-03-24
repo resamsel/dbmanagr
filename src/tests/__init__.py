@@ -17,7 +17,3 @@
 # You should have received a copy of the GNU General Public License
 # along with Database Navigator.  If not, see <http://www.gnu.org/licenses/>.
 #
-
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
