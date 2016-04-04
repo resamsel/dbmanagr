@@ -19,7 +19,9 @@
 #
 
 import logging
+import warnings
 
+from sqlalchemy import exc as sa_exc
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.engine import reflection
@@ -81,7 +83,9 @@ class DatabaseConnection(BaseItem):
     def meta(self):
         if self._meta is None:
             self._meta = MetaData()
-            self._meta.reflect(bind=self._engine)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=sa_exc.SAWarning)
+                self._meta.reflect(bind=self._engine)
 
         return self._meta
 
