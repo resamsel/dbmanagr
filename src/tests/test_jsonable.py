@@ -22,6 +22,12 @@ from tests.testcase import ParentTestCase
 from dbmanagr import jsonable
 
 
+class TestJsonable(jsonable.Jsonable):
+    def __init__(self):
+        self.a = 1
+        self.b = jsonable.Jsonable()
+
+
 class JsonableTestCase(ParentTestCase):
     def test_to_key(self):
         """Tests the jsonable.to_key function"""
@@ -59,11 +65,6 @@ class JsonableTestCase(ParentTestCase):
 
         self.assertEqual([1], jsonable.as_json([1]))
         self.assertEqual(u'a', jsonable.as_json('a'))
-
-        class TestJsonable(jsonable.Jsonable):
-            def __init__(self):
-                self.a = 1
-                self.b = jsonable.Jsonable()
 
         self.assertEqual(
             {

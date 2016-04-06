@@ -43,8 +43,7 @@ def encode(v):
     if type(v) is list:
         return list(map(encode, v))
     if isinstance(v, six.string_types):
-        res = repr(v)
-        return res
+        return v
     res = encode(str(v))
     return res
 
@@ -85,7 +84,7 @@ entry and exit points of the function with logging.DEBUG level.
                         for k in inspect.getargspec(f).args
                     ]
                     # Adds keyword arguments
-                    fargs += [encode(k_v[1]) for k_v in kwargs]
+                    fargs += [repr(encode(k_v[1])) for k_v in kwargs]
 
                     # Creates format for the log message
                     formats = ['%s' for arg in fargs]

@@ -33,7 +33,7 @@ class ResultRow(object):
 
     def __getitem__(self, i):
         if type(i) is int:
-            return self.__dict__[self.__dict__.keys()[i]]
+            return self.__dict__[list(self.__dict__.keys())[i]]
         return self.__dict__[i]
 
 

@@ -39,22 +39,22 @@ class SourcesTestCase(ParentTestCase):
 
         self.assertEqual(
             [],
-            map(str, dbexplorer.DBExplorerSource(
+            list(map(str, dbexplorer.DBExplorerSource(
                 '',
                 DBEXPLORER_CONFIG,
                 'mysql',
-                MySQLConnection).list()))
+                MySQLConnection).list())))
         self.assertEqual(
             [],
-            map(str, dbexplorer.DBExplorerSource(
+            list(map(str, dbexplorer.DBExplorerSource(
                 '',
                 DBEXPLORER_CONFIG_BROKEN,
                 'mysql',
-                MySQLConnection).list()))
+                MySQLConnection).list())))
         self.assertEqual(
             [],
-            map(str, dbexplorer.DBExplorerSource(
+            list(map(str, dbexplorer.DBExplorerSource(
                 '',
                 DBEXPLORER_CONFIG_404,
                 'mysql',
-                MySQLConnection).list()))
+                MySQLConnection).list())))

@@ -46,6 +46,19 @@ logger = logging.getLogger(__name__)
 
 def hash_(s):
     try:
+        return int(uuid.uuid3(
+            uuid.NAMESPACE_DNS,
+            s.encode('ascii', 'ignore')
+        )) & (1 << 64) - 1
+    except:
+        try:
+            return int(uuid.uuid3(uuid.NAMESPACE_DNS, str(s))) & (1 << 64) - 1
+        except:
+            return hash(s)
+
+
+def hash_uuid(s):
+    try:
         return str(uuid.uuid3(uuid.NAMESPACE_DNS, s.encode('ascii', 'ignore')))
     except:
         try:
@@ -107,8 +120,6 @@ def remove_prefix(prefix, items):
 
 
 def tostring(key):
-    if isinstance(key, six.string_types):
-        return key.encode('ascii', errors='ignore')
     return key
 
 

@@ -38,21 +38,21 @@ class OptionsTestCase(ParentTestCase):
 
         self.assertEqual(
             ['dbmanagr.sqlite/'],
-            map(str, anypass.AnyPassSource(
-                '', MYPASS_CONFIG, SQLiteConnection).list()))
+            list(map(str, anypass.AnyPassSource(
+                '', MYPASS_CONFIG, SQLiteConnection).list())))
         self.assertEqual(
             [],
-            map(str, anypass.AnyPassSource(
-                '', MYPASS_CONFIG_404, None).list()))
+            list(map(str, anypass.AnyPassSource(
+                '', MYPASS_CONFIG_404, None).list())))
 
     def test_anyfilepass_list(self):
         """Tests the anypass.AnyFilePassSource.list method"""
 
         self.assertEqual(
             ['dbmanagr.sqlite/'],
-            map(str, anypass.AnyFilePassSource(
-                '', SQLITEPASS_CONFIG, SQLiteConnection).list()))
+            list(map(str, anypass.AnyFilePassSource(
+                '', SQLITEPASS_CONFIG, SQLiteConnection).list())))
         self.assertEqual(
             [],
-            map(str, anypass.AnyFilePassSource(
-                '', SQLITEPASS_CONFIG_404, SQLiteConnection).list()))
+            list(map(str, anypass.AnyFilePassSource(
+                '', SQLITEPASS_CONFIG_404, SQLiteConnection).list())))

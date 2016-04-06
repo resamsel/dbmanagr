@@ -88,7 +88,7 @@ class Item(Jsonable):
     def uid(self):
         if self.uid_ is not None:
             return self.uid_
-        return utils.hash_(self.autocomplete())
+        return utils.hash_uuid(self.autocomplete())
 
     def icon(self):
         if self.icon_ is not None:

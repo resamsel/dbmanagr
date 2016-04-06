@@ -52,13 +52,13 @@ class LoggerTestCase(ParentTestCase):
             None,
             dbmanagr.logger.encode(None))
         self.assertEqual(
-            "u'a'",
+            'a',
             dbmanagr.logger.encode(u'a'))
         self.assertEqual(
-            "'a'",
+            'a',
             dbmanagr.logger.encode('a'))
         self.assertEqual(
-            ["'a.b'"],
+            ['a.b'],
             dbmanagr.logger.encode(['a.b']))
         self.assertEqual(
             "7",
@@ -68,13 +68,13 @@ class LoggerTestCase(ParentTestCase):
         """Tests the logger.argtostring function"""
 
         self.assertEqual(
-            "k='v'",
+            "k=v",
             dbmanagr.logger.argtostring('k', 'v'))
         self.assertEqual(
             "self",
             dbmanagr.logger.argtostring('self', 'v'))
         self.assertEqual(
-            "k=[\"'v1'\", \"'v2'\"]",
+            "k=['v1', 'v2']",
             dbmanagr.logger.argtostring('k', ['v1', 'v2']))
         self.assertEqual(
             "k=None",

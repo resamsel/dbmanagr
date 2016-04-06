@@ -25,7 +25,7 @@ from tests.testcase import DbTestCase
 from tests.command.navigator import load
 from dbmanagr.config import Config
 from dbmanagr.exception import UnknownTableException
-from dbmanagr.utils import mute_stderr, hash_
+from dbmanagr.utils import mute_stderr, hash_, hash_uuid, freeze
 
 
 def test_navigator():
@@ -61,9 +61,12 @@ class NavigatorTestCase(DbTestCase):
         self.assertEqual(558, row['user_id'])
         self.assertEqual(
             [558],
-            map(lambda v: v.value(),
+            list(map(
+                lambda v: v.value(),
                 navigator.forward_references(
-                    row, article, ['user_id'], aliases)))
+                    row, article, ['user_id'], aliases)
+            ))
+        )
 
     def test_back_references(self):
         """Tests the navigator.back_references function"""
@@ -75,8 +78,11 @@ class NavigatorTestCase(DbTestCase):
 
         self.assertEqual(
             ['article.user_id', 'blog_user.user_id', 'user_address.user_id'],
-            map(lambda v: str(v.value()),
-                navigator.back_references(row, user, aliases)))
+            list(map(
+                lambda v: str(v.value()),
+                navigator.back_references(row, user, aliases)
+            ))
+        )
 
     def test_create(self):
         """Tests the navigator.create function"""
@@ -93,18 +99,18 @@ class NavigatorTestCase(DbTestCase):
         options.show = 'databases'
         self.assertEqual(
             ['dbmanagr-c.sqlite//'],
-            map(str, navigator.create(con, options)))
+            list(map(str, navigator.create(con, options))))
 
         options.database = 'db'
         self.assertEqual(
             [],
-            map(str, navigator.create(con, options)))
+            list(map(str, navigator.create(con, options))))
 
         options = Config.init(
             ['dbmanagr-c.sqlite/user?'], navigator.args.parser)
         self.assertEqual(
             ['dbmanagr-c.sqlite/'],
-            map(str, navigator.create(con, options)))
+            list(map(str, navigator.create(con, options))))
 
     def test_filter_complete(self):
         """Tests the filter_complete"""
@@ -176,7 +182,7 @@ class NavigatorTestCase(DbTestCase):
         )
 
         self.assertEqual(item, item)
-        self.assertEqual(hash(item), item.__hash__())
+        self.assertEqual(hash_(freeze(item.__dict__)), item.__hash__())
         self.assertEqual('a', item.title())
         self.assertEqual('b', item.subtitle())
         self.assertEqual('c', item.autocomplete())
@@ -186,7 +192,7 @@ class NavigatorTestCase(DbTestCase):
         self.assertEqual('g', item.validity())
         self.assertEqual('h', item.format())
         self.assertEqual(
-            hash_('c'),
+            hash_uuid('c'),
             navigator.dto.Item(autocomplete='c').uid()
         )
         self.assertEqual(
@@ -194,7 +200,7 @@ class NavigatorTestCase(DbTestCase):
             navigator.dto.Item().icon()
         )
         self.assertEqual(
-            item,
+            item.__dict__,
             navigator.dto.Item.from_json({
                 'title': 'a',
                 'subtitle': 'b',
@@ -204,5 +210,5 @@ class NavigatorTestCase(DbTestCase):
                 'value': 'f',
                 'validity': 'g',
                 'format_': 'h'
-            })
+            }).__dict__
         )

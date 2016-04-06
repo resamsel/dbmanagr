@@ -40,5 +40,5 @@ class SourcesTestCase(ParentTestCase):
                 '', NAVICAT_CONFIG, 'SQLite', SQLiteConnection).list())))
         self.assertEqual(
             [],
-            map(str, navicat.NavicatSource(
-                '', NAVICAT_CONFIG_404, 'SQLite', SQLiteConnection).list()))
+            list(map(str, navicat.NavicatSource(
+                '', NAVICAT_CONFIG_404, 'SQLite', SQLiteConnection).list())))

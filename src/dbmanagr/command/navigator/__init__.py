@@ -50,40 +50,46 @@ IMAGE_DATABASE = 'images/database.png'
 IMAGE_TABLE = 'images/table.png'
 
 
+@LogWith(logger)
 def forward_references(row, table, keys, aliases):
     foreign_keys = table.foreign_keys()
+    logger.debug('foreign_keys=%s', foreign_keys)
     alias = aliases.get(table.name, table.name)
+    logger.debug('alias=%s', alias)
 
     refs = []
     for key in keys:
         k = key.replace('{0}_'.format(alias), '', 1)
         if key in foreign_keys:
-            # Key is a foreign key column
+            logger.debug('Key %s is a foreign key column', key)
             fk = foreign_keys[key]
             autocomplete = fk.b.table.autocomplete_(
                 fk.b.name, row[tostring(key)])
         elif table.column(k).primary_key:
-            # Key is a simple column, but primary key
+            logger.debug('Key %s is a simple column, but primary key', key)
             autocomplete = table.autocomplete_(
                 k, row[tostring(key)], OPTION_URI_SINGLE_ROW_FORMAT)
         else:
-            # Key is a simple column
+            logger.debug('Key %s is a simple column', key)
             autocomplete = table.autocomplete_(
                 k, row[tostring(key)], OPTION_URI_MULTIPLE_ROWS_FORMAT)
         f = foreign_key_or_column(table, k)
         kind = KIND_VALUE
         if f.__class__.__name__ == 'ForeignKey':
             kind = KIND_FOREIGN_KEY
-        refs.append(Value(
+        value = Value(
             row[tostring(key)],
             str(f),
             autocomplete,
             True,
-            kind))
+            kind)
+        logger.debug('Appending value %s', value)
+        refs.append(value)
 
     return refs
 
 
+@LogWith(logger)
 def back_references(row, table, aliases):
     foreign_keys = table.foreign_keys()
 

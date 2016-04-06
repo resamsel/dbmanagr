@@ -23,7 +23,7 @@ import logging
 from dbmanagr.formatter import Formatter
 from dbmanagr.model import Model
 from dbmanagr.logger import LogWith
-from dbmanagr.utils import hash_
+from dbmanagr.utils import hash_uuid
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class BaseItem(Model):
 
     @LogWith(logger)
     def uid(self):
-        return hash_(self.autocomplete())
+        return hash_uuid(self.autocomplete())
 
     def format(self):
         return Formatter.format(self)

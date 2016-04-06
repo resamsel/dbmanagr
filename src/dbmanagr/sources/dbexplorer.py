@@ -53,7 +53,7 @@ class DBExplorerSource(Source):
                 tree = ET.parse(self.file)
             except Exception as e:
                 logger.warn(
-                    'Error parsing dbExplorer config file: %s', e.message)
+                    'Error parsing dbExplorer config file: %s', e)
                 return []
             root = tree.getroot()
             for c in root.iter('connection'):

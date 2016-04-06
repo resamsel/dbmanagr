@@ -69,7 +69,7 @@ class QueryBuilderTestCase(DbTestCase):
         user_address = con.table('user_address')
 
         self.assertEqual(
-            ['user'],
+            {'user': None}.keys(),
             querybuilder.add_references(
                 user_address.name, user.foreign_keys(), {}, None).keys())
 
