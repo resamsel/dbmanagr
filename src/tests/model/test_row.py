@@ -29,12 +29,15 @@ class ResultRow(object):
         self.__dict__ = d
 
     def keys(self):
-        return self.__dict__.keys() + range(len(self.__dict__.keys()))
+        return self._asdict().keys() + range(len(self._asdict().keys()))
 
     def __getitem__(self, i):
         if type(i) is int:
-            return self.__dict__[list(self.__dict__.keys())[i]]
-        return self.__dict__[i]
+            return self._asdict()[list(self._asdict().keys())[i]]
+        return self._asdict()[i]
+
+    def _asdict(self):
+        return self.__dict__
 
 
 class RowTestCase(DbTestCase):

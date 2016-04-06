@@ -49,15 +49,16 @@ class Row(BaseItem):
         if type(i) is int:
             return self.row[i]
         try:
-            return self.row.__dict__[i]
-        except BaseException:
+            return self.row._asdict().get(i)
+        except BaseException as e:
+            logger.error('Error while accessing dict with key %s: %s', i, e)
             return None
 
     def __repr__(self):
         return str(self.row)
 
     def title(self):
-        if 'title' in self.row.__dict__:
+        if 'title' in self.row._asdict():
             return val(self, 'title')
         return val(self, primary_key_or_first_column(self.table))
 

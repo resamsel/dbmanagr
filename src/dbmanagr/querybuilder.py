@@ -203,7 +203,7 @@ class SimplifyMapper(object):
         self.comment = comment
 
     def map(self, row):
-        d = row.__dict__
+        d = row._asdict()
         for k in [k for k in ['title', 'subtitle'] if k not in d]:
             simplify(self.table, self.comment, k, d)
         return row
