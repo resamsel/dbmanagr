@@ -1,9 +1,11 @@
 # Database Managr
 
-[![Latest PyPI version](http://img.shields.io/pypi/v/dbmanagr.svg?style=flat)](https://pypi.python.org/pypi/dbmanagr)
-[![Number of PyPI downloads](http://img.shields.io/pypi/dm/dbmanagr.svg?style=flat)](https://pypi.python.org/pypi/dbmanagr)
-[![Build Status](https://api.travis-ci.org/resamsel/dbmanagr.svg?branch=master)](https://travis-ci.org/resamsel/dbmanagr)
-[![Coverage Status](https://coveralls.io/repos/resamsel/dbmanagr/badge.svg?branch=master&service=github)](https://coveralls.io/github/resamsel/dbmanagr?branch=master)
+[![Build Status][shield-travis]][travis]
+[![Coverage Status][shield-coveralls]][coveralls]
+[![Latest Version][shield-version]][pypi]
+[![Development Status][shield-status]][pypi]
+[![Supported Python Versions][shield-pyversions]][pypi]
+[![Downloads][shield-download]][pypi]
 
 Allows you to explore, visualise, and export your database recursively. Additionally allows to explore the database using the Powerpack of Alfred 2.0.
 
@@ -125,4 +127,14 @@ Configuration of *content* is described in the [Content Configuration wiki page]
 ## Development
 
 More information can be found on the [Development wiki page](https://github.com/resamsel/dbmanagr/wiki/Development).
+
+[coveralls]: https://coveralls.io/github/resamsel/dbmanagr?branch=master
+[pypi]: https://pypi.python.org/pypi/dbmanagr
+[shield-coveralls]: https://coveralls.io/repos/resamsel/dbmanagr/badge.svg?branch=master&service=github
+[shield-download]: https://img.shields.io/pypi/dm/dbmanagr.svg?style=flat
+[shield-status]: https://img.shields.io/pypi/status/dbmanagr.svg?style=flat
+[shield-travis]: https://api.travis-ci.org/resamsel/dbmanagr.svg?branch=master
+[shield-version]: https://img.shields.io/pypi/v/dbmanagr.svg?style=flat
+[shield-pyversions]: https://img.shields.io/pypi/pyversions/dbmanagr.svg?style=flat
+[travis]: https://travis-ci.org/resamsel/dbmanagr
 
